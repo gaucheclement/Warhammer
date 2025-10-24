@@ -3,6 +3,7 @@
   import { getInitStatus, forceReInitialize } from './lib/initData.js'
   import { initializeDataStores, mergedData, getCustomModificationsCount } from './stores/data.js'
   import { runAllTests } from './lib/__tests__/dataLayer.test.js'
+  import Layout from './layouts/Layout.svelte'
 
   let status = null
   let loading = true
@@ -50,7 +51,8 @@
   }
 </script>
 
-<main>
+<Layout>
+  <div class="content-wrapper">
   <h1>Warhammer Fantasy 4e - Version 2</h1>
 
   {#if loading}

@@ -1,5 +1,7 @@
 import { mount } from 'svelte'
 import './app.css'
+import './styles/layout.css'
+import './styles/responsive.css'
 import App from './App.svelte'
 import { initializeDatabase } from './lib/initData.js'
 
