@@ -105,12 +105,30 @@ const SCHEMAS = {
   },
   characters: {
     required: ['name'],
-    optional: ['species', 'career', 'description', 'characteristics', 'skills', 'talents', 'trappings'],
+    optional: [
+      'species', 'career', 'description', 'characteristics', 'skills', 'talents',
+      'spells', 'trappings', 'experience', 'wounds', 'fate', 'resilience',
+      'notes', 'appearance', 'created', 'updated', 'isDraft'
+    ],
     types: {
       name: 'string',
-      species: 'string',
-      career: 'string',
-      description: 'string'
+      species: 'object',
+      career: 'object',
+      description: 'string',
+      characteristics: 'object',
+      skills: 'array',
+      talents: 'array',
+      spells: 'array',
+      trappings: 'array',
+      experience: 'object',
+      wounds: 'object',
+      fate: 'object',
+      resilience: 'object',
+      notes: 'string',
+      appearance: 'object',
+      created: 'string',
+      updated: 'string',
+      isDraft: 'boolean'
     }
   }
 }
