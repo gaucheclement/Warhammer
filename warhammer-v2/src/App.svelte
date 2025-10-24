@@ -5,6 +5,12 @@
   import Layout from './layouts/Layout.svelte'
   import { routes, afterRouteChange } from './lib/router.js'
   import ToastContainer from './components/ToastContainer.svelte'
+  import OfflineIndicator from './components/OfflineIndicator.svelte'
+  // Stream 3: Update Notification
+  import UpdateNotification from './components/UpdateNotification.svelte'
+
+  // Stream 3: Update Notification component reference
+  let updateNotification
 
   // Initialize data stores on app mount
   onMount(async () => {
@@ -23,7 +29,17 @@
   function handleConditionsFailed(event) {
     console.error('Route conditions failed:', event.detail)
   }
+
+  // Stream 3: Export function for Service Worker to trigger update notification
+  export function showUpdateNotification() {
+    if (updateNotification) {
+      updateNotification.show()
+    }
+  }
 </script>
+
+<!-- Stream 2: Offline Indicator (Issue #18) -->
+<OfflineIndicator />
 
 <Layout>
   <Router
@@ -34,3 +50,6 @@
 </Layout>
 
 <ToastContainer />
+
+<!-- Stream 3: Update Notification (Issue #18) -->
+<UpdateNotification bind:this={updateNotification} />

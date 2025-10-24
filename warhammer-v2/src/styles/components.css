@@ -208,3 +208,29 @@
     border-width: 2px;
   }
 }
+
+/* Offline Indicator Component (Stream 2: Issue #18) */
+/* Note: Primary styles are in OfflineIndicator.svelte (scoped) */
+/* This section reserves space for any global offline-related utilities */
+
+/* Banner positioning utilities */
+.banner-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-toast);
+}
+
+/* Status indicator utilities */
+.status-offline {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.status-online {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
