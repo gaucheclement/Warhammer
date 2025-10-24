@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte'
+  import ThemeToggle from '../components/ThemeToggle.svelte'
 
   export let sidebarOpen = true
 
@@ -48,9 +49,8 @@
   </nav>
 
   <div class="header-right">
-    <!-- Theme toggle will be added by Stream 3 -->
-    <!-- User menu placeholder -->
     <div class="user-actions">
+      <ThemeToggle />
       <button class="icon-button" aria-label="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"></circle>
