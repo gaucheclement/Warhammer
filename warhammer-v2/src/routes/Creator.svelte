@@ -2,40 +2,107 @@
   import { link } from 'svelte-spa-router'
   import { onMount } from 'svelte'
   import { mergedData } from '../stores/data.js'
+  import { createEmptyCharacter } from '../lib/characterModel.js'
+  import { validateCharacterName } from '../lib/characterValidation.js'
+
+  // Import wizard components
+  import WizardProgress from '../components/wizard/WizardProgress.svelte'
+  import WizardNavigation from '../components/wizard/WizardNavigation.svelte'
+  import WizardStep1Details from '../components/wizard/WizardStep1Details.svelte'
+  import WizardStep2Species from '../components/wizard/WizardStep2Species.svelte'
+  import WizardStep3Career from '../components/wizard/WizardStep3Career.svelte'
+  import WizardStep4Characteristics from '../components/wizard/WizardStep4Characteristics.svelte'
+  import WizardStep5Skills from '../components/wizard/WizardStep5Skills.svelte'
+  import WizardStep6Talents from '../components/wizard/WizardStep6Talents.svelte'
+  import WizardStep7Spells from '../components/wizard/WizardStep7Spells.svelte'
+  import WizardStep8Equipment from '../components/wizard/WizardStep8Equipment.svelte'
 
   let currentStep = 1
-  const totalSteps = 7
+  const totalSteps = 8
 
-  let character = {
-    name: '',
-    species: null,
-    class: null,
-    career: null,
-    characteristics: {},
-    skills: [],
-    talents: [],
-    equipment: []
-  }
+  // Initialize character with proper model
+  let character = createEmptyCharacter()
+
+  let validationErrors = []
+  let canProceed = true
 
   const steps = [
-    { id: 1, name: 'Details', description: 'Name and basic info' },
-    { id: 2, name: 'Species', description: 'Choose your species' },
-    { id: 3, name: 'Class', description: 'Choose your class' },
-    { id: 4, name: 'Career', description: 'Choose your career' },
-    { id: 5, name: 'Characteristics', description: 'Roll or assign stats' },
-    { id: 6, name: 'Skills & Talents', description: 'Select skills and talents' },
-    { id: 7, name: 'Review', description: 'Finalize character' }
+    { id: 1, name: 'Details' },
+    { id: 2, name: 'Species' },
+    { id: 3, name: 'Career' },
+    { id: 4, name: 'Characteristics' },
+    { id: 5, name: 'Skills' },
+    { id: 6, name: 'Talents' },
+    { id: 7, name: 'Spells' },
+    { id: 8, name: 'Equipment' }
   ]
 
+  function validateCurrentStep() {
+    validationErrors = []
+    canProceed = true
+
+    switch (currentStep) {
+      case 1: // Details
+        const nameValidation = validateCharacterName(character.name)
+        if (!nameValidation.valid) {
+          validationErrors = nameValidation.errors
+          canProceed = false
+        }
+        break
+      case 2: // Species
+        if (!character.species || !character.species.id) {
+          validationErrors = ['Please select a species']
+          canProceed = false
+        }
+        break
+      case 3: // Career
+        if (!character.career || !character.career.id) {
+          validationErrors = ['Please select a career']
+          canProceed = false
+        }
+        break
+      case 4: // Characteristics
+        // Validation handled by component
+        break
+      default:
+        canProceed = true
+    }
+  }
+
   function nextStep() {
-    if (currentStep < totalSteps) {
+    validateCurrentStep()
+    if (canProceed && currentStep < totalSteps) {
       currentStep++
+      validateCurrentStep()
     }
   }
 
   function prevStep() {
     if (currentStep > 1) {
       currentStep--
+      validateCurrentStep()
+    }
+  }
+
+  function handleValidate(event) {
+    if (event.detail) {
+      canProceed = event.detail.valid
+      validationErrors = event.detail.errors || []
+    }
+  }
+
+  function handleChange(event) {
+    // Character data updated by components
+    validateCurrentStep()
+  }
+
+  function handleSaveDraft() {
+    // Save to localStorage
+    try {
+      localStorage.setItem('characterDraft', JSON.stringify(character))
+      alert('Draft saved successfully!')
+    } catch (e) {
+      alert('Failed to save draft: ' + e.message)
     }
   }
 
@@ -45,9 +112,37 @@
 
   function handleCancel() {
     if (confirm('Are you sure you want to cancel? All progress will be lost.')) {
+      localStorage.removeItem('characterDraft')
       window.location.hash = '#/'
     }
   }
+
+  // Load draft on mount if available
+  onMount(() => {
+    try {
+      const draft = localStorage.getItem('characterDraft')
+      if (draft) {
+        const shouldRestore = confirm('Found an unsaved draft. Would you like to restore it?')
+        if (shouldRestore) {
+          character = JSON.parse(draft)
+        } else {
+          localStorage.removeItem('characterDraft')
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load draft:', e)
+    }
+    validateCurrentStep()
+  })
+
+  // Reactive validation
+  $: if (character) {
+    validateCurrentStep()
+  }
+
+  $: selectedCareer = character.career?.id
+    ? $mergedData.careers?.find(c => c.id === character.career.id)
+    : null
 </script>
 
 <div class="creator-page">
@@ -56,165 +151,93 @@
     <p class="subtitle">Create a new Warhammer Fantasy character</p>
   </header>
 
-  <div class="progress-bar">
-    <div class="progress-fill" style="width: {(currentStep / totalSteps) * 100}%"></div>
-  </div>
-
-  <div class="step-indicators">
-    {#each steps as step}
-      <div
-        class="step-indicator"
-        class:active={step.id === currentStep}
-        class:completed={step.id < currentStep}
-      >
-        <div class="step-number">{step.id}</div>
-        <div class="step-info">
-          <div class="step-name">{step.name}</div>
-          <div class="step-description">{step.description}</div>
-        </div>
-      </div>
-    {/each}
-  </div>
+  <WizardProgress
+    {currentStep}
+    {totalSteps}
+    {steps}
+  />
 
   <div class="creator-content">
     {#if currentStep === 1}
-      <div class="step-content">
-        <h2>Character Details</h2>
-        <div class="form-group">
-          <label for="char-name">Character Name</label>
-          <input
-            id="char-name"
-            type="text"
-            bind:value={character.name}
-            placeholder="Enter character name"
-            class="form-input"
-          />
-        </div>
-        <p class="help-text">
-          Choose a name that fits the grim and perilous world of Warhammer Fantasy.
-        </p>
-      </div>
+      <WizardStep1Details
+        bind:character
+        existingCharacters={[]}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {:else if currentStep === 2}
-      <div class="step-content">
-        <h2>Choose Species</h2>
-        <div class="options-grid">
-          {#each $mergedData.species || [] as species}
-            <div
-              class="option-card"
-              class:selected={character.species?.id === species.id}
-              on:click={() => character.species = species}
-              on:keydown={(e) => e.key === 'Enter' && (character.species = species)}
-              tabindex="0"
-              role="button"
-            >
-              <h3>{species.name}</h3>
-              {#if species.description}
-                <p>{species.description.substring(0, 100)}...</p>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
+      <WizardStep2Species
+        bind:character
+        species={$mergedData.species || []}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {:else if currentStep === 3}
-      <div class="step-content">
-        <h2>Choose Class</h2>
-        <div class="options-grid">
-          {#each ['Academic', 'Burgher', 'Courtier', 'Peasant', 'Ranger', 'Riverfolk', 'Rogue', 'Warrior'] as className}
-            <div
-              class="option-card"
-              class:selected={character.class === className}
-              on:click={() => character.class = className}
-              on:keydown={(e) => e.key === 'Enter' && (character.class = className)}
-              tabindex="0"
-              role="button"
-            >
-              <h3>{className}</h3>
-            </div>
-          {/each}
-        </div>
-      </div>
+      <WizardStep3Career
+        bind:character
+        careers={$mergedData.careers || []}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {:else if currentStep === 4}
-      <div class="step-content">
-        <h2>Choose Career</h2>
-        <div class="options-grid">
-          {#each ($mergedData.careers || []).filter(c => !character.class || c.class === character.class) as career}
-            <div
-              class="option-card"
-              class:selected={character.career?.id === career.id}
-              on:click={() => character.career = career}
-              on:keydown={(e) => e.key === 'Enter' && (character.career = career)}
-              tabindex="0"
-              role="button"
-            >
-              <h3>{career.name}</h3>
-              <p class="career-class">{career.class}</p>
-            </div>
-          {/each}
-        </div>
-      </div>
+      <WizardStep4Characteristics
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {:else if currentStep === 5}
-      <div class="step-content">
-        <h2>Characteristics</h2>
-        <p class="help-text">
-          Roll for characteristics or use point-buy system.
-        </p>
-        <div class="characteristics-placeholder">
-          <p>Characteristics generation will be implemented in future tasks.</p>
-        </div>
-      </div>
+      <WizardStep5Skills
+        bind:character
+        skills={$mergedData.skills || []}
+        career={selectedCareer}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {:else if currentStep === 6}
-      <div class="step-content">
-        <h2>Skills & Talents</h2>
-        <p class="help-text">
-          Select your starting skills and talents based on your career.
-        </p>
-        <div class="skills-placeholder">
-          <p>Skills and talents selection will be implemented in future tasks.</p>
-        </div>
-      </div>
+      <WizardStep6Talents
+        bind:character
+        talents={$mergedData.talents || []}
+        career={selectedCareer}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {:else if currentStep === 7}
-      <div class="step-content">
-        <h2>Review Character</h2>
-        <div class="review-section">
-          <div class="review-item">
-            <span class="review-label">Name:</span>
-            <span class="review-value">{character.name || 'Not set'}</span>
-          </div>
-          <div class="review-item">
-            <span class="review-label">Species:</span>
-            <span class="review-value">{character.species?.name || 'Not selected'}</span>
-          </div>
-          <div class="review-item">
-            <span class="review-label">Class:</span>
-            <span class="review-value">{character.class || 'Not selected'}</span>
-          </div>
-          <div class="review-item">
-            <span class="review-label">Career:</span>
-            <span class="review-value">{character.career?.name || 'Not selected'}</span>
-          </div>
-        </div>
-      </div>
+      <WizardStep7Spells
+        bind:character
+        spells={$mergedData.spells || []}
+        career={selectedCareer}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 8}
+      <WizardStep8Equipment
+        bind:character
+        trappings={$mergedData.trappings || []}
+        career={selectedCareer}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
     {/if}
   </div>
 
-  <div class="creator-actions">
-    <button class="btn btn-secondary" on:click={handleCancel}>Cancel</button>
-    <div class="navigation-buttons">
-      {#if currentStep > 1}
-        <button class="btn btn-secondary" on:click={prevStep}>Previous</button>
-      {/if}
-      {#if currentStep < totalSteps}
-        <button class="btn btn-primary" on:click={nextStep}>Next</button>
-      {:else}
-        <button class="btn btn-primary" on:click={handleSave}>Save Character</button>
-      {/if}
-    </div>
-  </div>
+  <WizardNavigation
+    {currentStep}
+    {totalSteps}
+    {canProceed}
+    {validationErrors}
+    isFirstStep={currentStep === 1}
+    isLastStep={currentStep === totalSteps}
+    on:back={prevStep}
+    on:next={nextStep}
+    on:saveDraft={handleSaveDraft}
+    on:cancel={handleCancel}
+    on:validate={validateCurrentStep}
+  />
 </div>
 
 <style>
   .creator-page {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
   }
@@ -236,246 +259,12 @@
     margin: 0;
   }
 
-  .progress-bar {
-    height: 8px;
-    background: var(--color-bg-secondary, #f5f5f5);
-    border-radius: 4px;
-    margin-bottom: 2rem;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: var(--color-accent, #8b2e1f);
-    transition: width 0.3s ease;
-  }
-
-  .step-indicators {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .step-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--color-bg-secondary, #f5f5f5);
-    border-radius: 8px;
-    opacity: 0.5;
-    transition: all 0.2s;
-  }
-
-  .step-indicator.active {
-    opacity: 1;
-    background: var(--color-accent, #8b2e1f);
-    color: white;
-  }
-
-  .step-indicator.completed {
-    opacity: 0.8;
-  }
-
-  .step-number {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-bg-primary, white);
-    color: var(--color-text-primary, #333);
-    border-radius: 50%;
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-
-  .step-indicator.active .step-number {
-    background: white;
-    color: var(--color-accent, #8b2e1f);
-  }
-
-  .step-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .step-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .step-description {
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
   .creator-content {
     background: var(--color-bg-secondary, #f5f5f5);
     padding: 2rem;
     border-radius: 8px;
-    min-height: 400px;
+    min-height: 500px;
     margin-bottom: 2rem;
-  }
-
-  .step-content h2 {
-    margin: 0 0 1.5rem 0;
-    color: var(--color-text-primary, #333);
-    font-family: var(--font-heading, serif);
-  }
-
-  .help-text {
-    color: var(--color-text-secondary, #666);
-    margin-bottom: 1.5rem;
-    font-size: 0.95rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #333);
-  }
-
-  .form-input {
-    width: 100%;
-    max-width: 400px;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 2px solid var(--color-border, #ddd);
-    border-radius: 6px;
-    background: var(--color-bg-primary, white);
-    color: var(--color-text-primary, #333);
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: var(--color-accent, #8b2e1f);
-  }
-
-  .options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .option-card {
-    padding: 1.5rem;
-    background: var(--color-bg-primary, white);
-    border: 2px solid var(--color-border, #ddd);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .option-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .option-card.selected {
-    border-color: var(--color-accent, #8b2e1f);
-    background: var(--color-accent-light, #fef5f4);
-  }
-
-  .option-card h3 {
-    margin: 0 0 0.5rem 0;
-    color: var(--color-text-primary, #333);
-    font-size: 1.1rem;
-  }
-
-  .option-card p {
-    margin: 0;
-    color: var(--color-text-secondary, #666);
-    font-size: 0.85rem;
-    line-height: 1.4;
-  }
-
-  .career-class {
-    color: var(--color-accent, #8b2e1f);
-    font-weight: 600;
-  }
-
-  .characteristics-placeholder,
-  .skills-placeholder {
-    padding: 2rem;
-    text-align: center;
-    background: var(--color-bg-primary, white);
-    border-radius: 8px;
-    border: 2px dashed var(--color-border, #ddd);
-    color: var(--color-text-secondary, #999);
-  }
-
-  .review-section {
-    background: var(--color-bg-primary, white);
-    padding: 2rem;
-    border-radius: 8px;
-  }
-
-  .review-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--color-border, #ddd);
-  }
-
-  .review-item:last-child {
-    border-bottom: none;
-  }
-
-  .review-label {
-    font-weight: 600;
-    color: var(--color-text-secondary, #666);
-  }
-
-  .review-value {
-    color: var(--color-text-primary, #333);
-  }
-
-  .creator-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .navigation-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-primary {
-    background: var(--color-accent, #8b2e1f);
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: var(--color-accent-hover, #a63728);
-  }
-
-  .btn-secondary {
-    background: var(--color-bg-secondary, #f5f5f5);
-    color: var(--color-text-primary, #333);
-    border: 1px solid var(--color-border, #ddd);
-  }
-
-  .btn-secondary:hover {
-    background: var(--color-bg-tertiary, #e5e5e5);
   }
 
   @media (max-width: 768px) {
@@ -487,37 +276,8 @@
       font-size: 1.5rem;
     }
 
-    .step-indicators {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-    }
-
-    .step-indicator {
-      padding: 0.5rem;
-    }
-
-    .step-description {
-      display: none;
-    }
-
     .creator-content {
       padding: 1rem;
-    }
-
-    .options-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .creator-actions {
-      flex-direction: column;
-    }
-
-    .navigation-buttons {
-      width: 100%;
-    }
-
-    .navigation-buttons .btn {
-      flex: 1;
     }
   }
 </style>
