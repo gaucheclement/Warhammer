@@ -1,13 +1,18 @@
 <script>
   import { onMount } from 'svelte'
   import { getInitStatus, forceReInitialize } from './lib/initData.js'
+  import { initializeDataStores, mergedData, getCustomModificationsCount } from './stores/data.js'
+  import { runAllTests } from './lib/__tests__/dataLayer.test.js'
 
   let status = null
   let loading = true
   let reInitializing = false
+  let dataStoresInitialized = false
+  let customModsCount = 0
 
   onMount(async () => {
     await loadStatus()
+    await initStores()
   })
 
   async function loadStatus() {
@@ -16,14 +21,32 @@
     loading = false
   }
 
+  async function initStores() {
+    try {
+      await initializeDataStores()
+      dataStoresInitialized = true
+      customModsCount = getCustomModificationsCount()
+      console.log('Data stores initialized successfully')
+    } catch (error) {
+      console.error('Failed to initialize data stores:', error)
+    }
+  }
+
   async function handleReInitialize() {
     if (confirm('This will clear and reload all data. Continue?')) {
       reInitializing = true
       const result = await forceReInitialize()
       reInitializing = false
       await loadStatus()
+      await initStores()
       alert(result.success ? 'Re-initialization successful!' : `Error: ${result.error}`)
     }
+  }
+
+  function handleRunTests() {
+    console.log('Running data layer tests...')
+    const success = runAllTests()
+    alert(success ? 'All tests passed! Check console for details.' : 'Some tests failed. Check console for details.')
   }
 </script>
 
@@ -69,13 +92,25 @@
         <button on:click={handleReInitialize} disabled={reInitializing} class="danger">
           {reInitializing ? 'Re-initializing...' : 'Re-initialize Data'}
         </button>
+        <button on:click={handleRunTests} disabled={!dataStoresInitialized} class="test">
+          Run Data Layer Tests
+        </button>
       </div>
+
+      {#if dataStoresInitialized}
+        <div class="stores-info">
+          <h3>Data Stores</h3>
+          <p><strong>Status:</strong> <span class="success">Initialized</span></p>
+          <p><strong>Custom Modifications:</strong> {customModsCount}</p>
+        </div>
+      {/if}
     </div>
   {/if}
 
   <div class="info">
     <p>This is the foundational build of the Warhammer Fantasy 4e application.</p>
     <p>The application uses a single HTML file with embedded data and IndexedDB for storage.</p>
+    <p><strong>Task #3:</strong> Data Layer & State Management implemented with Svelte stores, search engine, and CRUD operations.</p>
   </div>
 </main>
 
@@ -191,6 +226,24 @@
 
   button.danger:hover:not(:disabled) {
     background: #c82333;
+  }
+
+  button.test {
+    background: #28a745;
+  }
+
+  button.test:hover:not(:disabled) {
+    background: #218838;
+  }
+
+  .stores-info {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .stores-info p {
+    margin: 0.5rem 0;
   }
 
   .info {
