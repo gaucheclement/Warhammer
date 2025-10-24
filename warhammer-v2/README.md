@@ -1,43 +1,252 @@
-# Svelte + Vite
+# Warhammer Fantasy Roleplay 4e - Version 2
 
-This template should help get you started developing with Svelte in Vite.
+A modern, offline-first Progressive Web Application for Warhammer Fantasy Roleplay 4th edition. Built with Svelte and Vite, this application compiles to a single HTML file with all data embedded, providing a fully functional offline experience.
 
-## Recommended IDE Setup
+## Features
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+- **Single-File Architecture**: Everything bundled into one HTML file (~1.8MB, ~445KB gzipped)
+- **Offline-First**: Works completely offline using IndexedDB for data storage
+- **Modern Stack**: Built with Svelte 5 and Vite 7
+- **Fast Performance**: Optimized build with aggressive minification
+- **23 Data Entities**: Complete game data including careers, species, talents, spells, and more
 
-## Need an official Svelte framework?
+## Quick Start
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+### Prerequisites
 
-## Technical considerations
+- Node.js 18+
+- npm or pnpm
 
-**Why use this over SvelteKit?**
+### Installation
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```bash
+# Install dependencies
+npm install
 ```
+
+### Development
+
+```bash
+# Start dev server with hot module replacement
+npm run dev
+```
+
+The dev server will start at http://localhost:5173
+
+### Production Build
+
+```bash
+# Build single-file production bundle
+npm run build
+```
+
+This creates `dist/index.html` - a completely self-contained application.
+
+### Preview Production Build
+
+```bash
+# Preview the production build locally
+npm run preview
+```
+
+## Project Structure
+
+```
+warhammer-v2/
+├── src/
+│   ├── lib/
+│   │   ├── db.js           # IndexedDB schema (Dexie.js)
+│   │   └── initData.js     # Data initialization logic
+│   ├── App.svelte          # Root component
+│   ├── main.js             # Application entry point
+│   └── app.css             # Global styles
+├── vite.config.js          # Vite configuration
+├── package.json            # Dependencies and scripts
+└── dist/                   # Production build output
+    └── index.html          # Single-file bundle
+```
+
+## How It Works
+
+### Data Embedding
+
+1. **Source Data**: Game data is stored in `../data/all-data.json` (1.6MB)
+2. **Build Time**: Vite plugin embeds data as `window.__WARHAMMER_DATA__`
+3. **Runtime**: Data is loaded from window object into IndexedDB on first run
+4. **Storage**: IndexedDB provides fast querying and persistence
+
+### IndexedDB Schema
+
+The application uses 24 tables (23 game data + 1 user data):
+
+**Game Data Tables:**
+- books, careers, careerLevels, species, classes
+- talents, characteristics, trappings, skills, spells
+- creatures, stars, gods, eyes, hairs, details
+- traits, lores, magicks, etats, psychologies
+- qualities, trees
+
+**User Data Tables:**
+- characters (user-created characters)
+- settings (application preferences)
+
+### Build Configuration
+
+The build process uses several Vite plugins:
+
+- **vite-plugin-singlefile**: Inlines all CSS/JS into single HTML
+- **vite-plugin-html**: HTML minification
+- **Custom embed-data plugin**: Embeds JSON data as JavaScript constant
+
+Build settings:
+- Target: ES2020
+- All assets inlined (no separate files)
+- Dynamic imports inlined
+- Aggressive minification enabled
+
+## Data Management
+
+### Extract Data from Google Sheets
+
+```bash
+npm run extract <WEBAPP_URL>
+```
+
+This runs the `../extract-data.js` script to fetch fresh data from Google Sheets and update the `../data/` directory.
+
+### Database Initialization
+
+The database is initialized automatically on first app load:
+
+1. Checks localStorage for initialization flag
+2. If not initialized, loads data from `window.__WARHAMMER_DATA__`
+3. Bulk inserts data into IndexedDB tables
+4. Sets initialization flag to prevent duplicate loads
+
+### Force Re-initialization
+
+If you need to reload data:
+
+1. Open the app in browser
+2. Use the "Re-initialize Data" button in the UI
+3. Or manually clear localStorage key: `warhammer_data_initialized`
+
+## Development Guidelines
+
+### Code Style
+
+- Follow existing patterns in the codebase
+- Use async/await for database operations
+- Keep components small and focused
+- Comment complex logic
+
+### Testing
+
+Before committing changes:
+
+```bash
+# Test dev server
+npm run dev
+
+# Test production build
+npm run build
+npm run preview
+```
+
+Verify:
+- No console errors
+- Database initializes correctly
+- All data loads properly
+- UI renders as expected
+
+## Build Output
+
+Production build statistics:
+
+- **Uncompressed**: ~1.8MB (includes all game data)
+- **Gzipped**: ~445KB
+- **Application code** (without data): ~50KB
+- **Embedded data**: ~1.6MB (JSON)
+
+The entire application is contained in a single `index.html` file that can be:
+- Served from any web server
+- Opened directly in browser (file:// protocol)
+- Deployed to GitHub Pages, Netlify, etc.
+- Shared as a single file
+
+## Dependencies
+
+### Runtime Dependencies
+- **dexie**: ^4.2.1 - IndexedDB wrapper (~20KB)
+
+### Dev Dependencies
+- **@sveltejs/vite-plugin-svelte**: ^6.2.1
+- **svelte**: ^5.39.6
+- **vite**: ^7.1.7
+- **vite-plugin-html**: ^3.2.2
+- **vite-plugin-singlefile**: ^2.3.0
+
+Total bundle size (minified + gzipped): ~445KB
+
+## Browser Support
+
+Modern browsers with ES2020+ support:
+- Chrome 80+
+- Firefox 74+
+- Safari 13.1+
+- Edge 80+
+
+IndexedDB support required (all modern browsers).
+
+## Architecture Decisions
+
+### Why Svelte?
+- Compiles to vanilla JS (no runtime overhead)
+- Smallest bundle size among modern frameworks
+- Excellent developer experience
+- Built-in reactive state management
+
+### Why Single-File?
+- Simplifies deployment (drag-and-drop anywhere)
+- Works offline without complex setup
+- Eliminates CORS issues
+- No server configuration needed
+
+### Why IndexedDB?
+- Fast querying of large datasets
+- Persistent storage (survives page reloads)
+- Supports complex queries and indexes
+- Works offline
+
+## Next Steps
+
+This is the foundational build. Future tasks will add:
+
+1. **Data browsing UI**: Tables, filters, search
+2. **Character creator**: Multi-step character generation
+3. **Character sheets**: Full character display and management
+4. **Custom content**: User modifications and additions
+5. **Admin mode**: Data editing and contribution review
+6. **Service Worker**: Offline caching and updates
+
+## Contributing
+
+This is a personal project, but contributions are welcome! Please:
+
+1. Follow the existing code style
+2. Test thoroughly before committing
+3. Update documentation for new features
+4. Use clear, descriptive commit messages
+
+## License
+
+This project is for personal use. Warhammer Fantasy Roleplay is copyright Games Workshop.
+
+## Version History
+
+### v2.0.0 (2025-10-24)
+- Initial foundation: Vite + Svelte + IndexedDB
+- Single-file build system
+- Data embedding and initialization
+- 23 entity types supported
+- Development and production builds working
