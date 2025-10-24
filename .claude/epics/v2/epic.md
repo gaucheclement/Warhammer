@@ -1,11 +1,11 @@
 ---
 name: v2
-status: backlog
+status: in-progress
 created: 2025-10-24T13:32:14Z
-progress: 0%
+progress: 63%
 prd: .claude/prds/v2.md
 github: https://github.com/gaucheclement/Warhammer/issues/1
-updated: 2025-10-24T14:07:18Z
+updated: 2025-10-24T17:36:30Z
 ---
 
 # Epic: Warhammer Fantasy 4e - Version 2
@@ -389,21 +389,15 @@ High-level implementation tasks (8-10 total):
 - Community help for testing/feedback
 
 ## Tasks Created
+- [ ] #10 - Character Creation & Management (parallel: true)
+- [ ] #12 - Project Foundation & Build Setup (parallel: false)
+- [ ] #13 - Custom Content & Modifications (parallel: true)
+- [ ] #15 - Data Layer & State Management (parallel: false)
+- [ ] #16 - Admin Mode (parallel: true)
+- [ ] #17 - Core UI Components & Layout (parallel: false)
+- [ ] #18 - Offline Support & Service Worker (parallel: true)
+- [ ] #19 - Testing, Optimization & Documentation (parallel: false)
 
-- [ ] #2 - Project Foundation & Build Setup (parallel: false, depends on: none)
-- [ ] #3 - Data Layer & State Management (parallel: false, depends on: #2)
-- [ ] #4 - Core UI Components & Layout (parallel: false, depends on: #2, #3)
-- [ ] #5 - Character Creation & Management (parallel: true, depends on: #3, #4, conflicts: #6)
-- [ ] #6 - Custom Content & Modifications (parallel: true, depends on: #3, #4, conflicts: #5)
-- [ ] #7 - Admin Mode (parallel: true, depends on: #4, #6)
-- [ ] #8 - Offline Support & Service Worker (parallel: true, depends on: #2, #4)
-- [ ] #9 - Testing, Optimization & Documentation (parallel: false, depends on: #2-#8)
-
-**Total tasks:** 8
-**Parallel tasks:** 4 (tasks #5, #6, #7, #8 can run concurrently)
-**Sequential tasks:** 4 (tasks #2, #3, #4, #9 must run in order)
-**Estimated total effort:** 136-160 hours
-
-**Critical Path:**
-#2 → #3 → #4 → {#5, #6, #7, #8} → #9
-(Sequential foundation → Parallel feature development → Final integration)
+Total tasks: 8
+Parallel tasks: 4
+Sequential tasks: 4
