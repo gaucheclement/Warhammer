@@ -14,6 +14,8 @@
   import AdvancementBlock from '../components/character/AdvancementBlock.svelte'
   import LoadingSpinner from '../components/LoadingSpinner.svelte'
   import Modal from '../components/Modal.svelte'
+  import AdvancementDialog from '../components/character/AdvancementDialog.svelte'
+  import { advanceCharacteristic, advanceSkill, purchaseTalent, advanceCareerLevel } from '../lib/characterAdvancement.js'
 
   export let params = {}
 
@@ -27,6 +29,7 @@
   let duplicateName = ''
   let saving = false
   let error = null
+  let showAdvancementDialog = false
 
   $: characterId = params.id ? parseInt(params.id) : null
 
@@ -164,6 +167,43 @@
   function printCharacter() {
     window.print()
   }
+
+  async function handleAdvancement(event) {
+    const { type, data } = event.detail
+
+    // Apply advancement based on type
+    let result
+    switch (type) {
+      case 'characteristic':
+        result = advanceCharacteristic(character, data.characteristic)
+        break
+      case 'skill':
+        result = advanceSkill(character, data.skillId, data.isAdvanced)
+        break
+      case 'talent':
+        result = purchaseTalent(character, data.talent)
+        break
+      case 'career':
+        result = advanceCareerLevel(character)
+        break
+      default:
+        console.error('Unknown advancement type:', type)
+        return
+    }
+
+    if (result.success) {
+      // Save to database
+      const saveResult = await updateCharacter(characterId, result.character)
+      if (saveResult.success) {
+        character = saveResult.data
+        editableCharacter = JSON.parse(JSON.stringify(character))
+      } else {
+        error = saveResult.error || 'Failed to save advancement'
+      }
+    } else {
+      error = result.error || 'Advancement failed'
+    }
+  }
 </script>
 
 <div class="character-sheet-page">
@@ -197,7 +237,10 @@
             <button class="btn btn-secondary" on:click={enterEditMode}>
               Edit
             </button>
-            <button class="btn btn-secondary" on:click={exportCharacter}>
+            <button class="btn btn-secondary" on:click={() => showAdvancementDialog = true}>
+              Advancement
+            </button>
+            <button class="btn btn-secondary" on:click={exportCharacter}
               Export JSON
             </button>
             <button class="btn btn-secondary" on:click={openDuplicateModal}>
@@ -275,6 +318,16 @@
     </div>
   {/if}
 </div>
+
+<!-- Advancement Dialog -->
+{#if showAdvancementDialog && character}
+  <AdvancementDialog
+    bind:isOpen={showAdvancementDialog}
+    {character}
+    on:advance={handleAdvancement}
+    on:close={() => showAdvancementDialog = false}
+  />
+{/if}
 
 <!-- Delete Confirmation Modal -->
 {#if showDeleteModal}
