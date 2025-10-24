@@ -12,6 +12,10 @@
   import { duplicateCharacter, deleteCharacter } from '../lib/dataOperations.js'
   import { toasts } from '../lib/toastStore.js'
   import { getIcon } from '../lib/icons.js'
+  import { exportAndDownloadCharacter, exportAndDownloadAllCharacters } from '../lib/characterExport.js'
+  import { generateRandomCharacter } from '../lib/characterGenerator.js'
+  import { createCharacter } from '../lib/dataOperations.js'
+  import ImportCharacter from '../components/character/ImportCharacter.svelte'
   import CharacterCard from '../components/character/CharacterCard.svelte'
   import CharacterTableRow from '../components/character/CharacterTableRow.svelte'
   import CharacterFilters from '../components/character/CharacterFilters.svelte'
@@ -46,6 +50,7 @@
   // Character to delete (for confirmation)
   let characterToDelete = null
   let showDeleteConfirm = false
+  let showImportDialog = false
 
   // Load view mode from localStorage
   onMount(() => {
@@ -290,6 +295,35 @@
         <p class="description">Manage your Warhammer characters</p>
       </div>
       <div class="header-actions">
+        <button
+          type="button"
+          on:click={() => showImportDialog = true}
+          class="btn btn-secondary"
+        >
+          {@html getIcon('upload', 'icon-svg', 20)}
+          <span>Import</span>
+        </button>
+
+        <button
+          type="button"
+          on:click={handleQuickRandom}
+          class="btn btn-secondary"
+        >
+          {@html getIcon('dice', 'icon-svg', 20)}
+          <span>Quick Random</span>
+        </button>
+
+        {#if $characters.length > 0}
+          <button
+            type="button"
+            on:click={handleExportAll}
+            class="btn btn-secondary"
+          >
+            {@html getIcon('download', 'icon-svg', 20)}
+            <span>Export All</span>
+          </button>
+        {/if}
+
         <a href="#/creator" use:link class="btn btn-primary">
           {@html getIcon('plus', 'icon-svg', 20)}
           <span>Create Character</span>
@@ -467,6 +501,15 @@
     </div>
   {/if}
 </div>
+
+<!-- Import Character Dialog -->
+<ImportCharacter
+  bind:isOpen={showImportDialog}
+  existingCharacters={$characters}
+  on:import={handleImportSuccess}
+  on:error={handleImportError}
+  on:close={() => showImportDialog = false}
+/>
 
 <!-- Delete Confirmation Modal -->
 {#if showDeleteConfirm && characterToDelete}
