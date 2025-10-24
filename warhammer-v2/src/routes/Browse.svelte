@@ -1,8 +1,14 @@
 <script>
   import { link } from 'svelte-spa-router'
   import { onMount } from 'svelte'
-  import { mergedData } from '../stores/data.js'
-  import { searchIndex, search as performSearch } from '../lib/search.js'
+  import { mergedData, modifyEntity } from '../stores/data.js'
+  import { search, searchAll } from "../lib/search.js"
+  import { editModeEnabled, currentlyEditing, startEditing } from '../stores/editMode.js'
+  import { getIcon } from '../lib/icons.js'
+  import Badge from '../components/Badge.svelte'
+  import { getBadgeType } from '../lib/badgeUtils.js'
+  import EditMode from '../components/EditMode.svelte'
+  import EntityEditor from '../components/EntityEditor.svelte'
 
   export let params = {}
 
@@ -75,14 +81,13 @@
       return
     }
 
-    const results = performSearch(searchQuery, {
-      category: category === 'all' ? null : category,
+    const data = $mergedData
+    const results = search(category, data[category] || [], searchQuery, {
       limit: 100
     })
 
-    // Map search results back to full items
-    const resultIds = new Set(results.map(r => r.id))
-    filteredItems = items.filter(item => resultIds.has(item.id))
+    // Extract items from Fuse.js results (Fuse returns {item, score, matches})
+    filteredItems = results.map(r => r.item)
   }
 
   function getCategoryIcon(cat) {
@@ -94,12 +99,35 @@
     const found = categories.find(c => c.id === cat)
     return found ? found.name : cat
   }
+
+  /**
+   * Handle edit button click
+   */
+  function handleEdit(item, itemCategory) {
+    startEditing(itemCategory, item)
+  }
+
+  /**
+   * Handle save from entity editor
+   */
+  function handleSave(event) {
+    const { entityType, entityId, modifiedFields } = event.detail
+    modifyEntity(entityType, entityId, modifiedFields)
+    console.log('Saved modifications:', entityType, entityId)
+  }
 </script>
 
 <div class="browse-page">
   <header class="page-header">
-    <h1>Browse {getCategoryName(category)}</h1>
-    <p class="description">Explore the Warhammer Fantasy Roleplay database</p>
+    <div class="header-content">
+      <div>
+        <h1>Browse {getCategoryName(category)}</h1>
+        <p class="description">Explore the Warhammer Fantasy Roleplay database</p>
+      </div>
+      <div class="header-actions">
+        <EditMode />
+      </div>
+    </div>
   </header>
 
   <div class="browse-controls">
@@ -161,7 +189,22 @@
       <div class="items-grid">
         {#each filteredItems as item}
           <div class="item-card">
-            <h3 class="item-name">{item.name || item.title || 'Unnamed'}</h3>
+            <div class="item-header">
+              <h3 class="item-name">{item.name || item.title || 'Unnamed'}</h3>
+              <div class="item-badges">
+                <Badge type={getBadgeType(item)} />
+                {#if $editModeEnabled}
+                  <button
+                    class="edit-button"
+                    on:click={() => handleEdit(item, category)}
+                    aria-label="Edit {item.name || 'item'}"
+                    title="Edit this {category.slice(0, -1)}"
+                  >
+                    {@html getIcon('edit', 'icon-svg', 16)}
+                  </button>
+                {/if}
+              </div>
+            </div>
             {#if item.description}
               <p class="item-description">{item.description.substring(0, 150)}{item.description.length > 150 ? '...' : ''}</p>
             {/if}
@@ -179,6 +222,15 @@
   </div>
 </div>
 
+<!-- Entity Editor Modal -->
+{#if $currentlyEditing}
+  <EntityEditor
+    editingData={$currentlyEditing}
+    on:save={handleSave}
+    on:close={() => {}}
+  />
+{/if}
+
 <style>
   .browse-page {
     max-width: 1400px;
@@ -187,8 +239,19 @@
   }
 
   .page-header {
-    text-align: center;
     margin-bottom: 2rem;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .header-content > div:first-child {
+    text-align: center;
+    flex: 1;
   }
 
   .page-header h1 {
@@ -201,6 +264,10 @@
   .description {
     color: var(--color-text-secondary, #666);
     margin: 0;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
   }
 
   .browse-controls {
@@ -353,7 +420,6 @@
     background: var(--color-bg-secondary, #f5f5f5);
     border-radius: 8px;
     transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
   }
 
   .item-card:hover {
@@ -361,10 +427,57 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
+  .item-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
   .item-name {
-    margin: 0 0 0.75rem 0;
+    margin: 0;
     color: var(--color-text-primary, #333);
     font-size: 1.1rem;
+    flex: 1;
+  }
+
+  .item-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .edit-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0.5rem;
+    background-color: var(--color-warning-bg, #fff7e6);
+    border: 1px solid var(--color-warning, #ff9800);
+    border-radius: var(--radius-md, 6px);
+    cursor: pointer;
+    color: var(--color-warning, #ff9800);
+    transition: all 0.15s;
+  }
+
+  .edit-button:hover {
+    background-color: var(--color-warning, #ff9800);
+    color: white;
+    transform: scale(1.1);
+  }
+
+  .edit-button:focus-visible {
+    outline: 2px solid var(--color-border-focus, #0066cc);
+    outline-offset: 2px;
+  }
+
+  .edit-button :global(.icon-svg) {
+    width: 16px;
+    height: 16px;
   }
 
   .item-description {
@@ -372,6 +485,7 @@
     color: var(--color-text-secondary, #666);
     font-size: 0.9rem;
     line-height: 1.5;
+    clear: both;
   }
 
   .item-meta {
@@ -383,6 +497,15 @@
   @media (max-width: 768px) {
     .browse-page {
       padding: 1rem;
+    }
+
+    .header-content {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .header-content > div:first-child {
+      text-align: center;
     }
 
     .page-header h1 {
@@ -399,6 +522,16 @@
 
     .overview-card {
       padding: 1.5rem;
+    }
+
+    .item-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .item-badges {
+      width: 100%;
+      justify-content: flex-start;
     }
   }
 </style>

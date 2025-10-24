@@ -290,3 +290,132 @@ export function getCustomModificationsCount() {
 export function getMergedEntityType(entityType) {
   return derived(mergedData, ($merged) => $merged[entityType] || [])
 }
+
+/**
+ * Modify an existing entity (official or custom)
+ * Adds metadata to track modification status
+ * @param {string} entityType - Type of entity (e.g., 'talents', 'skills')
+ * @param {string|number} entityId - ID of the entity to modify
+ * @param {Object} modifiedFields - Fields that have been modified
+ * @returns {void}
+ */
+export function modifyEntity(entityType, entityId, modifiedFields) {
+  if (!ENTITY_TYPES.includes(entityType)) {
+    console.error(`Invalid entity type: ${entityType}`)
+    return
+  }
+
+  const currentModifications = get(customModifications)
+  const currentTypeData = currentModifications[entityType] || []
+
+  // Find if this entity is already modified
+  const existingIndex = currentTypeData.findIndex(item => item.id === entityId)
+
+  // Get the original entity from official data
+  const official = get(officialData)
+  const originalEntity = official[entityType]?.find(item => item.id === entityId)
+
+  if (!originalEntity) {
+    console.error(`Entity not found: ${entityType} with id ${entityId}`)
+    return
+  }
+
+  // Create the modified entity
+  const modifiedEntity = {
+    ...originalEntity,
+    ...modifiedFields,
+    _meta: {
+      isModified: true,
+      originalId: entityId,
+      modified: new Date().toISOString()
+    }
+  }
+
+  // Update or add the modification
+  const updatedTypeData = [...currentTypeData]
+  if (existingIndex >= 0) {
+    updatedTypeData[existingIndex] = modifiedEntity
+  } else {
+    updatedTypeData.push(modifiedEntity)
+  }
+
+  // Update the store
+  customModifications.update(mods => ({
+    ...mods,
+    [entityType]: updatedTypeData
+  }))
+
+  // Persist to localStorage
+  saveCustomModifications()
+
+  console.log(`Modified ${entityType} entity:`, entityId)
+}
+
+/**
+ * Create a new custom entity
+ * @param {string} entityType - Type of entity (e.g., 'talents', 'skills')
+ * @param {Object} entityData - Data for the new entity
+ * @returns {string} ID of the created entity
+ */
+export function createCustomEntity(entityType, entityData) {
+  if (!ENTITY_TYPES.includes(entityType)) {
+    console.error(`Invalid entity type: ${entityType}`)
+    return null
+  }
+
+  // Generate a unique ID for the custom entity
+  const customId = `custom-${entityType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+  const currentModifications = get(customModifications)
+  const currentTypeData = currentModifications[entityType] || []
+
+  const newEntity = {
+    ...entityData,
+    id: customId,
+    _meta: {
+      isCustom: true,
+      created: new Date().toISOString()
+    }
+  }
+
+  // Add the new entity
+  customModifications.update(mods => ({
+    ...mods,
+    [entityType]: [...currentTypeData, newEntity]
+  }))
+
+  // Persist to localStorage
+  saveCustomModifications()
+
+  console.log(`Created custom ${entityType} entity:`, customId)
+  return customId
+}
+
+/**
+ * Delete a modification (reset to official or remove custom)
+ * @param {string} entityType - Type of entity (e.g., 'talents', 'skills')
+ * @param {string|number} entityId - ID of the entity
+ * @returns {void}
+ */
+export function deleteModification(entityType, entityId) {
+  if (!ENTITY_TYPES.includes(entityType)) {
+    console.error(`Invalid entity type: ${entityType}`)
+    return
+  }
+
+  const currentModifications = get(customModifications)
+  const currentTypeData = currentModifications[entityType] || []
+
+  // Remove the entity from modifications
+  const updatedTypeData = currentTypeData.filter(item => item.id !== entityId)
+
+  customModifications.update(mods => ({
+    ...mods,
+    [entityType]: updatedTypeData
+  }))
+
+  // Persist to localStorage
+  saveCustomModifications()
+
+  console.log(`Removed modification for ${entityType} entity:`, entityId)
+}
