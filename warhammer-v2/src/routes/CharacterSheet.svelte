@@ -265,7 +265,7 @@
       <!-- Character Sheet Content -->
       <div class="sheet-content">
         <CharacterHeader
-          bind:character={isEditMode ? editableCharacter : character}
+          character={isEditMode ? editableCharacter : character}
           {isEditMode}
         />
 

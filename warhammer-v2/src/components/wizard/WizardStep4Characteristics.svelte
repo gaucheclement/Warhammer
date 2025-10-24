@@ -26,12 +26,12 @@
   }
 
   function handleCharacteristicChange() {
-    validateCharacteristics()
+    validateCurrentCharacteristics()
     updateDerivedStats()
     dispatch('change', character)
   }
 
-  function validateCharacteristics() {
+  function validateCurrentCharacteristics() {
     const validation = validateCharacteristics(character.characteristics)
     validationErrors = validation.errors
 
