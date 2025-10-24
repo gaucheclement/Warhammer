@@ -262,7 +262,7 @@ blockquote {
 }
 
 blockquote::before {
-  content: """;
+  content: "\201C";
   position: absolute;
   top: var(--spacing-md);
   left: var(--spacing-md);
@@ -282,7 +282,7 @@ blockquote cite {
 }
 
 blockquote cite::before {
-  content: "— ";
+  content: "- ";
 }
 
 /* ========================================

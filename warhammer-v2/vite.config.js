@@ -43,6 +43,11 @@ export default defineConfig({
     }),
     viteSingleFile()
   ],
+  resolve: {
+    alias: {
+      '$lib': path.resolve(__dirname, './src/lib')
+    }
+  },
   build: {
     target: 'es2020',
     outDir: 'dist',

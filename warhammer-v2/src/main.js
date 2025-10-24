@@ -1,5 +1,8 @@
 import { mount } from 'svelte'
 import './app.css'
+import './styles/theme.css'
+import './styles/global.css'
+import './styles/typography.css'
 import './styles/layout.css'
 import './styles/responsive.css'
 import App from './App.svelte'
