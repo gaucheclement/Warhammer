@@ -1,0 +1,56 @@
+<script>
+    var DataTrait = function (CharGen) {
+        var typeItem = 'trait';
+        var labelItem = 'Trait de créature'
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, false, labelItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.prefix !== 'undefined' && el.prefix) {
+                el.canHaveSpec = true;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+
+                var info;
+                var final = {};
+                info = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.characteristic, ...labels.magick, ...labels.talent, ...labels.lore, ...labels.skill, ...labels.god, ...labels.spell, ...labels.etat, ...labels.magick, ...labels.quality, ...labels.trait, ...labels.psychologie});
+                final['Info'] = info;
+                var trait = DescriptionHelper.listMatchSimple(label, 'Créatures ayant ce trait', match, 'creature');
+                if (trait) {
+                    final['Accès'] = trait;
+                }
+                if (Object.entries(final).length === 1) {
+                    final = final['Info'];
+                }
+
+                return final;
+            }
+            el.getLabelForElem = function () {
+                var suffix = this.suffix ? this.suffix + ' ' : '';
+                var label = this.label;
+                var spec = this.specs.length ? ' (' + this.specs.join(' ou ') + ')' : '';
+                var prefix = this.prefix ? ' ' + this.prefix : '';
+                return suffix + label + prefix + spec;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.addToBook = function (el, match) {
+            DescriptionHelper.addToBook(el, match);
+        }
+        oThat.parseElems = function (el, match) {
+        }
+
+        return oThat;
+    }
+    this.DataTrait = DataTrait;
+</script>

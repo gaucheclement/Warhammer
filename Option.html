@@ -1,0 +1,108 @@
+<script>
+    var Option = function (CharGen) {
+        var oThat = {};
+        oThat.stepName = "Options";
+        oThat.tmpOptions = {};
+        oThat.desc = function () {
+            return ''
+        };
+        oThat.title = function () {
+            return 'Options'
+        };
+        oThat.initAction = function () {
+            if (!CharGen.data) {
+                CharGen.loadData();
+            }
+            oThat.tmpOptions = Helper.clone(CharGen.user.options);
+        };
+
+        oThat.cancelAction = function () {
+            $('.cancel').html('Retour');
+            $('.cancel').off('click').on('click', function () {
+                CharGen.user.options = oThat.tmpOptions;
+                CharGen.showMainMenu();
+            });
+        };
+
+        oThat.updateChecked = function () {
+            CharGen.user.options.book = {};
+            $('.left_panel').find('.option_book:checked').each(function () {
+                if ($(this).val()) {
+                    CharGen.user.options.book[$(this).val()] = 1;
+                }
+            });
+            CharGen.loadData();
+        }
+
+        oThat.validateAction = function () {
+            $('.validate').html('Valider');
+            $('.validate').off('click').on('click', function () {
+                Helper.setStorage(CharGen.user);
+                CharGen.showMainMenu();
+            });
+        };
+
+
+        oThat.show = function () {
+            var con = $('.left_panel').html('');
+            var books = CharGen.data.book.all;
+            var tab = ['Nom', 'Version', 'Activé'];
+            var currentType = '';
+            var displayedBooks = [];
+
+            $(books).each(function (i, el) {
+                if (books[i].folder && currentType !== books[i].folder) {
+                    currentType = books[i].folder;
+                    displayedBooks[displayedBooks.length] = {
+                        label: currentType,
+                        desc: '',
+                        level: 1,
+                        language: '<span class="book_type"></span>'
+                    };
+                }
+                var tmp = Helper.clone(books[i]);
+                tmp.level = 2
+                displayedBooks[displayedBooks.length] = tmp;
+            });
+
+            Helper.generateListWithRankAndHelp(
+                displayedBooks,
+                tab,
+                function (i, el) {
+                    return true
+                },
+                con,
+                [
+                    function (i, el) {
+                        return el.label
+                    },
+                    function (i, el) {
+                        return el.language;
+                    },
+                    function (i, el) {
+                        var checked = typeof el.abr !== 'undefined' && typeof CharGen.user.options.book[el.abr] !== 'undefined' ? 'checked="checked"' : '';
+                        var disabled = el.abr === 'LDB' ? 'disabled="disabled"' : '';
+                        return '<input class="option_book" value="' + el.abr + '" type="checkbox" ' + checked + ' ' + disabled + '/>';
+                    }
+                ],
+                null,
+                function (i, el, elems, total, $this) {
+                    if (typeof el.abr === 'undefined') {
+                        $this.parents('tr').nextUntil('tr:has(.book_type)').find('.option_book:not([disabled])').prop('checked', $this.prop('checked'))
+                    }
+                    oThat.updateChecked();
+                    Helper.addDescription(Helper.getHelpFormat(el, CharGen), CharGen)
+                },
+                function (i, el) {
+                    Helper.addDescription(Helper.getHelpFormat(el, CharGen), CharGen, true)
+                },
+                true,
+                null,
+                false,
+                [70, 20, 10]
+            );
+            con.find('tr:has(.book_type)').children(':first-child').removeClass('ui-widget-content').css('font-weight', 'bold');
+        };
+        return oThat;
+    }
+</script>

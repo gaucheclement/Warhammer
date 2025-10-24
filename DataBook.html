@@ -1,0 +1,49 @@
+<script>
+    var DataBook = function (CharGen) {
+        var typeItem = 'book';
+        var labelItem = 'Livre';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            el.getDescription = function () {
+                var elem = this.getData();
+                var label = this.label;
+                var match = CharGen.match[typeItem][el.abr];
+                var res = {};
+                if (elem.desc) {
+                    res['Info'] = elem.desc;
+                }
+                var types = {
+                    'specie': 'Races',
+                    'career': 'Carrières',
+                    'talent': 'Talents',
+                    'skill': 'Compétences',
+                    'spell': 'Sorts',
+                    'trapping': 'Possessions',
+                }
+                for (let [type, string] of Object.entries(types)) {
+                    var e = DescriptionHelper.listMatchSimple(label, '', match, type);
+                    if (e) {
+                        res[string] = e;
+                    }
+                }
+                return Object.entries(res).length ? res : '';
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.paragraph('Langue', EditHelper.inputSelect(this.language, ['VO', 'VF'], '', '', '', 'language'))
+                html += EditHelper.paragraph('Dossier parent', EditHelper.inputText(this.folder, 'folder', '', true), true)
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+
+        }
+        oThat.parseElems = function (el, match) {
+        }
+
+        return oThat;
+    }
+    this.DataBook = DataBook;
+</script>

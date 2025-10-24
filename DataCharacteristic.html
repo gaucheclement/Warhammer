@@ -1,0 +1,43 @@
+<script>
+    var DataCharacteristic = function (CharGen) {
+        var typeItem = 'characteristic';
+        var labelItem = 'Caractéristique';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, false, labelItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.type !== 'undefined' && el.type !== 'roll') {
+                el.labelItem = 'Point de';
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+                var res = {};
+                if (elem.desc) {
+                    res['Info'] = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.skill});
+                }
+                var traits = '';
+                traits += DescriptionHelper.listMatchSimple(label, 'Compétences liées à cette caractéristique', match, 'skill');
+                traits += DescriptionHelper.listMatchCareerLevel(label, 'Carrières donnant accès à cette caractéristique', match);
+                if (traits !== '') {
+                    res['Accès'] = traits;
+                }
+                return  res;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+        }
+
+        return oThat;
+    }
+    this.DataCharacteristic = DataCharacteristic;
+</script>

@@ -1,0 +1,368 @@
+<script>
+    var StepExperience = function (i, CharGen, type) {
+        var oThat = {};
+        var character;
+        var tab;
+        oThat.stepName = "Progression";
+        oThat.type = type;
+        oThat.desc = function (i) {
+            return 'Les Points d\'Expérience (PX) sont utilisés pour améliorer votre Personnage. Le MJ vous accordera des PX lorques vous réalisez quelque chose pendant la partie. Cela pourrait inclure le fait de résoudre l\'aventure en cours avec succès, une bonne interprétation de votre Personnage, la défaite de vos ennemis, etc. Entre les aventures, vous dépensez vos PX pour acheter de nouvelles Compétences et de nouveaux Talents, pour augmenter vos Caractéristiques et pour changer de Carrière. La dernière étape de la création de votre Personnage consiste à dépenser les bonus de PX que vous avez potentiellement gagnés pendant le processus de création. Les tableaux ci-dessous vous indiquent comment dépenser vos Points.<br>Dans un premier temps, vous pouvez seulement dépenser vos PX pour augmenter les 3 Caractéristiques, 8 Compétences et 4 Talents disponibles dans votre niveau de Carrière.'
+        };
+        oThat.title = function () {
+            return 'Progression'
+        };
+        oThat.mode = function () {
+            if (oThat.characterOnCreation()) {
+                return 'one_side';
+            }
+            return 'two_side';
+        };
+        oThat.refreshData = function () {
+            character.applyTalent();
+            if (!character.getCareerLevel() || !character.getCareerLevel().getCharacteristics) {
+                tab = {'skill': [], 'characteristic': [], 'talent': []};
+                return;
+            }
+            var caracs = character.getCareerLevel().getCharacteristics();
+            var skills = character.getCareerLevel().getSkills();
+            var talents = character.getCareerLevel().getTalents();
+            tab = {'skill': skills || [], 'characteristic': caracs || [], 'talent': talents || []};
+            if (!oThat.characterOnCreation()) {
+                tab['otherSkill'] = character.getAllSkills() ? character.getAllSkills().filter(function (el) {
+                    return el.data.type === 'base' && !el.hasOrigin(character.getCareerLevel().id) && !el.hasOrigin('talent')
+                }) : [];
+                tab['otherCharacteristic'] = character.getCharacteristics() ? character.getCharacteristics().filter(function (el) {
+                    return !el.hasOrigin(character.getCareerLevel().id)
+                }) : [];
+            }
+        };
+        oThat.refreshAll = function () {
+            oThat.refreshData();
+            oThat.show();
+        };
+        oThat.initAction = function () {
+            character = CharGen.character.clone();
+            oThat.refreshData();
+        };
+        oThat.cancelAction = true;
+        oThat.validateAction = true;
+
+
+        oThat.characterOnCreation = function () {
+            return oThat.type === 'creation';
+        }
+
+        oThat.resetAction = function () {
+        };
+        oThat.saveAction = function () {
+            if (oThat.characterOnCreation()) {
+                CharGen.saveCharacter(character);
+            } else {
+                character.saveAdvance();
+            }
+
+            return true;
+        };
+        oThat.showSpecialisationPopin = function (elem, change) {
+            Helper.showSpecialisationPopin(character, elem, change, null, true);
+        };
+        oThat.refreshXP = function () {
+            var used = 0;
+            var currentExperience = character.xp.max - character.xp.used;
+            var base = $('.body_panel')
+            for (let [type, elems] of Object.entries(tab)) {
+                $(elems).each(function (i, elem) {
+                    var el = base.find('.experience_div[data-type="' + type + '"] [data-line="' + i + '"] .number');
+                    var parent = el.parents('td');
+                    var val = elem.getAdvance();
+                    if (typeof elem.getMax !== 'undefined') {
+                        var max = elem.getMax();
+                        if (max && val > max) {
+                            elem.tmpadvance -= (val - max);
+                            el.val(elem.getAdvance() + (max ? '/' + max : ''));
+                            val = elem.getAdvance();
+                        }
+                    }
+                    var oldValue = elem.getAdvance() - elem.tmpadvance;
+                    used += Helper.getXPCost(elem, oldValue, val) * (type.startsWith('other') ? 2 : 1);
+                    parent.find('.down').prop('disabled', val === oldValue);
+                });
+            }
+            for (let [type, elems] of Object.entries(tab)) {
+                $(elems).each(function (i, elem) {
+                    var el = base.find('.experience_div[data-type="' + type + '"] [data-line="' + i + '"] .number');
+                    var parent = $(el).parents('td');
+                    var oldValue = elem.getAdvance();
+                    var val = oldValue + 1;
+                    var cost = Helper.getXPCost(elem, oldValue, val) * (type.startsWith('other') ? 2 : 1);
+                    $($(el).parents('tr').find('td').length > 4 ? $(el).parents('tr').find('td')[3] : $(el).parents('tr').find('td')[2]).html('<span style="color: yellow">' + cost + '</span>');
+                    var disabled = oThat.characterOnCreation() ? used + cost > character.xp.max : false;
+                    if (typeof elem.getMax !== 'undefined') {
+                        var max = elem.getMax();
+                        if (max) {
+                            disabled = disabled || (max <= oldValue);
+                        }
+                    }
+                    parent.find('.up').prop('disabled', disabled);
+                });
+            }
+            base.find('.experience').html(currentExperience - used);
+            $('.validate').prop('disabled', oThat.characterOnCreation() ? currentExperience - used < 0 : false);
+            character.xp.tmp_used = used;
+        }
+
+        oThat.show = function () {
+            var rightPanel = $('.right_panel').html('');
+            var leftPanel = $('.left_panel').html('');
+            if (oThat.characterOnCreation()) {
+                rightPanel.append('<div class="description">' + this.desc() + '</div>');
+            }
+            leftPanel.append("<div class='description_title'><span class='experience'></span> Points d\'Expérience à dépenser</div>");
+            /** CHARACTERISTICS **/
+            leftPanel.append('<div><b>Caractéristiques:</b></div><div class="experience_div" data-type="characteristic"><div>');
+            oThat.refreshCharacteristicTab(leftPanel, true);
+            leftPanel.append('</div>')
+
+            /** Talents **/
+            leftPanel.append('<br><div><b>Talents:</b></div><div class="experience_div" data-type="talent"><div>');
+            oThat.refreshTalentTab(leftPanel, true);
+            leftPanel.append('</div>')
+
+            /** SKILLS **/
+            leftPanel.append('<br><div><b>Compétences:</b></div><div class="experience_div" data-type="skill"><div>');
+            oThat.refreshSkillTab(leftPanel, true);
+            leftPanel.append('</div>')
+
+            if (!oThat.characterOnCreation()) {
+                /** CHARACTERISTICS **/
+                rightPanel.append('<div><b>Caractéristiques hors carrière (coût x2):</b></div><div class="experience_div" data-type="otherCharacteristic"><div>');
+                oThat.refreshCharacteristicTab(rightPanel, false);
+                rightPanel.append('</div>')
+                /** SKILLS **/
+                rightPanel.append('<br><div><b>Compétences hors carrière (coût x2):</b></div><div class="experience_div" data-type="otherSkill"><div>');
+                oThat.refreshSkillTab(rightPanel, false);
+                rightPanel.append('</div>')
+            }
+
+            $('.cancel').off('click').on('click', function () {
+                CharGen.defaultAction.cancel();
+            });
+
+            $('.validate').off('click').on('click', function () {
+                CharGen.defaultAction.validate(oThat, i);
+            });
+            oThat.refreshXP(tab);
+        };
+        oThat.refreshCharacteristicTab = function (skillstab, career) {
+            var name = career ? 'characteristic' : 'otherCharacteristic';
+            var caracs = tab[name];
+            //var oldCaracs = oldtab['characteristic'];
+            var div = skillstab.find('.experience_div[data-type="' + name + '"]');
+            div.html('');
+            return Helper.generateListWithRankAndHelp(
+                caracs,
+                ['', 'Base', 'Aug', 'Coût', 'Total'],
+                function (i, el) {
+                    return el.data.type === 'roll';
+                },
+                div,
+                [
+                    function (i, el) {
+                        return el.getLabel();
+                    },
+                    function (i, el) {
+                        return el.getBase();
+                    },
+                    function (i, el) {
+                        return el.getAdvance();
+                    },
+                    function () {
+                        return '';
+                    },
+                    function (i, el) {
+                        return el.getTotal();
+                    }
+                ],
+                function (i, carac, mode, $el) {
+                    var oldValue = carac.getAdvance() - carac.tmpadvance;
+                    var value = Math.max(oldValue, carac.getAdvance() + mode);//Math.max(baseCarac.getAdvance(), carac.getAdvance() + mode);
+                    carac.tmpadvance = value - oldValue;
+                    $el.val(value);
+                },
+                oThat.refreshAll,
+                function (i, el) {
+                    if (!oThat.characterOnCreation()) {
+                        Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen);
+                    } else {
+                        Helper.addDescription(Helper.getHelpFormat(el, CharGen), CharGen, true);
+                    }
+                }
+            );
+        };
+        oThat.refreshSkillTab = function (skillstab, career) {
+            var name = career ? 'skill' : 'otherSkill';
+            var skills = tab[name];
+            //var oldCaracs = oldtab['characteristic'];
+            var div = skillstab.find('.experience_div[data-type="' + name + '"]');
+            div.html('');
+            return Helper.generateListWithRankAndHelp(
+                skills,
+                ['', 'Base', 'Aug', 'Coût', 'Total'],
+                function () {
+                    return true;
+                },
+                div,
+                [
+                    function (i, el) {
+                        return el.getLabel();
+                    },
+                    function (i, el) {
+                        return el.getBase();
+                    },
+                    function (i, el) {
+                        return el.getAdvance();
+                    },
+                    function () {
+                        return '';
+                    },
+                    function (i, el) {
+                        return el.getTotal();
+                    }
+                ],
+                oThat.change,
+                oThat.refreshAll,
+                function (i, el) {
+                    if (!oThat.characterOnCreation()) {
+                        Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen);
+                    } else {
+                        Helper.addDescription(Helper.getHelpFormat(el, CharGen), CharGen, true);
+                    }
+                }
+            );
+        }
+
+        oThat.change = function (i, elem, mode, $el) {
+            var magic = elem.data ? elem.data.addMagic : elem.addMagic;
+            if (elem.specs && !elem.spec && !magic) {
+                oThat.showSpecialisationPopin(elem, function (i, newElem) {
+                    oThat.change(i, newElem, mode, $el);
+                    if (!magic) {
+                        oThat.refreshAll();
+                    }
+                });
+            } else {
+                var veryOldValue = elem.getAdvance();
+                elem = character.set(elem);
+                if (veryOldValue !== elem.getAdvance()) {
+                    mode = 0;
+                }
+                var oldAdvance = elem.tmpadvance;
+                var oldValue = elem.getAdvance() - oldAdvance;
+                var value = Math.max(oldValue, elem.getAdvance() + mode);
+                var max = elem.getMax ? elem.getMax() : '';
+                if (max) {
+                    value = Math.min(max, value);
+                }
+                elem.tmpadvance = value - oldValue;
+                if (veryOldValue === 0 && value && mode) {
+                    if ((magic === 'Invocation' || magic === 'Béni') && elem.specs && !elem.spec) {
+                        var god = character.getGod();
+                        if (god) {
+                            elem.spec = god.label;
+                        }
+                    }
+                    character.applyTalent();
+                    if (magic) {
+                        var cancelAction = function () {
+                            elem.tmpadvance = oldAdvance;
+                            character.applyTalent();
+                            oThat.refreshAll();
+                        }
+                        var validateAction = function () {
+                            character.applyTalent();
+                            oThat.refreshAll();
+                        }
+                        Helper.showMagicSpecialisation(CharGen, character, cancelAction, validateAction, magic, elem)
+                    }
+                }
+            }
+        };
+
+        oThat.refreshTalentTab = function (skillstab) {
+            var talents = tab['talent'];
+            var div = skillstab.find('.experience_div[data-type="talent"]');
+
+            div.html('');
+            return Helper.generateListWithRankAndHelp(
+                talents,
+                ['', 'Rang', 'Coût'],
+                function () {
+                    return true;
+                },
+                div,
+                [
+                    function (i, el) {
+                        return el.getLabel()
+                    },
+                    function (i, el) {
+                        var max = el.getMax();
+                        return el.getAdvance() + (max ? '/' + max : '');
+                    },
+                    function () {
+                        return '';
+                    },
+                ],
+                oThat.change,
+                oThat.refreshAll,
+                function (i, el) {
+                    if (!oThat.characterOnCreation()) {
+                        Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen);
+                    } else {
+                        Helper.addDescription(Helper.getHelpFormat(el, CharGen), CharGen, true);
+                    }
+                }
+            );
+        }
+
+        oThat.randomAllAction = function () {
+            var allValls = [].concat(tab['characteristic'], tab['skill'], tab['talent']);
+            var currentExperience = character.xp.max;
+            var used = 0;
+            var max;
+            while (used < currentExperience && allValls.length !== 0) {
+                var index = Helper.getRandomInt(allValls.length) - 1;
+                var el = allValls[index];
+                var oldValue = el.getAdvance();
+                var val = oldValue + 1;
+                var cost = Helper.getXPCost(el, oldValue, val);
+                if (used + cost > currentExperience || val > 70) {
+                    allValls.splice(index, 1);
+                } else if (typeof el.getMax !== 'undefined' && (max = el.getMax()) && val > max) {
+
+                } else {
+                    if ((el = Helper.randomSpecialisation(character, allValls, el, index, oldValue))) {
+                        el.tmpadvance += 1;
+                        Helper.randomMagicTalent(CharGen, character, el);
+                        used += cost;
+                        oThat.refreshData();
+                        allValls = [].concat(tab['characteristic'], tab['skill'], tab['talent']);
+                    }
+                }
+            }
+            character.xp.tmp_used = used;
+            oThat.saveAction();
+        };
+        if (!oThat.characterOnCreation()) {
+            oThat.otherAction = function (el) {
+                el.html('Carrière');
+                el.on('click', function () {
+                    CharGen.saveCharacter(character);
+                    CharGen.showPanel(null, StepCareers(null, CharGen, 'final'));
+                });
+            }
+        }
+
+        return oThat;
+    };
+    this.StepExperience = StepExperience;
+</script>

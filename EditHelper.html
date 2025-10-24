@@ -1,0 +1,177 @@
+<script>
+    var EditHelper = {
+        hide: function (hide) {
+            return hide === true ? 'style="display:none"' : '';
+        },
+        inputHidden: function (value, name, text) {
+            return '<input name="' + name + '" type="hidden" value="' + value + '">' + (typeof text !== 'undefined' ? text : '');
+        },
+        paragraph: function (text, content, hide) {
+            return '<div ' + EditHelper.hide(hide) + '>' + (text ? '<b>' + text + ' : </b>' : '') + (typeof content !== 'undefined' ? content : '') + '</div>';
+        },
+        inputTextArea: function (value, name, classes, disabled) {
+            if (disabled === true) {
+                return EditHelper.inputHidden(value, name, value);
+            }
+            return '<textarea name="' + name + '" ' + (classes ? 'class="' + classes + '"' : '') + '>' + value + '</textarea>';
+        },
+        inputText: function (value, name, classes, disabled) {
+            if (disabled === true) {
+                return EditHelper.inputHidden(value, name, value);
+            }
+            return '<input name="' + name + '" type="text" value="' + value + '" ' + (classes ? 'class="' + classes + '"' : '') + '>';
+        },
+        inputTexts: function (elems, nb, name, classes, disabled) {
+            var html = '';
+            for (var i = 0; i < nb; ++i) {
+                var value = typeof elems[i] !== 'undefined' ? elems[i] : '';
+                html += EditHelper.inputText(value, name + '[' + i + '][label]', classes, disabled);
+            }
+            return EditHelper.paragraph('', html);
+        },
+        inputSelect: function (value, list, compareKey, valueKey, labelKey, name, classes, disabled) {
+            var html = '<select name="' + name + '" ' + (classes ? 'class="' + classes + '"' : '') + ' >';
+            html += '<option value=""></option>';
+            var selectedValue = '';
+            var selectedLabel = '';
+            $(list).each(function (i, e) {
+                var compare = typeof e !== 'object' ? e : e[compareKey];
+                var label = typeof e !== 'object' ? e : e[labelKey];
+                var val = typeof e !== 'object' ? e : e[valueKey];
+                var selected = '';
+                if (value && compare == value) {
+                    selected = 'selected="selected"';
+                    if (disabled === true) {
+                        selectedValue = val;
+                        selectedLabel = label;
+                        return false;
+                    }
+                }
+                html += '<option value="' + val + '" ' + selected + '>' + label + '</option>'
+            });
+            html += '</select>';
+            if (disabled === true) {
+                return EditHelper.inputHidden(selectedValue, name, selectedLabel);
+            }
+            return html;
+        },
+        inputSelects: function (elems, nb, list, compareKey, valueKey, labelKey, name, disable) {
+            var html = '';
+            for (var i = 0; i < nb; ++i) {
+                var value = typeof elems[i] !== 'undefined' ? elems[i][compareKey] : '';
+                html += EditHelper.paragraph('', EditHelper.inputSelect(value, list, compareKey, valueKey, labelKey, name + '[' + i + '][label]', '', disable));
+            }
+            return html;
+        },
+        inputElem: function (el, list, compareKey, valueKey, labelKey, name, disable) {
+            var suffix = typeof el.suffix !== 'undefined' ? el.suffix : '';
+            var value = typeof el.id !== 'undefined' ? el.id : '';
+            var prefix = '';
+            if (typeof el.original !== 'undefined') {
+                prefix = el.original.substring(el.original.indexOf(el.label) + el.label.length).trim();
+            }
+            return EditHelper.inputText(suffix, name + '[suffix]', 'number', disable)
+                + EditHelper.inputSelect(value, list, 'id', 'label', 'label', name + '[label]', 'autocomplete', 'disable')
+                + EditHelper.inputText(prefix, name + '[prefix]', '', disable);
+        },
+        inputElems: function (elems, nb, list, compareKey, valueKey, labelKey, name, disable) {
+            var html = '';
+            for (var i = 0; i < nb; ++i) {
+                var value = typeof elems[i] !== 'undefined' ? elems[i] : '';
+                html += EditHelper.paragraph('', EditHelper.inputElem(value, list, compareKey, valueKey, labelKey, name + '[' + i + ']'), disable);
+            }
+            return html;
+        },
+        table: function (table, funcHeader, funcElem) {
+            var html = '<table><tr>';
+            for (let [key, value] of Object.entries(table)) {
+                html += '<td>' + funcHeader(key, value) + '</td>'
+            }
+            html += '</tr><tr>'
+            for (let [key, value] of Object.entries(table)) {
+                html += '<td>' + funcElem(key, value) + '</td>';
+            }
+            html += '</tr></table>';
+            return html;
+        },
+        inputBookAndPage: function (CharGen, value, name, hide, disable) {
+            name = typeof name === 'undefined' ? '' : name;
+            var newName = name ? name + '|' : name;
+            return EditHelper.paragraph('Livre',
+                EditHelper.inputSelect(value.book, CharGen.data.book.all, 'abr', 'abr', 'label', newName + 'book', '', disable) +
+                EditHelper.inputText(value.page, newName + 'page', 'number', disable),
+                disable
+            );
+        },
+        inputName: function (CharGen, value, name, hide, disable) {
+            var html = '';
+            name = typeof name === 'undefined' ? '' : name;
+            var newName = name ? name + '|' : name;
+            if (typeof value.suffix !== 'undefined') {
+                html += EditHelper.inputText(value.suffix, newName + 'suffix', 'medium', disable) + ' ';
+            }
+            if (typeof value.label !== 'undefined') {
+                html += EditHelper.inputText(value.label,  newName + 'label', '', disable)
+            }
+            if (typeof value.prefix !== 'undefined') {
+                html += ' ' + EditHelper.inputText(value.prefix, newName + 'prefix', 'medium', disable)
+            }
+            if (typeof value.title !== 'undefined') {
+                html += ' - ' + EditHelper.inputText(value.title, newName + 'title', '', disable)
+            }
+            if (typeof value.abr !== 'undefined') {
+                html += ' (' + EditHelper.inputText(value.abr, newName + 'abr', 'number', disable) + ')'
+            }
+
+            return EditHelper.paragraph('Nom', html, hide);
+        },
+
+        // Fonction utilitaire pour insérer un objet à la bonne place dans la structure
+        prepareData: function (elements) {
+            // Récupère tous les éléments qui ont un attribut name
+            var result = {};
+
+            elements.each(function() {
+                var name = $(this).attr('name');
+                var value = $(this).val();
+
+                // Extraire les parties du name, ex: skill[[1][spec]] => ["skill", "1", "spec"]
+                var nameParts = name.match(/[^\[\]]+/g);
+
+                // Référence de l'objet courant
+                var current = result;
+
+                // Boucle sur les parties sauf la dernière, pour créer les objets imbriqués
+                for (var i = 0; i < nameParts.length - 1; i++) {
+                    if (!current[nameParts[i]]) {
+                        current[nameParts[i]] = {};
+                    }
+                    current = current[nameParts[i]];
+                }
+
+                // Assigner la valeur à la dernière clé
+                current[nameParts[nameParts.length - 1]] = value;
+            });
+            var final = {};
+            for (let [key, el] of Object.entries(result)) {
+                if (typeof el !== 'object') {
+                    final[key] = el.trim().replace('’', "'");
+                } else {
+                    var tmp = [];
+                    if (typeof el[0] === 'undefined') {
+                        el = {0: el};
+                    }
+                    for (let [index, e] of Object.entries(el)) {
+                        var text = DataFunctions.getLabelForElem(e);
+                        if (text) {
+                            tmp[tmp.length] = text;
+                        }
+                    }
+                    final[key] = tmp.join(', ')
+                }
+            }
+            return final;
+        }
+    }
+    this.EditHelper = EditHelper;
+</script>

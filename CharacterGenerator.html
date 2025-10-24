@@ -1,0 +1,257 @@
+<script>
+    var CharacterGenerator = function () {
+        var oThat = this;
+        oThat.data;
+        oThat.jData;
+        oThat.user;
+        var i = 0;
+        oThat.stepList = [
+            StepSpecies(i++, oThat),
+            StepCareers(i++, oThat, 'creation'),
+            StepCharacteristics(i++, oThat),
+            //StepStars(i++, oThat),
+            StepTalents(i++, oThat),
+            StepSkills(i++, oThat),
+            StepTrappings(i++, oThat),
+            StepDetail(i++, oThat),
+            StepExperience(i++, oThat, 'creation'),
+            StepResume(i++, oThat),
+            StepExperience(i++, oThat, 'final'),
+        ];
+        oThat.saveName = '';
+        oThat.character;
+
+
+        oThat.showMainMenu = function () {
+            oThat.showPanel(0, MainMenu(oThat));
+        };
+
+        oThat.showMenu = function () {
+            oThat.showPanel(0, Menu(oThat));
+        };
+
+        oThat.nextStep = function (i) {
+            if (oThat.character.stepIndex !== -1) {
+                oThat.character.stepIndex = Math.max(oThat.character.stepIndex, i + 1);
+            }
+            oThat.showMenu();
+        };
+
+        oThat.activeButtonAction = function (el, stepAction, defaultAction) {
+            el.off('click');
+            if (stepAction) {
+                el.css('visibility', 'inherit');
+                if (stepAction === true) {
+                    defaultAction(el);
+                } else {
+                    stepAction(el);
+                }
+            } else {
+                el.css('visibility', 'hidden');
+            }
+        };
+
+        oThat.defaultAction = {
+            cancel: function () {
+                oThat.showMenu()
+            },
+            validate: function (el, i) {
+                if (!el.saveAction() && oThat.character.stepIndex !== -1) {
+                    oThat.character.stepIndex = i;
+                }
+                if (i !== null) {
+                    oThat.nextStep(i);
+                }
+            }
+        };
+
+        oThat.showPanel = function (i, el) {
+            $('.right_panel').removeClass('for_pc').removeClass('split').html("");
+            $('.left_panel').removeClass('for_pc').removeClass('split').html("");
+            $('two_part_panel').removeClass('in_column')
+            var mode = typeof el.mode !== 'undefined' ? el.mode() : 'one_side';
+            if (mode === 'one_side') {
+                $('.right_panel').addClass('for_pc');
+            } else if (mode === 'two_side') {
+                $('.left_panel').addClass('split');
+                $('.right_panel').addClass('split');
+                $('.two_part_panel').addClass('in_column');
+            }
+            Helper.addDescription(el.desc(), oThat, typeof oThat.character === 'undefined'
+                || (oThat.character.stepIndex <= i
+                    && oThat.character.stepIndex !== -1));
+            $('.header_panel .text').html(el.title());
+            $('.other').prop('disabled', false);
+            $('.cancel').prop('disabled', false);
+            $('.random').prop('disabled', false);
+            oThat.activeButtonAction($('.other'), el.otherAction);
+            $('.cancel').html('Annuler');
+            oThat.activeButtonAction($('.cancel'), el.cancelAction, function (ele) {
+                ele.on('click', oThat.defaultAction.cancel)
+            });
+            $('.validate').html('Valider');
+            oThat.activeButtonAction($('.validate'), el.validateAction, function (ele) {
+                $('.validate').prop('disabled', true);
+                ele.on('click', function () {
+                    oThat.defaultAction.validate(el, i);
+                })
+            });
+            $('.random').html('Lancer');
+            oThat.activeButtonAction($('.random'), el.randomAction);
+
+            if (el.resetAction && i >= oThat.character.stepIndex) {
+                el.resetAction();
+            }
+            el.initAction();
+            el.show();
+        };
+
+        oThat.addFoundry = function (el) {
+            el.from = 'foundry';
+            var type = el.type;
+            if (!oThat.elemIdToFoundryId[type]) {
+                oThat.elemIdToFoundryId[type] = {};
+                oThat.foundryIdToElemId[type] = {};
+            }
+            oThat.elemIdToFoundryId[type][el.label] = el.foundryName;
+            oThat.foundryIdToElemId[type][el.foundryName] = el.label;
+        }
+        oThat.initHelp = function () {
+            /*for (let [i, e] of [].concat(Object.entries(oThat.data), Object.entries(oThat.allLoreByGroup))) {
+                $(e).each(function (j, el) {
+                    if (el.desc && el.desc[0] === '{') {
+                        el.desc = JSON.parse(el.desc);
+                    }
+                })
+            }*/
+            $('body').off('click', '.showHelp').on('click', '.showHelp', function () {
+                var $el = $(this);
+                var type = $el.data('type');
+                var index = $el.data('id');
+                var elem = oThat.data[type].allById[index];
+                Helper.showPopin(Helper.getHelpFormat(elem, oThat), oThat)
+            });
+        }
+        oThat.loadPartialDataAndDisplay = function (jNames) {
+            if (typeof jNames !== 'object') {
+                jNames = JSON.parse(jNames);
+            }
+            jNames = {...oThat.jData, ...jNames}
+            oThat.loadDataAndDisplay(jNames);
+        }
+
+        oThat.loadDataAndDisplay = function (jNames) {
+            if (typeof jNames !== 'object') {
+                jNames = JSON.parse(jNames);
+            }
+            oThat.jData = jNames;
+            oThat.initHelp();
+            oThat.user = Helper.getStorage();
+            if (typeof oThat.user.options === 'undefined') {
+                oThat.user = {options : {theme: 'light_theme'}};
+                var books = {};
+                DataHelper.eachElem(oThat.jData.book, function (el) {
+                    if (el.folder !== 'Scénario' && el.language === 'VF') {
+                        books[el.abr] = 1;
+                    }
+                });
+                oThat.user.options.book = books;
+                Helper.setStorage(oThat.user);
+            }
+            if (typeof oThat.user.options.theme !== 'undefined' && oThat.user.options.theme) {
+                $('body').addClass(oThat.user.options.theme);
+            }
+
+            oThat.showPanel(null, MainMenu(oThat));
+            $('.main_panel').show().css('display', 'flex');
+            if (typeof finalCallBack !== "undefined") {
+                finalCallBack(oThat);
+            }
+        }
+
+        oThat.loadData = function () {
+            var elems = [
+                DataTree(oThat),
+                DataSpecie(oThat),
+                DataTalent(oThat),
+                DataSkill(oThat),
+                DataLore(oThat),
+                DataMagick(oThat),
+                DataEtat(oThat),
+                DataPsychologie(oThat),
+                DataQuality(oThat),
+                DataCharacteristic(oThat),
+                DataGod(oThat),
+                DataClass(oThat),
+                DataTrapping(oThat),
+                DataCareer(oThat),
+                DataCareerLevel(oThat),
+                DataSpell(oThat),
+                DataBook(oThat),
+                DataStar(oThat),
+                DataTrait(oThat),
+                DataCreature(oThat),
+            ];
+            DataHelper.initData(oThat, elems);
+            console.log(oThat.data);
+            console.log(oThat.match);
+        };
+        oThat.saveDatabaseCharacter = async function (afterFunction, step) {
+            Helper.loader = new Helper.ajaxLoader("body");
+            /*var save = localStorage.getItem('save');
+            var saveName = oThat.saveName;
+            if (save === null) {
+                save = {};
+            } else {
+                save = JSON.parse(save);
+            }
+            if (!oThat.saveName) {
+                saveName = Math.random().toString(36).substr(2, 9);
+            }
+            save[saveName] = oThat.character.save(step);
+            localStorage.setItem('save', JSON.stringify(save));*/
+            var response = await fetch(Helper.googleURL,
+                {
+                    redirect: "follow",
+                    method: "POST",
+                    body: JSON.stringify({
+                        'action': 'save',
+                        'saveName': oThat.saveName,
+                        'data': oThat.character.save(step)
+                    }),
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8",
+                    }
+                });
+            if (afterFunction) {
+                var data = /*saveName;*/await response.text();
+                Helper.loader.remove();
+                afterFunction(data);
+            } else {
+                Helper.loader.remove();
+            }
+        };
+        oThat.saveRandomState = function (character) {
+            if (!character.isFreeMode()) {
+                oThat.character.randomState = Helper.clone(character.randomState);
+                if (oThat.saveName) {
+                    oThat.saveDatabaseCharacter();
+                }
+            }
+        }
+        oThat.saveCharacter = function (character) {
+            oThat.character = character;
+            if (!character.isFreeMode() && oThat.saveName) {
+                oThat.saveDatabaseCharacter(null, 1);
+            }
+        }
+        oThat.init = function () {
+            Helper.initPopin();
+            oThat.loadDataAndDisplay(myCharacterData);
+        };
+
+        //oThat.init();
+        return oThat;
+    };
+    this.CharacterGenerator = CharacterGenerator;
+</script>

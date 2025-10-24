@@ -1,0 +1,202 @@
+<script>
+    var DataCreature = function (CharGen) {
+        var typeItem = 'creature';
+        var labelItem = 'Créature';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            el.getTrappings = function () {
+                return this.trappings;
+            }
+            el.getSkills = function () {
+                return this.skills;
+            };
+            el.getTalents = function () {
+                return this.talents;
+            };
+            el.getSpells = function () {
+                return this.spells;
+            };
+            el.getTraits = function () {
+                return this.traits;
+            };
+            el.getOptionals = function () {
+                return this.optionals;
+            };
+            el.getCharacteristics = function () {
+                return this.characteristics;
+            };
+
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var res = {};
+                if (elem.desc) {
+                    res['Info'] = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.god});
+                }
+                var desc = '';
+                var skillstab = $('<div></div>')
+                Helper.generateListWithRankAndHelp(
+                    this.getCharacteristics(),
+                    ['', ''],
+                    function (i, el) {
+                        return true
+                    },
+                    skillstab,
+                    [
+                        function (i, el) {
+                            return el.getData().abr;
+                        },
+                        function (i, el) {
+                            return el.prefix;
+                        }
+                    ],
+                    function () {
+                    },
+                    function () {
+                    },
+                    function (i, el) {
+                        Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                    },
+                    1,
+                    undefined,
+                    true
+                );
+                desc += skillstab.html();
+                if (this.getSkills().length) {
+                    desc += '<br><br><b>Compétences: </b>' + DescriptionHelper.elemsToSimpleArray(this.getSkills(), true).join(', ');
+                }
+                if (this.getTalents().length) {
+                    desc += '<br><br><b>Talents: </b>' + DescriptionHelper.elemsToSimpleArray(this.getTalents(), true).join(', ');
+                }
+                if (this.getTraits().length) {
+                    desc += '<br><br><b>Traits: </b>' + DescriptionHelper.elemsToSimpleArray(this.getTraits(), true).join(', ');
+                }
+                if (this.getOptionals().length) {
+                    desc += '<br><br><b>Facultatif: </b>' + DescriptionHelper.elemsToSimpleArray(this.getOptionals(), true).join(', ');
+                }
+                if (this.getTrappings().length) {
+                    desc += '<br><br><b>Possessions: </b>' + DescriptionHelper.elemsToSimpleArray(this.getTrappings(), true).join(', ');
+                }
+                if (this.getSpells().length) {
+                    desc += '<h3>Sorts</h3>';
+                    var spellsByGroupAndSpec = {};
+                    DataHelper.eachElem(this.getSpells(), function (e, i, y, ou) {
+                        var data = e.getData();
+                        if (typeof spellsByGroupAndSpec[data.type] === 'undefined') {
+                            spellsByGroupAndSpec[data.type] = {};
+                        }
+                        if (typeof spellsByGroupAndSpec[data.type][data.spec] === 'undefined') {
+                            spellsByGroupAndSpec[data.type][data.spec] = [];
+                        }
+                        spellsByGroupAndSpec[data.type][data.spec][spellsByGroupAndSpec[data.type][data.spec].length] = e;
+                    });
+                    for (let [type, elems] of Object.entries(spellsByGroupAndSpec)) {
+                        for (let [spec, ele] of Object.entries(elems)) {
+                            var tmpType = type + (spec ? ' (' + spec + ')' : '');
+                            desc += '<br><br><b>' + tmpType + ': </b>' + DescriptionHelper.elemsToSimpleArray(ele, true).join(', ');
+                        }
+                    }
+                }
+                res['Caractéristiques'] = desc;
+
+                return res;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.paragraph('Type', EditHelper.inputText(this.folder, 'folder', '', true))
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+
+                html += EditHelper.table(CharGen.data.characteristic.all.filter(v => v.abr), function (i, value) {
+                    return value.abr
+                }, function (i, value) {
+                    return EditHelper.inputText(this.char[value.abr], 'char|' + value.abr, 'number')
+                });
+                html += EditHelper.paragraph('Compétences',
+                    EditHelper.inputElems(
+                        this.getSkills(),
+                        20,
+                        CharGen.data.skill.all,
+                        'id',
+                        'label',
+                        'label',
+                        'skills'
+                    )
+                );
+                html += EditHelper.paragraph('Talents',
+                    EditHelper.inputElems(
+                        this.getTalents(),
+                        20,
+                        CharGen.data.talent.all,
+                        'id',
+                        'label',
+                        'label',
+                        'talents'
+                    )
+                );
+                html += EditHelper.paragraph('Traits',
+                    EditHelper.inputElems(
+                        this.getTraits(),
+                        20,
+                        CharGen.data.trait.all,
+                        'id',
+                        'label',
+                        'label',
+                        'traits'
+                    )
+                );
+                html += EditHelper.paragraph('Facultatif',
+                    EditHelper.inputElems(
+                        this.getOptionals(),
+                        20,
+                        CharGen.data.trait.all,
+                        'id',
+                        'label',
+                        'label',
+                        'optionals'
+                    )
+                );
+                html += EditHelper.paragraph('Equipements',
+                    EditHelper.inputTexts(
+                        DescriptionHelper.elemsToSimpleArray(this.getTrappings()),
+                        20,
+                        'trappings'
+                    ),
+                );
+                html += EditHelper.paragraph('Sorts',
+                    EditHelper.inputElems(
+                        this.getSpells(),
+                        20,
+                        CharGen.data.spell.all,
+                        'id',
+                        'label',
+                        'label',
+                        'spells'
+                    )
+                );
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+            el.skills = DataHelper.stringToElems(CharGen, el.skills, el, 'skill', false, match);
+            el.talents = DataHelper.stringToElems(CharGen, el.talents, el, 'talent', false, match);
+            el.trappings = DataHelper.stringToElems(CharGen, el.trappings, el, 'trapping', false, match);
+            el.spells = DataHelper.stringToElems(CharGen, el.spells, el, 'spell', false, match);
+            el.traits = DataHelper.stringToElems(CharGen, el.traits, el, 'trait', false, match);
+            el.optionals = DataHelper.stringToElems(CharGen, el.optionals, el, 'trait', false, match);
+            el.characteristics = [];
+            DataHelper.eachElem(CharGen.data.characteristic.all, function (e) {
+                if (typeof el.char[e.abr] !== 'undefined') {
+                    el.characteristics[el.characteristics.length] = DataHelper.bindElem(CharGen,
+                        DataHelper.createElem(e.label, [], '', el.char[e.abr]), el, 'characteristic', match)
+                }
+            });
+        }
+
+        return oThat;
+    }
+    this.DataCreature = DataCreature;
+</script>

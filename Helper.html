@@ -1,0 +1,1697 @@
+<script>
+    var Helper = {
+        googleURL: 'https://script.google.com/macros/s/AKfycbxHJ0GVjpaLe0fj9swl41j_dC0MNLl2U3MatuPS_q7IcJCZ7VNiBWTL68fYz2imhlQ8gQ/exec',
+        dice: function (value, callbackBegin, callback, callbackEnd, auto) {
+            var oThat = this;
+            var $die = $('.die')
+            var $die1 = $('#die1');
+            var $die10 = $('#die10');
+            var $dices_modal = $('#dices_modal');
+            var values = Array.isArray(value) ? value : [value];
+            var timeoutId,
+                animationDuration = 1000
+
+            this.reset = function () {
+                $die.attr('data-face', null).removeClass('rolling')
+            }
+
+            this.rollTo = function (values, i) {
+                clearTimeout(timeoutId)
+                var face = values[i];
+                if (Array.isArray(face)) {
+                    var die1 = face[0];
+                    var die2 = face[1];
+                } else {
+                    die1 = face % 10;
+                    die2 = Math.floor(face / 10);
+                }
+                $die1.attr('data-face', die1)
+                $die10.attr('data-face', die2)
+                callback(i++);
+                timeoutId = setTimeout(function () {
+                    if (values.length <= i) {
+                        $dices_modal.removeClass('modal');
+                        $dices_modal.fadeOut("slow", "linear");
+                        if (typeof callbackEnd !== 'undefined') {
+                            callbackEnd();
+                        }
+                    } else {
+                        oThat.init(values, i);
+                    }
+                }, animationDuration)
+            };
+            this.roll = function (values, i) {
+                $die.addClass('rolling')
+                clearTimeout(timeoutId)
+
+                timeoutId = setTimeout(function () {
+                    $die.removeClass('rolling')
+                    oThat.rollTo(values, i)
+                }, animationDuration)
+
+                return false
+            };
+
+            this.init = function (values, i) {
+                this.reset();
+                if (typeof callbackBegin !== 'undefined') {
+                    callbackBegin(i);
+                }
+                if (typeof auto !== 'undefined' && auto) {
+                    timeoutId = setTimeout(function () {
+                        oThat.roll(values, i);
+                    }, 1000)
+                } else {
+                    $dices_modal.click(function () {
+                        $dices_modal.off('click');
+                        oThat.roll(values, i);
+                        return false
+                    });
+                }
+            }
+            $dices_modal.addClass('modal');
+            $dices_modal.fadeIn('slow');
+            this.init(values, 0);
+
+            return this;
+        },
+        ajaxLoader: function (el, options) {
+            // Becomes this.options
+            var defaults = {
+                bgColor: '#fff', // Defines the color of the layer
+                ldColor: '#000', // Defines the color of the loader
+                duration: 800,
+                opacity: 0.7, // Defines the opacity of the layer if one
+                classOveride: false,
+                layer: true, // Defines if there will be a layer or not
+                size: '2.5em' // Size of the loader
+            };
+            this.options = jQuery.extend(defaults, options);
+            this.container = $(el);
+
+            this.init = function () {
+                var container = this.container;
+                // Delete any other loaders
+                this.remove();
+                // Create the overlay
+                var overlay = $('<section></section>').css({
+                    'background-color': this.options.bgColor,
+                    'opacity': this.options.opacity,
+                    'z-index': 999
+                }).addClass('ajax_loader');
+                var loader = $('<div class="loader" style="height:' + this.options.size + ';width:' + this.options.size + '">' +
+                    '<div class="ldr-blk an_delay one" style="background-color:' + this.options.ldColor + '"></div>' +
+                    '<div class="ldr-blk an_delay two" style="background-color:' + this.options.ldColor + '"></div>' +
+                    '<div class="ldr-blk an_delay three" style="background-color:' + this.options.ldColor + '"></div>' +
+                    '<div class="ldr-blk an_delay four" style="background-color:' + this.options.ldColor + '"></div>' +
+                    '</div>');
+                if (this.options.layer) {
+                    overlay.append(loader);
+                } else {
+                    overlay = loader.addClass('ajax_loader');
+                }
+                // add an overiding class name to set new loader style
+                if (this.options.classOveride) {
+                    overlay.addClass(this.options.classOveride);
+                }
+                // insert overlay and loader into DOM
+                container.append(overlay).fadeIn(this.options.duration);
+            };
+
+            this.remove = function (callback) {
+                var overlay = this.container.children(".ajax_loader");
+                if (overlay.length) {
+                    overlay.fadeOut(this.options.classOveride, function () {
+                        overlay.remove();
+                        if (typeof callback === "function")
+                            callback();
+                    });
+                }
+            };
+
+            this.init();
+        },
+        addDescription: function (message, CharGen, force) {
+            var description = $('.right_panel').html("<div class='description'>" + message + "</div>");
+            if (description.find('.tabs').length) {
+                description.find('.tabs').tabs({active: description.find('.tabs').data('active')});
+            }
+            if ($('.right_panel:visible').length === 0 && force === true) {
+                this.showPopin(message, CharGen);
+            }
+        },
+        showPopin: function (message, CharGen) {
+            // var modal = $('#help_modal');
+            // var description = modal.find('.help_panel')
+            if (message) {
+                var dev = $("<div class='modal'></div>")
+                    .addClass("dialog")
+                    .appendTo("body")
+                    .dialog({
+                        create: function (event, ui) {
+                        },
+                        close: function () {
+                            $(this).remove()
+                        },
+                        open: function (event, ui) {
+                        },
+                        position: {my: "center", at: 'top'},
+                        width: 550,
+                        fluid: true,
+                        resizable: true,
+                        zIndex: 20000
+                    })
+                    .html("<div class='description'>" + message + "</div>");
+                //modal.show();
+                //description.html("<div class='description'>" + message + "</div>");
+                if (dev.find('.tabs').length) {
+                    dev.find('.tabs').tabs({active: dev.find('.tabs').data('active')});
+                }
+            } else {
+                // modal.hide()
+                // description.html('');
+            }
+        },
+        uniqid: function () {
+            return (new Date().getTime() + Math.floor((Math.random() * 10000) + 1)).toString(16);
+        },
+        addAdditionalHelp: function (text, CharGen, match) {
+            $('<div>' + text + '</div>').find('.showHelp').each(function (i, el) {
+                var $el = $(el).first();
+                var type = $el.data('type');
+                var index = $el.data('id');
+                if (type === 'lore') {
+                    if (typeof match[type] == 'undefined') {
+                        match[type] = {};
+                    }
+                    if (typeof match[type][index] == 'undefined') {
+                        match[type][index] = true;
+                        var elem = CharGen.data[type].allById[index];
+                        if (['equipment', 'psychologie', 'etat', 'trait'].includes(elem.type)) {
+                            text += Helper.getHelpFormat(elem, CharGen, match);
+                        }
+                    }
+                }
+            });
+            return text;
+        },
+        getHelpFormat: function (el, CharGen, description) {
+            var result = '';
+            var flex = false;
+            description = typeof description !== 'undefined' ? description : false;
+            var altEl = typeof el.data !== 'undefined' ? el.data : el;
+            if (altEl.typeItem === 'careerLevel') {
+                el = {
+                    altDesc: el.getCareer().label,
+                    desc: {...el.getDescription(), ...el.getCareer().getDescription()},
+                    typeItem: el.typeItem,
+                    id: el.id,
+                    book: el.getCareer().book,
+                    page: el.getCareer().page
+                }
+                altEl = el;
+            }
+            var desc = typeof el.getDescription !== 'undefined' ? el.getDescription() : altEl.desc;
+            if (description !== false) {
+                if (desc && typeof desc !== 'string') {
+                    desc = Object.values(desc)[0];
+                }
+            } else {
+                var match = {};
+                if (typeof el.typeItem !== 'undefined') {
+                    if (typeof match[el.typeItem] == 'undefined') {
+                        match[el.typeItem] = {};
+                    }
+                    match[el.typeItem][el.id] = true;
+                }
+            }
+            if (desc && typeof desc !== 'string') {
+                flex = true;
+                var part2 = '';
+                var tmp = desc;
+                var i = 0;
+                var tabActif = 0;
+                if (typeof tmp.tab_actif !== 'undefined') {
+                    tabActif = tmp.tab_actif;
+                    tmp = Helper.clone(tmp);
+                    delete tmp.tab_actif;
+                }
+                var prefix = Helper.uniqid();
+                for (var key in tmp) {
+                    if (tmp.hasOwnProperty(key)) {
+                        var text = Helper.addAdditionalHelp(tmp[key], CharGen, match);
+                        part2 += '<div id="tabs-' + prefix + i++ + '" class="pretty_panel overflow_panel"><br>' + text + '</div>';
+                    }
+                }
+
+                var style = 'style="flex:' + (100 / i - 1).toPrecision(2) + '%"';
+                var part1 = '<ul>';
+                i = 0;
+                for (key in tmp) {
+                    if (tmp.hasOwnProperty(key)) {
+                        part1 += '<li ' + style + '><a href="#tabs-' + prefix + i++ + '">' + key + '</a></li>';
+                    }
+                }
+                part1 += '</ul>';
+
+                result = '<div style="height: 1%" class="tabs" data-active="' + tabActif + '">' + part1 + part2 + '</div>';
+            } else if (description === false) {
+                result = '<div class="ui-widget-content_for_light_theme">' + Helper.addAdditionalHelp(desc, CharGen, match) + '</div>';
+            } else {
+                result = desc;
+            }
+            var paging = '';
+            var extraStyle = '';
+            if (typeof altEl.book !== 'undefined') {
+                paging = '<div class="paging">' + altEl.book + ' p' + altEl.page + '</div>';
+                extraStyle = 'class="withPaging"';
+            }
+            return '<span ' + (flex ? 'class="title"' : '') + '>' +
+                '<h3 ' + extraStyle + '>' + (typeof altEl.altDesc !== 'undefined' ? altEl.altDesc : (typeof el.getLabel !== 'undefined' ? el.getLabel() : altEl.label)) + '' +
+                '</h3>' + paging + result + '</span>';
+        },
+        getStorage: function () {
+            var local = localStorage.getItem("whrpg");
+            if (local === null) {
+                local = {};
+            } else {
+                local = JSON.parse(local);
+            }
+            return local;
+        },
+        setStorage: function (el) {
+            localStorage.setItem("whrpg", JSON.stringify(el));
+        },
+        searchTrapping: function (el, CharGen) {
+            var t = CharGen.allTrappings[Helper.toId(el)];
+            if (typeof t === 'undefined') {
+                t = CharGen.allTrappings[Helper.toId(el.split(' (')[0])];
+            }
+            if (typeof t === 'undefined') {
+                var list = el.split(' ');
+                while (list.length > 1) {
+                    list.splice(list.length - 1, 1)
+                    t = CharGen.allTrappings[Helper.toId(list.join(' '))];
+                    if (typeof t !== 'undefined') {
+                        break;
+                    }
+                }
+            }
+            return t;
+        },
+        removePlural: function (text) {
+            return text.replace(/(s|es|e)\b/ig, '');
+        },
+        updateSelectedElementFromList: function ($this, v, level, value) {
+            if (typeof level === 'undefined') {
+                level = [''];
+            }
+            if ($this.data('level')) {
+                if (value === '') {
+                    v = parseInt($this.data('level')) === 1;
+                } else if (level[0] !== '' && parseInt($this.data('level')) > level[0]) {
+                    v = true;
+                } else {
+                    if (v) {
+                        level[0] = parseInt($this.data('level'));
+                        var tmpl = level[0];
+                        $this.prevAll("li").each(function () {
+                            var $t = $(this);
+                            if (parseInt($t.data('level')) < tmpl) {
+                                $t.toggle(true);
+                                tmpl = parseInt($t.data('level'));
+                                if (tmpl <= 1) {
+                                    return false;
+                                }
+                            }
+                        })
+                    } else {
+                        level[0] = '';
+                    }
+                }
+            }
+            if (typeof value !== 'undefined') {
+                if (level.length && level[0] !== '') {
+                    $this.find('.more').hide();
+                    $this.find('.less').show();
+                } else {
+                    $this.find('.more').show();
+                    $this.find('.less').hide();
+                }
+            }
+            $this.toggle(v)
+        },
+        toId: function (text) {
+            if (!text) {
+                return text;
+            }
+            return text.toLowerCase().replace(/[éêè]/ig, 'e').replace(/[áâà]/ig, 'a').replace('  ', ' ').replace('œ', 'oe');
+        },
+        getRandomInt: function (max) {
+            return Math.floor(1 + Math.random() * Math.floor(max));
+        },
+        sort: function (array) {
+            array.sort(function (a, b) {
+                return a.data.getLabel(false) > b.data.getLabel(false) ? 1 : -1
+            });
+            return array;
+        },
+        getXPCost: function (elem, oldValue, newValue) {
+            var type = elem.getType();
+            var total = 0;
+            while (oldValue !== newValue) {
+                if (type === 'skill') {
+                    if (newValue <= 5) {
+                        total += 10;
+                    } else if (newValue <= 10) {
+                        total += 15;
+                    } else if (newValue <= 15) {
+                        total += 20;
+                    } else if (newValue <= 20) {
+                        total += 30;
+                    } else if (newValue <= 25) {
+                        total += 40;
+                    } else if (newValue <= 30) {
+                        total += 60;
+                    } else if (newValue <= 35) {
+                        total += 80;
+                    } else if (newValue <= 40) {
+                        total += 110;
+                    } else if (newValue <= 45) {
+                        total += 140;
+                    } else if (newValue <= 50) {
+                        total += 180;
+                    } else if (newValue <= 55) {
+                        total += 220;
+                    } else if (newValue <= 60) {
+                        total += 270;
+                    } else if (newValue <= 65) {
+                        total += 320;
+                    } else if (newValue <= 70) {
+                        total += 380;
+                    }
+                } else if (type === 'characteristic') {
+                    if (newValue <= 5) {
+                        total += 25;
+                    } else if (newValue <= 10) {
+                        total += 30;
+                    } else if (newValue <= 15) {
+                        total += 40;
+                    } else if (newValue <= 20) {
+                        total += 50;
+                    } else if (newValue <= 25) {
+                        total += 70;
+                    } else if (newValue <= 30) {
+                        total += 90;
+                    } else if (newValue <= 35) {
+                        total += 120;
+                    } else if (newValue <= 40) {
+                        total += 150;
+                    } else if (newValue <= 45) {
+                        total += 190;
+                    } else if (newValue <= 50) {
+                        total += 230;
+                    } else if (newValue <= 55) {
+                        total += 280;
+                    } else if (newValue <= 60) {
+                        total += 330;
+                    } else if (newValue <= 65) {
+                        total += 390;
+                    } else if (newValue <= 70) {
+                        total += 450;
+                    }
+                } else if (type === 'talent') {
+                    if (elem.magic === 'Magie du Chaos') {
+                        total += 100;
+                    } else {
+                        total += newValue * 100;
+                    }
+                } else if (type === 'spell') {
+                    if (elem.magic === 'Invocation') {
+                        total += (newValue - 1) * 100;
+                    } else if (elem.magic === 'Magie des Arcanes') {
+                        total += Math.ceil(newValue / elem.max) * 100;
+                    }
+                }
+                if (elem.reduced) {
+                    total -= elem.reduced;
+                }
+                newValue--;
+            }
+            return total;
+        },
+        generateNormalList: function (list, filter, onChange, el, CharGen) {
+            el = typeof el !== 'undefined' ? el : $('.left_panel');
+            return Helper.generateListWithHelp(list, filter, el, function (i, el) {
+                return typeof el.altLabel !== 'undefined' ? el.altLabel : (typeof el.getLabel !== 'undefined' ? el.getLabel() : el.label)
+            }, function (i, el, disabled, force) {
+                Helper.addDescription(Helper.getHelpFormat(el, CharGen), CharGen, force);
+                if (!disabled && onChange !== null) {
+                    onChange(i, el);
+                }
+            }, false, null, function (i, e) {
+                if (typeof e.level != 'undefined') {
+                    return e.level;
+                }
+                return e;
+            });
+        },
+        generateMenu: function (list, index, el, onClick, isDisabled, filter) {
+            var html = '<div class="steplist">';
+            $(list).each(function (i, e) {
+                var elIsDisabled = e.isDisabled ? e.isDisabled(i, e) : (isDisabled ? isDisabled(i, e) : false);
+                if (e.filter ? e.filter(i, e) : (filter ? filter(i, e) : true)) {
+                    html += '<button class="ui-button ui-widget button" data-line="' + i + '" ' + (elIsDisabled ? 'disabled' : '') + ' >' + e.stepName + '</button>';
+                }
+            });
+            html += '</div>';
+            el.html(html);
+            var steplist = $('.steplist');
+            $(steplist).find('button').off('click').on('click', function () {
+                var i = $(this).data('line');
+                var el = list[i];
+                if (el.onClick) {
+                    el.onClick(i, el);
+                } else if (onClick) {
+                    onClick(i, el);
+                }
+            });
+            return list;
+        },
+        organizeTable: function (td, i, line, lines, horizontal) {
+            if (horizontal) {
+                if (typeof lines[i] === 'undefined') {
+                    lines[i] = '';
+                }
+                lines[i] += td;
+            } else {
+                line += td;
+            }
+            return line;
+        },
+        generateListWithRankAndHelp: function (elems, header, filter, el, funcsLabel, funcsUpDown, funcOnChange, funcClickLine, append, funcsMoveUpDown, horizontal, width) {
+            horizontal = typeof horizontal !== 'undefined' && horizontal === true;
+            var id = 'selectable' + Helper.uniqid();
+            var count = $(header).length;
+            var html = '<table class="selectable ' + (count > 2 || horizontal ? 'rank' : '') + '" id="' + id + '">';
+            var displayedElems = [];
+            var lines = [];
+            var line = '';
+            var td;
+
+            var defaultStyle = '';
+            var style = [];
+            var plus1 = 0;
+            if (horizontal) {
+                $(header).each(function (i, el) {
+                    if (el !== '') {
+                        plus1 = 1;
+                    }
+                });
+                defaultStyle = 'style="width:' + (100 / (elems.length + plus1)).toPrecision(2) + '%"';
+            }
+            var i;
+            if (typeof width !== 'undefined') {
+                for (i = 0; i < width.length; ++i) {
+                    style[i] = 'style="width:' + width[i] + '%"';
+                }
+            } else {
+                for (i = 0; i < elems.length + plus1; ++i) {
+                    style[i] = defaultStyle;
+                }
+            }
+
+            $(header).each(function (i) {
+                td = '<td ' + (!horizontal || plus1 !== 0 ? style[i] : '') + '>' + this + '</td>';
+                line = Helper.organizeTable(td, lines.length, line, lines, horizontal);
+            });
+            if (!horizontal) {
+                lines[lines.length] = line;
+                line = '';
+            }
+            $.each(elems, function (i) {
+                if (filter(i, this)) {
+                    displayedElems[i] = this;
+                    var y = 0;
+                    var x = 0;
+                    var w = function (i, x, horizontal) {
+                        return horizontal ? i : x
+                    };
+                    td = '<td ' + style[w(i, x, horizontal)] + ' data-line="' + i + '" data-id="' + this.id + '" class="label ui-widget-content"><div class="div_label" style="' + (horizontal ? 'flex-direction: column;' : '') + '">' + funcsLabel[y++](i, this) + '</div></td>';
+                    line = Helper.organizeTable(td, x++, line, lines, horizontal);
+                    if (count >= 4) {
+                        td = '<td ' + style[w(i, x, horizontal)] + ' data-line="' + i + '" data-id="' + this.id + '" class="base">' + funcsLabel[y++](i, this) + '</td>';
+                        line = Helper.organizeTable(td, x++, line, lines, horizontal);
+                    }
+                    td = '<td ' + style[w(i, x, horizontal)] + ' data-line="' + i + '" data-id="' + this.id + '" class="modif">';
+                    if (append) {
+                        line = Helper.organizeTable(td + funcsLabel[y++](i, this) + '</td>', x++, line, lines, horizontal);
+                        while (y < count - 1) {
+                            td = '<td ' + style[w(i, x, horizontal)] + ' data-line="' + i + '" data-id="' + this.id + '">' + funcsLabel[y++](i, this) + '</td>';
+                            line = Helper.organizeTable(td, x++, line, lines, horizontal);
+                        }
+                    } else {
+                        if (count > 2) {
+                            td += '<button class="down"><</button>';
+                            if (funcsMoveUpDown) {
+                                td += '<button class="movedown">&darr;</button>';
+                            }
+                            td += '<input class="number" type="text" disabled value="' + funcsLabel[y++](i, this) + '" />';
+                            if (funcsMoveUpDown) {
+                                td += '<button class="moveup">&uarr;</button>';
+                            }
+                            td += '<button class="up">></button>';
+                        } else {
+                            td += funcsLabel[y++](i, this);
+                        }
+                        line = Helper.organizeTable(td + '</td>', x++, line, lines, horizontal);
+                        while (y < count - 1) {
+                            td = '<td ' + style[w(i, x, horizontal)] + ' data-line="' + i + '" data-id="' + this.id + '">' + funcsLabel[y++](i, this) + '</td>';
+                            line = Helper.organizeTable(td, x++, line, lines, horizontal);
+                        }
+                    }
+                    if (count > 2) {
+                        td = '<td ' + style[w(i, x, horizontal)] + ' data-line="' + i + '" data-id="' + this.id + '" class="total">' + funcsLabel[y++](i, this) + '</td>'
+                        line = Helper.organizeTable(td, x++, line, lines, horizontal);
+                    }
+                    if (!horizontal) {
+                        lines[lines.length] = line;
+                        line = '';
+                    }
+                }
+            });
+            html += '<tr>' + lines.join('</tr></tr>') + '</tr></table>';
+            el.append(html);
+            var select = $('#' + id);
+            if (horizontal) {
+                line = select.find("tr:first-child td[data-line]");
+            } else {
+                line = select.find("tr td[data-line]:first-child");
+            }
+            line.off('click').on('click', function () {
+                var index = $(this).data('line');
+                funcClickLine(index, elems[index]);
+            });
+            select.find('button.up,button.down').off('click').on('click', function () {
+                var index = $(this).parents("td").data('line');
+                var $el = $(this).parents("td").find('input.number');
+                funcsUpDown(index, elems[index], $(this).hasClass('up') ? 1 : -1, $el)
+                $el.trigger('change');
+            });
+            select.find('button.moveup,button.movedown').off('click').on('click', function () {
+                var $el = $(this).parents("tr").find('input.number');
+                var $el2 = $(this).hasClass('moveup') ? $el.parents('tr').prev().find('input.number') : $el.parents('tr').next().find('input.number');
+                funcsMoveUpDown($el, $el2)
+                $el.trigger('change');
+                $el2.trigger('change');
+            });
+            select.find('input.number, input[type="checkbox"]').off('change').on('change', function () {
+                var index = $(this).parents("td").data('line');
+                funcOnChange(index, elems[index], displayedElems, $(this).parents("tr").find('.total'), $(this));
+            });
+            return select;
+        },
+        generateListWithHelp: function (elems, filter, el, funcLabel, funcHelp, append, funcDisabled, funcLevel, custom, showHelp) {
+            var id = Helper.uniqid();
+            var selectId = 'selectable' + id;
+            var searchId = 'search' + id;
+            var html = '<div style="display: flex; margin: 2px;"><input class="ui-widget-content div_label" style="padding: 0.4em;" id="' + searchId + '" type="text" placeholder="Rechercher..."></div>';
+            html += '<ol class="selectable" id="' + selectId + '">';
+            elems = typeof custom !== 'undefined' && custom ? [].concat(elems, ['custom']) : elems;
+            $(elems).each(function (i, el) {
+                if (filter === null || filter(i, el)) {
+                    var disabled = '';
+                    if (funcDisabled && funcDisabled(i, el)) {
+                        disabled = 'disabled';
+                    }
+                    var level = '';
+                    var lev = '';
+                    var leve = '';
+                    var style = '';
+                    if (funcLevel) {
+                        leve = funcLevel(i, el);
+                        if (leve > 1) {
+                            style = 'style="display:none"';
+                        }
+                        level = 'listchild' + leve;
+                        lev = 'data-level="' + leve + '"';
+                    }
+                    html += '<li data-line="' + i + '" data-id="' + el.id + '" ' + lev + ' ' + style + ' class="ui-widget-content ' + disabled + ' ' + level + '"><div class="div_label">';
+                    if (leve && typeof elems[i + 1] !== 'undefined' && funcLevel(i + 1, elems[i + 1]) > leve) {
+                        html += '<buttom class="icon more">></buttom><buttom class="icon less" style="display: none;">v</buttom>';
+                    }
+                    if (funcHelp && (typeof showHelp === 'undefined' || showHelp(i, el))) {
+                        html += '<buttom class="icon popin_help for_mobile">?</buttom>';
+                    }
+                    var l = funcLabel(i, el);
+                    if (l.indexOf('<span') === -1) {
+                        l = '<span>' + l + '</span>';
+                    }
+                    html += l + '</div></li>';
+                }
+            });
+            html += '</ol>';
+            if (append) {
+                el.append(html);
+            } else {
+                el.html(html);
+            }
+            var select = $('#' + selectId);
+
+            select.off("click", 'li').on('click', 'li', function () {
+                var $el = $(this);
+                var i = $el.data('line');
+                if ($el.data('level')) {
+                    Helper.updateSelectedElementFromList($el, true);
+                    var tmpl = parseInt($el.data('level'));
+                    if ($el.find('.more:visible').length) {
+                        tmpl += 1;
+                        var first = true;
+                        $el.nextAll("li").each(function () {
+                            var $t = $(this);
+                            if (parseInt($t.data('level')) > tmpl && first) {
+                                tmpl = parseInt($t.data('level'));
+                            }
+                            if (parseInt($t.data('level')) === tmpl) {
+                                $t.toggle(true);
+                            } else if (parseInt($t.data('level')) < tmpl) {
+                                return false;
+                            }
+                            first = false;
+                        })
+                        $el.find('.more').hide();
+                        $el.find('.less').show();
+                    } else if ($el.find('.less:visible').length) {
+                        tmpl += 1;
+                        $el.nextAll("li").each(function () {
+                            var $t = $(this);
+                            if (parseInt($t.data('level')) >= tmpl) {
+                                $t.toggle(false);
+                                $t.find('.more').show();
+                                $t.find('.less').hide();
+                            } else {
+                                return false;
+                            }
+                        })
+                        $el.find('.more').show();
+                        $el.find('.less').hide();
+                    }
+                }
+                if (!$el.is('.disabled')) {
+                    select.find('li.ui-selected').removeClass('ui-selected');
+                    $el.addClass('ui-selected');
+                }
+                if (funcHelp) {
+                    funcHelp(i, elems[i], $el.is('.disabled'));
+                }
+                return false;
+            });
+            select.off("click", '.popin_help').on('click', '.popin_help', function () {
+                var $el = $(this).parents('li');
+                var i = $el.data('line');
+                funcHelp(i, elems[i], $el.is('.disabled'), true);
+                return false;
+            })
+
+            var search = $('#' + searchId);
+            search.off('keyup').on("keyup", function () {
+                var value = Helper.toId($(this).val());
+                if (!value) {
+                    value = ' ';
+                }
+                var v;
+                var level = [''];
+                select.children("li").filter(function () {
+                    var $this = $(this);
+                    v = Helper.toId($(this).children('div').children('span').first().text()).indexOf(value) > -1;
+                    Helper.updateSelectedElementFromList($this, v, level, value);
+                });
+            });
+
+            $(el).animate({
+                scrollTop: 0
+            });
+            return select;
+        },
+        scrollToElement: function (el, container) {
+            container.stop(true);
+            var conOffset = container.offset();
+            var offset = el.offset();
+            if (conOffset && offset) {
+                container.animate({
+                    scrollTop: offset.top - conOffset.top + container.scrollTop()
+                });
+            }
+        },
+        rangToImg: function (rank) {
+            var icon = 'icon '
+            if (rank === 1) {
+                icon += 'cross_icon';
+            } else if (rank === 2) {
+                icon += 'sword_icon'
+            } else if (rank === 3) {
+                icon += 'skull_icon'
+            } else if (rank === 4) {
+                icon += 'shield_icon'
+            }
+            return '<div title="Rang ' + rank + '" class="' + icon + '"></div>'
+        },
+        generateListWithHelpPopin: function (elems, filter, el, left, funcLabel, funcDisabled, funcHelp, funcAdd, showHelp) {
+            var id = 'selectable' + Helper.uniqid();
+            var html = '<ol class="selectable" id="' + id + '">';
+            $(elems).each(function (i, el) {
+                if (filter(i, el)) {
+                    var disabled = '';
+                    if (funcDisabled && funcDisabled(i, el)) {
+                        disabled = 'disabled';
+                    }
+                    html += '<li data-line="' + i + '" data-id="' + el.id + '" class="ui-widget-content ' + disabled + '"><div class="div_label">';
+                    if (left) {
+                        html += '<buttom class="add icon" style="' + (disabled ? 'display:none' : '') + '"><</buttom>';
+                    }
+                    if (!showHelp || showHelp(i, el)) {
+                        html += '<buttom class="icon popin_help">?</buttom>';
+                    }
+                    html += funcLabel(i, el) + '<div style="order: 2;margin-left: auto">';
+                    if (!left) {
+                        html += '<buttom class="add icon" style="' + (disabled ? 'visibility:hidden' : '') + '">></buttom>';
+                    }
+                    html += '</div></li>';
+                }
+            });
+            html += '</ol>';
+            el.append(html);
+            var $select = $('#' + id);
+
+            $select.find('.popin_help').off("click").on('click', function () {
+                var i = $(this).parents('li').data('line');
+                funcHelp(i, elems[i]);
+                return false;
+            });
+            $select.find('.add').off("click").on('click', function () {
+                var i = $(this).parents('li').data('line');
+                funcAdd(i, elems[i]);
+            });
+            return $select;
+        },
+        relinkComplexElem: function (CharGen, elems, el, type) {
+            if (elems) {
+                for (var i = 0; i < elems.length; ++i) {
+                    var elems2 = elems[i];
+                    if (!Array.isArray(elems2)) {
+                        elems2 = [elems2];
+                    }
+                    for (var i2 = 0; i2 < elems2.length; ++i2) {
+                        var el2 = elems2[i2];
+                        if (typeof el2.data === 'undefined') {
+                            DataHelper.formatComplexElem(CharGen, el2, type);
+                            /*if (ele) {
+                                var origin = el.id.split('|');
+                                ele.origins = [origin[0]];
+                                if (origin.length > 1) {
+                                    ele.origins[ele.origins.length] = el.id;
+                                }
+                                result[i][result[i].length] = ele;
+                            }*/
+                        }
+                    }
+                }
+            }
+        },
+        merge: function (el, char) {
+            for (var key in el) {
+                if (el.hasOwnProperty(key)) {
+                    char[key] = el[key];
+                }
+            }
+        },
+        isFunction: function (obj) {
+
+            // Support: Chrome <=57, Firefox <=52
+            // In some browsers, typeof returns "function" for HTML <object> elements
+            // (i.e., `typeof document.createElement( "object" ) === "function"`).
+            // We don't want to classify *any* DOM node as a function.
+            return typeof obj === "function" && typeof obj.nodeType !== "number";
+        },
+        extend: function () {
+            var options, name, src, copy, copyIsArray, clone,
+                target = arguments[0] || {},
+                i = 1,
+                length = arguments.length,
+                deep = false;
+
+            // Handle a deep copy situation
+            if (typeof target === "boolean") {
+                deep = target;
+
+                // Skip the boolean and the target
+                target = arguments[i] || {};
+                i++;
+            }
+
+            // Handle case when target is a string or something (possible in deep copy)
+            if (typeof target !== "object" && !Helper.isFunction(target)) {
+                target = {};
+            }
+
+            // Extend jQuery itself if only one argument is passed
+            if (i === length) {
+                target = this;
+                i--;
+            }
+
+            for (; i < length; i++) {
+
+                // Only deal with non-null/undefined values
+                if ((options = arguments[i]) != null) {
+
+                    // Extend the base object
+                    for (name in options) {
+                        src = target[name];
+                        copy = options[name];
+
+                        // Prevent never-ending loop
+                        if (target === copy) {
+                            continue;
+                        }
+
+                        // Recurse if we're merging plain objects or arrays
+                        if (name !== 'data' && name !== 'children' && (deep && copy && (Helper.isPlainObject(copy) ||
+                            (copyIsArray = Array.isArray(copy))))) {
+
+                            if (copyIsArray) {
+                                copyIsArray = false;
+                                clone = src && Array.isArray(src) ? src : [];
+
+                            } else {
+                                clone = src && Helper.isPlainObject(src) ? src : {};
+                            }
+
+                            // Never move original objects, clone them
+                            target[name] = Helper.extend(deep, clone, copy);
+
+                            // Don't bring in undefined values
+                        } else if (copy !== undefined && name !== 'children') {
+                            target[name] = copy;
+                        }
+                    }
+                }
+            }
+
+            // Return the modified object
+            return target;
+        },
+        isPlainObject: function (obj) {
+            var proto, Ctor;
+
+            // Detect obvious negatives
+            // Use toString instead of jQuery.type to catch host objects
+            if (!obj || toString.call(obj) !== "[object Object]") {
+                return false;
+            }
+
+            proto = Object.getPrototypeOf(obj);
+
+            // Objects with no prototype (e.g., `Object.create( null )`) are plain
+            if (!proto) {
+                return true;
+            }
+            var class2type = {}
+            var elems = "Boolean Number String Function Array Date RegExp Object Error Symbol".split(" ");
+            for (var i = 0; i < elems.length; ++i) {
+                var el = elems[i];
+                class2type["[object " + el + "]"] = el.toLowerCase();
+            }
+
+            // Objects with prototype are plain iff they were constructed by a global Object function
+            Ctor = class2type.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+            return typeof Ctor === "function" && class2type.hasOwnProperty.toString.call(Ctor) === class2type.hasOwnProperty.toString.call(Object);
+        },
+        clone: function (el) {
+            if (el) {
+                return Helper.extend(true, {}, el);
+            }
+            return null;
+        },
+        initPopin: function () {
+            Helper.popin = $("#dialog").dialog({
+                autoOpen: false,
+                width: 500
+            })
+        },
+        addSpace: function (i) {
+            var result = '';
+            while (i-- > 0) {
+                result += "&emsp;";
+            }
+            return result;
+        },
+        randomSpecialisation: function (character, allValls, el, index, oldValue, number) {
+            if (oldValue === 0) {
+                if (el.specs.length && !el.spec) {
+                    var specs = el.specs
+                    while (specs.length) {
+                        var i = Helper.getRandomInt(specs.length) - 1;
+                        if (character.search(el.id, specs[i], el.getType(), true, el.origins ? el.origins[0] : null)) {
+                            specs.splice(i, 1);
+                        } else {
+                            el.spec = specs[i];
+                            break;
+                        }
+                    }
+                    if (!specs.length) {
+                        if (allValls) {
+                            allValls.splice(index, 1);
+                        }
+                        return false
+                    }
+                }
+            }
+            var veryOldAdvance = el.getTotal();
+            el = character.set(el, number);
+            if (allValls) {
+                allValls[index] = el;
+            }
+            return veryOldAdvance === el.getTotal() ? el : false;
+        },
+        showSpecialisationPopin: function (character, elem, change, cancel, withOrigin, type) {
+            type = typeof type !== 'undefined' ? type : elem.getType();
+            var majType = type[0].toUpperCase() + type.substring(1);
+            withOrigin = typeof withOrigin !== 'undefined' ? withOrigin : false;
+
+            Helper.showModelPopin('Spécialisation',
+                'Choisissez une spécialisation pour votre ' + majType + ': <div><span class="showHelp" data-type="' + type + 's" data-index="' + (elem.index ? elem.index : elem.data.index) + '">' + elem.getLabel() + '</span></div>',
+                function (html) {
+                    Helper.generateListWithHelp(
+                        elem.specs,
+                        function () {
+                            return true;
+                        },
+                        html,
+                        function (i, el) {
+                            if (el === 'custom') {
+                                return "<input data-id='custom' type='text' value='' class='ui-widget ui-custom' placeholder='Ou saisissez ici votre Spécialisation'/>"
+                            } else {
+                                return el
+                            }
+                        },
+                        function (i, el) {
+                            var custom = $('.selectable [data-id="custom"]');
+                            if (custom.length) {
+                                if (custom.parent('.ui-selected').length) {
+                                    custom.addClass('ui-selected')
+                                } else {
+                                    custom.removeClass('ui-selected')
+                                }
+                            }
+                        },
+                        2,
+                        function (i, el) {
+                            if (el !== 'custom') {
+                                if (withOrigin) {
+                                    return character.search(elem.id, el, type, true, elem.origins ? elem.origins[0] : null, false, false)
+                                } else {
+                                    return character.search(elem.id, el, type);
+                                }
+                            }
+                        },
+                        '',
+                        typeof elem.data === 'undefined' || elem.data.specName === 'Au choix',
+                        function (i, el) {
+                            return false
+                        }
+                    );
+                }, function (el) {
+                    var spec = el.find('li.ui-selected');
+                    var value = '';
+                    if (spec.length) {
+                        if (spec.find('[data-id="custom"]').length) {
+                            value = spec.find('[data-id="custom"]').val().trim()
+                            if (!value) {
+                                return false;
+                            }
+                            elem.specs[elem.specs.length] = value;
+                            elem.data.specs[elem.data.specs.length] = value;
+                        } else {
+                            value = spec.find('.div_label span').html();
+                        }
+                        elem.spec = value;
+                        change(0, elem);
+                        return true;
+                    }
+                    return false;
+                },
+                cancel
+            );
+        },
+        showSpells: function (CharGen, character, returnAction, validateAction, number, mode, numberSpellToChoose, spec) {
+            var spells = CharGen.data.spells;
+            var remaining = typeof numberSpellToChoose === 'undefined' || numberSpellToChoose === -1 ? 0 : numberSpellToChoose;
+            var charSpells = character.getSpells();
+            var currentSpell;
+            var tmpNumber = number;
+            var xp = false;
+            $(charSpells).each(function (i, el) {
+                if (el && el.data.type === mode && (!el.spec || typeof spec === 'undefined' || el.spec === spec)) {
+                    el.myIndex = i;
+                    if (!currentSpell && tmpNumber-- === 0) {
+                        currentSpell = el;
+                    }
+                    --remaining;
+                }
+            });
+            if (numberSpellToChoose === -1) {
+                numberSpellToChoose = -remaining;
+            }
+            if (mode === 'Béni') {
+                $('.left_panel').html('');
+            } else if (mode === 'Magie mineure' || mode === 'Magie du Chaos') {
+                $('.left_panel').html("<div class='description_title'>" + remaining + ' Sorts à choisir' + "</div>");
+            } else {
+                var used = character.xp.used;
+                used += Helper.getXPCost({
+                    getType: function () {
+                        return 'spell'
+                    },
+                    magic: mode,
+                    max: character.searchCharacteristic('Intelligence').getBonus(),
+                    reduced: 0
+                }, numberSpellToChoose, numberSpellToChoose - remaining)
+                character.xp.tmp_used = used;
+                xp = true;
+                $('.left_panel').html("<div class='description_title'><span class='experience'>" + (character.xp.max - used) + "</span> Points d\'Expérience à dépenser</div>");
+            }
+            $('.validate').prop('disabled', true);
+            if (!currentSpell) {
+                var label = function (i, el) {
+                    return el.getLabel();
+                };
+                var filter = function (i, el) {
+                    return el.type === mode && (!el.spec || typeof spec === 'undefined' || el.spec === spec);
+                };
+                var change = function (i, el) {
+                    if (typeof spec !== 'undefined') {
+                        el.spec = spec;
+                    }
+                    character.setSpell(el);
+                    Helper.showSpells(CharGen, character, returnAction, validateAction, number + 1, mode, numberSpellToChoose, spec);
+                };
+                var funcDisabled = function (i, el) {
+                    return mode === 'Béni' || (remaining <= 0 && !xp) || character.searchSpell(el.id, spec);
+                };
+                var initHelp = function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen);
+                };
+                Helper.generateListWithHelpPopin(
+                    spells,
+                    filter,
+                    $('.left_panel'),
+                    false,
+                    label,
+                    funcDisabled,
+                    initHelp,
+                    change
+                );
+            } else {
+                return Helper.showSpells(CharGen, character, returnAction, validateAction, number + 1, mode, numberSpellToChoose, spec)
+            }
+            $('.right_panel').html('');
+            if (!$('.left_panel').html()) {
+                $('.left_panel').addClass('for_pc');
+            } else {
+                $('.left_panel').removeClass('for_pc');
+            }
+            $('.validate').prop('disabled', mode !== 'Béni' && remaining !== 0 && !xp);
+            Helper.generateListWithHelpPopin(
+                charSpells,
+                function (i, el) {
+                    return el && el.data.type === mode && (!el.spec || typeof spec === 'undefined' || el.spec === spec)
+                },
+                $('.right_panel'),
+                true,
+                function (i, el) {
+                    return el.getLabel()
+                },
+                function () {
+                    return mode === 'Béni';
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                },
+                function (i, el) {
+                    character.setSpell(null, el.myIndex);
+                    Helper.showSpells(CharGen, character, returnAction, validateAction, 0, mode, numberSpellToChoose, spec)
+                }
+            );
+
+            $('.cancel').off('click').on('click', function () {
+                if (mode === 'Béni') {
+                    Helper.showGods(CharGen, character, returnAction, validateAction, mode);
+                } else {
+                    returnAction();
+                }
+            });
+
+            $('.validate').off('click').on('click', function () {
+                validateAction();
+            });
+        },
+        showGods: function (CharGen, character, returnAction, validateAction, mode, nbSpell) {
+            $('.right_panel').html('');
+            var species = $(CharGen.data.gods);
+            var $species = Helper.generateNormalList(species, function () {
+                return true
+            }, function (i, el) {
+                var godTalent = character.searchTalent(mode, '', false);
+                godTalent.spec = el.label;
+                character.applyTalent();
+                $('.validate').prop('disabled', false)
+            }, undefined, CharGen);
+            var godTalent = character.searchTalent(mode, '', false)
+            if (godTalent) {
+                $species.find('li[data-id="' + godTalent.spec + '"]').click()
+            }
+
+            $('.cancel').off('click').on('click', function () {
+                returnAction()
+            });
+
+            $('.validate').off('click').on('click', function () {
+                var godTalent = character.searchTalent(mode, '', false);
+                Helper.showSpells(CharGen, character, returnAction, validateAction, 0, mode, nbSpell, godTalent.spec);
+            });
+        },
+        showMagicColor: function (CharGen, character, returnAction, validateAction, mode, nbSpell, spec) {
+            $('.right_panel').html('');
+            var species = CharGen.allLoreByGroup['magick'];
+            var $species = Helper.generateNormalList(species, function (i, el) {
+                return (!spec || el.title === spec) &&
+                    ((mode === 'Magie des Arcanes' && el.title !== 'Magie du Chaos') || (
+                        (mode === 'Magie du Chaos' || el.title === 'Magie du Chaos')))
+            }, function (i, el) {
+                var magicTalent = character.searchTalent(mode, '', false);
+                magicTalent.spec = el.label;
+                character.applyTalent();
+                $('.validate').prop('disabled', false)
+            }, undefined, CharGen);
+            var magicTalent = character.searchTalent(mode, spec, true)
+            if (magicTalent) {
+                $species.find('li[data-id="' + magicTalent.spec + '"]').click()
+            }
+
+            $('.cancel').off('click').on('click', function () {
+                returnAction()
+            });
+
+            $('.validate').off('click').on('click', function () {
+                var magicTalent = character.searchTalent(mode, '', false);
+                Helper.showSpells(CharGen, character, returnAction, validateAction, 0, mode, nbSpell, magicTalent.spec);
+            });
+        },
+        showMagicSpecialisation: function (CharGen, character, cancelAction, validateAction, magic, elem) {
+            var spec = elem.spec;
+            if (magic === 'Béni') {
+                if (!spec) {
+                    Helper.showGods(CharGen, character, cancelAction, validateAction, magic);
+                } else {
+                    Helper.showSpells(CharGen, character, cancelAction, validateAction, 0, magic, 0, spec);
+                }
+            } else if (magic === 'Magie mineure') {
+                Helper.showSpells(CharGen, character, cancelAction, validateAction, 0, magic, character.searchCharacteristic('Force Mentale').getBonus(), spec);
+            } else if (magic === 'Magie des Arcanes') {
+                if (!spec || spec === 'Magie des couleurs') {
+                    Helper.showMagicColor(CharGen, character, cancelAction, validateAction, magic, -1, spec);
+                } else {
+                    Helper.showSpells(CharGen, character, cancelAction, validateAction, 0, magic, -1, spec);
+                }
+            } else if (magic === 'Magie du Chaos') {
+                if ((!spec || !elem.specs.includes(spec)) && elem.getAdvance() < 2) {
+                    Helper.showMagicColor(CharGen, character, cancelAction, validateAction, magic, elem.getAdvance(), spec);
+                } else {
+                    Helper.showSpells(CharGen, character, cancelAction, validateAction, 0, magic, elem.getAdvance(), spec);
+                }
+            } else if (magic === 'Invocation') {
+                if (!spec) {
+                    Helper.showGods(CharGen, character, cancelAction, validateAction, magic, -1);
+                } else {
+                    Helper.showSpells(CharGen, character, cancelAction, validateAction, 0, magic, -1, spec);
+                }
+            }
+        },
+        randomMagicTalent: function (CharGen, character, talent) {
+            var magic = talent.data ? talent.data.addMagic : talent.addMagic;
+            if (magic === 'Béni') {
+                var gods = CharGen.data.gods;
+                var i = Helper.getRandomInt(gods.length) - 1;
+                talent.spec = gods[i].label;
+            } else {
+                if (magic === 'Magie mineure') {
+                    var spellsNumber = 0;
+                    var numberSpellToChoose = character.searchCharacteristic('Force Mentale').getBonus();
+                    var spells = CharGen.data.spells;
+                    while (spellsNumber < numberSpellToChoose) {
+                        var index = Helper.getRandomInt(spells.length) - 1;
+                        var spell = spells[index];
+                        if (spell.type === magic && !character.searchSpell(spell.id, spell.spec)) {
+                            character.setSpell(spell, spellsNumber);
+                            ++spellsNumber;
+                        }
+                    }
+                }
+            }
+        },
+        showModelPopin: function (title, description, html, validateFunction, cancelFunction) {
+            var dialog = $("#dialog_modal").dialog({
+                title: title,
+                autoOpen: true,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Valider": function () {
+                        if (validateFunction) {
+                            if (!validateFunction($(this))) {
+                                return false;
+                            }
+                        }
+                        $(this).dialog('close');
+                    },
+                    "Annuler": function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                    if (cancelFunction) {
+                        cancelFunction($(this));
+                    }
+                }
+            });
+            dialog.html('');
+            if (description) {
+                dialog.html("<div class='description'>" + description + "</div>");
+            }
+            if (typeof html === 'function') {
+                html(dialog);
+            } else {
+                dialog.html(html);
+            }
+            return dialog;
+        },
+        getSkills: function (skillList, character, origin) {
+            var skill;
+            var spec;
+            var i;
+            var el;
+            var secondWave = [];
+            var careerSkills = [];
+            for (i = 0; i < skillList.length; ++i) {
+                el = skillList[i];
+                spec = el.spec ? el.spec : el.specs;
+                skill = character.searchSkill(el.id, spec, true, '', false, false);
+                if (!skill) {
+                    secondWave[secondWave.length] = el;
+                } else {
+                    skill.reduced = 0;
+                    skill.added = true;
+                    skill.addOrigins([origin]);
+                    careerSkills[careerSkills.length] = skill;
+                }
+            }
+            for (i = 0; i < secondWave.length; ++i) {
+                el = secondWave[i];
+                spec = el.spec ? el.spec : el.specs;
+                skill = character.searchSkill(el.id, spec, false, origin, true, false);
+                if (!skill && (!el.specs || el.spec)) {
+                    skill = character.searchSkill(el.id, spec);
+                }
+                if (!skill) {
+                    skill = character.createSkill(el);
+                    if (!el.specs || el.spec) {
+                        skill = character.setSkill(skill);
+                    }
+                }
+                skill.reduced = 0;
+                skill.added = true;
+                skill.addOrigins([origin]);
+                careerSkills[careerSkills.length] = skill;
+            }
+            i = 0;
+            while (i < character.skills.length) {
+                el = character.skills[i];
+                if (typeof (el.added) === 'undefined' && el.hasOrigin(origin) && el.getAdvance() === 0) {
+                    character.skills.splice(i, 1);
+                } else {
+                    ++i;
+                }
+                delete el.added;
+            }
+
+            return careerSkills;
+        },
+        convertPrice: function (or, silver, bronze) {
+            var result = '';
+            if (or === 'Variable' || or === 'ND') {
+                return or;
+            }
+            if (or > 0) {
+                result += or + 'CO';
+                if (!silver && !bronze) {
+                    return result;
+                }
+                result += ' ';
+            }
+            if (silver > 0) {
+                result += silver + '/';
+                if (!bronze) {
+                    return result + '-';
+                }
+                return result + bronze;
+            }
+            if (bronze > 0) {
+                if (!or) {
+                    return bronze + 'sc';
+                }
+                return result + ' /' + bronze;
+            }
+        }
+    }
+
+    class RichTextEditor {
+        constructor(options) {
+            this.textarea = options.elem;
+            this.initEditor();
+            this.addEventListeners();
+            this.selectionRange = null;
+
+            this.history = [];
+            this.historyIndex = -1;
+            this.saveHistory();
+        }
+
+        initEditor() {
+            // Créer la structure RTE (toolbar + contenteditable)
+            const toolbar = document.createElement('div');
+            toolbar.classList.add('toolbar');
+
+            const editor = document.createElement('div');
+            editor.classList.add('editor');
+            editor.contentEditable = true;
+            editor.innerHTML = this.textarea.value; // Charger le contenu initial du textarea
+
+            const table = $('<div class="table-selector"><div class="table-size">Tableau 1x1</div><div class="table-grid" id="tableGrid"></div> </div>')[0];
+
+            // Insérer la toolbar et l'éditeur après le textarea
+            this.textarea.style.display = 'none'; // Cacher le textarea original
+            this.textarea.parentNode.insertBefore(toolbar, this.textarea.nextSibling);
+            this.textarea.parentNode.insertBefore(table, toolbar.nextSibling);
+            this.textarea.parentNode.insertBefore(editor, table.nextSibling);
+
+            // Enregistrer les références
+            this.toolbar = toolbar;
+            this.editor = editor;
+            this.table = table;
+
+            this.initToolbar();
+        }
+
+        initToolbar() {
+            const buttons = [
+                {action: 'bold', label: '<b>B</b>'},
+                {action: 'italic', label: '<i>I</i>'},
+                {action: 'underline', label: '<u>U</u>'},
+                {action: 'undo', label: '↶'},
+                {action: 'redo', label: '↷'},
+                {action: 'left', label: '◀'},
+                {action: 'center', label: '◯'},
+                {action: 'right', label: '▶'},
+                {action: 'ul', label: '•'},
+                {action: 'ol', label: '1.'},
+                {action: 'table', label: '⌧'},
+                {action: 'h1', label: 'H1'},
+                {action: 'h2', label: 'H2'},
+                {action: 'h3', label: 'H3'}
+            ];
+
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.innerHTML = button.label;
+                btn.dataset.action = button.action;
+                this.toolbar.appendChild(btn);
+
+                btn.addEventListener('click', (event) => {
+                    const action = event.currentTarget.dataset.action;
+                    this.handleAction(action);
+                });
+            });
+        }
+
+        handleAction(action) {
+            this.saveSelection(); // Sauvegarder la sélection avant de modifier
+
+            switch (action) {
+                case 'bold':
+                case 'italic':
+                case 'underline':
+                case 'left':
+                case 'center':
+                case 'right':
+                    this.toggleStyle(action);
+                    this.updateTextarea();
+                    break;
+                case 'ul':
+                case 'ol':
+                    this.insertList(action);
+                    this.updateTextarea();
+                    break;
+                case 'table':
+                    this.showTableSelector();
+                    this.updateTextarea();
+                    break;
+                case 'h1':
+                case 'h2':
+                case 'h3':
+                    this.formatHeader(action);
+                    this.updateTextarea();
+                    break;
+                case 'undo':
+                    this.undo();
+                    break;
+                case 'redo':
+                    this.redo();
+                    break;
+                default:
+                    console.log('Action non supportée : ', action);
+            }
+        }
+
+        toggleStyle(style) {
+            this.restoreSelection(); // Restaurer la sélection
+            var filter = 'span';
+            const selection = document.getSelection();
+
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.toString();
+
+                if (selectedText.length > 0) {
+                    const $commonAncestor = $(range.commonAncestorContainer);
+                    let $spans = $commonAncestor.filter(filter).length ? $commonAncestor.filter(filter) : $commonAncestor.children(filter);
+                    if ($spans.length === 0) {
+                        $spans = $($commonAncestor[0].parentNode).filter(filter);
+                    }
+
+                    // Fonction pour appliquer ou retirer le style sur un span
+                    const toggleSpanStyle = (i, span) => {
+                        const $span = $(span);
+                        let currentStyle = {
+                            bold: span.style['font-weight'],
+                            italic: span.style['font-style'],
+                            underline: span.style['text-decoration'],
+                            textAlign: span.style['text-align']
+                        };
+                        if (style === 'bold') {
+                            $span.css('font-weight', currentStyle.bold ? '' : 'bold');
+                            currentStyle[style] = span.style['font-weight'];
+                        } else if (style === 'italic') {
+                            $span.css('font-style', currentStyle.italic ? '' : 'italic');
+                            currentStyle[style] = span.style['font-style'];
+                        } else if (style === 'underline') {
+                            $span.css('text-decoration', currentStyle.underline ? '' : 'underline');
+                            currentStyle[style] = span.style['text-decoration'];
+                        } else if (['left', 'center', 'right'].includes(style)) {
+                            $span.css('text-align', currentStyle.textAlign === style ? '' : style);
+                            currentStyle.textAlign = span.style['text-align'];
+                            $span.css('display', currentStyle.textAlign ? 'block' : '');
+                        }
+
+                        // Supprime le span s'il n'a plus de style
+                        if (!currentStyle.bold && !currentStyle.italic && !currentStyle.underline && !currentStyle.textAlign) {
+                            $span.replaceWith($span.contents());
+                        }
+                    };
+
+                    // Vérifiez chaque span dans la portée de la sélection
+                    var $mySpan = $spans.filter((_, span) => {
+                        return span.innerText.trim() === selectedText.trim();
+                    });
+                    if ($mySpan.length) {
+                        // Si le style est déjà appliqué, retirez le style
+                        $mySpan.each(toggleSpanStyle);
+                    } else {
+                        // Appliquez le style aux spans existants ou créez un nouveau span si nécessaire
+                        const $newSpan = $('<'+filter+'>');
+                        const selectedContent = range.extractContents();
+                        $newSpan.append($(selectedContent));
+                        $newSpan.each(toggleSpanStyle);
+                        range.insertNode($newSpan[0]);
+                    }
+                }
+            }
+        }
+
+        insertList(type) {
+            this.restoreSelection(); // Restaurer la sélection
+            const list = document.createElement(type === 'ul' ? 'ul' : 'ol');
+            const item = document.createElement('li');
+            item.textContent = 'Nouvel élément';
+            list.appendChild(item);
+
+            const range = document.getSelection().getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(list);
+
+            this.updateTextarea();
+        }
+
+        formatHeader(tag) {
+            this.restoreSelection(); // Restaurer la sélection
+            const selection = document.getSelection();
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.extractContents();
+
+                const header = document.createElement(tag);
+                header.appendChild(selectedText);
+
+                range.insertNode(header);
+            }
+            this.updateTextarea();
+        }
+
+        showTableSelector() {
+            const selector = this.table;
+            const grid = $(selector).find('.table-grid')[0];
+            const sizeDisplay = $(selector).find('.table-size')[0];
+
+            selector.style.display = 'block'; // Afficher le sélecteur
+            grid.innerHTML = ''; // Réinitialiser la grille
+
+            const rows = 10;
+            const cols = 10;
+
+            for (let r = 1; r <= rows; r++) {
+                for (let c = 1; c <= cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('table-cell');
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+
+                    cell.addEventListener('mouseover', () => {
+                        this.updateTableGrid(r, c);
+                        sizeDisplay.textContent = `Tableau ${r}x${c}`;
+                    });
+
+                    cell.addEventListener('click', () => {
+                        this.insertTable(r, c);
+                        selector.style.display = 'none'; // Cacher le sélecteur après insertion
+                    });
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        updateTableGrid(rows, cols) {
+            document.querySelectorAll('.table-cell').forEach(cell => {
+                const cellRow = parseInt(cell.dataset.row);
+                const cellCol = parseInt(cell.dataset.col);
+                cell.classList.toggle('selected', cellRow <= rows && cellCol <= cols);
+            });
+        }
+
+        insertTable(rows, cols) {
+            this.restoreSelection(); // Restaurer la sélection
+            const table = document.createElement('table');
+            for (let r = 0; r < rows; r++) {
+                const tr = document.createElement('tr');
+                for (let c = 0; c < cols; c++) {
+                    const td = document.createElement('td');
+                    td.textContent = 'Cellule';
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
+
+            const range = document.getSelection().getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(table);
+
+            this.updateTextarea();
+        }
+
+        // Gestion de l'historique pour Undo/Redo
+        saveHistory() {
+            const content = this.editor.innerHTML;
+            if (this.history[this.historyIndex] !== content) {
+                this.history = this.history.slice(0, this.historyIndex + 1);
+                this.history.push(content);
+                this.historyIndex++;
+            }
+        }
+
+        undo() {
+            if (this.historyIndex > 0) {
+                this.historyIndex--;
+                this.editor.innerHTML = this.history[this.historyIndex];
+                this.updateTextarea(false);
+            }
+        }
+
+        redo() {
+            if (this.historyIndex < this.history.length - 1) {
+                this.historyIndex++;
+                this.editor.innerHTML = this.history[this.historyIndex];
+                this.updateTextarea(false);
+            }
+        }
+
+        saveSelection() {
+            const selection = document.getSelection();
+            if (selection.rangeCount > 0) {
+                this.selectionRange = selection.getRangeAt(0);
+            }
+        }
+
+        restoreSelection() {
+            const selection = document.getSelection();
+            if (this.selectionRange) {
+                selection.removeAllRanges();
+                selection.addRange(this.selectionRange);
+            }
+        }
+
+        updateTextarea(dontUpdate) {
+            this.textarea.value = this.editor.innerHTML;
+            if (dontUpdate !== false) {
+                this.saveHistory(); // Sauvegarder après chaque modification
+            }
+        }
+
+        addEventListeners() {
+            this.editor.addEventListener('input', () => {
+                this.updateTextarea();
+            });
+        }
+    }
+
+    this.Helper = Helper;
+</script>

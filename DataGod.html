@@ -1,0 +1,54 @@
+<script>
+    var DataGod = function (CharGen) {
+        var typeItem = 'god';
+        var labelItem = 'Dieu';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            el.getBlessings = function () {
+                return this.blessings;
+            }
+            el.getMiracles = function () {
+                return this.miracles;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var desc = elem.desc;
+                var res = {};
+                if (desc) {
+                    res['Info'] = DescriptionHelper.applyHelp(desc, elem,  {...labels.lore, ...labels.god});
+                }
+                res['Miracles'] = '<b>Bénédictions: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(this.getBlessings(), true)) + (this.getMiracles().length ?
+                    '<b>Miracles: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(this.getMiracles(), true)) : '')
+                return res;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+            el.blessings = DataHelper.stringToElems(CharGen, el.blessings, el, 'spell', false, match);
+
+            var miracles = el.miracles;
+            el.miracles = [];
+            if (miracles) {
+                DataHelper.eachElem(miracles.split('; '), function (e, i, y, ou) {
+                    el.miracles[el.miracles.length] = DataHelper.bindElem(CharGen, DataHelper.createElem(e), el, 'spell', match)
+                });
+            } else if (typeof CharGen.data.spell.allByTypeAndSpec['Invocation'][el.label] !== 'undefined') {
+                DataHelper.eachElem(CharGen.data.spell.allByTypeAndSpec['Invocation'][el.label], function (e, i, y, ou) {
+                    el.miracles[el.miracles.length] = DataHelper.bindElem(CharGen, DataHelper.createElem(e.label), el, 'spell', match)
+                });
+            }
+        }
+
+        return oThat;
+    }
+    this.DataGod = DataGod;
+</script>

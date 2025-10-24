@@ -1,0 +1,241 @@
+<script>
+    var DataHelper = {
+        initData: function (CharGen, types) {
+            CharGen.allForHelp = {};
+            CharGen.match = {};
+            var data = {};
+            for (var index = 0; index < types.length; ++index) {
+                var type = types[index];
+                data[type.typeItem] = type.init();
+            }
+            CharGen.data = data;
+            for (let [type, ele] of Object.entries(data)) {
+                var elems = [...ele.all, ...ele.allInactive];
+                if (typeof elems !== "undefined") {
+                    for (var i = 0; i < elems.length; ++i) {
+                        var el = elems[i];
+                        ele.addToBook(el, CharGen.match);
+                        if (el.inactive !== 1) {
+                            ele.parseElems(el, CharGen.match);
+                            ele.generateTree(el);
+                        }
+                    }
+                }
+            }
+            data.detail = CharGen.jData.detail;
+            data.eye = CharGen.jData.eye;
+            data.hair = CharGen.jData.hair;
+        },
+        bindElem: function (CharGen, elem, from, type, match) {
+            DataHelper.formatComplexElem(CharGen, elem, type, from);
+            if (typeof elem.data !== 'undefined' && typeof match !== 'undefined') {
+                DescriptionHelper.updateMatch(elem.getLabel(), elem.data, from, match);
+            }
+            return elem;
+        },
+        eachElem: function (elems, func) {
+            for (var i = 0; i < elems.length; ++i) {
+                var elem = elems[i];
+                var y = 0
+                if (Array.isArray(elem)) {
+                    for (; y < elem.length; ++y) {
+                        var el = elem[y];
+                        func(el, i, y, true)
+                    }
+                } else {
+                    func(elem, i, y, false)
+                }
+            }
+        },
+        createElem: function (text, specs, suffix, prefix) {
+            var ret = {
+                specs: (typeof specs !== 'undefined' ? specs : []),
+                prefix: (typeof prefix !== 'undefined' ? prefix : ''),
+                suffix: (typeof suffix !== 'undefined' ? suffix : ''),
+                label: (typeof text !== 'undefined' ? text : ''),
+                original: ''
+            };
+            if (ret.label) {
+                ret.original = DataFunctions.getLabelForElem(ret);
+            }
+            return ret;
+        },
+        stringToElems: function (CharGen, string, from, type, one, match) {
+            if (typeof string === 'undefined' || string.trim() === '') {
+                return one === true ? '' : [];
+            }
+            var elems;
+            elems = string.split(/([+|-]?\d+[d\-+\d]*| ou |, | \(|\))/g);
+            ;
+            var elem = DataHelper.createElem();
+            var modeText = 'label';
+            var modeAffix = 'suffix';
+            var result = [];
+            var res = [];
+            var specIndex = 0;
+            for (var index = 0; index < elems.length; ++index) {
+                var original = elems[index];
+                var e = original.trim();
+                if (!((e === 'ou' || e === ',') && modeText === 'label')) {
+                    elem['original'] += original;
+                }
+                if (e === '') {
+                } else if (e === '(') {
+                    modeText = 'specs';
+                } else if (e === ')') {
+                    modeText = 'label';
+                } else if (!isNaN(parseInt(e)) && modeText === 'label') {
+                    elem[modeAffix] = e;
+                } else if (!isNaN(parseInt(e)) && typeof elem[modeText][specIndex] !== 'undefined') {
+                    elem[modeAffix] = e;
+                } else if ((e === 'ou' || e === ',') && modeText === 'label') {
+                    DataHelper.bindElem(CharGen, elem, from, type, match);
+                    if (e === 'ou' || res.length > 0) {
+                        res[res.length] = elem;
+                    } else {
+                        res = elem;
+                    }
+                    if (e === ',') {
+                        result[result.length] = res;
+                        res = [];
+                    }
+                    elem = DataHelper.createElem();
+                    modeAffix = 'suffix';
+                    specIndex = 0;
+                } else if (e === 'ou' && modeText === 'specs') {
+                    ++specIndex;
+                } else if (e === ',' && modeText === 'specs') {
+
+                } else if (modeText === 'specs') {
+                    if (typeof elem[modeText][specIndex] === 'undefined') {
+                        elem[modeText][specIndex] = e;
+                    } else {
+                        elem[modeText][specIndex] += ' ' + e;
+                    }
+                } else if (modeText === 'label') {
+                    elem[modeText] = e;
+                    modeAffix = 'prefix';
+                }
+            }
+            DataHelper.bindElem(CharGen, elem, from, type, match);
+            if (one === true) {
+                return elem;
+            }
+            if (res.length > 0) {
+                res[res.length] = elem;
+            } else {
+                res = elem;
+            }
+            result[result.length] = res;
+
+            return result;
+        },
+        formatSkill: function (CharGen, text, spec, from) {
+            spec = typeof spec !== 'undefined' ? spec : [];
+            return DataHelper.formatComplexElem(CharGen, {
+                specs: spec,
+                prefix: '',
+                suffix: '',
+                label: text
+            }, 'skill', from);
+        },
+        formatTalent: function (CharGen, text, spec, from) {
+            spec = typeof spec !== 'undefined' ? spec : [];
+            return DataHelper.formatComplexElem(CharGen, {
+                specs: spec,
+                prefix: '',
+                suffix: '',
+                label: text
+            }, 'talent', from);
+        },
+        formatSpell: function (CharGen, text, spec, from) {
+            spec = typeof spec !== 'undefined' ? spec : [];
+            return DataHelper.formatComplexElem(CharGen, {
+                specs: spec,
+                prefix: '',
+                suffix: '',
+                label: text
+            }, 'spell', from);
+        },
+        formatComplexElem: function (CharGen, elem, type, from) {
+            var label = elem.label;
+            elem.typeItem = type;
+            if (typeof from !== undefined && from) {
+                elem.origins = [from.id];
+                if (from.id.split('|').length > 1) {
+                    elem.origins[elem.origins.length] = from.id.split('|')[1];
+                }
+            }
+            var test = [];
+            var spec = '';
+            if (elem.specs.length === 1) {
+                spec = elem.specs[0];
+                if (spec && spec !== 'Au choix') {
+                    test[test.length] = label + ' (' + spec + ')';
+                } else {
+                    spec = '';
+                }
+            }
+            test[test.length] = label;
+            for (var i = 0; i < test.length; ++i) {
+                var id = Helper.toId(test[i]);
+                var data = CharGen.data[type].allById[id];
+                if (data) {
+                    break;
+                }
+            }
+            elem.getLabel = DataFunctions.getLabelForElem;
+            elem.getData = DataFunctions.getData;
+            if (!data) {
+                elem.spec = spec;
+                if (elem.typeItem !== 'trapping') {
+                    console.log('formatComplexElem ' + type + ':')
+                    console.log(elem)
+                }
+                return elem;
+            }
+            if (spec && (typeof data.specName === 'undefined' || spec !== data.specName)) {
+                elem.spec = spec;
+                elem.specs = [spec];
+            } else {
+                elem.spec = '';
+                elem.specs = [];
+            }
+            if (typeof data.getLabelForElem !== 'undefined') {
+                elem.getLabel = data.getLabelForElem;
+            }
+            elem.id = data.id;
+            elem.data = data;
+            elem.getDescription = data.getDescription;
+
+            return elem;
+        },
+        flattenElemIteratively: function (obj, condition) {
+            const result = []; // Tableau pour stocker les objets aplatis
+            var stack = [{node: obj, level: 0}]; // Pile pour gérer les noeuds à traiter
+
+            while (stack.length > 0) {
+                const {node, level} = stack.shift(); // Récupérer le dernier noeud de la pile
+                if (typeof condition !== 'undefined' && !condition(node)) {
+                    continue;
+                }
+                // Ajouter l'objet courant au tableau de résultats
+                var tmp = Helper.clone(node);
+                tmp.level = level;
+                result[result.length] = tmp;
+                // Vérifier si l'objet a des enfants et les ajouter à la pile
+                if (node.children) {
+                    // Ajouter les enfants à la pile avec le niveau incrémenté
+                    var t = [];
+                    node.children.forEach(child => {
+                        t[t.length] = ({node: child, level: level + 1});
+                    });
+                    stack.unshift(...t);
+                }
+            }
+
+            return result; // Retourner le tableau des objets à la fin
+        }
+    }
+    this.DataHelper = DataHelper;
+</script>

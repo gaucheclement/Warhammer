@@ -1,0 +1,71 @@
+<script>
+    var DataSkill = function (CharGen) {
+        var typeItem = 'skill';
+        var labelItem = 'Compétence';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, false, labelItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.specs !== 'undefined' && el.specs) {
+                el.canHaveSpec = true;
+            }
+            el.getCharacteristic = function () {
+                return this.characteristic;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+                var desc = "<b>Attribut: </b>" + DescriptionHelper.showHelpTextFromElem(elem.getCharacteristic());
+                var type = elem.type;
+                var specs = elem.specs;
+                desc += "<i>, " + (type === 'base' ? 'de ' : '') + type
+                if (specs.length) {
+                    desc += ", groupée";
+                }
+                desc += "</i><br><br>"
+                var tmpDesc = elem.desc;
+                if (elem.example) {
+                    tmpDesc += "<br><br><b>Exemple: </b>" + elem.example;
+                }
+                desc += DescriptionHelper.applyHelp(tmpDesc, elem, {...labels.skill, ...labels.characteristic, ...labels.talent, ...labels.lore, ...labels.skill, ...labels.god, ...labels.etat, ...labels.psychologie})
+                if (specs.length) {
+                    desc += "<br><br><b>Spécialisations: </b>" + specs.join(', ');
+                }
+                var traits = '';
+                traits += DescriptionHelper.listMatchSimple(label, 'Races donnant accès à cette compétence', match, 'specie');
+                traits += DescriptionHelper.listMatchCareerLevel(label, 'Carrières donnant accès à cette compétence', match);
+                traits += DescriptionHelper.listMatchSimple(label, 'Talents liés à cette compétence', match, 'talent');
+                if (traits !== '') {
+                    return {
+                        'Info': desc,
+                        'Accès': traits
+                    }
+                } else {
+                    return desc;
+                }
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+            el.specName = el.specs ? 'Au choix' : '';
+            el.spec = '';
+            el.origins = [];
+            el.specs = el.specs ? el.specs.split(', ') : [];
+        }
+        oThat.addToBook = function (el, match) {
+            DescriptionHelper.addToBook(el, match, el.characteristic);
+        }
+        oThat.parseElems = function (el, match) {
+            el.characteristic = DataHelper.stringToElems(CharGen, el.characteristic, el, 'characteristic', true, match);
+        }
+
+        return oThat;
+    }
+    this.DataSkill = DataSkill;
+</script>

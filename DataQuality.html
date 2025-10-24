@@ -1,0 +1,49 @@
+<script>
+    var DataQuality = function (CharGen) {
+        var typeItem = 'quality';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.prefix !== 'undefined' && el.prefix) {
+                el.canHaveSpec = true;
+            }
+            el.labelItem = el.type + 's d\'' + el.subType;
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+
+                var final = {};
+                final['Info'] = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.characteristic, ...labels.trait, ...labels.talent, ...labels.lore, ...labels.skill, ...labels.god, ...labels.spell, ...labels.etat, ...labels.psychologie, ...labels.magick, ...labels.quality});
+                var trait = DescriptionHelper.listMatchSimple(label, 'Equipements ayant ce trait/défaut', match, 'trapping');
+                if (trait) {
+                    final['Accès'] = trait;
+                }
+                if (Object.entries(final).length === 1) {
+                    final = final['Info'];
+                }
+
+                return final;
+            }
+            el.getLinkedFolder = function () {
+                return CharGen.data.tree.allByType[this.typeItem][Helper.toId(this.labelItem)];
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.paragraph('Type', EditHelper.inputText(this.type, 'type', '', true))
+                html += EditHelper.paragraph('Sous type', EditHelper.inputText(this.subType, 'subType', '', true))
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+        }
+
+        return oThat;
+    }
+    this.DataQuality = DataQuality;
+</script>

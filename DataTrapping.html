@@ -1,0 +1,144 @@
+<script>
+    var DataTrapping = function (CharGen) {
+        var typeItem = 'trapping';
+        var labelItem = 'Possession'
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, true);
+        oThat.createElemStructure = function (el) {
+            el.getQualities = function () {
+                return this.qualities;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var type = elem.type;
+                var isVehicle = type === 'vehicle';
+                var isRanged = type === 'ranged' || type === 'ammunition';
+
+                var desc = "<b>Catégorie: </b>" + elem.type + "<br>";
+                if (elem.subType) {
+                    desc += "<b>Groupe d'armes: </b>" + elem.subType + "<br>";
+                }
+                desc += '<br>';
+                if (elem.price) {
+                    desc += "<b>Prix: </b>" + elem.price + "<br>";
+                }
+                if (elem.availability) {
+                    desc += "<b>Disponibilité: </b>" + elem.availability + "<br>";
+                }
+                if (elem.enc) {
+                    desc += "<b>Encombrement: </b>" + elem.enc + "<br>";
+                }
+                desc += '<br>';
+                if (elem.reach) {
+                    if (isRanged) {
+                        desc += "<b>Porté: </b>" + elem.reach + "<br>";
+                    } else {
+                        desc += "<b>Allonge: </b>" + elem.reach + "<br>";
+                    }
+                }
+                if (elem.damage) {
+                    desc += "<b>Dégâts: </b>" + elem.damage + "<br>";
+                }
+                if (elem.loc) {
+                    desc += "<b>Emplacements: </b>" + elem.loc + "<br>";
+                }
+                if (elem.pa) {
+                    desc += "<b>Points d'armure: </b>" + elem.pa + "<br>";
+                }
+                if (elem.carry) {
+                    if (isVehicle) {
+                        desc += "<b>Chargement: </b>" + elem.carry + "<br>";
+                    } else {
+                        desc += "<b>Contenu: </b>" + elem.carry + "<br>";
+                    }
+                }
+                if (elem.mode) {
+                    desc += "<b>Mode: </b>" + elem.mode + "<br>";
+                }
+                if (elem.toughness) {
+                    desc += "<b>Endurance: </b>" + elem.toughness + "<br>";
+                }
+                if (elem.wounds) {
+                    desc += "<b>Blessures: </b>" + elem.wounds + "<br>";
+                }
+
+                if (this.getQualities().length) {
+                    desc += '<b>Atouts et Défauts: </b>' + DescriptionHelper.elemsToSimpleArray(this.getQualities(), true).join(', ') + '<br>';
+                }
+
+                if (elem.desc) {
+                    desc += '<br>' + DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.god, ...labels.etat, ...labels.talent, ...labels.skill, ...labels.characteristic, ...labels.psychologie});
+                }
+
+                return desc;
+            }
+            el.edit = function () {
+                var range = [];
+                var type = this.type;
+                $(oThat.all).each(function (i, myPoss) {
+                    if (range.indexOf(myPoss.reach) === -1 && myPoss.type === type) {
+                        range[range.length] = myPoss.reach;
+                    }
+                });
+                range.sort();
+                var isArmor = type === 'armor';
+                var isCaC = type === 'melee';
+                var isRanged = type === 'ranged' || type === 'ammunition';
+                var isWeapon = isCaC || isRanged;
+                var isVehicle = type === 'vehicle';
+                var isOther = type === 'trapping';
+
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.paragraph('Catégorie', EditHelper.inputText(this.type, 'type', '', true))
+                html += EditHelper.paragraph('Groupe d\'armes', EditHelper.inputText(this.subType, 'subType', '', true))
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Prix',
+                    EditHelper.inputText(this.gold, 'gold', 'number') +
+                    EditHelper.inputText(this.silver, 'silver', 'number') +
+                    EditHelper.inputText(this.bronze, 'bronze', 'number'));
+                html += EditHelper.paragraph('Disponibilité', EditHelper.inputSelect(this.availability, ['Commune', 'Limitée', 'Rare', 'Exotique', 'Unique'], '', '', '', 'availability'));
+                html += EditHelper.paragraph('Encombrement', EditHelper.inputText(this.enc, 'enc', 'number'));
+                if (isCaC) {
+                    html += EditHelper.paragraph('Allonge', EditHelper.inputSelect(this.reach, ['Très courte', 'Courte', 'Moyenne', 'Longue', 'Très longue', 'Considérable', 'Personnelle', 'Variable'], '', '', '', 'reach', 'autocomplete'));
+                } else {
+                    html += EditHelper.paragraph('Porté', EditHelper.inputSelect(this.reach, range, '', '', '', 'reach', 'autocomplete-free'), !isRanged);
+                }
+                html += EditHelper.paragraph('Dégâts', EditHelper.inputText(this.damage, 'damage'), !isWeapon);
+                html += EditHelper.paragraph('Emplacements', EditHelper.inputText(this.loc, 'loc'), !isArmor);
+                html += EditHelper.paragraph('Points d\'armure', EditHelper.inputText(this.pa, 'pa'), !isArmor);
+                html += EditHelper.paragraph((isVehicle ? 'Chargement' : 'Contenu'), EditHelper.inputText(this.carry, 'carry', 'number'), !isOther && !isVehicle);
+                html += EditHelper.paragraph('Mode', EditHelper.inputText(this.mode, 'mode'), !isVehicle);
+                html += EditHelper.paragraph('Endurance', EditHelper.inputText(this.toughness, 'toughness', 'number'), !isVehicle);
+                html += EditHelper.paragraph('Blessures', EditHelper.inputText(this.wounds, 'wounds', 'number'), !isVehicle);
+                html += EditHelper.paragraph('Atouts et Défauts', EditHelper.inputElems(
+                    this.getQualities(),
+                    10,
+                    CharGen.data.quality.all,
+                    'id',
+                    'label',
+                    'label',
+                    'qualities'
+                ), !isWeapon && !isArmor);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+            el.getLinkedFolder = function () {
+                var subType = this.subType ? Helper.toId(this.subType) : 'root';
+                return CharGen.data.tree.allByType[this.type][subType];
+            }
+            el.price = Helper.convertPrice(el.gold, el.silver, el.bronze)
+        }
+        oThat.addToBook = function (el, match) {
+            DescriptionHelper.addToBook(el, match, el.type + (el.subType ? " (" + el.subType + ")" : ""));
+        }
+        oThat.parseElems = function (el, match) {
+            el.qualities = DataHelper.stringToElems(CharGen, el.qualities, el, 'quality', false, match);
+        }
+
+        return oThat;
+    }
+    this.DataTrapping = DataTrapping;
+</script>

@@ -1,0 +1,78 @@
+<script>
+    var DataStar = function (CharGen) {
+        var typeItem = 'star';
+        var labelItem = ''
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            el.getTalent = function () {
+                return this.talent;
+            }
+            el.getCharacteristics = function () {
+                return this.characteristics;
+            };
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+
+                var bonus = [];
+                var malus = [];
+                DataHelper.eachElem(el.getCharacteristics(), function (e, i) {
+                    if (parseInt(e.suffix) > 0) {
+                        bonus[bonus.length] = e;
+                    } else {
+                        malus[malus.length] = e;
+                    }
+                });
+                var finalBonus = [];
+                if (elem.getTalent()) {
+                    finalBonus[finalBonus.length] = 'vous gagnez un niveau dans le Talent ' + DescriptionHelper.showHelpTextFromElem(elem.getTalent());
+                }
+                if (bonus.length) {
+                    finalBonus[finalBonus.length] = DescriptionHelper.elemsToSimpleArray(bonus, true).join(', ');
+                }
+
+                var desc = '<b>' + elem.signe + '</b><BR>';
+                if (elem.classique) {
+                    desc += '<b>Nom classique: </b>' + elem.classique + '<BR>';
+                }
+                if (elem.ascendant) {
+                    desc += '<b>Ascendant: </b>' + elem.ascendant + '<BR>';
+                }
+                if (elem.dates) {
+                    desc += '<b>Dates dans le calendrier: </b>' + elem.dates + '<BR>';
+                }
+                if (elem.dieux) {
+                    desc += '<b>Divinité associée: </b>' + elem.dieux + '<BR>';
+                }
+                if (elem.apparence) {
+                    desc += '<b>Apparence: </b>' + elem.apparence + '<BR>';
+                }
+                if (finalBonus.length) {
+                    desc += '<b>Bonus: </b>' + finalBonus.join(', ')  + '<BR>';
+                }
+                if (malus.length) {
+                    desc += '<b>Pénalité: </b>' + DescriptionHelper.elemsToSimpleArray(malus, true).join(', ') + '<BR>';
+                }
+                desc += "<br>" + elem.desc + "<br>";
+
+                return  DescriptionHelper.applyHelp(desc, elem, {...labels.lore, ...labels.god});
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+            el.talent = DataHelper.stringToElems(CharGen, el.talent, el, 'talent', true);
+            el.characteristics = DataHelper.stringToElems(CharGen, el.characteristics, el, 'characteristic', false, match);
+        }
+
+        return oThat;
+    }
+    this.DataStar = DataStar;
+</script>

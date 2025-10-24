@@ -1,0 +1,124 @@
+<script>
+    var DataFunctions = {
+        createDataObject: function (CharGen, type, canHaveSpec, labelItem) {
+            var oThat = {};
+            oThat.typeItem = type;
+            oThat.all = [];
+            oThat.allInactive = [];
+            oThat.allById = {};
+            oThat.init = function (labels, match) {
+                oThat.all = [];
+                oThat.allInactive = [];
+                oThat.allById = {};
+                var elems = CharGen.jData[type];
+                if (typeof elems !== "undefined") {
+                    for (var i = 0; i < elems.length; ++i) {
+                        var el = elems[i];
+                        oThat.add(el, labels, match);
+                    }
+                }
+                return oThat;
+            };
+            oThat.add = function (e) {
+                var el = Helper.clone(e);
+                el.id = oThat.generateId(el);
+                el.typeItem = oThat.typeItem;
+                el.labelItem = labelItem;
+                el.canHaveSpec = canHaveSpec === true
+                el.children = [];
+                if (typeof el.book === 'undefined' || typeof CharGen.user === 'undefined' || typeof CharGen.user.options.book[el.book] !== 'undefined' || type === 'book') {
+                    oThat.all[oThat.all.length] = el;
+                    oThat.allById[el.id] = el;
+                    el.getData = DataFunctions.getData;
+                    el.getLinkedFolder = function () {
+                        var res;
+                        if (typeof this.folder !== 'undefined' && this.folder) {
+                            res = CharGen.data.tree.allByType[this.typeItem][Helper.toId(this.folder)]
+                        }
+                        if (typeof res === 'undefined') {
+                            return this.getLinkedRootFolder();
+                        }
+                        return res;
+                    };
+                    el.getLinkedRootFolder = function () {
+                        if (typeof CharGen.data.tree.allByType[this.typeItem] !== 'undefined') {
+                            return CharGen.data.tree.allByType[this.typeItem]['root'];
+                        }
+                        return false;
+                    };
+                    el.getLabel = DataFunctions.getLabelForData;
+                    oThat.createElemStructure(el);
+                    DescriptionHelper.initHelpData(el, CharGen.allForHelp, CharGen.match)
+                } else {
+                    el.inactive = 1;
+                    oThat.allInactive[oThat.allInactive.length] = el;
+                }
+
+            }
+            oThat.generateId = function (el) {
+                return Helper.toId(el.label);
+            }
+            oThat.addToBook = DataFunctions.addToBook;
+            oThat.generateTree = function (el) {
+                var father = el.getLinkedFolder();
+                if (typeof father !== 'undefined' && father) {
+                    father.children[father.children.length] = el;
+                }
+            };
+            return oThat;
+        },
+        getData: function () {
+            return typeof this.data !== 'undefined' ? this.data : this;
+        },
+        getLabelForData: function (e) {
+            e = typeof e !== 'undefined' ? e : this;
+            var label = e.label;
+            if (typeof e.suffix !== 'undefined' && e.suffix) {
+                label = e.suffix + ' ' + label;
+            }
+            if (typeof e.prefix !== 'undefined' && e.prefix) {
+                label = label + ' ' + e.prefix;
+            }
+            if (typeof e.title !== 'undefined' && e.title) {
+                label = label + ' - ' + e.title;
+            }
+            var spec;
+            if (typeof e.specName !== 'undefined' && e.specName) {
+                spec = e.specName;
+            } else if (typeof e.extra !== 'undefined' && e.extra) {
+                spec = e.extra;
+            } else if (typeof e.abr !== 'undefined' && e.abr) {
+                spec = e.abr;
+            }
+            spec = spec ? ' (' + spec + ')' : '';
+            return label + spec;
+        },
+        getLabelForElem: function (e) {
+            e = typeof e !== 'undefined' ? e : this;
+            var suffix = typeof e.suffix !== 'undefined' && e.suffix ? e.suffix + ' ' : '';
+            var label = e.label;
+            var spec = '';
+            
+            // Handle specs as array
+            if (typeof e.specs !== 'undefined' && Array.isArray(e.specs) && e.specs.length > 0) {
+                spec = ' (' + e.specs.join(' ou ') + ')';
+            }
+            // Handle specs as string (legacy format)
+            else if (typeof e.specs === 'string' && e.specs !== '') {
+                spec = ' (' + e.specs + ')';
+            }
+            // Handle single spec
+            else if (typeof e.spec !== 'undefined' && e.spec !== '' && e.spec !== null && e.spec !== 'undefined') {
+                spec = ' (' + e.spec + ')';
+            }
+            // No specialization - don't show anything
+            
+            var prefix = typeof e.prefix !== 'undefined' && e.prefix ? ' ' + e.prefix : '';
+            return suffix + label + spec + prefix;
+        },
+        addToBook: function (el, match) {
+            DescriptionHelper.addToBook(el, match);
+        }
+    }
+    this.DataFunctions = DataFunctions;
+</script>

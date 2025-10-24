@@ -1,0 +1,169 @@
+<script>
+    var Admin = function (CharGen) {
+        var oThat = {};
+        var select;
+        var originalJData;
+        oThat.stepName = "Admin";
+        oThat.desc = function () {
+            return ''
+        };
+        oThat.title = function () {
+            return 'Admin'
+        };
+        oThat.initAction = function () {
+            originalJData = Helper.clone(CharGen.jData);
+            CharGen.loadData();
+        };
+
+        oThat.save = function (el) {
+            Helper.loader = new Helper.ajaxLoader("body");
+            var onglet = $('.left_panel div[id^="tabs-"]:visible');
+            var tab = onglet.attr('id');
+            var selected = onglet.find('.ui-selected').data('line') + (typeof el.insertMode !== 'undefined' && el.insertMode === 'insert' ? 1 : 0);
+            var searchVal = onglet.find('[id^=search]').val();
+            google.script.run.withSuccessHandler(function (data) {
+                CharacterGenerator().loadPartialDataAndDisplay(data);
+                Helper.loader.remove();
+                $('.left_panel option[value="#' + tab + '"]').click();
+                onglet = $('.left_panel div[id=' + tab + ']')
+                onglet.find('[id^=search]').val(searchVal).keyup();
+                var elSelected = onglet.find('[data-line="' + selected + '"]');
+                elSelected.click();
+                Helper.scrollToElement(elSelected, onglet);
+            }).saveData(JSON.stringify(el));
+            return true;
+        }
+
+        /*oThat.otherAction = function (el) {
+            el.html('Prévisualiser');
+            el.off('click').on('click', function () {
+                if ($('.right_panel').find('[name="Description"]:visible').val()) {
+                    const regex = /(\n)+/gmi;
+                    Helper.showPopin($('.right_panel').find('[name="Description"]').val().trim().replace(new RegExp("[\n]+$", 'gmi'), "").replace(regex, "<br><br>").replace('’', "'"), CharGen);
+                }
+            });
+        };*/
+
+        oThat.validateAction = true;
+        oThat.saveAction = function () {
+            return oThat.save(EditHelper.prepareData($('.right_panel').find('[name]')));
+        };
+
+        oThat.randomAction = function () {
+            $('.random').hide();
+            $('.random').off('click').on('click', function () {
+                var el = {};
+                for (let [key, val] of Object.entries(CharGen.jData[select.typeItem][select.index])) {
+                    if (!([
+                        'typeItem',
+                        'index',
+                        'type',
+                        'subType',
+                        'book',
+                        'page',
+                        'class',
+                        'career',
+                        'subRand',
+                        'parent',
+                        'folder'
+                    ].includes(key) || key.startsWith('rand|'))) {
+                        el[key] = '';
+                    } else {
+                        el[key] = val;
+                    }
+                }
+                el.label = 'new Item';
+                el.index = select.index;
+                CharGen.jData[select.typeItem].splice(el.index, 0, el);
+                CharGen.loadData();
+                el = CharGen.data[select.typeItem].all[el.index];
+                el.insertMode = 'insert';
+                oThat.edit(0, el);
+
+                return false;
+            });
+        };
+
+        oThat.edit = function (i, el) {
+            select = el;
+            if (el.id !== 'new Item') {
+                CharGen.jData = originalJData;
+            }
+            $('.validate').prop('disabled', false);
+            $('.random').html('Dupliquer').show();
+            Helper.addDescription(el.edit(), CharGen);
+            $('.right_panel textarea').each(function () {
+                new RichTextEditor({
+                    elem: this,
+                });
+            });
+            $('.right_panel').find('select.autocomplete').selectToAutocomplete({'remove-valueless-options': false});
+            $('.right_panel').find('select.autocomplete-free').selectToAutocomplete({
+                'remove-valueless-options': false, 'autoselect': false,
+                handle_invalid_input: function (context) {
+                    var newVal = context.$text_field.val();
+                    context.$select_field.append($('<option>', {
+                        value: newVal,
+                        text: newVal
+                    }));
+                    context.$select_field.val(newVal);
+                    var selected_finder = 'option:selected:first';
+                    if (context.settings['remove-valueless-options']) {
+                        selected_finder = 'option:selected[value!=""]:first';
+                    }
+                    context.$text_field.val(context.$select_field.find(selected_finder).text());
+                }
+            })
+        }
+
+
+        oThat.show = function () {
+            var con = $('.left_panel').html('');
+            var tabEl = DataHelper.flattenElemIteratively(CharGen.data.tree.all[0], function (e) {
+                return e.typeItem === 'tree' && (e.type === 'tree' || e.subType === 'root')
+            })
+            var html = '<select class="div_label ui-widget-content" style="padding: 0.4em;">'
+            tabEl.forEach(function (el, i) {
+                html += '<option value="tabs-' + i + '" data-typeitem="' + el.typeItem + '"  data-id="' + el.id + '">' + Helper.addSpace(el.level - 1) + el.label + '</option>';
+            });
+            html += '</select>';
+            con.append(html);
+            tabEl.forEach(function (el, i) {
+                con.append('<div id="tabs-' + i + '" class="pretty_panel paneltabs overflow_panel" style="display: none"></div>');
+            })
+            con.children('select').off('change').on('change', function (i, e) {
+                var val = $(this).val();
+                var talentstab = con.find('#' + val);
+                var option = $(this).find('option:selected').first();
+                Helper.generateListWithHelp(
+                    DataHelper.flattenElemIteratively(CharGen.data[option.data('typeitem')].allById[option.data('id')]),
+                    function (i, el) {
+                        return i !== 0 || el.getDescription() !== ''
+                    },
+                    talentstab,
+                    function (i, el) {
+                        return el.getLabel();
+                    },
+                    function (i, el) {
+                        oThat.edit(i, el);
+                    },
+                    true,
+                    null,
+                    function (i, el) {
+                        return el.level;
+                    }
+                );
+                con.children('div').hide();
+                talentstab.show();
+            })
+            con.children('select').change();
+        };
+        return oThat;
+    }
+    var finalCallBack = function (CharGen) {
+        Helper.loader.remove();
+        $('.all_panel').hide();
+        $('.two_part_panel').show();
+        CharGen.showPanel(null, Admin(CharGen));
+    }
+</script>

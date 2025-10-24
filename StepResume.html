@@ -1,0 +1,600 @@
+<script>
+    var StepResume = function (number, CharGen) {
+        var oThat = {};
+        var character;
+        oThat.stepName = "Résumé";
+        oThat.desc = function () {
+            return ''
+        };
+        oThat.title = function () {
+            return 'Resumé'
+        };
+        oThat.validateAction = true;
+        oThat.cancelAction = function () {
+            $('.cancel').html('Retour');
+            $('.cancel').off('click').on('click', function () {
+                $('.left_panel').addClass('overflow_panel');
+                $('.left_panel').addClass('pretty_panel');
+                CharGen.showMenu();
+            });
+        };
+        oThat.saveAction = function () {
+            character.saveAdvance();
+            return true;
+        };
+        oThat.initAction = function () {
+            character = CharGen.character.clone();
+        };
+        oThat.otherAction = function (el) {
+            if (CharGen.saveName) {
+                el.css('visibility', 'hidden');
+                return;
+            }
+            el.html('Sauvegarder');
+            el.on('click', function () {
+                CharGen.saveDatabaseCharacter(function (data) {
+                    if (data) {
+                        if (data !== CharGen.saveName) {
+                            CharGen.saveName = data;
+                            $("#save").dialog({
+                                resizable: false,
+                                height: "auto",
+                                open: function (event, ui) {
+                                    $('.codesave').html(data)
+                                },
+                                buttons: []
+                            });
+                            el.css('visibility', 'hidden');
+                        } else {
+                            alert("Personnage sauvegardé");
+                        }
+                    } else {
+                        alert('Echec de la sauvegarde.');
+                    }
+                })
+            });
+        };
+        /*oThat.randomAction = function (el) {
+            el.html('Export Foundry');
+            el.on('click', function () {
+                var a = document.createElement("a");
+                var foundryChar = FoundryHelper.fullExport(CharGen, character);
+                a.href = window.URL.createObjectURL(new Blob([JSON.stringify(foundryChar)], {type: "application/json"}));
+                a.download = foundryChar['name'] + ".json";
+                a.click();
+            })
+        };*/
+
+        oThat.show = function () {
+            $('.two_part_panel').hide();
+            var con = $('.all_panel').html('').show();
+//            con.removeClass('overflow_panel');
+//            con.removeClass('pretty_panel');
+            //tabs.append('<div id="tabs-2" class="pretty_panel overflow_panel"><div style="display: flex;"><div class="left_panel"></div><div class="right_panel"></div></div></div>');
+            con.append('<div class="header pretty_panel"></div>');
+            var skillstab = con.find('.header');
+            /** CHARACTERISTICS **/
+            var caracs = character.getCharacteristics();
+            Helper.generateListWithRankAndHelp(
+                caracs,
+                ['', '', 'Init', 'Aug', 'Cour'],
+                function (i, el) {
+                    return el.data.type === 'roll'
+                },
+                skillstab,
+                [
+                    function (i, el) {
+                        return el.data.abr ? el.data.abr : el.getLabel(false);
+                    },
+                    function (i, el) {
+                        return el.getSymbol();
+                    },
+                    function (i, el) {
+                        return el.getBase();
+                    },
+                    function (i, el) {
+                        return el.getAdvance() ? el.getAdvance() : '';
+                    },
+                    function (i, el) {
+                        return el.getTotal();
+                    }
+                ],
+                function () {
+                },
+                function () {
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                },
+                1,
+                undefined,
+                true
+            );
+            con.append('<div class="tabs"></div>');
+            var tabs = con.find('.tabs');
+            tabs.append('<ul><li><a href="#tabs-1">Perso</a></li><li><a href="#tabs-6">Compétences/Talents</a></li><li><a href="#tabs-4">Possession</a></li><li><a href="#tabs-5">Sorts</a></li><li><a href="#tabs-7">Expérience</a></li></ul>');
+            tabs.append('<div id="tabs-1" class="pretty_panel overflow_panel"><div class="main_div"><div class="left_panel"></div><div class="right_panel"></div></div></div>');
+            var specie = tabs.find('#tabs-1 .left_panel');
+            var details = CharGen.data.details;
+            var career = character.getCareerLevel() ? character.getCareerLevel().getCareer() : '';
+            var detailDescription = function (i) {
+                return {
+                    label: details[i] ? details[i].label : '',
+                    value: character.details[i] ? character.details[i] : '',
+                    desc: function () {
+                        Helper.showPopin(Helper.getHelpFormat({
+                            getLabel: function () {
+                                return details[i].label;
+                            },
+                            desc: (details[i].desc[character.getSpecie().data.refDetail] ? details[i].desc[character.getSpecie().data.refDetail] : details[i].allDesc)
+                        }, CharGen), CharGen)
+                    },
+                    getLabel: function () {
+                        return this.label;
+                    },
+                    getTotal: function () {
+                        return this.value;
+                    }
+                }
+            };
+            var allDetails = [
+                detailDescription(0),
+                {
+                    label: 'Race',
+                    value: character.getSpecie() ? character.getSpecie().getLabel() : '',
+                    desc: function () {
+                        if (character.getSpecie()) {
+                            Helper.showPopin(Helper.getHelpFormat(character.getSpecie().data, CharGen), CharGen)
+                        }
+                    }
+                },
+                {
+                    label: 'Signe Astrologique', value: character.getStar() ? character.getStar().getLabel() : '', desc: function () {
+                        if (character.getStar()) {
+                            Helper.showPopin(Helper.getHelpFormat(character.getStar().data, CharGen), CharGen)
+                        }
+                    }
+                },
+                {
+                    label: 'Classe', value: career ? career.getClass().getLabel() : '', desc: function () {
+                        if (career) {
+                            Helper.showPopin(Helper.getHelpFormat(career.getClass(), CharGen), CharGen)
+                        }
+                    }
+                },
+                {
+                    label: 'Carrière', value: career ? career.getLabel() : '', desc: function () {
+                        if (career) {
+                            Helper.showPopin(Helper.getHelpFormat(career, CharGen), CharGen)
+                        }
+                    }
+                },
+                {
+                    label: 'Niveau de Carrière',
+                    value: career ? character.getCareerLevel().getLabel() : '',
+                    desc: function () {
+                        if (career) {
+                            Helper.showPopin(Helper.getHelpFormat(character.getCareerLevel().data, CharGen), CharGen)
+                        }
+                    }
+                },
+                {
+                    label: 'Schéma de Carrière',
+                    value: career ? character.getCareerLevel().getLabel() : '',
+                    desc: function () {
+                        if (career) {
+                            Helper.showPopin(Helper.getHelpFormat(character.getCareerLevel().data, CharGen), CharGen)
+                        }
+                    }
+                },
+                {
+                    label: 'Statut', value: career ? character.getCareerLevel().data.status : '', desc: function () {
+                    }
+                },
+                detailDescription(1),
+                detailDescription(4),
+                detailDescription(3),
+                detailDescription(2),
+                detailDescription(5),
+                detailDescription(6),
+                detailDescription(7),
+            ]
+            $(allDetails).each(function (i, el) {
+                specie.append('<div data-id="detail_' + i + '" class="div_label"><b style="margin-right: 5px">' + el.label + ':</b> ' + el.value + '</div><br>');
+                $('[data-id="detail_' + i + '"]').off('click').on('click', function () {
+                    el.desc();
+                });
+            });
+            var columFunction = [
+                function (i, el) {
+                    return el.getLabel(false);
+                },
+                function (i, el) {
+                    return el.getTotal();
+                }
+            ]
+            var mouvement = character.searchCharacteristic('Mouvement')
+            if (mouvement) {
+                var marche = Helper.clone(mouvement);
+                marche.getLabel = function () {
+                    return 'Marche'
+                };
+                marche.getTotal = function () {
+                    return mouvement.getTotal() * 2
+                };
+                var course = Helper.clone(mouvement);
+                course.getLabel = function () {
+                    return 'Course'
+                };
+                course.getTotal = function () {
+                    return mouvement.getTotal() * 4
+                };
+                skillstab = tabs.find('#tabs-1 .right_panel');
+                $([
+                    ['Destin', [character.searchCharacteristic('Destin'), character.searchCharacteristic('Chance')]],
+                    ['Résilience', [character.searchCharacteristic('Résilience'), character.searchCharacteristic('Détermination'), detailDescription(5)]],
+                    ['Mouvement', [mouvement, marche, course]],
+                    ['Autre', [character.searchCharacteristic('Points de Blessures'), character.searchCharacteristic('Corruption')]],
+                ]).each(function (i, elem) {
+                    skillstab.append('<h3>' + elem[0] + '</h3>');
+                    Helper.generateListWithRankAndHelp(
+                        elem[1],
+                        ['', ''],
+                        function (i, el) {
+                            return true
+                        },
+                        skillstab,
+                        columFunction,
+                        function () {
+                        },
+                        function () {
+                        },
+                        function (i, el) {
+                            Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                        },
+                        1,
+                        undefined,
+                        true
+                    );
+                });
+            }
+            /** SKILLS **/
+            tabs.append('<div id="tabs-6" class="pretty_panel overflow_panel"><div class="main_div"><div class="left_panel"></div><div class="right_panel"></div></div></div>');
+            skillstab = tabs.find('#tabs-6 .left_panel');
+            skillstab.append('<h3>Compétences de base</h3>');
+            var skills = character.getAllSkills();
+            Helper.generateListWithRankAndHelp(
+                skills,
+                ['Nom', 'Carac', 'Aug', 'Comp'],
+                function (i, el) {
+                    return el.data.type === 'base' && (!el.spec || el.spec === 'Base')
+                },
+                skillstab,
+                [
+                    function (i, el) {
+                        return el.getLabel()
+                    },
+                    function (i, el) {
+                        return el.getCharacteristic() ? el.getCharacteristic().data.abr + ' ' + el.getBase() : '';
+                    },
+                    function (i, el) {
+                        return el.getAdvance() ? el.getAdvance() : '';
+                    },
+                    function (i, el) {
+                        return el.getTotal();
+                    }
+                ],
+                function (mode, el) {
+                },
+                function (t) {
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                },
+                1
+            );
+            skillstab = tabs.find('#tabs-6 .right_panel');
+            skillstab.append('<h3>Comp. groupées et avancées</h3>');
+            Helper.generateListWithRankAndHelp(
+                skills,
+                ['Nom', 'Carac', 'Aug', 'Comp'],
+                function (i, el) {
+                    return !(el.data.type === 'base' && (!el.spec || el.spec === 'Base'))
+                },
+                skillstab,
+                [
+                    function (i, el) {
+                        return el.getLabel()
+                    },
+                    function (i, el) {
+                        return el.getCharacteristic() ? el.getCharacteristic().data.abr + ' ' + el.getBase() : '';
+                    },
+                    function (i, el) {
+                        return el.getAdvance() ? el.getAdvance() : '';
+                    },
+                    function (i, el) {
+                        return el.getTotal();
+                    }
+                ],
+                function (mode, el) {
+                },
+                function (t) {
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                },
+                1
+            );
+
+            /** TALENTS **/
+            var talentstab = skillstab;
+            talentstab.append('<h3>Talents</h3>');
+            //character.deleteEmpty();
+            var talents = character.getTalents();
+            Helper.generateListWithRankAndHelp(
+                talents,
+                ['Nom', 'Rang', 'Description'],
+                function (i, el) {
+                    return el.getAdvance();
+                },
+                talentstab,
+                [
+                    function (i, el) {
+                        return el.getLabel()
+                    },
+                    function (i, el) {
+                        var max = el.getMax();
+                        return el.getAdvance() + (max ? '/' + max : '');
+                    },
+                    function (i, el) {
+                        return el.data.test;
+                    },
+                ],
+                function (mode, el) {
+                },
+                function (t) {
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen)
+                },
+                1
+            );
+
+            /** TRAPPINGS **/
+            tabs.append('<div id="tabs-4" class="pretty_panel overflow_panel"><div class="main_div"><div class="left_panel"></div><div class="right_panel"></div></div></div>');
+            var trappingstab = tabs.find('#tabs-4 .left_panel');
+            trappingstab.append('<h3>Possessions</h3>');
+            var trappings = character.trappings;
+            Helper.generateListWithHelp(
+                trappings,
+                function () {
+                    return true
+                },
+                trappingstab,
+                function (i, el) {
+                    return el
+                },
+                function (i, el) {
+                    var trapp = Helper.searchTrapping(el, CharGen);
+                    if (typeof trapp !== 'undefined') {
+                        if (trapp.desc !== '') {
+                            Helper.showPopin(Helper.getHelpFormat(trapp, CharGen), CharGen);
+                        }
+                    }
+                },
+                true,
+                '','','',
+                function (i, el) {
+                    var trapp = Helper.searchTrapping(el, CharGen);
+                    return typeof trapp !== 'undefined' && trapp.desc !== '';
+                }
+            )
+            trappingstab = tabs.find('#tabs-4 .right_panel');
+            trappingstab.append('<h3>Armures</h3>');
+            Helper.generateListWithRankAndHelp(
+                trappings,
+                ['Nom', 'Localisation', 'Enc', 'PA', 'Atouts/Défauts'],
+                function (i, el) {
+                    var trapp = Helper.searchTrapping(el, CharGen);
+                    return typeof trapp !== 'undefined' && (trapp.type.search('Armures') !== -1);
+                },
+                trappingstab,
+                [
+                    function (i, el) {
+                        return el;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).loc;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).enc;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).pa;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).qualities;
+                    },
+                ],
+                function (mode, el) {
+                },
+                function (t) {
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(Helper.searchTrapping(el, CharGen), CharGen), CharGen)
+                },
+                1
+            );
+            trappingstab.append('<h3>Armes</h3>');
+            Helper.generateListWithRankAndHelp(
+                trappings,
+                ['Nom', 'Groupe', 'Enc', 'Portée/Allonge', 'Dégâts', 'Atouts/Défauts'],
+                function (i, el) {
+                    var trapp = Helper.searchTrapping(el, CharGen);
+                    return typeof trapp !== 'undefined' && (trapp.type.search('Armes') !== -1 || trapp.type.search('Munitions') !== -1);
+                },
+                trappingstab,
+                [
+                    function (i, el) {
+                        return el;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).spec;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).enc;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).reach;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).damage;
+                    },
+                    function (i, el) {
+                        return Helper.searchTrapping(el, CharGen).qualities;
+                    },
+                ],
+                function (mode, el) {
+                },
+                function (t) {
+                },
+                function (i, el) {
+                    Helper.showPopin(Helper.getHelpFormat(Helper.searchTrapping(el, CharGen), CharGen), CharGen)
+                },
+                1
+            );
+
+            /** GODS **/
+            tabs.append('<div id="tabs-5" class="pretty_panel overflow_panel"></div>');
+            var spellstab = tabs.find('#tabs-5');
+            var spells = character.getSpells();
+            if (spells) {
+                var god = character.getGod();
+                if (god) {
+                    spellstab.append('<br><div class="gods"><b>Dieu:</b> ' + god.getLabel() + '</div>');
+                }
+                var magicTalent = character.searchTalent('Magie des Arcanes', '', false)
+                if (magicTalent) {
+                    spellstab.append('<br><div class="domaine"><b>Domaine de Magie:</b> ' + magicTalent.spec + '</div>');
+                }
+                var chaosMagicTalent = character.searchTalent('Magie du Chaos', '', false)
+                if (chaosMagicTalent) {
+                    spellstab.append('<br><div class="chaos_domaine"><b>Domaine du Chaos:</b> ' + chaosMagicTalent.spec + '</div>');
+                }
+                var spellsByGroup = {};
+                $(spells).each(function (i, el) {
+                    if (typeof spellsByGroup[el.data.type] === 'undefined') {
+                        spellsByGroup[el.data.type] = [];
+                    }
+                    spellsByGroup[el.data.type][spellsByGroup[el.data.type].length] = el;
+                });
+                $(['Béni', 'Invocation', 'Magie mineure', 'Magie des Arcanes', 'Magie du Chaos']).each(function (w, label) {
+                    if (typeof spellsByGroup[label] !== 'undefined') {
+                        var div = ['left_panel', 'right_panel']
+                        var step = 0;
+                        var el = spellsByGroup[label];
+                        spellstab.append('<h3>' + label + '<h3>');
+                        spellstab.append('<div class="main_div"><div class="left_panel" data-id="'+w+'" style="flex: 50%; max-width: none"></div><div class="right_panel" data-id="'+w+'" style="flex: 50%"></div></div>');
+                        $.each(el, function (i) {
+                            Helper.generateListWithRankAndHelp(
+                                [el[i]],
+                                ['Nom', 'NI', 'Portée', 'Cible', 'Durée', ''],
+                                function (i, el) {
+                                    return true
+                                },
+                                tabs.find('#tabs-5 .' + div[step++%2] + '[data-id='+w+']'),
+                                [
+                                    function (i, el) {
+                                        return el.getLabel()
+                                    },
+                                    function (i, el) {
+                                        return el.data.cn;
+                                    },
+                                    function (i, el) {
+                                        return el.data.range;
+                                    },
+                                    function (i, el) {
+                                        return el.data.target;
+                                    },
+                                    function (i, el) {
+                                        return el.data.duration;
+                                    },
+                                    function (i, el) {
+                                        return el.data.effect;
+                                    }
+                                ],
+                                function (mode, el) {
+                                },
+                                function (t) {
+                                },
+                                function (i, el) {
+                                    Helper.showPopin(Helper.getHelpFormat(el, CharGen), CharGen);
+                                },
+                                1,
+                                null,
+                                true,
+                                [20, 80]
+                            );
+                        });
+                    }
+                });
+                spellstab.find('.gods').on('click', function () {
+                    Helper.showPopin(Helper.getHelpFormat(god, CharGen), CharGen)
+                });
+                spellstab.find('.domaine').on('click', function () {
+                    Helper.showPopin(Helper.getHelpFormat(CharGen.allLores[Helper.toId(magicTalent.spec)], CharGen), CharGen)
+                });
+                spellstab.find('.chaos_domaine').on('click', function () {
+                    Helper.showPopin(Helper.getHelpFormat(CharGen.allLores[Helper.toId(chaosMagicTalent.spec), CharGen], CharGen), CharGen)
+                });
+            }
+            tabs.append('<div id="tabs-7" class="pretty_panel overflow_panel"><div class="main_div"><div class="left_panel"></div><div class="right_panel"></div></div></div>');
+            var experience = tabs.find('#tabs-7 .left_panel');
+            allDetails = [
+                {
+                    label: 'Expérience Actuelle',
+                    value: character.xp.max - character.xp.tmp_used - character.xp.used,
+                    desc: function () {
+                    }
+                },
+                {
+                    label: 'Expérience Dépensée', value: character.xp.tmp_used + character.xp.used, desc: function () {
+                    }
+                },
+                {
+                    label: 'Expérience Totale', value: character.xp.max, desc: function () {
+                    }
+                }
+            ]
+            $(allDetails).each(function (i, el) {
+                experience.append('<div data-id="detail_xp' + i + '"><b>' + el.label + ':</b> ' + el.value + '</div><br>');
+                $('[data-id="detail_xp' + i + '"]').off('click').on('click', function () {
+                    el.desc();
+                });
+            });
+            experience.append('<div class="gods"><b>Historique:</b></div>');
+            for (let [labels, value] of Object.entries(character.xp.log)) {
+                var label = labels.split('_');
+                experience.append('<div>' + label[label.length - 1] + ' ' + value + 'xp</div>');
+            }
+
+            tabs.tabs();
+            $('.validate').off('click');
+            $('.validate').prop('disabled', character.stepIndex !== number || character.stepIndex === -1)
+            if (character.stepIndex !== -1) {
+                if (!$('.validate').prop('disabled')) {
+                    $('.validate').on('click', function () {
+                        $('.left_panel').addClass('overflow_panel');
+                        $('.left_panel').addClass('pretty_panel');
+                        character.stepIndex = -1;
+                        CharGen.defaultAction.validate(oThat, number);
+                    });
+                }
+            } else {
+                $('.validate').css('visibility', 'hidden');
+            }
+        };
+        return oThat;
+    }
+    this.StepResume = StepResume;
+</script>

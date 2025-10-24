@@ -1,0 +1,269 @@
+<script>
+    var StepCareers = function (i, CharGen, type) {
+        var oThat = {};
+        var character;
+        var $careers;
+
+        oThat.stepName = "Carrière";
+        oThat.type = type;
+
+        oThat.characterOnCreation = function () {
+            return oThat.type === 'creation';
+        }
+        oThat.desc = function () {
+            return 'Votre Classe détermine votre place dans ma société. Votre carrière décrit votre travail actuel et détermine votre Statut, qui influence également l\'importance de vos revenus <br><br>Vous pouvez simplement choisir votre Classe et votre Carrière avec l\'option <b>Choisir</b>. Autrement, si vous ne savez pas lesquelles choisir, ou si vous voulez simplement choisir au hasard pour obtenir le bonus de PX: <ol> <li> Cliquez sur <b>Lancer</b>. Si le résultat vous satisfait, conservez-le et gagnez +50 PX. Sinon, passez à l\'étape 2.</li> <li> Cliquez une nouvelle fois sur <b>Lancer</b> pour avoir un total de 3 choix. Si l\'un des trois vous convient à présent, sélectionnez-le et gagnez +25 PX. Sinon, passez à l\'étape 3.</li> <li> Cliquez sur <b>Choisir</b> et faites votre choix. Dans ce cas, il n\'y a pas de bonus de PX.</li> </ol>'
+        };
+        oThat.title = function () {
+            return 'Choisissez l\'une des Carrières'
+        };
+        oThat.initAction = function () {
+            character = CharGen.character.clone();
+        };
+
+        oThat.cancelAction = true;
+        oThat.validateAction = true;
+        oThat.resetAction = function () {
+            if (oThat.characterOnCreation()) {
+                CharGen.character.career = null;
+            }
+        };
+        oThat.saveAction = function () {
+            if (oThat.characterOnCreation()) {
+                var ret = CharGen.character.careerLevel && CharGen.character.careerLevel.id === character.careerLevel.id;
+                if (!character.isFreeMode() && character.randomState.career > 0) {
+                    character.addXP('Carrière Aléatoire', (character.randomState.career === 1 ? 50 : (character.randomState.career === 2 ? 25 : 0)), true);
+                }
+                character.randomState.career = -2;
+                CharGen.saveCharacter(character);
+
+                return ret;
+            } else {
+                character.saveAdvance();
+                CharGen.showPanel(9, CharGen.stepList[9]);
+            }
+        };
+        oThat.randomAllAction = function () {
+            var value = Helper.getRandomInt(100);
+            var elems = CharGen.data.career.all;
+            for (var i = 0; i < elems.length; ++i) {
+                var el = elems[i];
+                var rand = el.rand[character.getSpecie().data.refCareer];
+                if (rand) {
+                    if (rand >= value) {
+                        character.setCareerLevel(CharGen.data.careerLevel.allByCareer[el.id][1]);
+                        break;
+                    }
+                }
+            }
+            character.randomState.career = 1;
+            oThat.saveAction();
+        };
+
+        if (oThat.characterOnCreation()) {
+            oThat.randomAction = function (el) {
+                el.off('click').on('click', function () {
+                    el.removeClass('clickMe');
+                    var nb = 2;
+                    if (character.randomState.career === 0) {
+                        nb = 1;
+                    }
+                    var imposedCareersCounter = [];
+
+                    var careers = $(CharGen.data.career.all);
+                    var values = [];
+                    var y = 0;
+                    while (y < nb) {
+                        var value = Helper.getRandomInt(100);
+                        var target = -1;
+                        careers.each(function (i, el) {
+                            var rand = el.rand[character.getSpecie().data.refCareer];
+                            if (rand) {
+                                if (target !== -1 && rand !== target) {
+                                    return false;
+                                }
+                                if (rand >= value) {
+                                    if (!character.randomState.imposedCareers.includes(el.id)) {
+                                        character.randomState.imposedCareers[character.randomState.imposedCareers.length] = el.id;
+                                        if (typeof imposedCareersCounter[y] === 'undefined') {
+                                            imposedCareersCounter[y] = 0;
+                                        }
+                                        imposedCareersCounter[y] = character.randomState.imposedCareers.length;
+                                        if (target === -1) {
+                                            target = rand;
+                                            values[values.length] = value;
+                                        }
+                                    } else {
+                                        --y;
+                                        return false;
+                                    }
+                                }
+                            }
+                        });
+                        ++y;
+                    }
+                    Helper.dice(values,
+                        function (i) {
+                            $careers.find('.showRoll').css('color', 'yellow');
+                        },
+                        function (i) {
+                            oThat.autoSelectCareer(imposedCareersCounter[i], 1);
+                        }, function () {
+                            $careers.find('.showRoll').css('color', 'inherit');
+                        });
+                    if (character.randomState.career === 1) {
+                        el.prop('disabled', true);
+                        character.randomState.career = 2;
+                    } else {
+                        character.randomState.career = 1;
+                    }
+                    CharGen.saveRandomState(character);
+                });
+            };
+            oThat.otherAction = function (el) {
+                el.html('Choisir');
+                el.off('click').on('click', function () {
+                    $(this).prop('disabled', true);
+                    $('.random').removeClass('clickMe').prop('disabled', true);
+                    $careers.find('li[data-line].listchild2').removeClass('disabled');
+                    character.randomState.career = -1;
+                    CharGen.saveRandomState(character);
+                });
+            };
+        }
+
+        oThat.autoSelectCareer = function (nb, anime) {
+            anime = typeof anime !== 'undefined' && anime;
+            $(character.randomState.imposedCareers).each(function (y, el) {
+                var $el = $careers.find('li[data-id="' + el + '"]');
+                setTimeout(function () {
+                    if (anime) {
+                        if (nb > y && $el.is('.disabled')) {
+                            Helper.updateSelectedElementFromList($el, true)
+                            $el.removeClass('disabled');
+                            Helper.scrollToElement($el.prevAll('.listchild1').first(), $el.parents('.overflow_panel'))
+                            $el.animate({
+                                "background-color": "#F39814",
+                                color: "rgb(38, 38, 38)",
+                            }, 500).delay(300).animate({
+                                "background-color": "rgb(38, 38, 38)",
+                                color: "white",
+                            }, 500);
+                            setTimeout(function () {
+                                $el.attr('style', '')
+                            }, 1500)
+                        }
+                    } else {
+                        $el.removeClass('disabled');
+                        Helper.updateSelectedElementFromList($el, true)
+                        if (character.randomState.imposedCareers.length === 1) {
+                            var el = $careers.find('li[data-id="' + character.randomState.imposedCareers[0] + '"]');
+                            el.click();
+                            Helper.scrollToElement($el.prevAll('.listchild1').first(), el.parent('.overflow_panel'))
+                        }
+                    }
+                }, (anime ? 1000 : 100));
+            });
+        }
+
+
+        oThat.show = function () {
+            var careers = CharGen.data.career.all;
+            var currentClass = '';
+            var displayedCareers = [];
+            var rand = '';
+            var previousRand = 1;
+            var previousPreviousRand = 1;
+            var specie = character.getSpecie().data.refCareer;
+            $(careers).each(function (i) {
+                var el = careers[i];
+                var tmpClass = el.getClass();
+                rand = el.rand;
+                if (currentClass !== tmpClass.getLabel() && rand[specie]) {
+                    currentClass = tmpClass.getLabel();
+                    tmpClass = Helper.clone(tmpClass);
+                    tmpClass.level = 1;
+                    tmpClass.rand = rand;
+                    displayedCareers[displayedCareers.length] = tmpClass;
+                }
+                if (rand[specie] && rand[specie] >= previousRand) {
+                    previousPreviousRand = previousRand;
+                    previousRand = rand[specie] + 1;
+                }
+                var min = (rand[specie] >= previousRand ? previousRand : previousPreviousRand);
+                var max = min !== rand[specie] ? '-' + rand[specie] : '';
+                var roll = '<span class="showRoll">' + min + max + '</span>';
+                var tmp = Helper.clone(el);
+                tmp.level = 2;
+                tmp.rand = rand;
+                tmp.altLabel = oThat.characterOnCreation() && rand[specie] ?
+                    (character.isFreeMode() ? '<span class="highlighting">' + this.getLabel() + '</span>' + roll : '<span>' + this.getLabel() + '</span>' + roll) :
+                    this.getLabel();
+                displayedCareers[displayedCareers.length] = tmp;
+                if (!oThat.characterOnCreation()) {
+                    (CharGen.data.careerLevel.allByCareer[el.id]).forEach(function (el, i) {
+                        var myCareer = Helper.clone(el);
+                        myCareer.level = 3;
+                        myCareer.rand = rand;
+                        displayedCareers[displayedCareers.length] = myCareer;
+                    })
+                }
+                /*var */
+            });
+
+            $careers = Helper.generateNormalList(
+                displayedCareers,
+                function (i, el) {
+                    return character.isFreeMode() ? true : el.rand[specie];
+                }, function (i, el) {
+                    if (oThat.characterOnCreation()) {
+                        character.setCareerLevel(CharGen.data.careerLevel.allByCareer[el.id][1]);
+                    } else {
+                        character.setCareerLevel(el);
+                    }
+                    $('.validate').prop('disabled', false)
+                }, undefined, CharGen
+            );
+
+            $careers.find('li[data-line]').addClass('disabled');
+            if (oThat.characterOnCreation()) {
+                $careers.find('li[data-line].listchild3').hide();
+                if (character.getCareerLevel() !== null) {
+                    var $el = $careers.find('li[data-id="' + character.getCareerLevel().getCareer().id + '"]');
+                    $el.removeClass('disabled');
+                    $el.click();
+                    Helper.scrollToElement($el.prevAll('.listchild1').first(), $el.parents('.overflow_panel'))
+                }
+                $('.random').removeClass('clickMe');
+                if (character.isFreeMode()) {
+                    $('.random').css('visibility', 'hidden');
+                    $('.other').css('visibility', 'hidden');
+                    $careers.find('li[data-line].listchild2').removeClass('disabled');
+                } else if (character.randomState.career !== 0) {
+                    $('.random').prop('disabled', true);
+                    $('.other').prop('disabled', true);
+                    if (character.randomState.career === -1) {
+                        $careers.find('li[data-line].listchild2').removeClass('disabled');
+                    } else if (character.randomState.career >= 1) {
+                        $('.random').prop('disabled', character.randomState.career === 2);
+                        $('.other').prop('disabled', false);
+                        //$careers.find('li[data-line]').hide();
+                        oThat.autoSelectCareer();
+                    }
+                } else {
+                    $('.random').addClass('clickMe');
+                }
+            } else {
+                $careers.find('li[data-line].listchild2').next('.listchild3').removeClass('disabled');
+                $el = $careers.find('li[data-id="' + character.getCareerLevel().id + '"]');
+                $el.next('.listchild3').removeClass('disabled')
+                $el.removeClass('disabled')
+                $el.prevUntil('.listchild2').removeClass('disabled');
+                $el.prevAll('.listchild2').first().click();
+                $el.click();
+                Helper.scrollToElement($el.prevAll('.listchild2').first(), $el.parents('.overflow_panel'))
+            }
+        };
+        return oThat;
+    }
+    this.StepCareers = StepCareers;
+</script>

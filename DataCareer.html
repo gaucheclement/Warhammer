@@ -1,0 +1,67 @@
+<script>
+    var DataCareer = function (CharGen) {
+        var typeItem = 'career';
+        var labelItem = 'Carrière';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, false, labelItem);
+        oThat.createElemStructure = function (el) {
+            el.getClass = function () {
+                return this.class;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+
+                var res = {};
+                if (elem.desc) {
+                    res['Info'] = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.god});
+                }
+                (CharGen.data.careerLevel.allByCareer[elem.id]).forEach(function (el, i) {
+                    var desc = '';
+                    desc += '<b>Niveau de carrière: </b>' + el.getLabel() + '<BR><BR>';
+                    desc += '<b>Statut: </b>' + el.status + '<BR><BR>';
+                    desc += '<b>Classe: </b>' + DescriptionHelper.showHelpTextFromElem(elem.getClass()) + '<BR><BR>';
+                    desc += '<b>Attributs: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(el.getCharacteristics(true), true));
+                    desc += '<b>Compétences: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(el.getSkills(true), true));
+                    desc += '<b>Talents: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(el.getTalents(), true));
+                    desc += '<b>Possessions: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(el.getTrappings(), true));
+                    res[DescriptionHelper.rangToImg(el.careerLevel)] = desc;
+                })
+                var traits = DescriptionHelper.listMatchSimple(label, 'Race donnant accès à cette carrière', match, 'specie');
+                if (traits !== '') {
+                    res['Accès'] = traits;
+                }
+                return  res;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.paragraph('Classe',
+                    EditHelper.inputSelect(this.getClass().id, CharGen.data.class.all, 'id', 'label', 'label', 'class', '', true));
+                html += EditHelper.paragraph('Nom de la carrière', EditHelper.inputText(this.label, 'label'))
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Jet de carrière selon la race');
+                for (let [label, value] of Object.entries(this.rand)) {
+                    html += EditHelper.paragraph(label, EditHelper.inputText(value, 'rand|' + label, 'number'))
+                }
+                html += EditHelper.paragraph('Jet supplémentaire', EditHelper.inputText(this.subRand, 'subRand', 'number'))
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+            el.getLinkedFolder = function () {
+                return this.getClass();
+            }
+        }
+        oThat.addToBook = function (el, match) {
+            DescriptionHelper.addToBook(el, match, el.class);
+        }
+        oThat.parseElems = function (el, match) {
+            el.class = DataHelper.stringToElems(CharGen, el.class, el, 'class', true, match).data;
+        }
+
+        return oThat;
+    }
+    this.DataCareer = DataCareer;
+</script>

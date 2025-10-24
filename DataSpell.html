@@ -1,0 +1,137 @@
+<script>
+    var DataSpell = function (CharGen) {
+        var typeItem = 'spell';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.allByTypeAndSpec = {};
+        oThat.createElemStructure = function (el) {
+            if (typeof el.type !== 'undefined') {
+                el.canHaveSpec = true;
+            }
+            if (typeof el.type !== 'undefined') {
+                if ((el.type === 'Magie des Arcanes'
+                    || el.type === 'Magie du Chaos'
+                    || el.type === 'Magie mineure')) {
+                    el.labelItem = 'Sort';
+                    if (el.type === 'Magie des Arcanes' || el.type === 'Magie du Chaos') {
+                        el.canHaveSpec = true;
+                    }
+                } else if (el.type === 'Invocation') {
+                    el.labelItem = 'Miracle';
+                }
+            }
+            el.getTalent = function () {
+                return this.talent;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+                var res = {};
+
+                var desc = '';
+                if (elem.getTalent()) {
+                    desc += "<b>Talent: </b>" + DescriptionHelper.showHelpTextFromElem(elem.getTalent()) + "<br>";
+                }
+                if (elem.cn) {
+                    desc += "<b>NI: </b>" + elem.cn + "<br>";
+                }
+                if (elem.range) {
+                    desc += "<b>Portée: </b>" + DescriptionHelper.applyHelp(elem.range, elem, {...labels.characteristic}) + "<br>";
+                }
+                if (elem.target) {
+                    desc += "<b>Cible: </b>" + DescriptionHelper.applyHelp(elem.target, elem, {...labels.characteristic}) + "<br>";
+                }
+                if (elem.duration) {
+                    desc += "<b>Durée: </b>" + DescriptionHelper.applyHelp(elem.duration, elem, {...labels.characteristic}) + "<br>";
+                }
+                desc += "<br>" + DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.talent, ...labels.quality, ...labels.etat, ...labels.psychologie, ...labels.magick, ...labels.trait, ...labels.characteristic, ...labels.skill, ...labels.god});
+
+                if (desc) {
+                    res['Info'] = desc;
+                }
+                var traits = '';
+                traits += DescriptionHelper.listMatchSimple(label, 'Domaines donnant accès à ce sort', match, 'lore');
+                traits += DescriptionHelper.listMatchSimple(label, 'Dieux donnant accès à ce sort', match, 'god');
+                if (traits !== '') {
+                    res['Accès'] = traits;
+                }
+                return res;
+            }
+            el.edit = function () {
+                var SpellRange = [];
+                var SpellDuration = [];
+                var SpellTarget = [];
+                $(oThat.all).each(function (i, mySpell) {
+                    if (SpellRange.indexOf(mySpell.range) === -1) {
+                        SpellRange[SpellRange.length] = mySpell.range;
+                    }
+                    if (SpellDuration.indexOf(mySpell.duration) === -1) {
+                        SpellDuration[SpellDuration.length] = mySpell.duration;
+                    }
+                    if (SpellTarget.indexOf(mySpell.target) === -1) {
+                        SpellTarget[SpellTarget.length] = mySpell.target;
+                    }
+                });
+                SpellRange.sort();
+                SpellDuration.sort();
+                SpellTarget.sort();
+                var magie = ['Magie du Chaos', 'Magie des Arcanes', 'Magie mineure'].includes(this.type);
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem')
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.paragraph('Type', EditHelper.inputText(this.type, 'type', '', true))
+                if (magie && this.subType !== 'Magie mineure') {
+                    html += EditHelper.paragraph('Domaine', EditHelper.inputText(this.subType, 'subType', '', true))
+                } else {
+                    html += EditHelper.paragraph('Dieu', EditHelper.inputText(this.subType, 'subType', '', true), this.subType !== 'Invocation')
+                }
+                html += EditHelper.inputName(CharGen, this)
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('NI', EditHelper.inputText(this.cn, 'cn', 'number'), !magie)
+                html += EditHelper.paragraph('Portée',
+                    EditHelper.inputSelect(this.range, SpellRange, '', '', '', 'range', 'autocomplete-free'))
+                html += EditHelper.paragraph('Portée',
+                    EditHelper.inputSelect(this.target, SpellTarget, '', '', '', 'target', 'autocomplete-free'))
+                html += EditHelper.paragraph('Durée',
+                    EditHelper.inputSelect(this.duration, SpellDuration, '', '', '', 'duration', 'autocomplete-free'))
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+            el.getLinkedFolder = function () {
+                var tmpTalent = this.getTalent();
+                if (this.subType === '') {
+                    if (tmpTalent.id === 'beni') {
+                        return CharGen.data.tree.allByType['god'][tmpTalent.id];
+                    }
+                    return CharGen.data.tree.allByType[this.typeItem][tmpTalent.id];
+                } else {
+                    if (tmpTalent.id === 'invocation') {
+                        return CharGen.data.god.allById[Helper.toId(this.subType)];
+                    }
+                    return CharGen.data.magick.allById[Helper.toId(this.subType)];
+                }
+            }
+            if (typeof oThat.allByTypeAndSpec[el.type] === 'undefined') {
+                oThat.allByTypeAndSpec[el.type] = {};
+            }
+            if (typeof oThat.allByTypeAndSpec[el.type][el.subType] === 'undefined') {
+                oThat.allByTypeAndSpec[el.type][el.subType] = [];
+            }
+            oThat.allByTypeAndSpec[el.type][el.subType][oThat.allByTypeAndSpec[el.type][el.subType].length] = el;
+        }
+        oThat.addToBook = function (el, match) {
+            DescriptionHelper.addToBook(el, match, el.type + (el.subType ? " (" + el.subType + ")" : ""));
+        }
+        oThat.parseElems = function (el, match) {
+            var subType = [];
+            if (el.subType) {
+                subType[subType.length] = el.subType;
+            }
+            var elem = DataHelper.createElem(el.type, subType);
+            el.talent = DataHelper.bindElem(CharGen, elem, el, 'talent', match);
+        }
+
+        return oThat;
+    }
+    this.DataSpell = DataSpell;
+</script>

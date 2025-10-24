@@ -1,0 +1,137 @@
+<script>
+    var DataSpecie = function (CharGen) {
+        var typeItem = 'specie';
+        var labelItem = 'Race';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            el.getSkills = function () {
+                return this.skills;
+            };
+            el.getTalents = function () {
+                return this.talents;
+            };
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+
+                var dataCareers = CharGen.data.career.all;
+                var j = 0;
+                var careers = [];
+                while (dataCareers[j]) {
+                    var t = dataCareers[j];
+                    if (t.rand[elem.refCareer]) {
+                        careers[careers.length] = t;
+                    }
+                    ++j;
+                }
+                var res = {};
+                if (elem.desc) {
+                    res['Info'] = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.god, ...labels.psychologie});
+                }
+
+                var details = '';
+                var dataDetail = CharGen.data.detail;
+                DataHelper.eachElem(dataDetail, function (el) {
+                    var des = (el.desc[elem.refDetail] ? el.desc[elem.refDetail] : el.allDesc);
+                    if (el.label === 'Age Base') {
+                        details += 'Choisissez l’âge de votre Personnage ou déterminez le aléatoirement à partir de cette formule: <b>' + des
+                    } else if (el.label === 'Height Base') {
+                        details += 'Choisissez la taille de votre Personnage ou déterminez la aléatoirement à partir de cette formule: <b>' + des
+                    } else if (el.label === 'Age Roll') {
+                        details += ' + ' + des + 'd10 ans</b><br><br>';
+                    } else if (el.label === 'Height Roll') {
+                        details += ' + ' + des + 'd10 cm</b><br>';
+                        if (elem.refDetail === 'Humain') {
+                            details += 'Si vous voulez une taille vraiment aléatoire pour les humains, si l’un des dés obtient un 10, lancez un dé supplémentaire et ajoutez le résultat à la hauteur totale.<br>'
+                        }
+                        details += '<br>';
+                    } else if (el.label === 'Ambitions à court terme') {
+                    } else if (el.label === 'Ambitions à long terme') {
+                    } else {
+                        details += '<h3>' + el.label + '</h3>';
+                        details += '<br>' + des
+                        var elems = [];
+                        if (el.label === 'Couleur des yeux') {
+                            elems = CharGen.data.eye;
+                        } else if (el.label === 'Couleur des cheveux') {
+                            elems = CharGen.data.hair;
+                        }
+                        if (elems.length) {
+                            details += '<table class="selectable rank">';
+                            details += '<tr><td style="text-align: center">2d10</td><td></td></tr>';
+                            var old = 2;
+                            DataHelper.eachElem(elems, function (el) {
+                                details += '<tr><td style="text-align: center" class="ui-widget-content">' + (old !== el.rand ? old + '-' : '') + el.rand + '</td><td>' + el.label[elem.refDetail] + '</td></tr>';
+                                old = el.rand + 1;
+                            });
+                            details += '</table><br>';
+                        } else if (des) {
+                            details += '<br><br>';
+                        }
+                    }
+                });
+                res['Détails'] = details;
+
+                var skillstab = $('<div></div>');
+                Helper.generateListWithRankAndHelp(
+                    CharGen.data.characteristic.all,
+                    ['', 'Base', 'Jet'],
+                    function (i, el) {
+                        return el.type !== ''
+                    },
+                    skillstab,
+                    [
+                        function (i, el) {
+                            return el.getLabel()
+                        },
+                        function (i, el) {
+                            return el.rand[elem.refChar];
+                        },
+                        function (i, el) {
+                            return el.type === 'roll' ? '+2d10' : '';
+                        }
+                    ],
+                    function () {
+                    },
+                    function () {
+                    },
+                    function (i, el) {
+                        Helper.showPopin(el.getLabel(), Helper.getHelpFormat(el, CharGen), CharGen)
+                    },
+                    1
+                );
+                res['Comps/Talents'] = '<b>Compétences de race: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(this.getSkills(), true))
+                    + '<b>Talents de race: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(this.getTalents(), true));
+                res['Carrières'] = DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(careers, true));
+                res['Caractéristiques'] = skillstab.html();
+                return res;
+            }
+            el.getLinkedFolder = function () {
+                var res = CharGen.data.tree.allByType[this.typeItem][Helper.toId(this.refChar)];
+                if (typeof res === 'undefined') {
+                    res = el.getLinkedRootFolder();
+                }
+                return res;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        };
+        oThat.addToBook = function (el, match) {
+            DescriptionHelper.addToBook(el, match, el.refDetail);
+        }
+        oThat.parseElems = function (el, match) {
+            el.skills = DataHelper.stringToElems(CharGen, el.skills, el, 'skill', false, match);
+            el.talents = DataHelper.stringToElems(CharGen, el.talents, el, 'talent', false, match);
+        }
+
+        return oThat;
+    }
+    this.DataSpecie = DataSpecie;
+</script>

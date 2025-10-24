@@ -1,0 +1,95 @@
+<script>
+    var DataTalent = function (CharGen) {
+        var typeItem = 'talent';
+        var labelItem = 'Talent';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, false, labelItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.specs !== 'undefined' && el.specs) {
+                el.canHaveSpec = true;
+            }
+            el.getSpecs = function () {
+                return this.specs;
+            }
+            el.getSkill = function () {
+                var skill = '';
+                if (this.addSkill) {
+                    skill = DataHelper.stringToElems(CharGen, this.addSkill, el, 'skill', true)
+                    if (skill) {
+                        if (this.specs) {
+                            skill.spec = this.spec;
+                            skill.specs = this.specs;
+                        }
+                        skill.origins = ['talent'];
+                    } else {
+                        console.log('addTalent getSkill: ' + this.addSkill)
+                    }
+                }
+                return skill;
+            };
+            el.getTalent = function () {
+                var talent = '';
+                if (this.addTalent) {
+                    talent = DataHelper.stringToElems(CharGen, this.addTalent, el, 'talent', true)
+                    if (talent) {
+                        talent.origins = ['talent'];
+                    } else {
+                        console.log('addTalent getTalent: ' + this.addTalent)
+                    }
+                }
+                return talent;
+            };
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+
+                var desc = "<b>Maxi: </b>" + elem.maxHelp + "<br>";
+                if (elem.testHelp) {
+                    desc += "<b>Tests: </b>" + elem.testHelp + "<br>";
+                }
+                desc += "<br>" + DescriptionHelper.applyHelp(elem.desc, elem, {...labels.characteristic, ...labels.skill, ...labels.lore, ...labels.etat, ...labels.magick, ...labels.quality, ...labels.trapping, ...labels.god, ...labels.talent, ...labels.psychologie});
+                if (elem.specs.length) {
+                    desc += "<br><br><b>Spécialisations: </b>" + elem.specs.join(', ') + "<br>";
+                }
+
+                var traits = '';
+                traits += DescriptionHelper.listMatchSimple(label, 'Races donnant accès à ce talent', match, 'specie');
+                traits += DescriptionHelper.listMatchCareerLevel(label, 'Carrières donnant accès à ce  talent', match);
+
+                var res = {};
+                res['Info'] = desc;
+                if (elem.id === 'magie mineure') {
+                    res['Sorts'] = '<b>Sorts uniques: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(CharGen.data.spell.allByTypeAndSpec[elem.label][''], true));
+                }
+                if (traits !== '') {
+                    res['Accès'] = traits;
+                }
+                res['Info'] = desc;
+                if (typeof res['Sorts'] === 'undefined' && typeof res['Accès'] === 'undefined') {
+                    return res['Info'];
+                }
+                return res;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+            el.spec = '';
+            el.origins = [];
+            el.specs = el.specs ? el.specs.split(', ') : [];
+        }
+        oThat.parseElems = function (el, match) {
+            el.testHelp = DescriptionHelper.applyHelp(el.test, el, CharGen.allForHelp.skill, match);
+            el.maxHelp = DescriptionHelper.applyHelp(el.max, el, CharGen.allForHelp.characteristic, match);
+        }
+
+        return oThat;
+    }
+    this.DataTalent = DataTalent;
+</script>

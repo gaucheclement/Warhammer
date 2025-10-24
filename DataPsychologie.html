@@ -1,0 +1,32 @@
+<script>
+    var DataPsychologie = function (CharGen) {
+        var typeItem = 'psychologie';
+        var labelItem = 'Trait Psychologique'
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem, false, labelItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.prefix !== 'undefined' && el.prefix) {
+                el.canHaveSpec = true;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+
+                return DescriptionHelper.applyHelp(elem.desc, elem, {...labels.characteristic, ...labels.trait, ...labels.talent, ...labels.lore, ...labels.skill, ...labels.god, ...labels.spell, ...labels.etat, ...labels.psychologie, ...labels.magick, ...labels.quality});
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+        }
+
+        return oThat;
+    }
+    this.DataPsychologie = DataPsychologie;
+</script>

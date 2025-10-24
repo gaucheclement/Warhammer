@@ -1,0 +1,210 @@
+<script>
+    var DescriptionHelper = {
+        initHelpData: function (el, labels, match) {
+            var type = el.typeItem;
+            var label = el.label;
+            if (typeof label != 'undefined') {
+                var key = type;
+                if (type === 'quality' && label === 'Taille') {
+                    key = 'taille';
+                }
+                if ((typeof labels[type] == 'undefined' || typeof labels[type][label] == 'undefined')) {
+                    if (typeof labels[key] === 'undefined') {
+                        labels[key] = {};
+                    }
+                    labels[key][label] = el;
+                    if (typeof el.abr !== 'undefined' && el.abr !== '') {
+                        labels[key][el.abr] = el;
+                    }
+                    if (typeof el.labelItem !== 'undefined' && el.labelItem !== '') {
+                        labels[key][el.labelItem + ' ' + label] = el;
+                    }
+                }
+            }
+            if (typeof match[type] === 'undefined') {
+                match[type] = {};
+            }
+            if (typeof match[type][label] === 'undefined') {
+                match[type][label] = {};
+            }
+        },
+        updateMatch: function (originText, data, from, match) {
+            var label = data.label
+            var type = from.typeItem;
+            var extra = '';
+            if (typeof match[data.typeItem][label][type] === 'undefined') {
+                match[data.typeItem][label][type] = [];
+            }
+            if (type === 'careerLevel') {
+                extra = from.careerLevel;
+            }
+            if (extra !== '') {
+                if (typeof match[data.typeItem][label][type][extra] === 'undefined') {
+                    match[data.typeItem][label][type][extra] = {};
+                }
+                match[data.typeItem][label][type][extra][from.label] = {id: from.id, text: originText};
+            } else {
+                match[data.typeItem][label][type][from.label] = {id: from.id, text: originText};
+            }
+        },
+        addToBook: function (el, match, extra) {
+            var type = el.typeItem;
+            if (typeof el.book !== 'undefined' && el.book && typeof match !== 'undefined') {
+                if (typeof match['book'] === 'undefined') {
+                    match['book'] = {};
+                }
+                if (typeof match['book'][el.book] === 'undefined') {
+                    match['book'][el.book] = {};
+                }
+                if (typeof match['book'][el.book][type] === 'undefined') {
+                    match['book'][el.book][type] = {};
+                }
+                var e = {id: el.id, text: "page " + el.page};
+                if (el.inactive === 1) {
+                    e.inactive = 1;
+                }
+                if (extra) {
+                    if (typeof match['book'][el.book][type][extra] === 'undefined') {
+                        match['book'][el.book][type][extra] = {};
+                    }
+                    match['book'][el.book][type][extra][el.label] = e;
+                } else {
+                    match['book'][el.book][type][el.label] = e;
+                }
+            }
+        },
+        showHelpTextFromElem: function (e) {
+            if (typeof e.id === 'undefined') {
+                return e.getLabel();
+            }
+            return DescriptionHelper.showHelpText(e.getLabel(), e.id, e.typeItem)
+        },
+        showHelpText: function (text, id, type) {
+            return '<span class="showHelp" data-type="' + type + '" data-id="' + id + '">' + text + '</span>';
+        },
+        escapeRegExp: function (string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+        },
+        applyHelp: function (texts, el, labels, match) {
+            var origin = el.label;
+            var type = el.typeItem;
+            var isArray = Array.isArray(texts);
+            var result = [];
+            var myLabels;
+            myLabels = Object.entries(labels).sort(function (a, b) {
+                return b[0].length - a[0].length;
+            });
+            (isArray ? texts : [texts]).forEach(function (text) {
+                if (text && typeof text === 'string') {
+                    var originText = text;
+                    var matches = [];
+                    for (let [label, data] of myLabels) {
+                        if (data.typeItem !== type || data.label !== origin) {
+                            var newText = text;
+                            var regNumber = '( ?[+|-]?\\d+[d\\-+\\d]* ?)?';
+                            var regSpec = '( ?\\([^\\(\\$]*\\))?'
+                            var reg = '[^-#|\\w\\u00C0\\u00C1\\u00C2\\u00C3\\u00C4\\u00C5\\u00C6\\u00C7\\u00C8\\u00C9\\u00CA\\u00CB\\u00CC\\u00CD\\u00CE\\u00CF\\u00D0\\u00D1\\u00D2\\u00D3\\u00D4\\u00D5\\u00D6\\u00D8\\u00D9\\u00DA\\u00DB\\u00DC\\u00DD\\u00DF\\u00E0\\u00E1\\u00E2\\u00E3\\u00E4\\u00E5\\u00E6\\u00E7\\u00E8\\u00E9\\u00EA\\u00EB\\u00EC\\u00ED\\u00EE\\u00EF\\u00F0\\u00F1\\u00F2\\u00F3\\u00F4\\u00F5\\u00F6\\u00F9\\u00FA\\u00FB\\u00FC\\u00FD\\u00FF\\u0153]';
+                            var regexpBegin = isArray ? '(^| ou )' : '(' + reg + '|^)';
+                            var prefix = data.canHaveSpec ? regSpec + regNumber : '()()';
+                            var regexpLabel = label.trim().split(' ');
+                            for (var w = 0; w < regexpLabel.length; ++w) {
+                                regexpLabel[w] = DescriptionHelper.escapeRegExp(regexpLabel[w]) + 's?'
+                            }
+                            var regexp = new RegExp(regexpBegin + '(' + regNumber + regexpLabel.join(' ') + regNumber + prefix + ')($|' + reg + ')', "gm");
+                            newText = text.replace(regexp, function (match, p1, p2, p3, p4, p5, p6, p7) {
+                                matches[matches.length] = DescriptionHelper.showHelpText(p2, data.id, data.typeItem);
+                                return p1 + '#' + (matches.length - 1) + '#' + p7;
+                            });
+                            if (newText !== text && typeof match !== 'undefined') {
+                                DescriptionHelper.updateMatch(originText, data, el, match);
+                            }
+                            text = newText;
+                        }
+                    }
+                    result[result.length] = text.replace(new RegExp('#(\\d+)#', "gm"), function (match, p1) {
+                        return matches[p1];
+                    }).replace(new RegExp('#(\\d+)#', "gm"), function (match, p1) {
+                        return matches[p1];
+                    });
+                } else {
+                    result[result.length] = text;
+                }
+            });
+            return isArray ? result : result[0];
+        },
+        toHtmlList: function (array) {
+            return '<ul><li>' + array.join('</li><li>') + '</li></ul>'
+        },
+        listMatchSimple: function (label, text, match, key, checkbox) {
+            var traits = ''
+            var check = '';
+            if (typeof match !== 'undefined' && typeof match[key] !== 'undefined') {
+                if (text) {
+                    traits += '<b>' + text + ': </b>';
+                }
+                if (Object.entries(match[key]).length) {
+                    traits += '<ul>';
+                    for (let [i, e] of Object.entries(match[key])) {
+                        if (typeof e.id === 'undefined') {
+                            check = checkbox === true ? "<input type='checkbox'/>" : '';
+                            traits += '<br>' + check + '<b>' + i + ': </b>';
+                            for (let [y, el] of Object.entries(e)) {
+                                text = el.inactive === 1 ? y : DescriptionHelper.showHelpText(y, el.id, key);
+                                check = checkbox === true ? "<input type='checkbox' " + (el.inactive !== 1 ? 'checked="checked"' : '') + "/>" : '';
+                                traits += '<li>' + check + text + (label !== el.text ? ': ' + el.text : '') + '</li>';
+                            }
+                        } else {
+                            text = e.inactive === 1 ? i : DescriptionHelper.showHelpText(i, e.id, key);
+                            check = checkbox === true ? "<input type='checkbox' " + (e.inactive !== 1 ? 'checked="checked"' : '') + "/>" : '';
+                            traits += '<li>' + check + text + (label !== e.text ? ': ' + e.text : '') + '</li>';
+                        }
+                    }
+                    traits += '</ul>';
+                }
+            }
+            return traits;
+        },
+        listMatchCareerLevel: function (label, text, match) {
+            var traits = ''
+            if (typeof match !== 'undefined' && typeof match['careerLevel'] !== 'undefined') {
+                traits += '<b>' + text + ': </b><ul>';
+                match['careerLevel'].forEach(function (tmp, rank) {
+                    if (tmp) {
+                        for (let [i, e] of Object.entries(tmp)) {
+                            traits += '<li style="display: flex"><div class="div_label">' + DescriptionHelper.rangToImg(rank) + DescriptionHelper.showHelpText(i, e.id, 'careerLevel') + (label !== e.text ? ': ' + e.text : '') + '</div></li>';
+                        }
+                    }
+                });
+                traits += '</ul>';
+            }
+            return traits;
+        },
+        rangToImg: function (rank) {
+            var icon = 'icon '
+            if (rank === 1) {
+                icon += 'cross_icon';
+            } else if (rank === 2) {
+                icon += 'sword_icon'
+            } else if (rank === 3) {
+                icon += 'skull_icon'
+            } else if (rank === 4) {
+                icon += 'shield_icon'
+            }
+            return '<div title="Rang ' + rank + '" class="' + icon + '"></div>'
+        },
+        elemsToSimpleArray: function (elems, withHelp) {
+            var result = [];
+            DataHelper.eachElem(elems, function (e, i, y, ou) {
+                var text = withHelp === true ? DescriptionHelper.showHelpTextFromElem(e) : e.getLabel();
+                var index = result.length;
+                if (y > 0) {
+                    --index;
+                    text = result[index] + ' ou ' + text;
+                }
+                result[index] = text;
+            });
+            return result;
+        }
+    }
+    this.DescriptionHelper = DescriptionHelper;
+</script>

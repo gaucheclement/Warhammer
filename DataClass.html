@@ -1,0 +1,52 @@
+<script>
+    var DataClass = function (CharGen) {
+        var typeItem = 'class';
+        var labelItem = 'Classe';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            el.getTrappings = function () {
+                return this.trappings;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var label = this.label;
+                var match = CharGen.match[typeItem][label];
+                var desc = ''
+                if (elem.desc) {
+                    desc += DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.god});
+                    desc += '<br><br>';
+                }
+                desc += DescriptionHelper.listMatchSimple(label, 'Options de Carrière', match, 'career')
+                if (elem.getTrappings()) {
+                    desc += '<b>Possesssions: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(elem.getTrappings(), true))
+                }
+
+                return desc;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Equipements',
+                    EditHelper.inputTexts(
+                        DescriptionHelper.elemsToSimpleArray(this.getTrappings()),
+                        10,
+                        'trappings'
+                    ),
+                );
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+
+        }
+        oThat.parseElems = function (el, match) {
+            el.trappings = DataHelper.stringToElems(CharGen, el.trappings, el, 'trapping', false, match);
+        }
+
+        return oThat;
+    }
+    this.DataClass = DataClass;
+</script>

@@ -1,0 +1,77 @@
+<script>
+    var Compendium = function (CharGen) {
+        var oThat = {};
+        oThat.stepName = "Compendium";
+        oThat.desc = function () {
+            return ''
+        };
+        oThat.title = function () {
+            return 'Compendium'
+        };
+        oThat.initAction = function () {
+            if (!CharGen.data) {
+                CharGen.loadData();
+            }
+        };
+
+        /*oThat.cancelAction = function () {
+            $('.cancel').html('Retour');
+            $('.cancel').off('click').on('click', function () {
+                CharGen.showMainMenu();
+            });
+        };*/
+        oThat.otherAction = function () {
+            $('.other').html('Options');
+            $('.other').off('click').on('click', function () {
+                CharGen.showPanel(0, Option(CharGen));
+            });
+        };
+        oThat.randomAction = function () {
+            $('.random').html(CharGen.user.options.theme === 'light_theme' ? 'Noir' : 'Clair');
+            $('.random').off('click').on('click', function () {
+                if ($('body').hasClass('light_theme')) {
+                    $('body').removeClass('light_theme');
+                    CharGen.user.options.theme = '';
+                    $('.random').html(CharGen.user.options.theme === 'light_theme' ? 'Noir' : 'Clair');
+                } else {
+                    CharGen.user.options.theme = 'light_theme';
+                    $('body').addClass('light_theme');
+                    $('.random').html(CharGen.user.options.theme === 'light_theme' ? 'Noir' : 'Clair');
+                }
+                Helper.setStorage(CharGen.user);
+            });
+        };
+
+        oThat.show = function () {
+            var con = $('.left_panel').html('');
+            var tabEl = DataHelper.flattenElemIteratively(CharGen.data.tree.all[0], function (e) {
+                return e.typeItem === 'tree' && (e.type === 'tree' || e.subType === 'root')
+            })
+            var html = '<select class="div_label ui-widget-content" style="padding: 0.4em;">'
+            tabEl.forEach(function (el, i) {
+                html += '<option value="tabs-' + i + '" data-typeitem="' + el.typeItem + '"  data-id="' + el.id + '">' + Helper.addSpace(el.level - 1) + el.label + '</option>';
+            });
+            html += '</select>';
+            con.append(html);
+            tabEl.forEach(function (el, i) {
+                con.append('<div id="tabs-' + i + '" class="pretty_panel paneltabs overflow_panel" style="display: none"></div>');
+            })
+            con.children('select').off('change').on('change', function (i, e) {
+                var val = $(this).val();
+                var talentstab = con.find('#' + val);
+                var option = $(this).find('option:selected').first();
+                Helper.generateNormalList(
+                    DataHelper.flattenElemIteratively(CharGen.data[option.data('typeitem')].allById[option.data('id')]),
+                    function (i, el) { return i !== 0 || el.getDescription() !== ''},
+                    null,
+                    talentstab,
+                    CharGen
+                );
+                con.children('div').hide();
+                talentstab.show();
+            })
+            con.children('select').change();
+        };
+        return oThat;
+    }
+</script>

@@ -1,0 +1,51 @@
+<script>
+    var DataMagick = function (CharGen) {
+        var typeItem = 'magick';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.suffix !== 'undefined' && el.suffix) {
+                el.labelItem = el.suffix;
+            }
+            el.getSpells = function () {
+                return this.spells;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                var final = {};
+                final['Info'] = DescriptionHelper.applyHelp(elem.desc, elem, {...labels.characteristic, ...labels.trait, ...labels.talent, ...labels.lore, ...labels.skill, ...labels.god, ...labels.spell, ...labels.etat, ...labels.psychologie, ...labels.magick, ...labels.quality, ...labels.career, ...labels.tree});
+                if (elem.getSpells().length) {
+                    final['Sorts'] = '<b>Sorts uniques: </b>' + DescriptionHelper.toHtmlList(DescriptionHelper.elemsToSimpleArray(elem.getSpells(), true))
+                }
+                if (Object.entries(final).length === 1) {
+                    final = final['Info'];
+                }
+
+                return final;
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.paragraph('Dossier parent', EditHelper.inputText(this.folder, 'folder', '', true), true)
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+            var spellType = el.folder === 'Magie du Chaos' ? 'Magie du Chaos' : 'Magie des Arcanes';
+            el.spells = [];
+            if (spellType
+                && typeof CharGen.data.spell.allByTypeAndSpec[spellType][el.label] !== 'undefined') {
+                DataHelper.eachElem(CharGen.data.spell.allByTypeAndSpec[spellType][el.label], function (e, i, y, ou) {
+                    el.spells[el.spells.length] = DataHelper.bindElem(CharGen, DataHelper.createElem(e.label), el, 'spell', match)
+                });
+            }
+        }
+
+        return oThat;
+    }
+    this.DataMagick = DataMagick;
+</script>

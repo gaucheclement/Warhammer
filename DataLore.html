@@ -1,0 +1,40 @@
+<script>
+    var DataLore = function (CharGen) {
+        var typeItem = 'lore';
+        var oThat = DataFunctions.createDataObject(CharGen, typeItem);
+        oThat.createElemStructure = function (el) {
+            if (typeof el.suffix !== 'undefined' && el.suffix) {
+                el.labelItem = el.suffix;
+            }
+            el.getSpells = function () {
+                return this.spells;
+            }
+            el.getDescription = function () {
+                var elem = this.getData();
+                var labels = CharGen.allForHelp;
+                return DescriptionHelper.applyHelp(elem.desc, elem, {...labels.lore, ...labels.god});
+            }
+            el.getLinkedFolder = function () {
+                if (this.parent) {
+                    return oThat.allById[Helper.toId(this.parent)];
+                }
+                return this.getLinkedRootFolder();
+            }
+            el.edit = function () {
+                var html = EditHelper.inputHidden(this.typeItem, 'typeItem');
+                html += EditHelper.inputHidden(this.insertMode, 'insertMode');
+                html += EditHelper.inputHidden(this.index, 'index');
+                html += EditHelper.inputName(CharGen, this);
+                html += EditHelper.paragraph('Dossier parent', EditHelper.inputText(this.parent, 'parent', '', true), true)
+                html += EditHelper.inputBookAndPage(CharGen, this);
+                html += EditHelper.paragraph('Description', EditHelper.inputTextArea(this.desc, 'desc', 'desc'))
+                return html;
+            }
+        }
+        oThat.parseElems = function (el, match) {
+        }
+
+        return oThat;
+    }
+    this.DataLore = DataLore;
+</script>
