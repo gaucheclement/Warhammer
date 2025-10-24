@@ -6,6 +6,7 @@
   import { validateCharacterName } from '../lib/characterValidation.js'
   import { createCharacter } from '../lib/dataOperations.js'
   import { toasts } from '../lib/toastStore.js'
+  import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, formatDraftTimestamp } from '../lib/draftManager.js'
 
   // Import wizard components
   import WizardProgress from '../components/wizard/WizardProgress.svelte'
@@ -35,6 +36,10 @@
 
   let validationErrors = []
   let canProceed = true
+  let autoSaveInterval
+  let lastSaved = null
+  let showRestoreModal = false
+  let draftMetadata = null
 
   const steps = [
     { id: 1, name: 'Details' },
@@ -140,10 +145,14 @@
     try {
       const result = await createCharacter(character)
       if (result.success) {
+        // Clear draft and auto-save
+        clearDraft()
+        if (autoSaveInterval) {
+          clearInterval(autoSaveInterval)
+        }
+        lastSaved = null
         // Move to completion step
         currentStep = 16
-        // Clear draft
-        localStorage.removeItem('characterDraft')
       } else {
         alert(`Failed to save character: ${result.error}`)
       }
@@ -167,20 +176,30 @@
 
   // Load draft on mount if available
   onMount(() => {
-    try {
-      const draft = localStorage.getItem('characterDraft')
-      if (draft) {
-        const shouldRestore = confirm('Found an unsaved draft. Would you like to restore it?')
-        if (shouldRestore) {
-          character = JSON.parse(draft)
-        } else {
-          localStorage.removeItem('characterDraft')
+    // Check for draft
+    if (hasDraft()) {
+      draftMetadata = getDraftMetadata()
+      showRestoreModal = true
+    }
+
+    // Start auto-save interval (every 30 seconds)
+    autoSaveInterval = setInterval(() => {
+      if (character.name) {
+        const result = saveDraft(character)
+        if (result.success) {
+          lastSaved = result.timestamp
         }
       }
-    } catch (e) {
-      console.error('Failed to load draft:', e)
-    }
+    }, 30000)
+
     validateCurrentStep()
+
+    // Cleanup on unmount
+    return () => {
+      if (autoSaveInterval) {
+        clearInterval(autoSaveInterval)
+      }
+    }
   })
 
   // Reactive validation
@@ -197,6 +216,9 @@
   <header class="creator-header">
     <h1>Character Creator</h1>
     <p class="subtitle">Create a new Warhammer Fantasy character</p>
+    {#if lastSaved}
+      <p class="draft-indicator">Draft auto-saved {formatDraftTimestamp(lastSaved)}</p>
+    {/if}
   </header>
 
   <WizardProgress
@@ -360,6 +382,89 @@
     border-radius: 8px;
     min-height: 500px;
     margin-bottom: 2rem;
+  }
+
+  .draft-indicator {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #666);
+    font-style: italic;
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: var(--color-bg-primary, #fff);
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border, #ddd);
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    color: var(--color-text-primary, #333);
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-body p {
+    margin: 0 0 1rem 0;
+    color: var(--color-text-primary, #333);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--color-border, #ddd);
+  }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--color-accent, #8b2e1f);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-accent-hover, #a63728);
+  }
+
+  .btn-secondary {
+    background: var(--color-bg-secondary, #f5f5f5);
+    color: var(--color-text-primary, #333);
+    border: 1px solid var(--color-border, #ddd);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-bg-tertiary, #e5e5e5);
   }
 
   @media (max-width: 768px) {
