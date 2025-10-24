@@ -1,9 +1,11 @@
 {
   "name": "warhammer-v2",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
+  "description": "Warhammer Fantasy Roleplay 4th edition - Single-file Progressive Web Application",
   "scripts": {
+    "extract": "node ../extract-data.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
