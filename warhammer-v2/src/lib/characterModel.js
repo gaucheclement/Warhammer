@@ -113,6 +113,16 @@
  * @property {CharacterResilience} resilience - Resilience points
  * @property {string} notes - Character notes
  * @property {CharacterAppearance} appearance - Physical appearance
+ * @property {Object} ambitions - Character ambitions
+ * @property {string} ambitions.shortTerm - Short-term ambition
+ * @property {string} ambitions.longTerm - Long-term ambition
+ * @property {Object} party - Party information
+ * @property {string} party.name - Party name
+ * @property {string} party.role - Character's role in party
+ * @property {string} party.notes - Party notes
+ * @property {string[]} psychologies - Active psychologies
+ * @property {string[]} conditions - Active conditions
+ * @property {string} gmNotes - GM-only notes
  * @property {string} created - Creation timestamp (ISO string)
  * @property {string} updated - Last update timestamp (ISO string)
  * @property {boolean} isDraft - Whether this is a draft character
@@ -174,6 +184,18 @@ export function createEmptyCharacter() {
       hair: '',
       distinguishing: ''
     },
+    ambitions: {
+      shortTerm: '',
+      longTerm: ''
+    },
+    party: {
+      name: '',
+      role: '',
+      notes: ''
+    },
+    psychologies: [],
+    conditions: [],
+    gmNotes: '',
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
     isDraft: false
