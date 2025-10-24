@@ -4,6 +4,8 @@
   import { mergedData } from '../stores/data.js'
   import { createEmptyCharacter } from '../lib/characterModel.js'
   import { validateCharacterName } from '../lib/characterValidation.js'
+  import { createCharacter } from '../lib/dataOperations.js'
+  import { toasts } from '../lib/toastStore.js'
 
   // Import wizard components
   import WizardProgress from '../components/wizard/WizardProgress.svelte'
@@ -16,9 +18,17 @@
   import WizardStep6Talents from '../components/wizard/WizardStep6Talents.svelte'
   import WizardStep7Spells from '../components/wizard/WizardStep7Spells.svelte'
   import WizardStep8Equipment from '../components/wizard/WizardStep8Equipment.svelte'
+  import WizardStep9Fate from '../components/wizard/WizardStep9Fate.svelte'
+  import WizardStep10Ambitions from '../components/wizard/WizardStep10Ambitions.svelte'
+  import WizardStep11Party from '../components/wizard/WizardStep11Party.svelte'
+  import WizardStep12Experience from '../components/wizard/WizardStep12Experience.svelte'
+  import WizardStep13Notes from '../components/wizard/WizardStep13Notes.svelte'
+  import WizardStep14Psychology from '../components/wizard/WizardStep14Psychology.svelte'
+  import WizardStep15Review from '../components/wizard/WizardStep15Review.svelte'
+  import WizardStep16Complete from '../components/wizard/WizardStep16Complete.svelte'
 
   let currentStep = 1
-  const totalSteps = 8
+  const totalSteps = 16
 
   // Initialize character with proper model
   let character = createEmptyCharacter()
@@ -34,7 +44,15 @@
     { id: 5, name: 'Skills' },
     { id: 6, name: 'Talents' },
     { id: 7, name: 'Spells' },
-    { id: 8, name: 'Equipment' }
+    { id: 8, name: 'Equipment' },
+    { id: 9, name: 'Fate' },
+    { id: 10, name: 'Ambitions' },
+    { id: 11, name: 'Party' },
+    { id: 12, name: 'Experience' },
+    { id: 13, name: 'Notes' },
+    { id: 14, name: 'Psychology' },
+    { id: 15, name: 'Review' },
+    { id: 16, name: 'Complete' }
   ]
 
   function validateCurrentStep() {
@@ -69,10 +87,22 @@
     }
   }
 
-  function nextStep() {
+  async function nextStep() {
     validateCurrentStep()
     if (canProceed && currentStep < totalSteps) {
-      currentStep++
+      // If moving from review to complete, save the character
+      if (currentStep === 15) {
+        await handleSave()
+      } else {
+        currentStep++
+        validateCurrentStep()
+      }
+    }
+  }
+
+  function jumpToStep(stepNumber) {
+    if (stepNumber >= 1 && stepNumber <= totalSteps) {
+      currentStep = stepNumber
       validateCurrentStep()
     }
   }
@@ -106,8 +136,20 @@
     }
   }
 
-  function handleSave() {
-    alert('Character creation will be fully implemented in future tasks.\n\nThis is a placeholder for the character creator workflow.')
+  async function handleSave() {
+    try {
+      const result = await createCharacter(character)
+      if (result.success) {
+        // Move to completion step
+        currentStep = 16
+        // Clear draft
+        localStorage.removeItem('characterDraft')
+      } else {
+        alert(`Failed to save character: ${result.error}`)
+      }
+    } catch (error) {
+      alert(`Error saving character: ${error.message}`)
+    }
   }
 
   function handleCancel() {
@@ -115,6 +157,12 @@
       localStorage.removeItem('characterDraft')
       window.location.hash = '#/'
     }
+  }
+
+  function handleCreateAnother() {
+    character = createEmptyCharacter()
+    currentStep = 1
+    localStorage.removeItem('characterDraft')
   }
 
   // Load draft on mount if available
@@ -217,10 +265,57 @@
         on:change={handleChange}
         on:validate={handleValidate}
       />
+    {:else if currentStep === 9}
+      <WizardStep9Fate
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 10}
+      <WizardStep10Ambitions
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 11}
+      <WizardStep11Party
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 12}
+      <WizardStep12Experience
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 13}
+      <WizardStep13Notes
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 14}
+      <WizardStep14Psychology
+        bind:character
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 15}
+      <WizardStep15Review
+        {character}
+        on:jumpToStep={(e) => jumpToStep(e.detail.step)}
+      />
+    {:else if currentStep === 16}
+      <WizardStep16Complete
+        {character}
+        on:createAnother={handleCreateAnother}
+      />
     {/if}
   </div>
 
-  <WizardNavigation
+  {#if currentStep !== 16}
+    <WizardNavigation
     {currentStep}
     {totalSteps}
     {canProceed}
