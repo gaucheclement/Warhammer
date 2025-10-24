@@ -4,7 +4,8 @@ status: backlog
 created: 2025-10-24T13:32:14Z
 progress: 0%
 prd: .claude/prds/v2.md
-github: [Will be updated when synced to GitHub]
+github: https://github.com/gaucheclement/Warhammer/issues/1
+updated: 2025-10-24T14:07:18Z
 ---
 
 # Epic: Warhammer Fantasy 4e - Version 2
@@ -389,20 +390,20 @@ High-level implementation tasks (8-10 total):
 
 ## Tasks Created
 
-- [ ] 001.md - Project Foundation & Build Setup (parallel: false, depends on: none)
-- [ ] 002.md - Data Layer & State Management (parallel: false, depends on: 001)
-- [ ] 003.md - Core UI Components & Layout (parallel: false, depends on: 001, 002)
-- [ ] 004.md - Character Creation & Management (parallel: true, depends on: 002, 003, conflicts: 005)
-- [ ] 005.md - Custom Content & Modifications (parallel: true, depends on: 002, 003, conflicts: 004)
-- [ ] 006.md - Admin Mode (parallel: true, depends on: 003, 005)
-- [ ] 007.md - Offline Support & Service Worker (parallel: true, depends on: 001, 003)
-- [ ] 008.md - Testing, Optimization & Documentation (parallel: false, depends on: 001-007)
+- [ ] #2 - Project Foundation & Build Setup (parallel: false, depends on: none)
+- [ ] #3 - Data Layer & State Management (parallel: false, depends on: #2)
+- [ ] #4 - Core UI Components & Layout (parallel: false, depends on: #2, #3)
+- [ ] #5 - Character Creation & Management (parallel: true, depends on: #3, #4, conflicts: #6)
+- [ ] #6 - Custom Content & Modifications (parallel: true, depends on: #3, #4, conflicts: #5)
+- [ ] #7 - Admin Mode (parallel: true, depends on: #4, #6)
+- [ ] #8 - Offline Support & Service Worker (parallel: true, depends on: #2, #4)
+- [ ] #9 - Testing, Optimization & Documentation (parallel: false, depends on: #2-#8)
 
 **Total tasks:** 8
-**Parallel tasks:** 4 (tasks 004, 005, 006, 007 can run concurrently)
-**Sequential tasks:** 4 (tasks 001, 002, 003, 008 must run in order)
+**Parallel tasks:** 4 (tasks #5, #6, #7, #8 can run concurrently)
+**Sequential tasks:** 4 (tasks #2, #3, #4, #9 must run in order)
 **Estimated total effort:** 136-160 hours
 
 **Critical Path:**
-001 → 002 → 003 → {004, 005, 006, 007} → 008
+#2 → #3 → #4 → {#5, #6, #7, #8} → #9
 (Sequential foundation → Parallel feature development → Final integration)
