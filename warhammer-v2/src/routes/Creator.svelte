@@ -350,6 +350,7 @@
     on:cancel={handleCancel}
     on:validate={validateCurrentStep}
   />
+  {/if}
 </div>
 
 <style>

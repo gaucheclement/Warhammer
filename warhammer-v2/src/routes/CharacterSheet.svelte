@@ -240,7 +240,7 @@
             <button class="btn btn-secondary" on:click={() => showAdvancementDialog = true}>
               Advancement
             </button>
-            <button class="btn btn-secondary" on:click={exportCharacter}
+            <button class="btn btn-secondary" on:click={exportCharacter}>
               Export JSON
             </button>
             <button class="btn btn-secondary" on:click={openDuplicateModal}>
