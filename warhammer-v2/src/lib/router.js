@@ -11,7 +11,8 @@ import { wrap } from 'svelte-spa-router/wrap'
 // Using wrap() for lazy loading (code splitting)
 import Home from '../routes/Home.svelte'
 import Browse from '../routes/Browse.svelte'
-import Character from '../routes/Character.svelte'
+import CharacterSheet from '../routes/CharacterSheet.svelte'
+import CharacterList from '../routes/CharacterList.svelte'
 import Creator from '../routes/Creator.svelte'
 import Admin from '../routes/Admin.svelte'
 import Settings from '../routes/Settings.svelte'
@@ -39,7 +40,9 @@ export const routes = {
   '/browse/:category': Browse,
 
   // Character routes
-  '/character/:id': Character,
+  //ROUTE-ADDED: Issue #10 Stream 5 - Character List
+  '/characters': CharacterList,
+  '/character/:id': CharacterSheet,
 
   // Character creator
   '/creator': Creator,
@@ -102,6 +105,7 @@ function updatePageTitle(location) {
   const titles = {
     '/': 'Warhammer Fantasy 4e',
     '/browse': 'Browse - Warhammer Fantasy 4e',
+    '/characters': 'Characters - Warhammer Fantasy 4e',
     '/character': 'Character - Warhammer Fantasy 4e',
     '/creator': 'Character Creator - Warhammer Fantasy 4e',
     '/admin': 'Admin Panel - Warhammer Fantasy 4e',
