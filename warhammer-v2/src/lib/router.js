@@ -14,7 +14,6 @@ import Browse from '../routes/Browse.svelte'
 import CharacterSheet from '../routes/CharacterSheet.svelte'
 import CharacterList from '../routes/CharacterList.svelte'
 import Creator from '../routes/Creator.svelte'
-import CharacterGenerator from '../routes/CharacterGenerator.svelte'
 import Admin from '../routes/Admin.svelte'
 import Settings from '../routes/Settings.svelte'
 import NotFound from '../routes/NotFound.svelte'
@@ -47,9 +46,6 @@ export const routes = {
 
   // Character creator
   '/creator': Creator,
-
-  // Character generator (V1 wizard port - Issue #24 Stream C)
-  '/character-generator': CharacterGenerator,
 
   // Admin panel
   '/admin': Admin,
