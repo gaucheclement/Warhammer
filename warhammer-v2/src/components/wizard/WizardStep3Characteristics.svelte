@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte'
   import { validateCharacteristics } from '../../lib/characterValidation.js'
-  import { rollAllCharacteristics, calculateCharacteristicBonus, calculateWounds } from '../../lib/characterCalculations.js'
+  import { rollAllCharacteristics, calculateCharacteristicBonus, calculateWounds, calculateDefaultFate, calculateDefaultResilience } from '../../lib/characterCalculations.js'
   import { calculateDerivedStats, addXPBonus } from '../../lib/characterModel.js'
   import RandomButton from '../common/RandomButton.svelte'
 
@@ -13,6 +13,9 @@
   let validationErrors = []
   let rolledCharacteristics = null
   let showRandomUI = true
+  let fateMax = 0
+  let resilienceMax = 0
+  let manualOverride = false
 
   const characteristicLabels = {
     M: 'Movement',
@@ -109,10 +112,64 @@
 
   function updateDerivedStats() {
     calculateDerivedStats(character)
+    calculateFateAndResilience()
   }
 
   function getCharacteristicBonus(value) {
     return calculateCharacteristicBonus(value)
+  }
+
+  // Calculate default Fate and Resilience based on species
+  function calculateFateAndResilience() {
+    if (character.species && character.species.name) {
+      const defaultFate = calculateDefaultFate(character.species.name)
+      const defaultResilience = calculateDefaultResilience(character.species.name)
+
+      // Initialize fate/resilience if not set
+      if (!character.fate) {
+        character.fate = { current: 0, max: 0 }
+      }
+      if (!character.resilience) {
+        character.resilience = { current: 0, max: 0 }
+      }
+
+      // Set defaults if not already set (or if 0 and not manually overridden)
+      if (character.fate.max === 0 && !manualOverride) {
+        fateMax = defaultFate
+        character.fate.max = defaultFate
+        character.fate.current = defaultFate
+      } else {
+        fateMax = character.fate.max
+      }
+
+      if (character.resilience.max === 0 && !manualOverride) {
+        resilienceMax = defaultResilience
+        character.resilience.max = defaultResilience
+        character.resilience.current = defaultResilience
+      } else {
+        resilienceMax = character.resilience.max
+      }
+    }
+  }
+
+  function handleFateChange() {
+    character.fate.max = fateMax
+    character.fate.current = fateMax
+    manualOverride = true
+    dispatch('change', character)
+  }
+
+  function handleResilienceChange() {
+    character.resilience.max = resilienceMax
+    character.resilience.current = resilienceMax
+    manualOverride = true
+    dispatch('change', character)
+  }
+
+  function resetFateToDefaults() {
+    manualOverride = false
+    calculateFateAndResilience()
+    dispatch('change', character)
   }
 
   $: derivedWounds = calculateWounds(
@@ -127,6 +184,13 @@
     character.wounds.max = derivedWounds
     if (character.wounds.current === 0) {
       character.wounds.current = derivedWounds
+    }
+  }
+
+  // Auto-calculate Fate and Resilience when species changes
+  $: if (character.species) {
+    if (!manualOverride) {
+      calculateFateAndResilience()
     }
   }
 </script>
@@ -249,6 +313,86 @@
             {getCharacteristicBonus(character.characteristics.I || 0) +
               getCharacteristicBonus(character.characteristics.Ag || 0)}
           </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fate & Resilience Section -->
+    <div class="fate-section">
+      <h3>Fate & Resilience</h3>
+      <div class="info-box">
+        <p>
+          <strong>Species: </strong>{character.species?.name || 'None selected'}
+        </p>
+        <p class="info-text">
+          Default values for this species have been calculated automatically.
+          You can override these values if needed.
+        </p>
+      </div>
+
+      <div class="fate-grid">
+        <div class="fate-item">
+          <label for="fate-max">Fate Points</label>
+          <input
+            id="fate-max"
+            type="number"
+            bind:value={fateMax}
+            on:change={handleFateChange}
+            min="0"
+            max="10"
+            class="fate-input"
+          />
+          <div class="help-text">
+            Maximum fate points. Typically 0-3 depending on species.
+          </div>
+        </div>
+
+        <div class="fate-item">
+          <label for="resilience-max">Resilience Points</label>
+          <input
+            id="resilience-max"
+            type="number"
+            bind:value={resilienceMax}
+            on:change={handleResilienceChange}
+            min="0"
+            max="10"
+            class="fate-input"
+          />
+          <div class="help-text">
+            Maximum resilience points. Typically 0-2 depending on species.
+          </div>
+        </div>
+      </div>
+
+      {#if manualOverride}
+        <div class="reset-section">
+          <button type="button" on:click={resetFateToDefaults} class="btn-secondary">
+            Reset to Species Defaults
+          </button>
+        </div>
+      {/if}
+
+      <div class="fate-info">
+        <div class="info-panel">
+          <div class="info-item">
+            <h4>Fate Points</h4>
+            <p>Fate points can be spent to:</p>
+            <ul>
+              <li>Re-roll any test</li>
+              <li>Avoid a killing blow</li>
+              <li>Perform heroic actions</li>
+            </ul>
+          </div>
+
+          <div class="info-item">
+            <h4>Resilience Points</h4>
+            <p>Resilience points can be spent to:</p>
+            <ul>
+              <li>Remove a corruption point</li>
+              <li>Ignore a mental condition</li>
+              <li>Resist supernatural influences</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -480,6 +624,125 @@
     color: var(--color-accent, #8b2e1f);
   }
 
+  /* Fate & Resilience Section */
+  .fate-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border, #ddd);
+  }
+
+  .fate-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: var(--color-text-primary, #333);
+  }
+
+  .info-box {
+    background: var(--color-bg-info, #e3f2fd);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--color-accent, #8b2e1f);
+  }
+
+  .info-box p {
+    margin: 0.5rem 0;
+  }
+
+  .info-box strong {
+    color: var(--color-text-primary, #333);
+  }
+
+  .info-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+  }
+
+  .fate-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .fate-item label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+  }
+
+  .fate-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 2px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    background: var(--color-bg-primary, white);
+    color: var(--color-text-primary, #333);
+    transition: border-color 0.2s;
+  }
+
+  .fate-input:focus {
+    outline: none;
+    border-color: var(--color-accent, #8b2e1f);
+  }
+
+  .reset-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    background: var(--color-bg-secondary, #f5f5f5);
+    color: var(--color-text-primary, #333);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-bg-primary, white);
+    border-color: var(--color-accent, #8b2e1f);
+  }
+
+  .fate-info {
+    margin-top: 1.5rem;
+  }
+
+  .info-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    background: var(--color-bg-secondary, #f5f5f5);
+    padding: 1rem;
+    border-radius: 6px;
+  }
+
+  .info-item h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--color-text-primary, #333);
+    font-size: 1.1rem;
+  }
+
+  .info-item p {
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+    color: var(--color-text-secondary, #666);
+  }
+
+  .info-item ul {
+    margin: 0 0 0.75rem 1.25rem;
+    padding: 0;
+  }
+
+  .info-item li {
+    margin-bottom: 0.25rem;
+    color: var(--color-text-secondary, #666);
+  }
+
   .validation-errors {
     margin-top: 1rem;
     padding: 1rem;
@@ -505,6 +768,11 @@
     }
 
     .characteristics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fate-grid,
+    .info-panel {
       grid-template-columns: 1fr;
     }
   }

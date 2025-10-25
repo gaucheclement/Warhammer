@@ -19,7 +19,6 @@
   import WizardStep6Equipment from '../components/wizard/WizardStep6Equipment.svelte'
   import WizardStep7Details from '../components/wizard/WizardStep7Details.svelte'
   import WizardStep8Spells from '../components/wizard/WizardStep8Spells.svelte'
-  import WizardStep9Fate from '../components/wizard/WizardStep9Fate.svelte'
   import WizardStep10Ambitions from '../components/wizard/WizardStep10Ambitions.svelte'
   import WizardStep11Party from '../components/wizard/WizardStep11Party.svelte'
   import WizardStep12Experience from '../components/wizard/WizardStep12Experience.svelte'
@@ -29,7 +28,7 @@
   import WizardStep16Complete from '../components/wizard/WizardStep16Complete.svelte'
 
   let currentStep = 1
-  const totalSteps = 16
+  const totalSteps = 15
 
   // Initialize character with proper model
   let character = createEmptyCharacter()
@@ -50,14 +49,13 @@
     { id: 6, name: 'Equipment' },
     { id: 7, name: 'Details' },
     { id: 8, name: 'Spells' },
-    { id: 9, name: 'Fate' },
-    { id: 10, name: 'Ambitions' },
-    { id: 11, name: 'Party' },
-    { id: 12, name: 'Experience' },
-    { id: 13, name: 'Notes' },
-    { id: 14, name: 'Psychology' },
-    { id: 15, name: 'Review' },
-    { id: 16, name: 'Complete' }
+    { id: 9, name: 'Ambitions' },
+    { id: 10, name: 'Party' },
+    { id: 11, name: 'Experience' },
+    { id: 12, name: 'Notes' },
+    { id: 13, name: 'Psychology' },
+    { id: 14, name: 'Review' },
+    { id: 15, name: 'Complete' }
   ]
 
   function validateCurrentStep() {
@@ -96,7 +94,7 @@
     validateCurrentStep()
     if (canProceed && currentStep < totalSteps) {
       // If moving from review to complete, save the character
-      if (currentStep === 15) {
+      if (currentStep === 14) {
         await handleSave()
       } else {
         currentStep++
@@ -152,7 +150,7 @@
         }
         lastSaved = null
         // Move to completion step
-        currentStep = 16
+        currentStep = 15
       } else {
         alert(`Failed to save character: ${result.error}`)
       }
@@ -289,47 +287,41 @@
         on:validate={handleValidate}
       />
     {:else if currentStep === 9}
-      <WizardStep9Fate
-        bind:character
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 10}
       <WizardStep10Ambitions
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 11}
+    {:else if currentStep === 10}
       <WizardStep11Party
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 12}
+    {:else if currentStep === 11}
       <WizardStep12Experience
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 13}
+    {:else if currentStep === 12}
       <WizardStep13Notes
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 14}
+    {:else if currentStep === 13}
       <WizardStep14Psychology
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 15}
+    {:else if currentStep === 14}
       <WizardStep15Review
         {character}
         on:jumpToStep={(e) => jumpToStep(e.detail.step)}
       />
-    {:else if currentStep === 16}
+    {:else if currentStep === 15}
       <WizardStep16Complete
         {character}
         on:createAnother={handleCreateAnother}
@@ -337,7 +329,7 @@
     {/if}
   </div>
 
-  {#if currentStep !== 16}
+  {#if currentStep !== 15}
     <WizardNavigation
     {currentStep}
     {totalSteps}
