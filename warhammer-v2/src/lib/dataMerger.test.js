@@ -84,7 +84,8 @@ describe('dataMerger', () => {
     it('should merge multiple entity types', () => {
       const official = {
         talents: [{ id: 1, name: 'Talent 1' }],
-        skills: [{ id: 1, name: 'Skill 1' }]
+        skills: [{ id: 1, name: 'Skill 1' }],
+        spells: []
       }
 
       const custom = {
@@ -99,9 +100,12 @@ describe('dataMerger', () => {
       expect(merged.spells).toHaveLength(1)
     })
 
-    it('should handle missing entity types', () => {
-      const official = { talents: [{ id: 1, name: 'Talent 1' }] }
-      const custom = { skills: [{ id: 1, name: 'Skill 1' }] }
+    it('should handle missing entity types in custom', () => {
+      const official = {
+        talents: [{ id: 1, name: 'Talent 1' }],
+        skills: [{ id: 1, name: 'Skill 1' }]
+      }
+      const custom = {}
 
       const merged = mergeData(official, custom)
 
