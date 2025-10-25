@@ -18,16 +18,11 @@
   import WizardStep5Talents from '../components/wizard/WizardStep5Talents.svelte'
   import WizardStep6Equipment from '../components/wizard/WizardStep6Equipment.svelte'
   import WizardStep7Details from '../components/wizard/WizardStep7Details.svelte'
-  import WizardStep10Ambitions from '../components/wizard/WizardStep10Ambitions.svelte'
-  import WizardStep11Party from '../components/wizard/WizardStep11Party.svelte'
-  import WizardStep12Experience from '../components/wizard/WizardStep12Experience.svelte'
-  import WizardStep13Notes from '../components/wizard/WizardStep13Notes.svelte'
-  import WizardStep14Psychology from '../components/wizard/WizardStep14Psychology.svelte'
-  import WizardStep15Review from '../components/wizard/WizardStep15Review.svelte'
-  import WizardStep16Complete from '../components/wizard/WizardStep16Complete.svelte'
+  import WizardStep8Experience from '../components/wizard/WizardStep8Experience.svelte'
+  import WizardStep9Review from '../components/wizard/WizardStep9Review.svelte'
 
   let currentStep = 1
-  const totalSteps = 14
+  const totalSteps = 9
 
   // Initialize character with proper model
   let character = createEmptyCharacter()
@@ -47,13 +42,8 @@
     { id: 5, name: 'Talents' },
     { id: 6, name: 'Equipment' },
     { id: 7, name: 'Details' },
-    { id: 8, name: 'Ambitions' },
-    { id: 9, name: 'Party' },
-    { id: 10, name: 'Experience' },
-    { id: 11, name: 'Notes' },
-    { id: 12, name: 'Psychology' },
-    { id: 13, name: 'Review' },
-    { id: 14, name: 'Complete' }
+    { id: 8, name: 'Experience' },
+    { id: 9, name: 'Review' }
   ]
 
   function validateCurrentStep() {
@@ -91,8 +81,8 @@
   async function nextStep() {
     validateCurrentStep()
     if (canProceed && currentStep < totalSteps) {
-      // If moving from review to complete, save the character
-      if (currentStep === 13) {
+      // If on review step (9), save and stay on review
+      if (currentStep === 9) {
         await handleSave()
       } else {
         currentStep++
@@ -147,8 +137,11 @@
           clearInterval(autoSaveInterval)
         }
         lastSaved = null
-        // Move to completion step
-        currentStep = 14
+        // Show success message and redirect
+        toasts.success('Character created successfully!')
+        setTimeout(() => {
+          window.location.hash = '#/'
+        }, 1500)
       } else {
         alert(`Failed to save character: ${result.error}`)
       }
@@ -167,7 +160,7 @@
   function handleCreateAnother() {
     character = createEmptyCharacter()
     currentStep = 1
-    localStorage.removeItem('characterDraft')
+    clearDraft()
   }
 
   // Load draft on mount if available
@@ -278,50 +271,20 @@
         on:validate={handleValidate}
       />
     {:else if currentStep === 8}
-      <WizardStep10Ambitions
+      <WizardStep8Experience
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
     {:else if currentStep === 9}
-      <WizardStep11Party
-        bind:character
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 10}
-      <WizardStep12Experience
-        bind:character
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 11}
-      <WizardStep13Notes
-        bind:character
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 12}
-      <WizardStep14Psychology
-        bind:character
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 13}
-      <WizardStep15Review
+      <WizardStep9Review
         {character}
         on:jumpToStep={(e) => jumpToStep(e.detail.step)}
-      />
-    {:else if currentStep === 14}
-      <WizardStep16Complete
-        {character}
-        on:createAnother={handleCreateAnother}
       />
     {/if}
   </div>
 
-  {#if currentStep !== 14}
-    <WizardNavigation
+  <WizardNavigation
     {currentStep}
     {totalSteps}
     {canProceed}
@@ -334,7 +297,6 @@
     on:cancel={handleCancel}
     on:validate={validateCurrentStep}
   />
-  {/if}
 </div>
 
 <style>
