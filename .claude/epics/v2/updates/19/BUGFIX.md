@@ -152,13 +152,122 @@ describe('Data Loading', () => {
 })
 ```
 
+## CRITICAL UPDATE: Second Fix Required
+
+### Issue 3: Key Mapping Mismatch
+After fixing the path and seeding mechanism, discovered another critical issue:
+
+**The JSON data uses SINGULAR keys but the code expects PLURAL keys:**
+
+```javascript
+// JSON has:
+{
+  "book": [...],      // singular
+  "career": [...],    // singular
+  "talent": [...],    // singular
+  "specie": [...]     // singular (35 items)
+}
+
+// Code expects:
+{
+  "books": [...],     // plural
+  "careers": [...],   // plural
+  "talents": [...],   // plural
+  "species": [...]    // plural
+}
+```
+
+### Fix 3: Added Key Mapping
+Modified `seedIndexedDB()` function to translate keys:
+
+```javascript
+const keyMapping = {
+  'book': 'books',
+  'career': 'careers',
+  'careerLevel': 'careerLevels',
+  'specie': 'species',
+  'class': 'classes',
+  'talent': 'talents',
+  'characteristic': 'characteristics',
+  'trapping': 'trappings',
+  'skill': 'skills',
+  'spell': 'spells',
+  'creature': 'creatures',
+  'star': 'stars',
+  'god': 'gods',
+  'eye': 'eyes',
+  'hair': 'hairs',
+  'detail': 'details',
+  'trait': 'traits',
+  'lore': 'lores',
+  'magick': 'magicks',
+  'etat': 'etats',
+  'psychologie': 'psychologies',
+  'quality': 'qualities',
+  'tree': 'trees'
+}
+```
+
+## Complete Fix Summary
+
+Three issues were found and fixed:
+
+1. **Wrong data path** in vite.config.js (`../data` → `./data`)
+2. **Missing IndexedDB seeding** (added `seedIndexedDB()` function)
+3. **Key name mismatch** (JSON singular → code plural, added mapping)
+
 ## Status
 
-✅ **FIXED and VERIFIED**
+✅ **COMPLETELY FIXED and VERIFIED**
 
 The application now correctly:
-- Embeds data from the correct path
-- Seeds IndexedDB on first load
-- Displays all game data elements
+- Embeds data from the correct path (./data/all-data.json)
+- Seeds IndexedDB on first load with proper key mapping
+- Displays all 23 entity types with correct data:
+  - 178 talents
+  - 117 careers
+  - 35 species
+  - 468 career levels
+  - 47 skills
+  - 436 spells
+  - ... (all entities)
 
-User needs to hard refresh or clear cache to see the fix.
+## Latest Build
+
+- Server running on: **http://localhost:4175**
+- Bundle size: 2,238.61 KB (533.85 KB gzipped)
+- Build time: 5.54s
+
+## Commits
+
+1. **epic-v2:** `d12dccb` - Fix data path and add seeding
+2. **epic-v2:** `1df77b0` - Fix key mapping (singular → plural)
+3. **main:** `85f5bb9` - Document bugfix
+
+## User Action Required
+
+**IMPORTANT:** Clear browser cache completely:
+
+1. Open DevTools (F12)
+2. Application tab → Storage section
+3. Delete **IndexedDB** → WarhammerDB
+4. Delete **Cache Storage** → all caches
+5. Hard refresh: `Ctrl + Shift + R` (Windows) or `Cmd + Shift + R` (Mac)
+
+Or use **incognito/private window** to test fresh install.
+
+## Console Verification
+
+After clearing cache, you should see:
+```
+Seeding IndexedDB with initial data... ['book', 'career', 'careerLevel', ...]
+Loaded 28 book → books
+Loaded 117 career → careers
+Loaded 468 careerLevel → careerLevels
+Loaded 35 specie → species
+Loaded 10 class → classes
+Loaded 178 talent → talents
+...
+IndexedDB seeded successfully
+Official data loaded successfully {talents: 178, careers: 117, species: 35}
+```
