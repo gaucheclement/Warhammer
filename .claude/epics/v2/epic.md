@@ -2,10 +2,10 @@
 name: v2
 status: in-progress
 created: 2025-10-24T13:32:14Z
-progress: 56%
+progress: 33%
 prd: .claude/prds/v2.md
 github: https://github.com/gaucheclement/Warhammer/issues/1
-updated: 2025-10-25T05:44:31Z
+updated: 2025-10-25T10:04:27Z
 ---
 
 # Epic: Warhammer Fantasy 4e - Version 2

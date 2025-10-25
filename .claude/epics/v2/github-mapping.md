@@ -11,5 +11,6 @@ Tasks:
 - #17: Core UI Components & Layout - https://github.com/gaucheclement/Warhammer/issues/17
 - #18: Offline Support & Service Worker - https://github.com/gaucheclement/Warhammer/issues/18
 - #19: Testing, Optimization & Documentation - https://github.com/gaucheclement/Warhammer/issues/19
+- #24: Verify 8-step character generation pipeline in V2 - https://github.com/gaucheclement/Warhammer/issues/24
 
-Synced: 2025-10-24T15:20:35Z
+Synced: 2025-10-25T07:21:42Z
