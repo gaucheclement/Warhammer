@@ -15,6 +15,7 @@
   import { officialData, customModifications } from '../stores/data.js'
   import { adminStore } from '../stores/admin.js'
   import LoadingSpinner from '../components/LoadingSpinner.svelte'
+  import { exportOfficialData } from '../lib/adminExport.js'
 
   let isLoading = true
   let stats = {
@@ -111,28 +112,34 @@
   }
 
   /**
-   * Navigate to edit data page (will be created by Stream C)
+   * Navigate to edit data page (Stream C)
    */
   function navigateToEditData() {
-    // TODO: Update this path once Stream C creates the page
-    push('/admin/edit')
+    push('/admin/edit-data')
   }
 
   /**
-   * Navigate to review contributions page (will be created by Stream D)
+   * Navigate to review contributions page (Stream D)
    */
   function navigateToReviewContributions() {
-    // TODO: Update this path once Stream D creates the page
     push('/admin/review')
   }
 
   /**
-   * Export official database (will be implemented by Stream E)
+   * Export official database (Stream E)
    */
   function exportDatabase() {
-    // TODO: Implement once Stream E provides the export function
-    console.log('Export database - to be implemented by Stream E')
-    alert('Export functionality will be implemented by Stream E')
+    try {
+      const result = exportOfficialData()
+      if (result.success) {
+        alert(`✅ Export successful!\n\nFile: ${result.filename}\nSize: ${(result.size / 1024).toFixed(2)} KB\nTotal entities: ${result.stats.total}`)
+      } else {
+        alert(`❌ Export failed:\n\n${result.errors.join('\n')}`)
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      alert(`❌ Export failed: ${error.message}`)
+    }
   }
 
   /**
