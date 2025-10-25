@@ -11,14 +11,14 @@
   // Import wizard components
   import WizardProgress from '../components/wizard/WizardProgress.svelte'
   import WizardNavigation from '../components/wizard/WizardNavigation.svelte'
-  import WizardStep1Details from '../components/wizard/WizardStep1Details.svelte'
-  import WizardStep2Species from '../components/wizard/WizardStep2Species.svelte'
-  import WizardStep3Career from '../components/wizard/WizardStep3Career.svelte'
-  import WizardStep4Characteristics from '../components/wizard/WizardStep4Characteristics.svelte'
-  import WizardStep5Skills from '../components/wizard/WizardStep5Skills.svelte'
-  import WizardStep6Talents from '../components/wizard/WizardStep6Talents.svelte'
-  import WizardStep7Spells from '../components/wizard/WizardStep7Spells.svelte'
-  import WizardStep8Equipment from '../components/wizard/WizardStep8Equipment.svelte'
+  import WizardStep1Species from '../components/wizard/WizardStep1Species.svelte'
+  import WizardStep2Career from '../components/wizard/WizardStep2Career.svelte'
+  import WizardStep3Characteristics from '../components/wizard/WizardStep3Characteristics.svelte'
+  import WizardStep4Skills from '../components/wizard/WizardStep4Skills.svelte'
+  import WizardStep5Talents from '../components/wizard/WizardStep5Talents.svelte'
+  import WizardStep6Equipment from '../components/wizard/WizardStep6Equipment.svelte'
+  import WizardStep7Details from '../components/wizard/WizardStep7Details.svelte'
+  import WizardStep8Spells from '../components/wizard/WizardStep8Spells.svelte'
   import WizardStep9Fate from '../components/wizard/WizardStep9Fate.svelte'
   import WizardStep10Ambitions from '../components/wizard/WizardStep10Ambitions.svelte'
   import WizardStep11Party from '../components/wizard/WizardStep11Party.svelte'
@@ -42,14 +42,14 @@
   let draftMetadata = null
 
   const steps = [
-    { id: 1, name: 'Details' },
-    { id: 2, name: 'Species' },
-    { id: 3, name: 'Career' },
-    { id: 4, name: 'Characteristics' },
-    { id: 5, name: 'Skills' },
-    { id: 6, name: 'Talents' },
-    { id: 7, name: 'Spells' },
-    { id: 8, name: 'Equipment' },
+    { id: 1, name: 'Species' },
+    { id: 2, name: 'Career' },
+    { id: 3, name: 'Characteristics' },
+    { id: 4, name: 'Skills' },
+    { id: 5, name: 'Talents' },
+    { id: 6, name: 'Equipment' },
+    { id: 7, name: 'Details' },
+    { id: 8, name: 'Spells' },
     { id: 9, name: 'Fate' },
     { id: 10, name: 'Ambitions' },
     { id: 11, name: 'Party' },
@@ -65,27 +65,27 @@
     canProceed = true
 
     switch (currentStep) {
-      case 1: // Details
-        const nameValidation = validateCharacterName(character.name)
-        if (!nameValidation.valid) {
-          validationErrors = nameValidation.errors
-          canProceed = false
-        }
-        break
-      case 2: // Species
+      case 1: // Species
         if (!character.species || !character.species.id) {
           validationErrors = ['Please select a species']
           canProceed = false
         }
         break
-      case 3: // Career
+      case 2: // Career
         if (!character.career || !character.career.id) {
           validationErrors = ['Please select a career']
           canProceed = false
         }
         break
-      case 4: // Characteristics
+      case 3: // Characteristics
         // Validation handled by component
+        break
+      case 7: // Details
+        const nameValidation = validateCharacterName(character.name)
+        if (!nameValidation.valid) {
+          validationErrors = nameValidation.errors
+          canProceed = false
+        }
         break
       default:
         canProceed = true
@@ -229,60 +229,60 @@
 
   <div class="creator-content">
     {#if currentStep === 1}
-      <WizardStep1Details
-        bind:character
-        existingCharacters={[]}
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 2}
-      <WizardStep2Species
+      <WizardStep1Species
         bind:character
         species={$mergedData.species || []}
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 3}
-      <WizardStep3Career
+    {:else if currentStep === 2}
+      <WizardStep2Career
         bind:character
         careers={$mergedData.careers || []}
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 4}
-      <WizardStep4Characteristics
+    {:else if currentStep === 3}
+      <WizardStep3Characteristics
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 5}
-      <WizardStep5Skills
+    {:else if currentStep === 4}
+      <WizardStep4Skills
         bind:character
         skills={$mergedData.skills || []}
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 6}
-      <WizardStep6Talents
+    {:else if currentStep === 5}
+      <WizardStep5Talents
         bind:character
         talents={$mergedData.talents || []}
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 7}
-      <WizardStep7Spells
+    {:else if currentStep === 6}
+      <WizardStep6Equipment
         bind:character
-        spells={$mergedData.spells || []}
+        trappings={$mergedData.trappings || []}
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 8}
-      <WizardStep8Equipment
+    {:else if currentStep === 7}
+      <WizardStep7Details
         bind:character
-        trappings={$mergedData.trappings || []}
+        existingCharacters={[]}
+        on:change={handleChange}
+        on:validate={handleValidate}
+      />
+    {:else if currentStep === 8}
+      <WizardStep8Spells
+        bind:character
+        spells={$mergedData.spells || []}
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
