@@ -178,6 +178,19 @@ export function createEmptyCharacter() {
       current: 0,
       max: 0
     },
+    // Random choice tracking (for XP bonuses)
+    randomState: {
+      specie: 0,         // 0=none, 1=accepted(+20), -1=manual
+      career: 0,         // 0=none, 1=first(+50), 2=second(+25), -1=manual
+      characteristic: 0  // 0=none, 1=accepted(+50), 2=reassigned(+25), -1=manual
+    },
+    // XP management (bonus XP from random choices)
+    xp: {
+      max: 0,       // Total bonus XP earned from random choices
+      used: 0,      // XP spent on advances
+      tmp_used: 0,  // Temporary (unvalidated) XP
+      log: {}       // History: { advance_id: cost }
+    },
     notes: '',
     appearance: {
       eyes: '',
@@ -570,4 +583,87 @@ export function spendCharacterXP(character, xpCost) {
     character.updated = new Date().toISOString()
   }
   return character
+}
+
+/**
+ * Calculate total bonus XP from random choices
+ * @param {Character} character - Character to calculate XP for
+ * @returns {number} Total bonus XP earned
+ */
+export function calculateBonusXP(character) {
+  let total = 0
+
+  // Species random bonus
+  if (character.randomState.specie === 1) {
+    total += 20
+  }
+
+  // Career random bonuses
+  if (character.randomState.career === 1) {
+    total += 50  // First random choice
+  } else if (character.randomState.career === 2) {
+    total += 25  // Second random choice
+  }
+
+  // Characteristic random bonuses
+  if (character.randomState.characteristic === 1) {
+    total += 50  // Accepted rolls
+  } else if (character.randomState.characteristic === 2) {
+    total += 25  // Reassigned points
+  }
+
+  return total
+}
+
+/**
+ * Add XP bonus and update character state
+ * @param {Character} character - Character to modify
+ * @param {string} type - Type of bonus ('specie', 'career', 'characteristic')
+ * @param {number} amount - Amount of XP to add
+ * @param {number} state - State value to set (1 for first/accepted, 2 for second/reassigned, -1 for manual)
+ * @returns {Character} Modified character
+ */
+export function addXPBonus(character, type, amount, state) {
+  // Update randomState
+  if (type === 'specie') {
+    character.randomState.specie = state
+  } else if (type === 'career') {
+    character.randomState.career = state
+  } else if (type === 'characteristic') {
+    character.randomState.characteristic = state
+  }
+
+  // Add XP bonus
+  character.xp.max += amount
+  character.updated = new Date().toISOString()
+
+  return character
+}
+
+/**
+ * Spend bonus XP on an advance
+ * @param {Character} character - Character to modify
+ * @param {string} advanceId - ID of the advance being purchased
+ * @param {number} cost - XP cost of the advance
+ * @returns {Character} Modified character
+ */
+export function spendBonusXP(character, advanceId, cost) {
+  const available = character.xp.max - character.xp.used
+
+  if (available >= cost) {
+    character.xp.used += cost
+    character.xp.log[advanceId] = cost
+    character.updated = new Date().toISOString()
+  }
+
+  return character
+}
+
+/**
+ * Get available bonus XP
+ * @param {Character} character - Character to check
+ * @returns {number} Available bonus XP
+ */
+export function getAvailableBonusXP(character) {
+  return character.xp.max - character.xp.used
 }
