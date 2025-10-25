@@ -2,14 +2,30 @@
   export let currentStep = 1
   export let totalSteps = 8
   export let steps = []
+  export let character = null
 
   $: progressPercentage = (currentStep / totalSteps) * 100
+  $: bonusXP = character?.xp?.max || 0
+  $: usedXP = character?.xp?.used || 0
+  $: availableXP = bonusXP - usedXP
 </script>
 
 <div class="wizard-progress">
   <div class="progress-header">
     <span class="step-label">Step {currentStep} of {totalSteps}</span>
     <span class="step-name">{steps[currentStep - 1]?.name || ''}</span>
+
+    <!-- XP Display -->
+    {#if character && bonusXP > 0}
+      <div class="xp-display" class:updated={bonusXP > 0}>
+        <span class="xp-icon">⚡</span>
+        <span class="xp-label">Bonus XP:</span>
+        <span class="xp-value">{bonusXP}</span>
+        {#if usedXP > 0}
+          <span class="xp-used">(-{usedXP})</span>
+        {/if}
+      </div>
+    {/if}
   </div>
 
   <div class="progress-bar">
@@ -46,6 +62,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
   .step-label {
@@ -58,6 +76,54 @@
     font-size: 0.875rem;
     color: var(--color-accent, #8b2e1f);
     font-weight: 600;
+  }
+
+  /* XP Display */
+  .xp-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 2rem;
+    font-weight: 600;
+    color: #333;
+    box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .xp-display.updated {
+    animation: pulse 0.5s ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+    }
+  }
+
+  .xp-icon {
+    font-size: 1.2rem;
+  }
+
+  .xp-label {
+    font-size: 0.875rem;
+  }
+
+  .xp-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #d4af37;
+  }
+
+  .xp-used {
+    font-size: 0.875rem;
+    color: #b8860b;
+    font-weight: 500;
   }
 
   .progress-bar {

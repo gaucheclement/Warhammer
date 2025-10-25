@@ -225,6 +225,7 @@
     {currentStep}
     {totalSteps}
     {steps}
+    {character}
   />
 
   <div class="creator-content">
