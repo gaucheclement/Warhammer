@@ -11,9 +11,10 @@
     <h3 class="section-subtitle">Appearance</h3>
     <div class="appearance-grid">
       <div class="appearance-field">
-        <label class="field-label">Eyes:</label>
+        <label class="field-label" for="appearance-eyes">Eyes:</label>
         {#if isEditMode}
           <input
+            id="appearance-eyes"
             type="text"
             bind:value={appearance.eyes}
             class="field-input"
@@ -25,9 +26,10 @@
       </div>
 
       <div class="appearance-field">
-        <label class="field-label">Hair:</label>
+        <label class="field-label" for="appearance-hair">Hair:</label>
         {#if isEditMode}
           <input
+            id="appearance-hair"
             type="text"
             bind:value={appearance.hair}
             class="field-input"
@@ -40,9 +42,10 @@
     </div>
 
     <div class="appearance-field full-width">
-      <label class="field-label">Distinguishing Features:</label>
+      <label class="field-label" for="appearance-distinguishing">Distinguishing Features:</label>
       {#if isEditMode}
         <textarea
+          id="appearance-distinguishing"
           bind:value={appearance.distinguishing}
           class="field-textarea"
           placeholder="Scars, tattoos, or other notable features..."

@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte'
-  import { uiSettings } from '../stores/ui.js'
 
   let settings = {
     theme: 'dark',

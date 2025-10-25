@@ -126,7 +126,7 @@
           class="form-textarea"
           rows="4"
           maxlength="500"
-        />
+        ></textarea>
         <div class="help-text">
           Optional. Describe any scars, tattoos, or other distinctive features.
         </div>

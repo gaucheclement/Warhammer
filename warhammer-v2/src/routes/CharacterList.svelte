@@ -513,10 +513,22 @@
 
 <!-- Delete Confirmation Modal -->
 {#if showDeleteConfirm && characterToDelete}
-  <div class="modal-backdrop" on:click={() => showDeleteConfirm = false}>
-    <div class="modal" on:click|stopPropagation>
+  <div
+    class="modal-backdrop"
+    role="presentation"
+    on:click={() => showDeleteConfirm = false}
+    on:keydown={(e) => e.key === 'Escape' && (showDeleteConfirm = false)}
+  >
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+      on:click|stopPropagation
+      on:keydown={(e) => e.stopPropagation()}
+    >
       <div class="modal-header">
-        <h2>Delete Character</h2>
+        <h2 id="delete-modal-title">Delete Character</h2>
         <button class="modal-close" on:click={() => showDeleteConfirm = false} aria-label="Close">
           {@html getIcon('close', 'icon-svg', 20)}
         </button>
