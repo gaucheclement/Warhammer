@@ -57,6 +57,11 @@ export const routes = {
     asyncComponent: () => import('../routes/Creator.svelte')
   }),
 
+  // Issue #16 Stream A: Admin login page
+  '/admin/login': wrap({
+    asyncComponent: () => import('../pages/AdminLogin.svelte')
+  }),
+
   // Admin panel - lazy loaded
   '/admin': wrap({
     asyncComponent: () => import('../routes/Admin.svelte')
@@ -124,6 +129,7 @@ function updatePageTitle(location) {
     '/characters': 'Characters - Warhammer Fantasy 4e',
     '/character': 'Character - Warhammer Fantasy 4e',
     '/creator': 'Character Creator - Warhammer Fantasy 4e',
+    '/admin/login': 'Admin Login - Warhammer Fantasy 4e',
     '/admin': 'Admin Panel - Warhammer Fantasy 4e',
     '/settings': 'Settings - Warhammer Fantasy 4e'
   }
