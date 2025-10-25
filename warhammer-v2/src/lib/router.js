@@ -62,6 +62,16 @@ export const routes = {
     asyncComponent: () => import('../pages/AdminLogin.svelte')
   }),
 
+  // Issue #16 Stream C: Admin data editor
+  '/admin/edit-data': wrap({
+    asyncComponent: () => import('../pages/AdminEditData.svelte')
+  }),
+
+  // Issue #16 Stream D: Admin review contributions page
+  "/admin/review": wrap({
+    asyncComponent: () => import("../pages/AdminReviewContributions.svelte")
+  }),
+
   // Admin panel - lazy loaded
   '/admin': wrap({
     asyncComponent: () => import('../routes/Admin.svelte')
@@ -130,6 +140,8 @@ function updatePageTitle(location) {
     '/character': 'Character - Warhammer Fantasy 4e',
     '/creator': 'Character Creator - Warhammer Fantasy 4e',
     '/admin/login': 'Admin Login - Warhammer Fantasy 4e',
+    '/admin/edit-data': 'Edit Official Data - Warhammer Fantasy 4e',
+    '/admin/review': 'Review Contributions - Warhammer Fantasy 4e',
     '/admin': 'Admin Panel - Warhammer Fantasy 4e',
     '/settings': 'Settings - Warhammer Fantasy 4e'
   }
