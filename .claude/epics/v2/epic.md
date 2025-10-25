@@ -2,10 +2,10 @@
 name: v2
 status: in-progress
 created: 2025-10-24T13:32:14Z
-progress: 63%
+progress: 56%
 prd: .claude/prds/v2.md
 github: https://github.com/gaucheclement/Warhammer/issues/1
-updated: 2025-10-24T17:36:30Z
+updated: 2025-10-25T05:44:31Z
 ---
 
 # Epic: Warhammer Fantasy 4e - Version 2
@@ -397,7 +397,8 @@ High-level implementation tasks (8-10 total):
 - [ ] #17 - Core UI Components & Layout (parallel: false)
 - [ ] #18 - Offline Support & Service Worker (parallel: true)
 - [ ] #19 - Testing, Optimization & Documentation (parallel: false)
+- [ ] #20 - Database Import Integration (parallel: false)
 
-Total tasks: 8
+Total tasks: 9
 Parallel tasks: 4
-Sequential tasks: 4
+Sequential tasks: 5
