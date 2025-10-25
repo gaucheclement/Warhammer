@@ -2,7 +2,8 @@
   import { createEventDispatcher } from 'svelte'
   import { validateCharacteristics } from '../../lib/characterValidation.js'
   import { rollAllCharacteristics, calculateCharacteristicBonus, calculateWounds } from '../../lib/characterCalculations.js'
-  import { calculateDerivedStats } from '../../lib/characterModel.js'
+  import { calculateDerivedStats, addXPBonus } from '../../lib/characterModel.js'
+  import RandomButton from '../common/RandomButton.svelte'
 
   export let character = {}
 
@@ -10,6 +11,8 @@
 
   let generationMethod = 'manual' // manual, random, pointbuy
   let validationErrors = []
+  let rolledCharacteristics = null
+  let showRandomUI = true
 
   const characteristicLabels = {
     M: 'Movement',
@@ -41,15 +44,58 @@
     })
   }
 
-  function rollRandomCharacteristics() {
+  /**
+   * Roll 2d10 for all characteristics
+   */
+  function rollCharacteristicsForDisplay() {
     const speciesModifiers = {}
 
-    // Extract species modifiers (already applied, so we need base values)
-    // For simplicity, we'll roll new values and add species modifiers
+    // Extract species modifiers if available
     if (character.species && character.species.name) {
-      // Get species data if available
-      // For now, we'll use current values as base
+      // Species modifiers are already in character.characteristics
+      // For now, use empty modifiers and roll pure 2d10
     }
+
+    const rolled = rollAllCharacteristics(speciesModifiers)
+    rolledCharacteristics = rolled
+
+    // Format result for display
+    const resultText = Object.entries(rolled)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ')
+
+    return resultText
+  }
+
+  /**
+   * Accept rolled characteristics and gain +50 XP
+   */
+  function acceptRolledCharacteristics() {
+    if (!rolledCharacteristics) return
+
+    // Apply rolled values to character
+    for (const [key, value] of Object.entries(rolledCharacteristics)) {
+      character.characteristics[key] = value
+    }
+
+    // Add XP bonus for accepting rolls
+    addXPBonus(character, 'characteristic', 50, 1)
+
+    showRandomUI = false
+    handleCharacteristicChange()
+  }
+
+  /**
+   * Choose characteristics manually (no XP bonus)
+   */
+  function chooseManually() {
+    character.randomState.characteristic = -1
+    showRandomUI = false
+    generationMethod = 'manual'
+  }
+
+  function rollRandomCharacteristics() {
+    const speciesModifiers = {}
 
     const rolled = rollAllCharacteristics(speciesModifiers)
 
@@ -95,52 +141,72 @@
   </div>
 
   <div class="step-content">
-    <div class="method-selector">
-      <label>
-        <input
-          type="radio"
-          bind:group={generationMethod}
-          value="manual"
-        />
-        <span>Manual Entry</span>
-      </label>
-      <label>
-        <input
-          type="radio"
-          bind:group={generationMethod}
-          value="random"
-        />
-        <span>Random Roll (2d10 per stat)</span>
-      </label>
-      <label>
-        <input
-          type="radio"
-          bind:group={generationMethod}
-          value="pointbuy"
-        />
-        <span>Point Buy (Coming Soon)</span>
-      </label>
-    </div>
-
-    {#if generationMethod === 'random'}
-      <div class="random-section">
-        <button class="btn btn-primary" on:click={rollRandomCharacteristics}>
-          Roll All Characteristics
-        </button>
-        <p class="help-text">
-          This will roll 2d10 for each characteristic and add your species modifiers.
+    <!-- Random Generation with XP Bonus -->
+    {#if showRandomUI && character.randomState.characteristic === 0}
+      <div class="random-section-highlight">
+        <h3>Random Generation</h3>
+        <p class="random-description">
+          Roll the dice to randomly generate all characteristics (2d10 each) and earn <strong>+50 XP bonus</strong>!
+          Or choose to enter them manually if you prefer.
         </p>
+        <RandomButton
+          label="Roll All Characteristics"
+          xpBonus={50}
+          rollFunction={rollCharacteristicsForDisplay}
+          on:accept={acceptRolledCharacteristics}
+          on:manual={chooseManually}
+        />
       </div>
     {/if}
 
-    {#if generationMethod === 'pointbuy'}
-      <div class="pointbuy-notice">
-        <p>Point buy system coming in a future update!</p>
-        <p>For now, please use Manual Entry or Random Roll.</p>
+    <!-- Manual Entry Section -->
+    {#if !showRandomUI || character.randomState.characteristic !== 0}
+      <div class="method-selector">
+        <label>
+          <input
+            type="radio"
+            bind:group={generationMethod}
+            value="manual"
+          />
+          <span>Manual Entry</span>
+        </label>
+        <label>
+          <input
+            type="radio"
+            bind:group={generationMethod}
+            value="random"
+          />
+          <span>Random Roll (2d10 per stat)</span>
+        </label>
+        <label>
+          <input
+            type="radio"
+            bind:group={generationMethod}
+            value="pointbuy"
+          />
+          <span>Point Buy (Coming Soon)</span>
+        </label>
       </div>
-    {/if}
 
-    <div class="characteristics-grid">
+      {#if generationMethod === 'random'}
+        <div class="random-section">
+          <button class="btn btn-primary" on:click={rollRandomCharacteristics}>
+            Roll All Characteristics
+          </button>
+          <p class="help-text">
+            This will roll 2d10 for each characteristic and add your species modifiers.
+          </p>
+        </div>
+      {/if}
+
+      {#if generationMethod === 'pointbuy'}
+        <div class="pointbuy-notice">
+          <p>Point buy system coming in a future update!</p>
+          <p>For now, please use Manual Entry or Random Roll.</p>
+        </div>
+      {/if}
+
+      <div class="characteristics-grid">
       {#each Object.entries(characteristicLabels) as [key, label]}
         <div class="characteristic-item">
           <label for="char-{key}">
@@ -187,15 +253,16 @@
       </div>
     </div>
 
-    {#if validationErrors.length > 0}
-      <div class="validation-errors">
-        <strong>Validation Errors:</strong>
-        <ul>
-          {#each validationErrors as error}
-            <li>{error}</li>
-          {/each}
-        </ul>
-      </div>
+      {#if validationErrors.length > 0}
+        <div class="validation-errors">
+          <strong>Validation Errors:</strong>
+          <ul>
+            {#each validationErrors as error}
+              <li>{error}</li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
     {/if}
   </div>
 </div>
@@ -208,6 +275,35 @@
 
   .step-header {
     margin-bottom: 2rem;
+  }
+
+  .random-section-highlight {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    padding: 2rem;
+    background: var(--color-bg-primary, white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .random-section-highlight h3 {
+    margin: 0 0 0.75rem 0;
+    color: var(--color-text-primary, #333);
+    font-family: var(--font-heading, serif);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .random-description {
+    text-align: center;
+    color: var(--color-text-secondary, #666);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .random-description strong {
+    color: gold;
+    font-weight: 700;
   }
 
   .step-header h2 {
