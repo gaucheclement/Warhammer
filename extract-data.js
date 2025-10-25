@@ -2,26 +2,28 @@
  * Script pour extraire les données de la Google Spreadsheet
  * et créer des fichiers JSON individuels
  *
- * Usage: node extract-data.js <WEB_APP_URL>
- * Exemple: node extract-data.js https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+ * Usage: node extract-data.js
+ * Configuration: Uses .env file or command-line argument
+ * Example with CLI: node extract-data.js https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
  */
 
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const config = require('./config');
 
-// URL de votre web app (à passer en argument)
-const webAppUrl = process.argv[2];
-
-if (!webAppUrl) {
-    console.error('❌ Erreur: Veuillez fournir l\'URL de votre web app');
-    console.error('Usage: node extract-data.js <WEB_APP_URL>');
-    console.error('Exemple: node extract-data.js https://script.google.com/macros/s/YOUR_ID/exec');
+// Validate configuration
+try {
+    config.validate();
+} catch (error) {
     process.exit(1);
 }
 
+// Get configuration values
+const webAppUrl = config.googleAppsScriptUrl;
+const dataDir = path.resolve(__dirname, config.dataDir);
+
 // Créer le dossier data/ s'il n'existe pas
-const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
