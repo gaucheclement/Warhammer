@@ -18,9 +18,15 @@
 
   let startingXP = character.experience.total || 0
 
+  // Bonus XP from random choices
+  $: bonusXP = character.xp?.max || 0
+  $: bonusXPUsed = character.xp?.used || 0
+  $: bonusXPAvailable = bonusXP - bonusXPUsed
+
   // Calculate XP spent during character creation
   $: xpSpent = calculateTotalXPSpent(character, skills)
-  $: availableXP = startingXP - xpSpent
+  $: totalXP = startingXP + bonusXP
+  $: availableXP = totalXP - xpSpent - bonusXPUsed
 
   function handleXPChange() {
     character.experience.total = startingXP
@@ -67,18 +73,74 @@
       </div>
     </div>
 
+    <!-- Bonus XP Section -->
+    {#if bonusXP > 0}
+      <div class="bonus-xp-section">
+        <h3>Bonus XP Earned</h3>
+        <p class="bonus-description">
+          You earned <strong class="xp-highlight">{bonusXP} bonus XP</strong> from accepting random choices during character creation!
+        </p>
+        <div class="bonus-breakdown">
+          {#if character.randomState.specie === 1}
+            <div class="bonus-item">
+              <span class="bonus-icon">⚡</span>
+              <span class="bonus-text">Species (random)</span>
+              <span class="bonus-value">+20 XP</span>
+            </div>
+          {/if}
+          {#if character.randomState.career === 1}
+            <div class="bonus-item">
+              <span class="bonus-icon">⚡</span>
+              <span class="bonus-text">Career Class (random)</span>
+              <span class="bonus-value">+50 XP</span>
+            </div>
+          {/if}
+          {#if character.randomState.career === 2}
+            <div class="bonus-item">
+              <span class="bonus-icon">⚡</span>
+              <span class="bonus-text">Specific Career (random)</span>
+              <span class="bonus-value">+25 XP</span>
+            </div>
+          {/if}
+          {#if character.randomState.characteristic === 1}
+            <div class="bonus-item">
+              <span class="bonus-icon">⚡</span>
+              <span class="bonus-text">Characteristics (random)</span>
+              <span class="bonus-value">+50 XP</span>
+            </div>
+          {/if}
+        </div>
+      </div>
+    {/if}
+
     <div class="xp-summary">
       <h3>Experience Summary</h3>
       <div class="summary-grid">
         <div class="summary-item">
-          <div class="summary-label">Total XP</div>
+          <div class="summary-label">Starting XP</div>
           <div class="summary-value">{startingXP}</div>
         </div>
+        {#if bonusXP > 0}
+          <div class="summary-item bonus">
+            <div class="summary-label">Bonus XP Earned</div>
+            <div class="summary-value">+{bonusXP}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Total XP</div>
+            <div class="summary-value total">{totalXP}</div>
+          </div>
+        {/if}
         <div class="summary-item">
           <div class="summary-label">XP Spent</div>
-          <div class="summary-value">{xpSpent}</div>
+          <div class="summary-value">-{xpSpent}</div>
         </div>
-        <div class="summary-item {availableXP < 0 ? 'negative' : ''}">
+        {#if bonusXPUsed > 0}
+          <div class="summary-item">
+            <div class="summary-label">Bonus XP Used</div>
+            <div class="summary-value">-{bonusXPUsed}</div>
+          </div>
+        {/if}
+        <div class="summary-item {availableXP < 0 ? 'negative' : 'positive'}">
           <div class="summary-label">Available XP</div>
           <div class="summary-value">{availableXP}</div>
         </div>
@@ -179,6 +241,67 @@
     border-bottom: 1px solid var(--color-border, #ddd);
   }
 
+  /* Bonus XP Section */
+  .bonus-xp-section {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 237, 78, 0.05) 100%);
+    border: 2px solid gold;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .bonus-xp-section h3 {
+    margin: 0 0 0.75rem 0;
+    color: #d4af37;
+    font-size: 1.3rem;
+    border: none;
+    padding: 0;
+  }
+
+  .bonus-description {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: var(--color-text-primary, #333);
+  }
+
+  .xp-highlight {
+    color: gold;
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+
+  .bonus-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bonus-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+  }
+
+  .bonus-icon {
+    font-size: 1.5rem;
+  }
+
+  .bonus-text {
+    flex: 1;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+  }
+
+  .bonus-value {
+    font-weight: 700;
+    color: gold;
+    font-size: 1.1rem;
+  }
+
   .form-group {
     margin-bottom: 1.5rem;
   }
@@ -244,6 +367,16 @@
     background: #fff5f5;
   }
 
+  .summary-item.positive {
+    border-color: var(--color-success, #4caf50);
+    background: #f0fdf4;
+  }
+
+  .summary-item.bonus {
+    border-color: gold;
+    background: rgba(255, 215, 0, 0.1);
+  }
+
   .summary-label {
     font-size: 0.875rem;
     color: var(--color-text-secondary, #666);
@@ -257,8 +390,21 @@
     color: var(--color-text-primary, #333);
   }
 
+  .summary-value.total {
+    color: #d4af37;
+    font-size: 2rem;
+  }
+
   .summary-item.negative .summary-value {
     color: var(--color-error, #dc3545);
+  }
+
+  .summary-item.positive .summary-value {
+    color: var(--color-success, #4caf50);
+  }
+
+  .summary-item.bonus .summary-value {
+    color: gold;
   }
 
   .warning-box {
