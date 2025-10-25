@@ -3,58 +3,74 @@
  *
  * Hash-based routing using svelte-spa-router
  * Routes support lazy loading for code splitting
+ *
+ * Issue #19 Stream B: Implemented lazy loading for all routes except Home
+ * to reduce initial bundle size and improve performance
  */
 
 import { wrap } from 'svelte-spa-router/wrap'
 
-// Import page components
-// Using wrap() for lazy loading (code splitting)
+// Import only Home component directly (critical path)
 import Home from '../routes/Home.svelte'
-import Browse from '../routes/Browse.svelte'
-import CharacterSheet from '../routes/CharacterSheet.svelte'
-import CharacterList from '../routes/CharacterList.svelte'
-import Creator from '../routes/Creator.svelte'
-import Admin from '../routes/Admin.svelte'
-import Settings from '../routes/Settings.svelte'
-import NotFound from '../routes/NotFound.svelte'
+
+// Issue #19 Stream B: Lazy load all other routes for code splitting
+// This reduces initial bundle size and improves Time to Interactive
 
 /**
  * Route definitions
  * Format: { path: component }
  *
  * Supported route patterns:
- * - / - Home page
- * - /browse/:category - Browse data by category (species, careers, etc.)
- * - /character/:id - Character detail page
- * - /creator - Character creation wizard
- * - /admin - Database management
- * - /settings - User settings
- * - * - 404 page (catch-all)
+ * - / - Home page (loaded immediately)
+ * - /browse/:category - Browse data by category (lazy loaded)
+ * - /character/:id - Character detail page (lazy loaded)
+ * - /creator - Character creation wizard (lazy loaded)
+ * - /admin - Database management (lazy loaded)
+ * - /settings - User settings (lazy loaded)
+ * - * - 404 page (lazy loaded)
+ *
+ * Issue #19 Stream B: Routes use lazy loading via wrap() to enable code splitting
  */
 export const routes = {
-  // Home page
+  // Home page - loaded immediately (critical path)
   '/': Home,
 
-  // Browse routes with optional category parameter
-  '/browse': Browse,
-  '/browse/:category': Browse,
+  // Browse routes with optional category parameter - lazy loaded
+  '/browse': wrap({
+    asyncComponent: () => import('../routes/Browse.svelte')
+  }),
+  '/browse/:category': wrap({
+    asyncComponent: () => import('../routes/Browse.svelte')
+  }),
 
-  // Character routes
+  // Character routes - lazy loaded
   //ROUTE-ADDED: Issue #10 Stream 5 - Character List
-  '/characters': CharacterList,
-  '/character/:id': CharacterSheet,
+  '/characters': wrap({
+    asyncComponent: () => import('../routes/CharacterList.svelte')
+  }),
+  '/character/:id': wrap({
+    asyncComponent: () => import('../routes/CharacterSheet.svelte')
+  }),
 
-  // Character creator
-  '/creator': Creator,
+  // Character creator - lazy loaded
+  '/creator': wrap({
+    asyncComponent: () => import('../routes/Creator.svelte')
+  }),
 
-  // Admin panel
-  '/admin': Admin,
+  // Admin panel - lazy loaded
+  '/admin': wrap({
+    asyncComponent: () => import('../routes/Admin.svelte')
+  }),
 
-  // Settings
-  '/settings': Settings,
+  // Settings - lazy loaded
+  '/settings': wrap({
+    asyncComponent: () => import('../routes/Settings.svelte')
+  }),
 
-  // 404 catch-all - must be last
-  '*': NotFound
+  // 404 catch-all - lazy loaded - must be last
+  '*': wrap({
+    asyncComponent: () => import('../routes/NotFound.svelte')
+  })
 }
 
 /**

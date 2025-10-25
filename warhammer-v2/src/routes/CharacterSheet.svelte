@@ -272,24 +272,24 @@
         <div class="sheet-grid">
           <div class="sheet-column">
             <CharacteristicsBlock
-              bind:characteristics={isEditMode ? editableCharacter.characteristics : character.characteristics}
+              characteristics={isEditMode ? editableCharacter.characteristics : character.characteristics}
               {isEditMode}
             />
 
             <AdvancementBlock
-              bind:experience={isEditMode ? editableCharacter.experience : character.experience}
+              experience={isEditMode ? editableCharacter.experience : character.experience}
               {isEditMode}
             />
           </div>
 
           <div class="sheet-column">
             <SkillsBlock
-              bind:skills={isEditMode ? editableCharacter.skills : character.skills}
+              skills={isEditMode ? editableCharacter.skills : character.skills}
               {isEditMode}
             />
 
             <TalentsBlock
-              bind:talents={isEditMode ? editableCharacter.talents : character.talents}
+              talents={isEditMode ? editableCharacter.talents : character.talents}
               {isEditMode}
             />
           </div>
@@ -297,19 +297,19 @@
           <div class="sheet-column">
             {#if character.spells && character.spells.length > 0}
               <SpellsBlock
-                bind:spells={isEditMode ? editableCharacter.spells : character.spells}
+                spells={isEditMode ? editableCharacter.spells : character.spells}
                 {isEditMode}
               />
             {/if}
 
             <EquipmentBlock
-              bind:trappings={isEditMode ? editableCharacter.trappings : character.trappings}
+              trappings={isEditMode ? editableCharacter.trappings : character.trappings}
               {isEditMode}
             />
 
             <NotesBlock
-              bind:notes={isEditMode ? editableCharacter.notes : character.notes}
-              bind:appearance={isEditMode ? editableCharacter.appearance : character.appearance}
+              notes={isEditMode ? editableCharacter.notes : character.notes}
+              appearance={isEditMode ? editableCharacter.appearance : character.appearance}
               {isEditMode}
             />
           </div>

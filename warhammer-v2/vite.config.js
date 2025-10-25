@@ -3,6 +3,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from 'rollup-plugin-visualizer'
 import fs from 'fs'
 import path from 'path'
 
@@ -47,6 +48,8 @@ export default defineConfig({
       injectRegister: 'inline',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,ttf,eot}'],
+        // Issue #19 Stream B: Increase file size limit for single-file build
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB (single-file app)
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -96,7 +99,15 @@ export default defineConfig({
         ]
       }
     }),
-    viteSingleFile()
+    viteSingleFile(),
+    // Issue #19 Stream B: Bundle analysis visualization
+    visualizer({
+      filename: 'dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap' // Options: treemap, sunburst, network
+    })
   ],
   resolve: {
     alias: {
@@ -108,10 +119,27 @@ export default defineConfig({
     outDir: 'dist',
     assetsInlineLimit: 100000000, // Inline all assets
     cssCodeSplit: false,
+    // Issue #19 Stream B: Optimize minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.debug', 'console.trace']
+      },
+      mangle: {
+        safari10: true // Fix Safari 10 issues
+      }
+    },
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
+        // Issue #19 Stream B: Optimize chunk names
+        manualChunks: undefined
       }
-    }
+    },
+    // Issue #19 Stream B: Report compressed size
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500 // Warn if chunk exceeds 500KB
   }
 })
