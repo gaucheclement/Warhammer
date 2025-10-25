@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import Router from 'svelte-spa-router'
   import { initializeDataStores } from './stores/data.js'
+  import { initializeAdminStore } from './stores/admin.js'
   import Layout from './layouts/Layout.svelte'
   import { routes, afterRouteChange } from './lib/router.js'
   import ToastContainer from './components/ToastContainer.svelte'
@@ -17,6 +18,9 @@
     try {
       await initializeDataStores()
       console.log('Data stores initialized successfully')
+
+      // Issue #16 Stream B: Initialize admin store
+      initializeAdminStore()
     } catch (error) {
       console.error('Failed to initialize data stores:', error)
     }

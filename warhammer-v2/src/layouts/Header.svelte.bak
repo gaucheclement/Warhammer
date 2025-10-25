@@ -1,10 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte'
   import ThemeToggle from '../components/ThemeToggle.svelte'
-  import { push } from 'svelte-spa-router'
-  import { isAdminActive } from '../stores/admin.js'
-  import { logout } from '../lib/adminAuth.js'
-  import { adminStore } from '../stores/admin.js'
 
   export let sidebarOpen = true
 
@@ -12,24 +8,6 @@
 
   function handleMenuClick() {
     dispatch('toggle-sidebar')
-  }
-
-  /**
-   * Handle admin logout
-   */
-  function handleLogout() {
-    if (confirm('Are you sure you want to log out of admin mode?')) {
-      logout()
-      adminStore.logout()
-      push('/')
-    }
-  }
-
-  /**
-   * Navigate to admin dashboard
-   */
-  function goToAdminDashboard() {
-    push('/admin')
   }
 </script>
 
@@ -58,14 +36,6 @@
     <div class="logo">
       <h1>Warhammer Fantasy 4e</h1>
     </div>
-
-    <!-- Issue #16 Stream B: Admin Badge -->
-    {#if $isAdminActive}
-      <button class="admin-badge" on:click={goToAdminDashboard} title="Go to Admin Dashboard">
-        <span class="badge-icon">🔑</span>
-        <span class="badge-text">Admin Mode</span>
-      </button>
-    {/if}
   </div>
 
   <nav class="header-nav" aria-label="Main navigation">
@@ -80,17 +50,6 @@
 
   <div class="header-right">
     <div class="user-actions">
-      <!-- Issue #16 Stream B: Admin logout button -->
-      {#if $isAdminActive}
-        <button
-          class="admin-logout-button"
-          on:click={handleLogout}
-          title="Logout from Admin Mode"
-        >
-          Logout
-        </button>
-      {/if}
-
       <ThemeToggle />
       <button class="icon-button" aria-label="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -201,62 +160,6 @@
   .user-actions {
     display: flex;
     gap: var(--spacing-sm, 0.5rem);
-    align-items: center;
-  }
-
-  /* Issue #16 Stream B: Admin Badge Styles */
-  .admin-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
-  }
-
-  .admin-badge:hover {
-    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
-    transform: translateY(-1px);
-  }
-
-  .badge-icon {
-    font-size: 1rem;
-    line-height: 1;
-  }
-
-  .badge-text {
-    font-family: var(--font-ui, 'Inter', sans-serif);
-  }
-
-  /* Issue #16 Stream B: Admin Logout Button */
-  .admin-logout-button {
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--color-text-primary, #e8e0d5);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: var(--font-ui, 'Inter', sans-serif);
-  }
-
-  .admin-logout-button:hover {
-    background: rgba(220, 38, 38, 0.2);
-    border-color: #dc2626;
-    color: #fca5a5;
   }
 
   .icon-button {
@@ -290,10 +193,6 @@
       height: 56px;
     }
 
-    .header-left {
-      gap: 0.5rem;
-    }
-
     .logo h1 {
       font-size: 1rem;
     }
@@ -304,26 +203,6 @@
 
     .header-nav {
       display: none;
-    }
-
-    /* Issue #16 Stream B: Mobile admin badge */
-    .admin-badge {
-      padding: 0.4rem 0.75rem;
-      font-size: 0.75rem;
-      gap: 0.25rem;
-    }
-
-    .badge-text {
-      display: none;
-    }
-
-    .badge-icon {
-      font-size: 1.25rem;
-    }
-
-    .admin-logout-button {
-      padding: 0.4rem 0.75rem;
-      font-size: 0.85rem;
     }
   }
 
