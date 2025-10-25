@@ -62,7 +62,7 @@ const typeToFileName = {
 };
 
 console.log('Starting data extraction...');
-console.log(\`URL: \${webAppUrl}?json=true\`);
+console.log(`URL: ${webAppUrl}?json=true`);
 if (verbose) {
     console.log('Verbose mode enabled');
 }
@@ -137,7 +137,7 @@ async function extractData() {
 
                 if (verbose) {
                     const sizeKB = (fileSize / 1024).toFixed(2);
-                    console.log(\`Created \${fileName.padEnd(25)} - \${records.length.toString().padStart(4)} entries (\${sizeKB} KB)\`);
+                    console.log(`Created ${fileName.padEnd(25)} - ${records.length.toString().padStart(4)} entries (${sizeKB} KB)`);
                 }
 
                 filesCreated++;
@@ -154,7 +154,7 @@ async function extractData() {
 
         if (verbose) {
             const sizeKB = (allDataSize / 1024).toFixed(2);
-            console.log(\`Created all-data.json (combined data, \${sizeKB} KB)\`);
+            console.log(`Created all-data.json (combined data, ${sizeKB} KB)`);
         } else {
             console.log('Data files created successfully');
         }
@@ -168,12 +168,12 @@ async function extractData() {
         console.log('='.repeat(60));
         console.log('EXTRACTION COMPLETE');
         console.log('='.repeat(60));
-        console.log(\`Files Created:  \${filesCreated + 1}\`);
-        console.log(\`Total Records:  \${totalRecords.toLocaleString()}\`);
-        console.log(\`Total Size:     \${totalSizeMB} MB\`);
-        console.log(\`Duration:       \${durationSec}s\`);
-        console.log(\`Data Source:    \${fromCache ? 'Cache (offline)' : 'Network (online)'}\`);
-        console.log(\`Validation:     \${validationReport.valid ? 'PASSED' : 'FAILED (see above)'}\`);
+        console.log(`Files Created:  ${filesCreated + 1}`);
+        console.log(`Total Records:  ${totalRecords.toLocaleString()}`);
+        console.log(`Total Size:     ${totalSizeMB} MB`);
+        console.log(`Duration:       ${durationSec}s`);
+        console.log(`Data Source:    ${fromCache ? 'Cache (offline)' : 'Network (online)'}`);
+        console.log(`Validation:     ${validationReport.valid ? 'PASSED' : 'FAILED (see above)'}`);
         console.log('='.repeat(60));
         console.log('');
 
@@ -187,7 +187,7 @@ async function extractData() {
         console.error('='.repeat(60));
         console.error('EXTRACTION FAILED');
         console.error('='.repeat(60));
-        console.error(\`Error: \${error.message}\`);
+        console.error(`Error: ${error.message}`);
 
         if (verbose && error.stack) {
             console.error('');
