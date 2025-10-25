@@ -351,6 +351,38 @@
     on:validate={validateCurrentStep}
   />
   {/if}
+
+  <!-- Restore Draft Modal -->
+  {#if showRestoreModal && draftMetadata}
+    <div class="modal-backdrop" on:click={() => showRestoreModal = false}>
+      <div class="modal" on:click|stopPropagation>
+        <div class="modal-header">
+          <h2>Restore Draft</h2>
+        </div>
+        <div class="modal-body">
+          <p>Found an unsaved draft from {formatDraftTimestamp(draftMetadata.timestamp)}.</p>
+          <p>Would you like to restore it?</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" on:click={() => {
+            clearDraft()
+            showRestoreModal = false
+          }}>
+            Discard Draft
+          </button>
+          <button class="btn btn-primary" on:click={() => {
+            const draft = loadDraft()
+            if (draft) {
+              character = draft.character
+            }
+            showRestoreModal = false
+          }}>
+            Restore Draft
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
