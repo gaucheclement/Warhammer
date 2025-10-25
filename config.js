@@ -14,6 +14,9 @@ function loadEnv() {
         const envContent = fs.readFileSync(envPath, 'utf8');
 
         envContent.split('\n').forEach(line => {
+            // Remove any trailing carriage return (Windows line endings)
+            line = line.replace(/\r$/, '');
+
             // Skip comments and empty lines
             if (line.trim().startsWith('#') || !line.trim()) {
                 return;
