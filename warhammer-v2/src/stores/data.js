@@ -151,6 +151,14 @@ export async function loadOfficialData() {
     isDataLoading.set(true)
     dataError.set(null)
 
+    // Check if IndexedDB is empty (first time load)
+    const talentCount = await db.talents.count()
+
+    if (talentCount === 0 && window.__WARHAMMER_DATA__) {
+      console.log('IndexedDB is empty, loading from embedded data...')
+      await seedIndexedDB(window.__WARHAMMER_DATA__)
+    }
+
     const data = {}
 
     // Load all entity types from IndexedDB
@@ -159,13 +167,41 @@ export async function loadOfficialData() {
     }
 
     officialData.set(data)
-    console.log('Official data loaded successfully')
+    console.log('Official data loaded successfully', {
+      talents: data.talents?.length || 0,
+      careers: data.careers?.length || 0,
+      species: data.species?.length || 0
+    })
   } catch (error) {
     console.error('Error loading official data:', error)
     dataError.set('Failed to load official data: ' + error.message)
     throw error
   } finally {
     isDataLoading.set(false)
+  }
+}
+
+/**
+ * Seed IndexedDB with initial data from embedded JSON
+ * @param {Object} data - The data object from window.__WARHAMMER_DATA__
+ * @returns {Promise<void>}
+ */
+async function seedIndexedDB(data) {
+  try {
+    console.log('Seeding IndexedDB with initial data...')
+
+    for (const entityType of ENTITY_TYPES) {
+      const entities = data[entityType] || []
+      if (entities.length > 0) {
+        await db[entityType].bulkAdd(entities)
+        console.log(`Loaded ${entities.length} ${entityType}`)
+      }
+    }
+
+    console.log('IndexedDB seeded successfully')
+  } catch (error) {
+    console.error('Error seeding IndexedDB:', error)
+    throw error
   }
 }
 

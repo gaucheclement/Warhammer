@@ -13,7 +13,7 @@ function embedDataPlugin() {
     name: 'embed-data',
     transformIndexHtml(html) {
       // Read the all-data.json file
-      const dataPath = path.resolve(__dirname, '../data/all-data.json')
+      const dataPath = path.resolve(__dirname, './data/all-data.json')
       let dataContent = '{}'
 
       if (fs.existsSync(dataPath)) {
