@@ -188,13 +188,42 @@ export async function loadOfficialData() {
  */
 async function seedIndexedDB(data) {
   try {
-    console.log('Seeding IndexedDB with initial data...')
+    console.log('Seeding IndexedDB with initial data...', Object.keys(data))
 
-    for (const entityType of ENTITY_TYPES) {
-      const entities = data[entityType] || []
+    // Map JSON keys (singular) to expected keys (plural)
+    const keyMapping = {
+      'book': 'books',
+      'career': 'careers',
+      'careerLevel': 'careerLevels',
+      'specie': 'species',
+      'class': 'classes',
+      'talent': 'talents',
+      'characteristic': 'characteristics',
+      'trapping': 'trappings',
+      'skill': 'skills',
+      'spell': 'spells',
+      'creature': 'creatures',
+      'star': 'stars',
+      'god': 'gods',
+      'eye': 'eyes',
+      'hair': 'hairs',
+      'detail': 'details',
+      'trait': 'traits',
+      'lore': 'lores',
+      'magick': 'magicks',
+      'etat': 'etats',
+      'psychologie': 'psychologies',
+      'quality': 'qualities',
+      'tree': 'trees'
+    }
+
+    for (const [jsonKey, dbKey] of Object.entries(keyMapping)) {
+      const entities = data[jsonKey] || []
       if (entities.length > 0) {
-        await db[entityType].bulkAdd(entities)
-        console.log(`Loaded ${entities.length} ${entityType}`)
+        await db[dbKey].bulkAdd(entities)
+        console.log(`Loaded ${entities.length} ${jsonKey} → ${dbKey}`)
+      } else {
+        console.warn(`No data found for ${jsonKey}`)
       }
     }
 
