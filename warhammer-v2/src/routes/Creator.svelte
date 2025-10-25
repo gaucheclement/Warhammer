@@ -18,7 +18,6 @@
   import WizardStep5Talents from '../components/wizard/WizardStep5Talents.svelte'
   import WizardStep6Equipment from '../components/wizard/WizardStep6Equipment.svelte'
   import WizardStep7Details from '../components/wizard/WizardStep7Details.svelte'
-  import WizardStep8Spells from '../components/wizard/WizardStep8Spells.svelte'
   import WizardStep10Ambitions from '../components/wizard/WizardStep10Ambitions.svelte'
   import WizardStep11Party from '../components/wizard/WizardStep11Party.svelte'
   import WizardStep12Experience from '../components/wizard/WizardStep12Experience.svelte'
@@ -28,7 +27,7 @@
   import WizardStep16Complete from '../components/wizard/WizardStep16Complete.svelte'
 
   let currentStep = 1
-  const totalSteps = 15
+  const totalSteps = 14
 
   // Initialize character with proper model
   let character = createEmptyCharacter()
@@ -48,14 +47,13 @@
     { id: 5, name: 'Talents' },
     { id: 6, name: 'Equipment' },
     { id: 7, name: 'Details' },
-    { id: 8, name: 'Spells' },
-    { id: 9, name: 'Ambitions' },
-    { id: 10, name: 'Party' },
-    { id: 11, name: 'Experience' },
-    { id: 12, name: 'Notes' },
-    { id: 13, name: 'Psychology' },
-    { id: 14, name: 'Review' },
-    { id: 15, name: 'Complete' }
+    { id: 8, name: 'Ambitions' },
+    { id: 9, name: 'Party' },
+    { id: 10, name: 'Experience' },
+    { id: 11, name: 'Notes' },
+    { id: 12, name: 'Psychology' },
+    { id: 13, name: 'Review' },
+    { id: 14, name: 'Complete' }
   ]
 
   function validateCurrentStep() {
@@ -94,7 +92,7 @@
     validateCurrentStep()
     if (canProceed && currentStep < totalSteps) {
       // If moving from review to complete, save the character
-      if (currentStep === 14) {
+      if (currentStep === 13) {
         await handleSave()
       } else {
         currentStep++
@@ -150,7 +148,7 @@
         }
         lastSaved = null
         // Move to completion step
-        currentStep = 15
+        currentStep = 14
       } else {
         alert(`Failed to save character: ${result.error}`)
       }
@@ -259,6 +257,7 @@
       <WizardStep5Talents
         bind:character
         talents={$mergedData.talents || []}
+        spells={$mergedData.spells || []}
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
@@ -279,49 +278,41 @@
         on:validate={handleValidate}
       />
     {:else if currentStep === 8}
-      <WizardStep8Spells
-        bind:character
-        spells={$mergedData.spells || []}
-        career={selectedCareer}
-        on:change={handleChange}
-        on:validate={handleValidate}
-      />
-    {:else if currentStep === 9}
       <WizardStep10Ambitions
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 10}
+    {:else if currentStep === 9}
       <WizardStep11Party
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 11}
+    {:else if currentStep === 10}
       <WizardStep12Experience
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 12}
+    {:else if currentStep === 11}
       <WizardStep13Notes
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 13}
+    {:else if currentStep === 12}
       <WizardStep14Psychology
         bind:character
         on:change={handleChange}
         on:validate={handleValidate}
       />
-    {:else if currentStep === 14}
+    {:else if currentStep === 13}
       <WizardStep15Review
         {character}
         on:jumpToStep={(e) => jumpToStep(e.detail.step)}
       />
-    {:else if currentStep === 15}
+    {:else if currentStep === 14}
       <WizardStep16Complete
         {character}
         on:createAnother={handleCreateAnother}
@@ -329,7 +320,7 @@
     {/if}
   </div>
 
-  {#if currentStep !== 15}
+  {#if currentStep !== 14}
     <WizardNavigation
     {currentStep}
     {totalSteps}

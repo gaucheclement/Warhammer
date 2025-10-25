@@ -1,15 +1,18 @@
 <script>
   import { createEventDispatcher } from 'svelte'
-  import { addTalentToCharacter, removeTalentFromCharacter } from '../../lib/characterModel.js'
+  import { addTalentToCharacter, removeTalentFromCharacter, addSpellToCharacter, removeSpellFromCharacter } from '../../lib/characterModel.js'
 
   export let character = {}
   export let talents = []
+  export let spells = []
   export let career = null
 
   const dispatch = createEventDispatcher()
 
   let searchQuery = ''
   let showOnlyCareer = false
+  let spellSearchQuery = ''
+  let selectedLore = 'all'
 
   $: careerTalentIds = new Set(
     (career?.talents || []).map(t => typeof t === 'string' ? t : t.id)
@@ -62,15 +65,57 @@
   function canTakeMultipleTimes(talent) {
     return talent.maxRank && talent.maxRank > 1
   }
+
+  // Spell-related functions
+  function hasMagicTalent() {
+    return character.talents.some(t =>
+      t.name?.toLowerCase().includes('magic') ||
+      t.name?.toLowerCase().includes('arcane') ||
+      t.name?.toLowerCase().includes('petty') ||
+      t.name?.toLowerCase().includes('witch') ||
+      t.name?.toLowerCase().includes('lore') ||
+      t.name?.toLowerCase().includes('channel')
+    ) || (career && (
+      career.name?.toLowerCase().includes('wizard') ||
+      career.name?.toLowerCase().includes('priest') ||
+      career.name?.toLowerCase().includes('witch') ||
+      career.class?.toLowerCase().includes('magic')
+    ))
+  }
+
+  $: selectedSpellIds = new Set(character.spells.map(s => s.id))
+  $: availableLores = [...new Set(spells.map(s => s.lore).filter(Boolean))]
+  $: hasMagic = hasMagicTalent()
+
+  $: filteredSpells = spells.filter(spell => {
+    const matchesSearch = !spellSearchQuery ||
+      spell.name.toLowerCase().includes(spellSearchQuery.toLowerCase()) ||
+      (spell.description && spell.description.toLowerCase().includes(spellSearchQuery.toLowerCase()))
+
+    const matchesLore = selectedLore === 'all' || spell.lore === selectedLore
+
+    return matchesSearch && matchesLore
+  })
+
+  function toggleSpell(spell) {
+    if (selectedSpellIds.has(spell.id)) {
+      removeSpellFromCharacter(character, spell.id)
+    } else {
+      addSpellToCharacter(character, spell)
+    }
+
+    selectedSpellIds = new Set(character.spells.map(s => s.id))
+    dispatch('change', character)
+  }
 </script>
 
 <div class="wizard-step step-talents">
   <div class="step-header">
-    <h2>Talents</h2>
+    <h2>Talents & Spells</h2>
     <p class="step-description">
       Select your character's starting talents. Talents are special abilities and traits
       that make your character unique. Talents highlighted in gold are your career talents.
-      Some talents can be taken multiple times.
+      Some talents can be taken multiple times. If you have magic talents, spell selection will appear below.
     </p>
   </div>
 
@@ -166,6 +211,105 @@
             {/if}
           </div>
         {/each}
+      </div>
+    {/if}
+
+    <!-- Spells Section (conditionally shown if character has magic talents) -->
+    {#if hasMagic}
+      <div class="spells-section">
+        <div class="section-divider"></div>
+        <h3 class="spells-header">Spells</h3>
+        <p class="spells-description">
+          Your magical talents grant you access to spells. Select the spells your character knows.
+        </p>
+
+        <div class="filters spell-filters">
+          <div class="filter-group">
+            <label for="spell-search">Search Spells:</label>
+            <input
+              id="spell-search"
+              type="text"
+              bind:value={spellSearchQuery}
+              placeholder="Search by name or description..."
+              class="search-input"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label for="spell-lore">Filter by Lore:</label>
+            <select
+              id="spell-lore"
+              bind:value={selectedLore}
+              class="lore-select"
+            >
+              <option value="all">All Lores</option>
+              {#each availableLores as lore}
+                <option value={lore}>{lore}</option>
+              {/each}
+            </select>
+          </div>
+        </div>
+
+        <div class="selected-summary">
+          <strong>Selected Spells:</strong> {character.spells.length}
+        </div>
+
+        {#if filteredSpells.length === 0}
+          <div class="empty-state">
+            <p>No spells found matching your criteria.</p>
+          </div>
+        {:else}
+          <div class="spells-list">
+            {#each filteredSpells as spell}
+              <div
+                class="spell-item"
+                class:selected={selectedSpellIds.has(spell.id)}
+              >
+                <div class="spell-header">
+                  <label class="spell-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={selectedSpellIds.has(spell.id)}
+                      on:change={() => toggleSpell(spell)}
+                    />
+                    <span class="spell-name">{spell.name}</span>
+                  </label>
+
+                  <div class="spell-stats">
+                    {#if spell.cn}
+                      <span class="spell-stat">CN: {spell.cn}</span>
+                    {/if}
+                    {#if spell.range}
+                      <span class="spell-stat">Range: {spell.range}</span>
+                    {/if}
+                  </div>
+                </div>
+
+                {#if spell.lore}
+                  <div class="spell-lore">
+                    <strong>Lore:</strong> {spell.lore}
+                  </div>
+                {/if}
+
+                {#if spell.description}
+                  <p class="spell-description">{spell.description}</p>
+                {/if}
+
+                {#if spell.duration}
+                  <div class="spell-meta">
+                    <strong>Duration:</strong> {spell.duration}
+                  </div>
+                {/if}
+
+                {#if spell.target}
+                  <div class="spell-meta">
+                    <strong>Target:</strong> {spell.target}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
@@ -385,17 +529,153 @@
     color: var(--color-text-secondary, #666);
   }
 
+  /* Spells Section */
+  .spells-section {
+    margin-top: 2rem;
+  }
+
+  .section-divider {
+    height: 2px;
+    background: linear-gradient(to right, var(--color-accent, #8b2e1f), transparent);
+    margin-bottom: 2rem;
+  }
+
+  .spells-header {
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text-primary, #333);
+    font-size: 1.5rem;
+    font-family: var(--font-heading, serif);
+  }
+
+  .spells-description {
+    color: var(--color-text-secondary, #666);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.5;
+  }
+
+  .spell-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .lore-select {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    font-size: 0.875rem;
+  }
+
+  .lore-select:focus {
+    outline: none;
+    border-color: var(--color-accent, #8b2e1f);
+  }
+
+  .spells-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .spell-item {
+    padding: 1rem;
+    border: 2px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    background: var(--color-bg-primary, white);
+    transition: all 0.2s;
+  }
+
+  .spell-item:hover {
+    border-color: var(--color-accent, #8b2e1f);
+  }
+
+  .spell-item.selected {
+    background: var(--color-accent-light, #fef5f4);
+    border-color: var(--color-accent, #8b2e1f);
+  }
+
+  .spell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .spell-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .spell-checkbox input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+
+  .spell-name {
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    font-size: 1rem;
+  }
+
+  .spell-stats {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .spell-stat {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    font-weight: 500;
+  }
+
+  .spell-lore {
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+  }
+
+  .spell-lore strong {
+    color: var(--color-accent, #8b2e1f);
+  }
+
+  .spell-description {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    line-height: 1.4;
+  }
+
+  .spell-meta {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+  }
+
+  .spell-meta strong {
+    color: var(--color-text-primary, #333);
+  }
+
   @media (max-width: 768px) {
     .step-content {
       padding: 1rem;
     }
 
-    .filters {
+    .filters,
+    .spell-filters {
       flex-direction: column;
       align-items: stretch;
+      grid-template-columns: 1fr;
     }
 
-    .talent-header {
+    .talent-header,
+    .spell-header {
       flex-direction: column;
       align-items: start;
       gap: 0.5rem;
