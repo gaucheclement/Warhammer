@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte'
-  import { createCharacterFromSpecies } from '../../lib/characterModel.js'
+  import { createCharacterFromSpecies, addXPBonus } from '../../lib/characterModel.js'
+  import RandomButton from '../common/RandomButton.svelte'
 
   export let character = {}
   export let species = []
@@ -8,8 +9,76 @@
   const dispatch = createEventDispatcher()
 
   let selectedSpecies = null
+  let showManualSelector = false
 
+  /**
+   * Roll random species based on d100 probability table
+   */
+  function rollRandomSpecies() {
+    if (species.length === 0) return 'Loading...'
+
+    const roll = Math.floor(Math.random() * 100) + 1
+
+    // Find species based on roll using the rand field
+    // If species have rand field, use it; otherwise use equal distribution
+    const speciesWithRand = species.filter(s => s.rand !== undefined)
+
+    if (speciesWithRand.length > 0) {
+      // Use V1 probability distribution
+      const sorted = [...speciesWithRand].sort((a, b) => a.rand - b.rand)
+      const selected = sorted.find(s => roll <= s.rand)
+      return selected ? selected.name : sorted[sorted.length - 1].name
+    } else {
+      // Fallback: equal distribution
+      const index = Math.floor(Math.random() * species.length)
+      return species[index].name
+    }
+  }
+
+  /**
+   * Accept random species and gain +20 XP
+   */
+  function acceptRandomSpecies(event) {
+    const { result } = event.detail
+
+    // Find the species by name
+    const speciesData = species.find(s => s.name === result)
+    if (!speciesData) return
+
+    // Apply species to character
+    applySpecies(speciesData)
+
+    // Add XP bonus for accepting random choice
+    addXPBonus(character, 'specie', 20, 1)
+
+    showManualSelector = false
+  }
+
+  /**
+   * Choose species manually (no XP bonus)
+   */
+  function chooseManually() {
+    // Mark as manual choice (no XP)
+    character.randomState.specie = -1
+    showManualSelector = true
+  }
+
+  /**
+   * Select species manually
+   */
   function selectSpecies(speciesData) {
+    applySpecies(speciesData)
+
+    // Only mark as manual if not already accepted via random
+    if (character.randomState.specie === 0) {
+      character.randomState.specie = -1
+    }
+  }
+
+  /**
+   * Apply species data to character
+   */
+  function applySpecies(speciesData) {
     selectedSpecies = speciesData
 
     // Apply species modifiers to character
@@ -47,6 +116,10 @@
 
   $: if (character.species?.id) {
     selectedSpecies = species.find(s => s.id === character.species.id)
+    // If species already selected, show manual selector
+    if (character.randomState.specie !== 0) {
+      showManualSelector = true
+    }
   }
 </script>
 
@@ -65,22 +138,42 @@
         <p>Loading species data...</p>
       </div>
     {:else}
-      <div class="species-grid">
-        {#each species as speciesData}
-          <div
-            class="species-card"
-            class:selected={selectedSpecies?.id === speciesData.id}
-            on:click={() => selectSpecies(speciesData)}
-            on:keydown={(e) => e.key === 'Enter' && selectSpecies(speciesData)}
-            tabindex="0"
-            role="button"
-          >
-            <div class="species-header">
-              <h3>{speciesData.name}</h3>
-              {#if selectedSpecies?.id === speciesData.id}
-                <span class="selected-badge">✓ Selected</span>
-              {/if}
-            </div>
+      <!-- Random Generation Section -->
+      {#if !selectedSpecies && !showManualSelector}
+        <div class="random-section">
+          <h3>Random Generation</h3>
+          <p class="random-description">
+            Roll the dice to randomly generate your species and earn <strong>+20 XP bonus</strong>!
+            Or choose manually if you prefer a specific species.
+          </p>
+          <RandomButton
+            label="Roll Random Species"
+            xpBonus={20}
+            rollFunction={rollRandomSpecies}
+            on:accept={acceptRandomSpecies}
+            on:manual={chooseManually}
+          />
+        </div>
+      {/if}
+
+      <!-- Manual Selection (shown after clicking Manual or if species already selected) -->
+      {#if showManualSelector || selectedSpecies}
+        <div class="species-grid">
+          {#each species as speciesData}
+            <div
+              class="species-card"
+              class:selected={selectedSpecies?.id === speciesData.id}
+              on:click={() => selectSpecies(speciesData)}
+              on:keydown={(e) => e.key === 'Enter' && selectSpecies(speciesData)}
+              tabindex="0"
+              role="button"
+            >
+              <div class="species-header">
+                <h3>{speciesData.name}</h3>
+                {#if selectedSpecies?.id === speciesData.id}
+                  <span class="selected-badge">✓ Selected</span>
+                {/if}
+              </div>
 
             {#if speciesData.description}
               <p class="species-description">
@@ -120,6 +213,7 @@
           </div>
         {/each}
       </div>
+      {/if}
     {/if}
   </div>
 </div>
@@ -132,6 +226,35 @@
 
   .step-header {
     margin-bottom: 2rem;
+  }
+
+  .random-section {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    padding: 2rem;
+    background: var(--color-bg-primary, white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .random-section h3 {
+    margin: 0 0 0.75rem 0;
+    color: var(--color-text-primary, #333);
+    font-family: var(--font-heading, serif);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .random-description {
+    text-align: center;
+    color: var(--color-text-secondary, #666);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .random-description strong {
+    color: gold;
+    font-weight: 700;
   }
 
   .step-header h2 {
