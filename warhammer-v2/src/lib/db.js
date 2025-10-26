@@ -174,7 +174,7 @@ export async function getAllFromTable(tableName) {
 export async function searchByName(tableName, searchTerm) {
   const searchLower = searchTerm.toLowerCase()
   return await db[tableName]
-    .filter(item => item.name && item.name.toLowerCase().includes(searchLower))
+    .filter(item => item.label && item.label.toLowerCase().includes(searchLower))
     .toArray()
 }
 

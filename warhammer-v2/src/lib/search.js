@@ -59,43 +59,43 @@ const CACHE_TTL = 60000 // Cache time-to-live in ms (1 minute)
 function getSearchConfig(entityType) {
   const configs = {
     books: {
-      keys: ['name', 'abbreviation', 'description']
+      keys: ['label', 'abbreviation', 'description']
     },
     careers: {
-      keys: ['name', 'class', 'species', 'status', 'description']
+      keys: ['label', 'class', 'species', 'status', 'description']
     },
     careerLevels: {
-      keys: ['name', 'career', 'description']
+      keys: ['label', 'career', 'description']
     },
     species: {
-      keys: ['name', 'description']
+      keys: ['label', 'description']
     },
     classes: {
-      keys: ['name', 'description']
+      keys: ['label', 'description']
     },
     talents: {
-      keys: ['name', 'description', 'tests']
+      keys: ['label', 'description', 'tests']
     },
     characteristics: {
-      keys: ['name', 'abbreviation', 'description']
+      keys: ['label', 'abbreviation', 'description']
     },
     trappings: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     skills: {
-      keys: ['name', 'characteristic', 'type', 'description']
+      keys: ['label', 'characteristic', 'type', 'description']
     },
     spells: {
-      keys: ['name', 'description', 'lore', 'cn', 'range', 'target', 'duration']
+      keys: ['label', 'description', 'lore', 'cn', 'range', 'target', 'duration']
     },
     creatures: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     stars: {
-      keys: ['name', 'description']
+      keys: ['label', 'description']
     },
     gods: {
-      keys: ['name', 'domains', 'description']
+      keys: ['label', 'domains', 'description']
     },
     eyes: {
       keys: ['description']
@@ -107,32 +107,32 @@ function getSearchConfig(entityType) {
       keys: ['description', 'type']
     },
     traits: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     lores: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     magicks: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     etats: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     psychologies: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     qualities: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     trees: {
-      keys: ['name', 'type', 'description']
+      keys: ['label', 'type', 'description']
     },
     characters: {
       keys: ['name', 'species', 'career', 'description']
     }
   }
 
-  return configs[entityType] || { keys: ['name', 'description'] }
+  return configs[entityType] || { keys: ['label', 'description'] }
 }
 
 /**
@@ -283,8 +283,8 @@ export function getAutocompleteSuggestions(
 
   for (const result of results) {
     const item = result.item
-    if (item.name) {
-      suggestions.add(item.name)
+    if (item.label) {
+      suggestions.add(item.label)
     }
   }
 
