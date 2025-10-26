@@ -1,11 +1,12 @@
 ---
 name: v2
-status: backlog
+status: completed
 created: 2025-10-24T13:32:14Z
-progress: 0%
+completed: 2025-10-26T07:18:14Z
+progress: 100%
 prd: .claude/prds/v2.md
 github: https://github.com/gaucheclement/Warhammer/issues/1
-updated: 2025-10-24T14:07:18Z
+updated: 2025-10-26T07:18:14Z
 ---
 
 # Epic: Warhammer Fantasy 4e - Version 2
