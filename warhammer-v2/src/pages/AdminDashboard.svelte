@@ -24,6 +24,17 @@
     totalCustomModifications: 0,
     pendingContributions: 0 // Placeholder for future feature
   }
+  let metadataStats = {
+    byBook: {},
+    byFolder: {},
+    missingBook: [],
+    missingPage: [],
+    missingDesc: [],
+    completeness: {}
+  }
+  let selectedBook = 'all'
+  let selectedFolder = 'all'
+  let showMetadataSection = false
 
   // Redirect if not admin
   onMount(() => {
@@ -35,6 +46,7 @@
 
     // Calculate stats from stores
     calculateStats()
+    calculateMetadataStats()
     isLoading = false
   })
 
@@ -160,8 +172,132 @@
     isLoading = true
     setTimeout(() => {
       calculateStats()
+      calculateMetadataStats()
       isLoading = false
     }, 300)
+  }
+
+  /**
+   * Calculate metadata statistics
+   */
+  function calculateMetadataStats() {
+    const official = $officialData
+    const byBook = {}
+    const byFolder = {}
+    const missingBook = []
+    const missingPage = []
+    const missingDesc = []
+    const completeness = {}
+
+    const entityTypes = [
+      'books', 'careers', 'careerLevels', 'species', 'classes',
+      'talents', 'characteristics', 'trappings', 'skills', 'spells',
+      'creatures', 'stars', 'gods', 'eyes', 'hairs', 'details',
+      'traits', 'lores', 'magicks', 'etats', 'psychologies',
+      'qualities', 'trees'
+    ]
+
+    for (const type of entityTypes) {
+      const entities = official[type] || []
+      let withBook = 0
+      let withPage = 0
+      let withDesc = 0
+
+      for (const entity of entities) {
+        // Track by book
+        if (entity.book) {
+          byBook[entity.book] = (byBook[entity.book] || 0) + 1
+          withBook++
+        } else {
+          missingBook.push({ type, id: entity.id, label: entity.label || entity.name || entity.id })
+        }
+
+        // Track by folder
+        if (entity.folder) {
+          byFolder[entity.folder] = (byFolder[entity.folder] || 0) + 1
+        }
+
+        // Track page
+        if (entity.page) {
+          withPage++
+        } else if (entity.book) {
+          missingPage.push({ type, id: entity.id, label: entity.label || entity.name || entity.id, book: entity.book })
+        }
+
+        // Track description
+        if (entity.desc || entity.description) {
+          withDesc++
+        } else {
+          missingDesc.push({ type, id: entity.id, label: entity.label || entity.name || entity.id })
+        }
+      }
+
+      // Calculate completeness for this type
+      if (entities.length > 0) {
+        completeness[type] = {
+          total: entities.length,
+          withBook,
+          withPage,
+          withDesc,
+          bookPercent: Math.round((withBook / entities.length) * 100),
+          pagePercent: Math.round((withPage / entities.length) * 100),
+          descPercent: Math.round((withDesc / entities.length) * 100)
+        }
+      }
+    }
+
+    metadataStats = {
+      byBook,
+      byFolder,
+      missingBook,
+      missingPage,
+      missingDesc,
+      completeness
+    }
+  }
+
+  /**
+   * Get entities filtered by book and folder
+   */
+  function getFilteredEntities() {
+    const official = $officialData
+    const results = []
+
+    const entityTypes = [
+      'books', 'careers', 'careerLevels', 'species', 'classes',
+      'talents', 'characteristics', 'trappings', 'skills', 'spells',
+      'creatures', 'stars', 'gods', 'eyes', 'hairs', 'details',
+      'traits', 'lores', 'magicks', 'etats', 'psychologies',
+      'qualities', 'trees'
+    ]
+
+    for (const type of entityTypes) {
+      const entities = official[type] || []
+      for (const entity of entities) {
+        // Apply filters
+        if (selectedBook !== 'all' && entity.book !== selectedBook) continue
+        if (selectedFolder !== 'all' && entity.folder !== selectedFolder) continue
+
+        results.push({
+          type,
+          id: entity.id,
+          label: entity.label || entity.name || entity.id,
+          book: entity.book || '-',
+          page: entity.page || '-',
+          folder: entity.folder || '-',
+          hasDesc: !!(entity.desc || entity.description)
+        })
+      }
+    }
+
+    return results.slice(0, 100) // Limit to 100 for performance
+  }
+
+  /**
+   * Toggle metadata section
+   */
+  function toggleMetadataSection() {
+    showMetadataSection = !showMetadataSection
   }
 </script>
 
@@ -231,6 +367,165 @@
             </div>
           {/each}
         </div>
+      </section>
+
+      <!-- Entity Metadata Section -->
+      <section class="metadata-section">
+        <div class="section-header">
+          <h2>Entity Metadata</h2>
+          <button class="btn-toggle" on:click={toggleMetadataSection}>
+            {showMetadataSection ? 'Hide Details' : 'Show Details'}
+          </button>
+        </div>
+
+        <!-- Metadata Summary -->
+        <div class="metadata-summary">
+          <div class="summary-card">
+            <div class="summary-icon">📚</div>
+            <div class="summary-info">
+              <div class="summary-label">Books Referenced</div>
+              <div class="summary-value">{Object.keys(metadataStats.byBook).length}</div>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-icon">📁</div>
+            <div class="summary-info">
+              <div class="summary-label">Folder Categories</div>
+              <div class="summary-value">{Object.keys(metadataStats.byFolder).length}</div>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-icon">⚠️</div>
+            <div class="summary-info">
+              <div class="summary-label">Missing Book Reference</div>
+              <div class="summary-value">{metadataStats.missingBook.length}</div>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-icon">📄</div>
+            <div class="summary-info">
+              <div class="summary-label">Missing Page Number</div>
+              <div class="summary-value">{metadataStats.missingPage.length}</div>
+            </div>
+          </div>
+        </div>
+
+        {#if showMetadataSection}
+          <!-- Metadata Completeness by Type -->
+          <div class="metadata-details">
+            <h3>Metadata Completeness by Type</h3>
+            <div class="completeness-grid">
+              {#each Object.entries(metadataStats.completeness).sort((a, b) => b[1].total - a[1].total) as [type, stats]}
+                <div class="completeness-card">
+                  <div class="completeness-header">
+                    <span class="type-name">{formatTypeName(type)}</span>
+                    <span class="type-count">{stats.total} items</span>
+                  </div>
+                  <div class="completeness-bars">
+                    <div class="completeness-bar">
+                      <span class="bar-label">Book</span>
+                      <div class="bar-container">
+                        <div class="bar-fill" style="width: {stats.bookPercent}%"></div>
+                      </div>
+                      <span class="bar-percent">{stats.bookPercent}%</span>
+                    </div>
+                    <div class="completeness-bar">
+                      <span class="bar-label">Page</span>
+                      <div class="bar-container">
+                        <div class="bar-fill" style="width: {stats.pagePercent}%"></div>
+                      </div>
+                      <span class="bar-percent">{stats.pagePercent}%</span>
+                    </div>
+                    <div class="completeness-bar">
+                      <span class="bar-label">Desc</span>
+                      <div class="bar-container">
+                        <div class="bar-fill" style="width: {stats.descPercent}%"></div>
+                      </div>
+                      <span class="bar-percent">{stats.descPercent}%</span>
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+
+            <!-- Distribution by Book -->
+            <h3>Distribution by Source Book</h3>
+            <div class="distribution-grid">
+              {#each Object.entries(metadataStats.byBook).sort((a, b) => b[1] - a[1]) as [book, count]}
+                <div class="distribution-item">
+                  <span class="dist-label">{book}</span>
+                  <span class="dist-count">{count.toLocaleString()}</span>
+                </div>
+              {/each}
+            </div>
+
+            <!-- Distribution by Folder -->
+            <h3>Distribution by Folder</h3>
+            <div class="distribution-grid">
+              {#each Object.entries(metadataStats.byFolder).sort((a, b) => b[1] - a[1]) as [folder, count]}
+                <div class="distribution-item">
+                  <span class="dist-label">{folder || '(none)'}</span>
+                  <span class="dist-count">{count.toLocaleString()}</span>
+                </div>
+              {/each}
+            </div>
+
+            <!-- Entity Browser with Filters -->
+            <h3>Entity Browser</h3>
+            <div class="entity-filters">
+              <div class="filter-group">
+                <label for="book-filter">Filter by Book:</label>
+                <select id="book-filter" bind:value={selectedBook}>
+                  <option value="all">All Books</option>
+                  {#each Object.keys(metadataStats.byBook).sort() as book}
+                    <option value={book}>{book}</option>
+                  {/each}
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="folder-filter">Filter by Folder:</label>
+                <select id="folder-filter" bind:value={selectedFolder}>
+                  <option value="all">All Folders</option>
+                  {#each Object.keys(metadataStats.byFolder).sort() as folder}
+                    <option value={folder}>{folder || '(none)'}</option>
+                  {/each}
+                </select>
+              </div>
+            </div>
+
+            <div class="entity-table-container">
+              <table class="entity-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Label</th>
+                    <th>Book</th>
+                    <th>Page</th>
+                    <th>Folder</th>
+                    <th>Desc</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each getFilteredEntities() as entity}
+                    <tr>
+                      <td class="cell-type">{formatTypeName(entity.type)}</td>
+                      <td class="cell-label">{entity.label}</td>
+                      <td class="cell-book">{entity.book}</td>
+                      <td class="cell-page">{entity.page}</td>
+                      <td class="cell-folder">{entity.folder}</td>
+                      <td class="cell-desc">{entity.hasDesc ? '✓' : '-'}</td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+              <p class="table-note">Showing first 100 results. Use filters to narrow down.</p>
+            </div>
+          </div>
+        {/if}
       </section>
 
       <!-- Quick Actions -->
@@ -513,6 +808,281 @@
     font-style: italic;
   }
 
+  /* Metadata Section */
+  .metadata-section {
+    margin-top: 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-toggle {
+    padding: 0.5rem 1rem;
+    background: var(--color-accent, #8b2e1f);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .btn-toggle:hover {
+    background: var(--color-accent-hover, #a63728);
+  }
+
+  .metadata-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .summary-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: 8px;
+    border: 1px solid var(--color-border, #ddd);
+  }
+
+  .summary-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .summary-info {
+    flex: 1;
+  }
+
+  .summary-label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #666);
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-accent, #8b2e1f);
+  }
+
+  .metadata-details {
+    margin-top: 2rem;
+  }
+
+  .metadata-details h3 {
+    margin: 2rem 0 1rem 0;
+    font-size: 1.2rem;
+    color: var(--color-text-primary, #333);
+    font-family: var(--font-heading, serif);
+  }
+
+  .completeness-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .completeness-card {
+    background: var(--color-bg-secondary, #f5f5f5);
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    padding: 1rem;
+  }
+
+  .completeness-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border, #ddd);
+  }
+
+  .type-name {
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+  }
+
+  .type-count {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #666);
+  }
+
+  .completeness-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .completeness-bar {
+    display: grid;
+    grid-template-columns: 40px 1fr 50px;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bar-label {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary, #666);
+  }
+
+  .bar-container {
+    height: 16px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--color-border, #ddd);
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent, #8b2e1f), #a63728);
+    transition: width 0.3s ease;
+  }
+
+  .bar-percent {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    text-align: right;
+  }
+
+  .distribution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .distribution-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 6px;
+  }
+
+  .dist-label {
+    font-size: 0.9rem;
+    color: var(--color-text-primary, #333);
+  }
+
+  .dist-count {
+    font-weight: 700;
+    color: var(--color-accent, #8b2e1f);
+  }
+
+  .entity-filters {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+  }
+
+  .filter-group select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+    color: var(--color-text-primary, #333);
+    cursor: pointer;
+    min-width: 200px;
+  }
+
+  .filter-group select:focus {
+    outline: none;
+    border-color: var(--color-accent, #8b2e1f);
+  }
+
+  .entity-table-container {
+    overflow-x: auto;
+    background: var(--color-bg-secondary, #f5f5f5);
+    border-radius: 6px;
+    padding: 1rem;
+  }
+
+  .entity-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+
+  .entity-table thead {
+    background: var(--color-bg-secondary, #f5f5f5);
+  }
+
+  .entity-table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    border-bottom: 2px solid var(--color-border, #ddd);
+    font-size: 0.9rem;
+  }
+
+  .entity-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border, #ddd);
+    font-size: 0.9rem;
+  }
+
+  .entity-table tbody tr:hover {
+    background: var(--color-bg-secondary, #f5f5f5);
+  }
+
+  .cell-type {
+    color: var(--color-text-secondary, #666);
+    font-size: 0.85rem;
+  }
+
+  .cell-label {
+    color: var(--color-text-primary, #333);
+    font-weight: 500;
+  }
+
+  .cell-book,
+  .cell-page,
+  .cell-folder {
+    color: var(--color-text-secondary, #666);
+  }
+
+  .cell-desc {
+    text-align: center;
+    color: var(--color-accent, #8b2e1f);
+    font-weight: bold;
+  }
+
+  .table-note {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #666);
+    font-style: italic;
+  }
+
   /* Mobile Responsive */
   @media (max-width: 768px) {
     .dashboard-header {
@@ -566,6 +1136,33 @@
 
     .action-icon {
       font-size: 2rem;
+    }
+
+    .metadata-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .completeness-grid,
+    .distribution-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .entity-filters {
+      flex-direction: column;
+    }
+
+    .filter-group select {
+      min-width: 100%;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .btn-toggle {
+      width: 100%;
     }
   }
 </style>
