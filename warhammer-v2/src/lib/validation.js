@@ -15,21 +15,21 @@
 // Entity type schemas - define required and optional fields
 const SCHEMAS = {
   books: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['abbreviation', 'description', 'author', 'year'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       abbreviation: 'string',
       description: 'string'
     }
   },
   careers: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['class', 'species', 'status', 'description', 'levels'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       class: 'string',
       species: ['string', 'array'],
       status: 'string',
@@ -37,42 +37,42 @@ const SCHEMAS = {
     }
   },
   careerLevels: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['career', 'level', 'description', 'skills', 'talents', 'trappings'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       career: ['string', 'number'],
       level: 'number',
       description: 'string'
     }
   },
   species: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['description', 'characteristics', 'skills', 'talents'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       description: 'string'
     }
   },
   talents: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['maxRank', 'tests', 'description'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       maxRank: 'number',
       tests: 'string',
       description: 'string'
     }
   },
   skills: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['characteristic', 'type', 'advanced', 'description'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       characteristic: 'string',
       type: 'string',
       advanced: 'boolean',
@@ -80,11 +80,11 @@ const SCHEMAS = {
     }
   },
   spells: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['cn', 'range', 'target', 'duration', 'description', 'lore'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       cn: ['string', 'number'],
       range: 'string',
       target: 'string',
@@ -93,11 +93,11 @@ const SCHEMAS = {
     }
   },
   trappings: {
-    required: ['id', 'name'],
+    required: ['id', 'label'],
     optional: ['type', 'encumbrance', 'description', 'price'],
     types: {
       id: ['string', 'number'],
-      name: 'string',
+      label: 'string',
       type: 'string',
       encumbrance: 'number',
       description: 'string'
