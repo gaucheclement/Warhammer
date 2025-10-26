@@ -18,21 +18,21 @@ export function testDataMerging() {
   console.log('Testing data merging...')
 
   const official = [
-    { id: 1, name: 'Sword', type: 'weapon', isOfficial: true },
-    { id: 2, name: 'Shield', type: 'armor', isOfficial: true }
+    { id: 1, label: 'Sword', type: 'weapon', isOfficial: true },
+    { id: 2, label: 'Shield', type: 'armor', isOfficial: true }
   ]
 
   const custom = [
-    { id: 1, name: 'Magic Sword', type: 'weapon' }, // Override official
-    { id: 3, name: 'Potion', type: 'consumable' } // New custom entry
+    { id: 1, label: 'Magic Sword', type: 'weapon' }, // Override official
+    { id: 3, label: 'Potion', type: 'consumable' } // New custom entry
   ]
 
   const merged = mergeEntityType(official, custom)
 
   console.assert(merged.length === 3, 'Should have 3 entries')
-  console.assert(merged[0].name === 'Magic Sword', 'Should override official entry')
+  console.assert(merged[0].label === 'Magic Sword', 'Should override official entry')
   console.assert(merged[0].isModified === true, 'Should be marked as modified')
-  console.assert(merged.some((e) => e.name === 'Potion'), 'Should include custom entry')
+  console.assert(merged.some((e) => e.label === 'Potion'), 'Should include custom entry')
 
   console.log('✓ Data merging tests passed')
 }
@@ -61,7 +61,7 @@ export function testValidation() {
   // Valid entry
   const validEntry = {
     id: 1,
-    name: 'Test Talent',
+    label: 'Test Talent',
     description: 'A test talent',
     maxRank: 3
   }
@@ -72,7 +72,7 @@ export function testValidation() {
   // Invalid entry (missing required field)
   const invalidEntry = {
     id: 2,
-    description: 'Missing name'
+    description: 'Missing label'
   }
 
   const invalidResult = validateEntry('talents', invalidEntry)
@@ -89,21 +89,21 @@ export function testSearch() {
   console.log('Testing search functionality...')
 
   const testData = [
-    { id: 1, name: 'Animal Care', description: 'Care for animals' },
-    { id: 2, name: 'Art', description: 'Create beautiful art' },
-    { id: 3, name: 'Charm Animal', description: 'Charm wild animals' },
-    { id: 4, name: 'Drive', description: 'Drive vehicles' }
+    { id: 1, label: 'Animal Care', description: 'Care for animals' },
+    { id: 2, label: 'Art', description: 'Create beautiful art' },
+    { id: 3, label: 'Charm Animal', description: 'Charm wild animals' },
+    { id: 4, label: 'Drive', description: 'Drive vehicles' }
   ]
 
   const results = search('skills', testData, 'animal')
 
   console.assert(results.length > 0, 'Should find matching results')
   console.assert(
-    results.some((r) => r.item.name === 'Animal Care'),
+    results.some((r) => r.item.label === 'Animal Care'),
     'Should find "Animal Care"'
   )
   console.assert(
-    results.some((r) => r.item.name === 'Charm Animal'),
+    results.some((r) => r.item.label === 'Charm Animal'),
     'Should find "Charm Animal"'
   )
 
@@ -121,9 +121,9 @@ export function testAutocomplete() {
   console.log('Testing autocomplete...')
 
   const testData = [
-    { id: 1, name: 'Animal Care' },
-    { id: 2, name: 'Art' },
-    { id: 3, name: 'Charm Animal' }
+    { id: 1, label: 'Animal Care' },
+    { id: 2, label: 'Art' },
+    { id: 3, label: 'Charm Animal' }
   ]
 
   const suggestions = getAutocompleteSuggestions('skills', testData, 'ani', 5)
@@ -143,11 +143,11 @@ export function testImportValidation() {
 
   const validData = {
     talents: [
-      { id: 1, name: 'Test Talent 1', description: 'Test' },
-      { id: 2, name: 'Test Talent 2', description: 'Test' }
+      { id: 1, label: 'Test Talent 1', description: 'Test' },
+      { id: 2, label: 'Test Talent 2', description: 'Test' }
     ],
     skills: [
-      { id: 1, name: 'Test Skill', description: 'Test' }
+      { id: 1, label: 'Test Skill', description: 'Test' }
     ]
   }
 
@@ -156,7 +156,7 @@ export function testImportValidation() {
 
   const invalidData = {
     talents: [
-      { id: 1 } // Missing required 'name' field
+      { id: 1 } // Missing required 'label' field
     ]
   }
 
@@ -177,14 +177,14 @@ export function testSearchPerformance() {
   for (let i = 0; i < 1000; i++) {
     largeDataset.push({
       id: i,
-      name: `Entry ${i}`,
+      label: `Entry ${i}`,
       description: `Description for entry ${i}`
     })
   }
 
   // Add some specific entries to search for
-  largeDataset[500].name = 'Animal Care'
-  largeDataset[750].name = 'Charm Animal'
+  largeDataset[500].label = 'Animal Care'
+  largeDataset[750].label = 'Charm Animal'
 
   const startTime = performance.now()
   const results = search('skills', largeDataset, 'animal')

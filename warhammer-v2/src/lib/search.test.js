@@ -20,11 +20,11 @@ import {
 
 describe('search', () => {
   const testData = [
-    { id: 1, name: 'Animal Care', description: 'Care for animals', characteristic: 'Int' },
-    { id: 2, name: 'Art', description: 'Create beautiful art', characteristic: 'Dex' },
-    { id: 3, name: 'Charm Animal', description: 'Charm wild animals', characteristic: 'Fel' },
-    { id: 4, name: 'Drive', description: 'Drive vehicles', characteristic: 'Agi' },
-    { id: 5, name: 'Animal Training', description: 'Train animals', characteristic: 'Int' }
+    { id: 1, label: 'Animal Care', description: 'Care for animals', characteristic: 'Int' },
+    { id: 2, label: 'Art', description: 'Create beautiful art', characteristic: 'Dex' },
+    { id: 3, label: 'Charm Animal', description: 'Charm wild animals', characteristic: 'Fel' },
+    { id: 4, label: 'Drive', description: 'Drive vehicles', characteristic: 'Agi' },
+    { id: 5, label: 'Animal Training', description: 'Train animals', characteristic: 'Int' }
   ]
 
   beforeEach(() => {
@@ -33,20 +33,20 @@ describe('search', () => {
   })
 
   describe('search', () => {
-    it('should find matching results by name', () => {
+    it('should find matching results by label', () => {
       const results = search('skills', testData, 'animal')
 
       expect(results.length).toBeGreaterThan(0)
-      expect(results.some(r => r.item.name === 'Animal Care')).toBe(true)
-      expect(results.some(r => r.item.name === 'Charm Animal')).toBe(true)
-      expect(results.some(r => r.item.name === 'Animal Training')).toBe(true)
+      expect(results.some(r => r.item.label === 'Animal Care')).toBe(true)
+      expect(results.some(r => r.item.label === 'Charm Animal')).toBe(true)
+      expect(results.some(r => r.item.label === 'Animal Training')).toBe(true)
     })
 
     it('should find matching results by description', () => {
       const results = search('skills', testData, 'beautiful')
 
       expect(results.length).toBeGreaterThan(0)
-      expect(results.some(r => r.item.name === 'Art')).toBe(true)
+      expect(results.some(r => r.item.label === 'Art')).toBe(true)
     })
 
     it('should return empty array for queries less than 2 characters', () => {
@@ -98,8 +98,8 @@ describe('search', () => {
     const mergedData = {
       skills: testData,
       talents: [
-        { id: 1, name: 'Animal Affinity', description: 'Affinity with animals' },
-        { id: 2, name: 'Warrior', description: 'Combat skills' }
+        { id: 1, label: 'Animal Affinity', description: 'Affinity with animals' },
+        { id: 2, label: 'Warrior', description: 'Combat skills' }
       ]
     }
 
@@ -273,20 +273,20 @@ describe('search', () => {
   describe('filterResults', () => {
     it('should filter results by predicate', () => {
       const results = [
-        { item: { id: 1, name: 'Animal Care', characteristic: 'Int' } },
-        { item: { id: 2, name: 'Art', characteristic: 'Dex' } },
-        { item: { id: 3, name: 'Charm Animal', characteristic: 'Fel' } }
+        { item: { id: 1, label: 'Animal Care', characteristic: 'Int' } },
+        { item: { id: 2, label: 'Art', characteristic: 'Dex' } },
+        { item: { id: 3, label: 'Charm Animal', characteristic: 'Fel' } }
       ]
 
       const filtered = filterResults(results, item => item.characteristic === 'Int')
 
       expect(filtered).toHaveLength(1)
-      expect(filtered[0].item.name).toBe('Animal Care')
+      expect(filtered[0].item.label).toBe('Animal Care')
     })
 
     it('should return empty array if no results match', () => {
       const results = [
-        { item: { id: 1, name: 'Animal Care', characteristic: 'Int' } }
+        { item: { id: 1, label: 'Animal Care', characteristic: 'Int' } }
       ]
 
       const filtered = filterResults(results, item => item.characteristic === 'Str')
@@ -298,39 +298,39 @@ describe('search', () => {
   describe('sortResults', () => {
     it('should sort results ascending by field', () => {
       const results = [
-        { item: { id: 3, name: 'Charlie' } },
-        { item: { id: 1, name: 'Alice' } },
-        { item: { id: 2, name: 'Bob' } }
+        { item: { id: 3, label: 'Charlie' } },
+        { item: { id: 1, label: 'Alice' } },
+        { item: { id: 2, label: 'Bob' } }
       ]
 
-      const sorted = sortResults(results, 'name', 'asc')
+      const sorted = sortResults(results, 'label', 'asc')
 
-      expect(sorted[0].item.name).toBe('Alice')
-      expect(sorted[1].item.name).toBe('Bob')
-      expect(sorted[2].item.name).toBe('Charlie')
+      expect(sorted[0].item.label).toBe('Alice')
+      expect(sorted[1].item.label).toBe('Bob')
+      expect(sorted[2].item.label).toBe('Charlie')
     })
 
     it('should sort results descending by field', () => {
       const results = [
-        { item: { id: 1, name: 'Alice' } },
-        { item: { id: 2, name: 'Bob' } },
-        { item: { id: 3, name: 'Charlie' } }
+        { item: { id: 1, label: 'Alice' } },
+        { item: { id: 2, label: 'Bob' } },
+        { item: { id: 3, label: 'Charlie' } }
       ]
 
-      const sorted = sortResults(results, 'name', 'desc')
+      const sorted = sortResults(results, 'label', 'desc')
 
-      expect(sorted[0].item.name).toBe('Charlie')
-      expect(sorted[1].item.name).toBe('Bob')
-      expect(sorted[2].item.name).toBe('Alice')
+      expect(sorted[0].item.label).toBe('Charlie')
+      expect(sorted[1].item.label).toBe('Bob')
+      expect(sorted[2].item.label).toBe('Alice')
     })
   })
 
   describe('groupResults', () => {
     it('should group results by field', () => {
       const results = [
-        { item: { id: 1, name: 'Animal Care', characteristic: 'Int' } },
-        { item: { id: 2, name: 'Art', characteristic: 'Dex' } },
-        { item: { id: 3, name: 'Charm Animal', characteristic: 'Int' } }
+        { item: { id: 1, label: 'Animal Care', characteristic: 'Int' } },
+        { item: { id: 2, label: 'Art', characteristic: 'Dex' } },
+        { item: { id: 3, label: 'Charm Animal', characteristic: 'Int' } }
       ]
 
       const grouped = groupResults(results, 'characteristic')
@@ -341,8 +341,8 @@ describe('search', () => {
 
     it('should group entries without field value as "Other"', () => {
       const results = [
-        { item: { id: 1, name: 'Test 1', category: 'A' } },
-        { item: { id: 2, name: 'Test 2' } }
+        { item: { id: 1, label: 'Test 1', category: 'A' } },
+        { item: { id: 2, label: 'Test 2' } }
       ]
 
       const grouped = groupResults(results, 'category')
@@ -359,13 +359,13 @@ describe('search', () => {
       for (let i = 0; i < 1000; i++) {
         largeDataset.push({
           id: i,
-          name: `Entry ${i}`,
+          label: `Entry ${i}`,
           description: `Description for entry ${i}`
         })
       }
       // Add some specific entries to search for
-      largeDataset[500].name = 'Animal Care'
-      largeDataset[750].name = 'Charm Animal'
+      largeDataset[500].label = 'Animal Care'
+      largeDataset[750].label = 'Charm Animal'
 
       const startTime = performance.now()
       const results = search('skills', largeDataset, 'animal')

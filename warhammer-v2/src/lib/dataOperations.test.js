@@ -50,12 +50,12 @@ import {
 describe('dataOperations', () => {
   const testMergedData = {
     talents: [
-      { id: 1, name: 'Talent 1', description: 'Description 1', isOfficial: true },
-      { id: 2, name: 'Talent 2', description: 'Description 2', isOfficial: true },
-      { id: 3, name: 'Custom Talent', description: 'Custom', isCustom: true }
+      { id: 1, label: 'Talent 1', description: 'Description 1', isOfficial: true },
+      { id: 2, label: 'Talent 2', description: 'Description 2', isOfficial: true },
+      { id: 3, label: 'Custom Talent', description: 'Custom', isCustom: true }
     ],
     skills: [
-      { id: 1, name: 'Skill 1', description: 'Description 1', isOfficial: true }
+      { id: 1, label: 'Skill 1', description: 'Description 1', isOfficial: true }
     ]
   }
 
@@ -66,7 +66,7 @@ describe('dataOperations', () => {
 
         expect(entry).toBeDefined()
         expect(entry.id).toBe(1)
-        expect(entry.name).toBe('Talent 1')
+        expect(entry.label).toBe('Talent 1')
       })
 
       it('should return null if entry not found', () => {

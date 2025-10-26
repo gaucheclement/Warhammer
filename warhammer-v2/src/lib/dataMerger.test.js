@@ -141,19 +141,19 @@ describe('dataMerger', () => {
 
   describe('createCustomEntry', () => {
     it('should create a custom entry with unique ID', () => {
-      const data = { name: 'Custom Talent', description: 'Test' }
+      const data = { label: 'Custom Talent', description: 'Test' }
       const entry = createCustomEntry('talents', data)
 
       expect(entry.id).toBeDefined()
       expect(entry.id).toContain('custom_talents_')
-      expect(entry.name).toBe('Custom Talent')
+      expect(entry.label).toBe('Custom Talent')
       expect(entry.isCustom).toBe(true)
       expect(entry._createdAt).toBeDefined()
     })
 
     it('should generate unique IDs for different calls', () => {
-      const entry1 = createCustomEntry('talents', { name: 'Talent 1' })
-      const entry2 = createCustomEntry('talents', { name: 'Talent 2' })
+      const entry1 = createCustomEntry('talents', { label: 'Talent 1' })
+      const entry2 = createCustomEntry('talents', { label: 'Talent 2' })
 
       expect(entry1.id).not.toBe(entry2.id)
     })

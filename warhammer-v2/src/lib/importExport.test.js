@@ -16,11 +16,11 @@ import {
 describe('importExport', () => {
   const existingData = {
     talents: [
-      { id: 1, name: 'Existing Talent 1', description: 'Description 1' },
-      { id: 2, name: 'Existing Talent 2', description: 'Description 2' }
+      { id: 1, label: 'Existing Talent 1', description: 'Description 1' },
+      { id: 2, label: 'Existing Talent 2', description: 'Description 2' }
     ],
     skills: [
-      { id: 1, name: 'Existing Skill', description: 'Description' }
+      { id: 1, label: 'Existing Skill', description: 'Description' }
     ]
   }
 
@@ -28,7 +28,7 @@ describe('importExport', () => {
     it('should import valid JSON data', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 3, name: 'New Talent', description: 'New' }
+          { id: 3, label: 'New Talent', description: 'New' }
         ]
       })
 
@@ -52,7 +52,7 @@ describe('importExport', () => {
     it('should detect ID conflicts and warn', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, name: 'Conflicting Talent', description: 'Conflict' }
+          { id: 1, label: 'Conflicting Talent', description: 'Conflict' }
         ]
       })
 
@@ -65,7 +65,7 @@ describe('importExport', () => {
     it('should merge with existing data by default', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 3, name: 'New Talent', description: 'New' }
+          { id: 3, label: 'New Talent', description: 'New' }
         ]
       })
 
@@ -78,7 +78,7 @@ describe('importExport', () => {
     it('should skip conflicting entries when overwrite is false', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, name: 'Updated Talent', description: 'Updated' }
+          { id: 1, label: 'Updated Talent', description: 'Updated' }
         ]
       })
 
@@ -94,7 +94,7 @@ describe('importExport', () => {
     it('should overwrite conflicting entries when overwrite is true', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, name: 'Updated Talent', description: 'Updated' }
+          { id: 1, label: 'Updated Talent', description: 'Updated' }
         ]
       })
 
@@ -105,13 +105,13 @@ describe('importExport', () => {
 
       expect(result.success).toBe(true)
       expect(result.warnings.some(w => w.includes('overwritten'))).toBe(true)
-      expect(result.data.talents.find(t => t.id === 1).name).toBe('Updated Talent')
+      expect(result.data.talents.find(t => t.id === 1).label).toBe('Updated Talent')
     })
 
     it('should filter by entity types when specified', async () => {
       const json = JSON.stringify({
-        talents: [{ id: 3, name: 'New Talent', description: 'New' }],
-        skills: [{ id: 3, name: 'New Skill', description: 'New' }]
+        talents: [{ id: 3, label: 'New Talent', description: 'New' }],
+        skills: [{ id: 3, label: 'New Skill', description: 'New' }]
       })
 
       const result = await importCustomModifications(json, existingData, {
@@ -126,7 +126,7 @@ describe('importExport', () => {
     it('should validate data when validation is enabled', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 3, description: 'Missing name' } // Invalid: missing required field
+          { id: 3, description: 'Missing label' } // Invalid: missing required field
         ]
       })
 
@@ -135,13 +135,13 @@ describe('importExport', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.errors.some(e => e.includes('name'))).toBe(true)
+      expect(result.errors.some(e => e.includes('label'))).toBe(true)
     })
 
     it('should skip validation when disabled', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 3, description: 'Missing name' }
+          { id: 3, description: 'Missing label' }
         ]
       })
 
@@ -155,7 +155,7 @@ describe('importExport', () => {
     it('should sanitize data when sanitization is enabled', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 3, name: '<script>Evil</script>', description: 'Test' }
+          { id: 3, label: '<script>Evil</script>', description: 'Test' }
         ]
       })
 
@@ -164,18 +164,18 @@ describe('importExport', () => {
       })
 
       expect(result.success).toBe(true)
-      expect(result.data.talents.find(t => t.id === 3).name).not.toContain('<script>')
+      expect(result.data.talents.find(t => t.id === 3).label).not.toContain('<script>')
     })
   })
 
   describe('exportCustomModifications', () => {
     const customData = {
       talents: [
-        { id: 1, name: 'Custom Talent 1', description: 'Description 1' },
-        { id: 2, name: 'Custom Talent 2', description: 'Description 2' }
+        { id: 1, label: 'Custom Talent 1', description: 'Description 1' },
+        { id: 2, label: 'Custom Talent 2', description: 'Description 2' }
       ],
       skills: [
-        { id: 1, name: 'Custom Skill', description: 'Description' }
+        { id: 1, label: 'Custom Skill', description: 'Description' }
       ]
     }
 
@@ -362,13 +362,13 @@ describe('importExport', () => {
     it('should only include changed fields for updates', () => {
       const customMods = {
         talents: [
-          { id: 1, name: 'Original', description: 'Changed', value: 100 }
+          { id: 1, label: 'Original', description: 'Changed', value: 100 }
         ]
       }
 
       const official = {
         talents: [
-          { id: 1, name: 'Original', description: 'Original', value: 100 }
+          { id: 1, label: 'Original', description: 'Original', value: 100 }
         ]
       }
 
@@ -378,7 +378,7 @@ describe('importExport', () => {
       const updateOp = parsed.modifications.find(m => m.op === 'update')
       expect(updateOp.changes).toBeDefined()
       expect(updateOp.changes.description).toBe('Changed')
-      expect(updateOp.changes.name).toBeUndefined() // Unchanged
+      expect(updateOp.changes.label).toBeUndefined() // Unchanged
     })
   })
 
@@ -386,8 +386,8 @@ describe('importExport', () => {
     it('should generate import preview', async () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, name: 'Updated Talent', description: 'Updated' },
-          { id: 3, name: 'New Talent', description: 'New' }
+          { id: 1, label: 'Updated Talent', description: 'Updated' },
+          { id: 3, label: 'New Talent', description: 'New' }
         ]
       })
 

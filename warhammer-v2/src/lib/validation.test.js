@@ -25,7 +25,7 @@ describe('validation', () => {
     it('should validate a valid talent entry', () => {
       const entry = {
         id: 1,
-        name: 'Test Talent',
+        label: 'Test Talent',
         description: 'A test talent',
         maxRank: 3
       }
@@ -39,19 +39,19 @@ describe('validation', () => {
     it('should reject entry with missing required fields', () => {
       const entry = {
         id: 1,
-        description: 'Missing name'
+        description: 'Missing label'
       }
 
       const result = validateEntry('talents', entry)
 
       expect(result.valid).toBe(false)
-      expect(result.errors).toContain('Missing required field: name')
+      expect(result.errors).toContain('Missing required field: label')
     })
 
     it('should reject entry with wrong field types', () => {
       const entry = {
         id: 1,
-        name: 123, // Should be string
+        label: 123, // Should be string
         description: 'Test'
       }
 
@@ -64,7 +64,7 @@ describe('validation', () => {
     it('should warn about unexpected fields', () => {
       const entry = {
         id: 1,
-        name: 'Test',
+        label: 'Test',
         unexpectedField: 'value'
       }
 
@@ -74,7 +74,7 @@ describe('validation', () => {
     })
 
     it('should reject unknown entity type', () => {
-      const entry = { id: 1, name: 'Test' }
+      const entry = { id: 1, label: 'Test' }
       const result = validateEntry('unknownType', entry)
 
       expect(result.valid).toBe(false)
@@ -84,7 +84,7 @@ describe('validation', () => {
     it('should allow internal fields (starting with _)', () => {
       const entry = {
         id: 1,
-        name: 'Test',
+        label: 'Test',
         _internal: 'value'
       }
 
@@ -97,8 +97,8 @@ describe('validation', () => {
   describe('validateEntries', () => {
     it('should validate an array of entries', () => {
       const entries = [
-        { id: 1, name: 'Talent 1', description: 'Test 1' },
-        { id: 2, name: 'Talent 2', description: 'Test 2' }
+        { id: 1, label: 'Talent 1', description: 'Test 1' },
+        { id: 2, label: 'Talent 2', description: 'Test 2' }
       ]
 
       const result = validateEntries('talents', entries)
@@ -109,9 +109,9 @@ describe('validation', () => {
 
     it('should report errors for invalid entries with index', () => {
       const entries = [
-        { id: 1, name: 'Talent 1' },
-        { id: 2, description: 'Missing name' },
-        { id: 3, name: 'Talent 3' }
+        { id: 1, label: 'Talent 1' },
+        { id: 2, description: 'Missing label' },
+        { id: 3, label: 'Talent 3' }
       ]
 
       const result = validateEntries('talents', entries)
@@ -132,11 +132,11 @@ describe('validation', () => {
     it('should validate complete import data', () => {
       const data = {
         talents: [
-          { id: 1, name: 'Talent 1', description: 'Test' },
-          { id: 2, name: 'Talent 2', description: 'Test' }
+          { id: 1, label: 'Talent 1', description: 'Test' },
+          { id: 2, label: 'Talent 2', description: 'Test' }
         ],
         skills: [
-          { id: 1, name: 'Skill 1', description: 'Test' }
+          { id: 1, label: 'Skill 1', description: 'Test' }
         ]
       }
 
@@ -155,7 +155,7 @@ describe('validation', () => {
 
     it('should warn about unknown entity types', () => {
       const data = {
-        unknownType: [{ id: 1, name: 'Test' }]
+        unknownType: [{ id: 1, label: 'Test' }]
       }
 
       const result = validateImportData(data)
@@ -166,7 +166,7 @@ describe('validation', () => {
     it('should skip metadata fields', () => {
       const data = {
         _metadata: { version: '2.0.0' },
-        talents: [{ id: 1, name: 'Talent 1' }]
+        talents: [{ id: 1, label: 'Talent 1' }]
       }
 
       const result = validateImportData(data)
@@ -177,8 +177,8 @@ describe('validation', () => {
 
     it('should collect errors from multiple entity types', () => {
       const data = {
-        talents: [{ id: 1 }], // Missing name
-        skills: [{ id: 1 }] // Missing name
+        talents: [{ id: 1 }], // Missing label
+        skills: [{ id: 1 }] // Missing label
       }
 
       const result = validateImportData(data)
@@ -222,14 +222,14 @@ describe('validation', () => {
     it('should sanitize all string fields in an entry', () => {
       const entry = {
         id: 1,
-        name: '<script>Evil</script>',
+        label: '<script>Evil</script>',
         description: 'Test & Example',
         value: 100
       }
 
       const sanitized = sanitizeEntry(entry)
 
-      expect(sanitized.name).not.toContain('<script>')
+      expect(sanitized.label).not.toContain('<script>')
       expect(sanitized.description).toContain('&amp;')
       expect(sanitized.value).toBe(100)
     })
@@ -237,7 +237,7 @@ describe('validation', () => {
     it('should sanitize string arrays', () => {
       const entry = {
         id: 1,
-        name: 'Test',
+        label: 'Test',
         tags: ['<tag1>', '<tag2>']
       }
 
@@ -250,7 +250,7 @@ describe('validation', () => {
     it('should recursively sanitize nested objects', () => {
       const entry = {
         id: 1,
-        name: 'Test',
+        label: 'Test',
         nested: {
           field: '<script>Bad</script>'
         }
@@ -266,14 +266,14 @@ describe('validation', () => {
     it('should sanitize all entries in import data', () => {
       const data = {
         talents: [
-          { id: 1, name: '<script>Evil</script>', description: 'Test' },
-          { id: 2, name: 'Safe Name', description: 'Test & Example' }
+          { id: 1, label: '<script>Evil</script>', description: 'Test' },
+          { id: 2, label: 'Safe Name', description: 'Test & Example' }
         ]
       }
 
       const sanitized = sanitizeImportData(data)
 
-      expect(sanitized.talents[0].name).not.toContain('<script>')
+      expect(sanitized.talents[0].label).not.toContain('<script>')
       expect(sanitized.talents[1].description).toContain('&amp;')
     })
   })
@@ -282,14 +282,14 @@ describe('validation', () => {
     it('should detect ID conflicts', () => {
       const importData = {
         talents: [
-          { id: 1, name: 'New Talent' },
-          { id: 2, name: 'Another Talent' }
+          { id: 1, label: 'New Talent' },
+          { id: 2, label: 'Another Talent' }
         ]
       }
 
       const existingData = {
         talents: [
-          { id: 1, name: 'Existing Talent' }
+          { id: 1, label: 'Existing Talent' }
         ]
       }
 
@@ -302,11 +302,11 @@ describe('validation', () => {
 
     it('should return empty object if no conflicts', () => {
       const importData = {
-        talents: [{ id: 3, name: 'New Talent' }]
+        talents: [{ id: 3, label: 'New Talent' }]
       }
 
       const existingData = {
-        talents: [{ id: 1, name: 'Existing Talent' }]
+        talents: [{ id: 1, label: 'Existing Talent' }]
       }
 
       const conflicts = checkIdConflicts(importData, existingData)
@@ -316,11 +316,11 @@ describe('validation', () => {
 
     it('should handle missing entity types in existing data', () => {
       const importData = {
-        skills: [{ id: 1, name: 'New Skill' }]
+        skills: [{ id: 1, label: 'New Skill' }]
       }
 
       const existingData = {
-        talents: [{ id: 1, name: 'Existing Talent' }]
+        talents: [{ id: 1, label: 'Existing Talent' }]
       }
 
       const conflicts = checkIdConflicts(importData, existingData)
@@ -333,13 +333,13 @@ describe('validation', () => {
     it('should preview new and updated entries', () => {
       const importData = {
         talents: [
-          { id: 1, name: 'Updated Talent' },
-          { id: 2, name: 'New Talent' }
+          { id: 1, label: 'Updated Talent' },
+          { id: 2, label: 'New Talent' }
         ]
       }
 
       const existingData = {
-        talents: [{ id: 1, name: 'Old Talent' }]
+        talents: [{ id: 1, label: 'Old Talent' }]
       }
 
       const preview = generateChangePreview(importData, existingData)
@@ -352,11 +352,11 @@ describe('validation', () => {
 
     it('should include both existing and imported data in updated entries', () => {
       const importData = {
-        talents: [{ id: 1, name: 'Updated' }]
+        talents: [{ id: 1, label: 'Updated' }]
       }
 
       const existingData = {
-        talents: [{ id: 1, name: 'Original' }]
+        talents: [{ id: 1, label: 'Original' }]
       }
 
       const preview = generateChangePreview(importData, existingData)
@@ -364,13 +364,13 @@ describe('validation', () => {
 
       expect(updated.existing).toBeDefined()
       expect(updated.imported).toBeDefined()
-      expect(updated.existing.name).toBe('Original')
-      expect(updated.imported.name).toBe('Updated')
+      expect(updated.existing.label).toBe('Original')
+      expect(updated.imported.label).toBe('Updated')
     })
 
     it('should handle empty existing data', () => {
       const importData = {
-        talents: [{ id: 1, name: 'New Talent' }]
+        talents: [{ id: 1, label: 'New Talent' }]
       }
 
       const preview = generateChangePreview(importData, {})
@@ -382,7 +382,7 @@ describe('validation', () => {
 
   describe('validateJSON', () => {
     it('should validate and parse valid JSON', () => {
-      const json = '{"talents": [{"id": 1, "name": "Test"}]}'
+      const json = '{"talents": [{"id": 1, "label": "Test"}]}'
       const result = validateJSON(json)
 
       expect(result.valid).toBe(true)
@@ -468,7 +468,7 @@ describe('validation', () => {
       expect(schema.required).toBeDefined()
       expect(schema.optional).toBeDefined()
       expect(schema.required).toContain('id')
-      expect(schema.required).toContain('name')
+      expect(schema.required).toContain('label')
     })
 
     it('should return null for invalid entity type', () => {
