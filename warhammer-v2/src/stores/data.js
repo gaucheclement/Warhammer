@@ -220,7 +220,9 @@ async function seedIndexedDB(data) {
     for (const [jsonKey, dbKey] of Object.entries(keyMapping)) {
       const entities = data[jsonKey] || []
       if (entities.length > 0) {
-        await db[dbKey].bulkAdd(entities)
+        // Transform: add 'id' field from 'index' for Dexie primary key
+        const entitiesWithId = entities.map(e => ({ ...e, id: e.index }))
+        await db[dbKey].bulkAdd(entitiesWithId)
         console.log(`Loaded ${entities.length} ${jsonKey} → ${dbKey}`)
       } else {
         console.warn(`No data found for ${jsonKey}`)
