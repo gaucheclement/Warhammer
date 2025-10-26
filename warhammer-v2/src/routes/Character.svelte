@@ -142,7 +142,7 @@
         {:else}
           <div class="equipment-list">
             {#each character.equipment as item}
-              <div class="equipment-item">{item.name}</div>
+              <div class="equipment-item">{item.label}</div>
             {/each}
           </div>
         {/if}

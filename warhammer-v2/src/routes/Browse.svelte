@@ -190,14 +190,14 @@
         {#each filteredItems as item}
           <div class="item-card">
             <div class="item-header">
-              <h3 class="item-name">{item.name || item.title || 'Unnamed'}</h3>
+              <h3 class="item-name">{item.label || item.title || 'Unnamed'}</h3>
               <div class="item-badges">
                 <Badge type={getBadgeType(item)} />
                 {#if $editModeEnabled}
                   <button
                     class="edit-button"
                     on:click={() => handleEdit(item, category)}
-                    aria-label="Edit {item.name || 'item'}"
+                    aria-label="Edit {item.label || 'item'}"
                     title="Edit this {category.slice(0, -1)}"
                   >
                     {@html getIcon('edit', 'icon-svg', 16)}
