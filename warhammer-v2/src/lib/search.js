@@ -192,10 +192,15 @@ export function search(entityType, data, query, options = {}) {
   // Perform search
   const startTime = performance.now()
 
-  const fuse = getFuseInstance(entityType, data, {
-    threshold: options.threshold,
-    keys: options.keys
-  })
+  const customOptions = {}
+  if (options.threshold !== undefined) {
+    customOptions.threshold = options.threshold
+  }
+  if (options.keys !== undefined) {
+    customOptions.keys = options.keys
+  }
+
+  const fuse = getFuseInstance(entityType, data, customOptions)
 
   let results = fuse.search(normalizedQuery)
 
