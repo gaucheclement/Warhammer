@@ -164,9 +164,9 @@ describe('Helper Functions', () => {
   describe('searchByName', () => {
     it('should find records by name (case insensitive)', async () => {
       await db.talents.bulkAdd([
-        { id: 't1', name: 'Combat Master' },
-        { id: 't2', name: 'Magic Sense' },
-        { id: 't3', name: 'Combat Reflexes' }
+        { id: 't1', label: 'Combat Master' },
+        { id: 't2', label: 'Magic Sense' },
+        { id: 't3', label: 'Combat Reflexes' }
       ])
 
       const results = await searchByName('talents', 'combat')
@@ -175,7 +175,7 @@ describe('Helper Functions', () => {
 
     it('should return empty array if no matches', async () => {
       await db.talents.bulkAdd([
-        { id: 't1', name: 'Combat Master' }
+        { id: 't1', label: 'Combat Master' }
       ])
 
       const results = await searchByName('talents', 'magic')

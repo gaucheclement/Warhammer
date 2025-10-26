@@ -17,10 +17,12 @@ import {
 describe('Core Description Utilities', () => {
   describe('buildLabelMap', () => {
     it('should build map of labels to entities', async () => {
-      const entities = [
-        { id: 'combat', label: 'Combat', typeItem: 'skill' },
-        { id: 'athletisme', label: 'Athlétisme', typeItem: 'skill' }
-      ]
+      const entities = {
+        skill: [
+          { id: 'combat', label: 'Combat' },
+          { id: 'athletisme', label: 'Athlétisme' }
+        ]
+      }
 
       const map = await buildLabelMap(entities)
 
@@ -30,7 +32,7 @@ describe('Core Description Utilities', () => {
     })
 
     it('should handle empty array', async () => {
-      const map = await buildLabelMap([])
+      const map = await buildLabelMap({})
       expect(Object.keys(map)).toHaveLength(0)
     })
   })
@@ -61,7 +63,7 @@ describe('Core Description Utilities', () => {
 
     it('should convert entity names to links', async () => {
       const skills = await db.skills.toArray()
-      const labelMap = await buildLabelMap(skills.map(s => ({ ...s, typeItem: 'skill' })))
+      const labelMap = await buildLabelMap({ skill: skills })
 
       const text = 'You gain Combat and Athlétisme'
       const currentEntity = { label: 'Test', typeItem: 'talent' }
@@ -74,7 +76,7 @@ describe('Core Description Utilities', () => {
 
     it('should handle array of texts', async () => {
       const skills = await db.skills.toArray()
-      const labelMap = await buildLabelMap(skills.map(s => ({ ...s, typeItem: 'skill' })))
+      const labelMap = await buildLabelMap({ skill: skills })
 
       const texts = ['You gain Combat', 'Or Athlétisme']
       const currentEntity = { label: 'Test', typeItem: 'talent' }
@@ -87,7 +89,7 @@ describe('Core Description Utilities', () => {
 
     it('should not self-reference', async () => {
       const skills = await db.skills.toArray()
-      const labelMap = await buildLabelMap(skills.map(s => ({ ...s, typeItem: 'skill' })))
+      const labelMap = await buildLabelMap({ skill: skills })
 
       const text = 'Combat is a skill'
       const currentEntity = { label: 'Combat', typeItem: 'skill' }

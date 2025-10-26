@@ -302,13 +302,13 @@ describe('importExport', () => {
     it('should generate patch for custom modifications', () => {
       const customMods = {
         talents: [
-          { id: 1, name: 'Modified Talent', description: 'Updated' }
+          { id: 1, label: 'Modified Talent', description: 'Updated' }
         ]
       }
 
       const official = {
         talents: [
-          { id: 1, name: 'Original Talent', description: 'Original' }
+          { id: 1, label: 'Original Talent', description: 'Original' }
         ]
       }
 
@@ -323,13 +323,13 @@ describe('importExport', () => {
     it('should identify update operations', () => {
       const customMods = {
         talents: [
-          { id: 1, name: 'Modified', description: 'Changed' }
+          { id: 1, label: 'Modified', description: 'Changed' }
         ]
       }
 
       const official = {
         talents: [
-          { id: 1, name: 'Original', description: 'Original' }
+          { id: 1, label: 'Original', description: 'Original' }
         ]
       }
 
@@ -344,7 +344,7 @@ describe('importExport', () => {
     it('should identify add operations for custom entries', () => {
       const customMods = {
         talents: [
-          { id: 'custom_1', name: 'New Custom', description: 'Custom', isCustom: true }
+          { id: 'custom_1', label: 'New Custom', description: 'Custom', isCustom: true }
         ]
       }
 
@@ -413,7 +413,7 @@ describe('importExport', () => {
     it('should validate import and return report', () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, name: 'Updated Talent', description: 'Test' }
+          { id: 1, label: 'Updated Talent', description: 'Test' }
         ]
       })
 
@@ -428,7 +428,7 @@ describe('importExport', () => {
     it('should detect validation errors', () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, description: 'Missing name' }
+          { id: 1, description: 'Missing label' }
         ]
       })
 
@@ -441,7 +441,7 @@ describe('importExport', () => {
     it('should detect conflicts', () => {
       const json = JSON.stringify({
         talents: [
-          { id: 1, name: 'Conflict', description: 'Test' }
+          { id: 1, label: 'Conflict', description: 'Test' }
         ]
       })
 
