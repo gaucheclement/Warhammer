@@ -46,6 +46,58 @@ db.version(1).stores({
 });
 
 /**
+ * Seed IndexedDB with initial data from window.__WARHAMMER_DATA__
+ * Maps singular keys from JSON to plural table names
+ * Transforms 'index' field to 'id' field for Dexie primary key
+ */
+async function seedIndexedDB(data) {
+  const keyMapping = {
+    'book': 'books',
+    'career': 'careers',
+    'careerLevel': 'careerLevels',
+    'specie': 'species',
+    'class': 'classes',
+    'talent': 'talents',
+    'characteristic': 'characteristics',
+    'trapping': 'trappings',
+    'skill': 'skills',
+    'spell': 'spells',
+    'creature': 'creatures',
+    'star': 'stars',
+    'god': 'gods',
+    'eye': 'eyes',
+    'hair': 'hairs',
+    'detail': 'details',
+    'trait': 'traits',
+    'lore': 'lores',
+    'magick': 'magicks',
+    'etat': 'etats',
+    'psychologie': 'psychologies',
+    'quality': 'qualities',
+    'tree': 'trees'
+  };
+
+  console.log('Seeding IndexedDB with initial data...');
+
+  for (const [singularKey, pluralKey] of Object.entries(keyMapping)) {
+    const entities = data[singularKey] || [];
+    if (entities.length > 0) {
+      // Transform: add 'id' field from 'index'
+      const entitiesWithId = entities.map(e => ({ ...e, id: e.index }));
+      try {
+        await db[pluralKey].bulkAdd(entitiesWithId);
+        console.log(`Loaded ${entities.length} ${singularKey} → ${pluralKey}`);
+      } catch (error) {
+        console.error(`Failed to load ${singularKey}:`, error);
+        // Continue with other entity types
+      }
+    }
+  }
+
+  console.log('IndexedDB seeded successfully');
+}
+
+/**
  * Official data store (loaded from IndexedDB)
  * Structure: { talents: {...}, careers: {...}, ... }
  */
@@ -64,6 +116,14 @@ function createOfficialDataStore() {
       if (initialized) return;
 
       try {
+        // Check if IndexedDB is empty (first time load)
+        const talentCount = await db.talents.count();
+
+        if (talentCount === 0 && window.__WARHAMMER_DATA__) {
+          console.log('IndexedDB is empty, loading from embedded data...');
+          await seedIndexedDB(window.__WARHAMMER_DATA__);
+        }
+
         const data = createEmptyData();
 
         // Load all entity types in parallel
