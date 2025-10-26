@@ -230,7 +230,7 @@ export function createCharacterFromSpecies(species) {
   // Set species reference
   character.species = {
     id: species.id,
-    name: species.name
+    name: species.label || species.name // Use label (v2 schema), fallback to name (v1 compat)
   }
 
   // Apply species characteristic modifiers
@@ -247,7 +247,7 @@ export function createCharacterFromSpecies(species) {
   if (species.skills && Array.isArray(species.skills)) {
     character.skills = species.skills.map(skill => ({
       id: typeof skill === 'string' ? skill : skill.id,
-      name: typeof skill === 'string' ? skill : skill.name,
+      name: typeof skill === 'string' ? skill : (skill.label || skill.name), // Use label (v2), fallback to name
       advances: 0,
       characteristic: typeof skill === 'object' ? skill.characteristic : ''
     }))
@@ -257,9 +257,9 @@ export function createCharacterFromSpecies(species) {
   if (species.talents && Array.isArray(species.talents)) {
     character.talents = species.talents.map(talent => ({
       id: typeof talent === 'string' ? talent : talent.id,
-      name: typeof talent === 'string' ? talent : talent.name,
+      name: typeof talent === 'string' ? talent : (talent.label || talent.name), // Use label (v2), fallback to name
       times: 1,
-      description: typeof talent === 'object' ? talent.description : ''
+      description: typeof talent === 'object' ? (talent.desc || talent.description) : '' // Use desc (v2), fallback to description
     }))
   }
 
@@ -280,7 +280,7 @@ export function applyCareerToCharacter(character, career) {
   // Set career reference
   character.career = {
     id: career.id,
-    name: career.name,
+    name: career.label || career.name, // Use label (v2 schema), fallback to name (v1 compat)
     level: 1
   }
 
@@ -396,7 +396,7 @@ export function addSkillToCharacter(character, skill, advances = 0) {
     // Add new skill
     character.skills.push({
       id: skill.id,
-      name: skill.name,
+      name: skill.label || skill.name, // Use label (v2 schema), fallback to name (v1 compat)
       advances,
       characteristic: skill.characteristic || ''
     })
@@ -423,9 +423,9 @@ export function addTalentToCharacter(character, talent) {
     // Add new talent
     character.talents.push({
       id: talent.id,
-      name: talent.name,
+      name: talent.label || talent.name, // Use label (v2 schema), fallback to name (v1 compat)
       times: 1,
-      description: talent.description || ''
+      description: talent.description || talent.desc || '' // Use desc (v2), fallback to description
     })
   }
 
@@ -446,7 +446,7 @@ export function addSpellToCharacter(character, spell) {
   if (!exists) {
     character.spells.push({
       id: spell.id,
-      name: spell.name,
+      name: spell.label || spell.name, // Use label (v2 schema), fallback to name (v1 compat)
       cn: spell.cn || '',
       range: spell.range || '',
       lore: spell.lore || ''
@@ -475,7 +475,7 @@ export function addTrappingToCharacter(character, trapping, quantity = 1) {
     // Add new trapping
     character.trappings.push({
       id: trapping.id,
-      name: trapping.name,
+      name: trapping.label || trapping.name, // Use label (v2 schema), fallback to name (v1 compat)
       quantity,
       equipped: false,
       encumbrance: trapping.encumbrance || 0
