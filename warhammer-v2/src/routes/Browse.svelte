@@ -9,6 +9,7 @@
   import { getBadgeType } from '../lib/badgeUtils.js'
   import EditMode from '../components/EditMode.svelte'
   import EntityEditor from '../components/EntityEditor.svelte'
+  import DescriptionModal from '../components/DescriptionModal.svelte'
 
   export let params = {}
 
@@ -17,6 +18,8 @@
   let items = []
   let filteredItems = []
   let loading = true
+  let showDescriptionModal = false
+  let selectedEntity = { type: '', id: '' }
 
   const categories = [
     { id: 'all', name: 'All', icon: '📚' },
@@ -115,6 +118,32 @@
     modifyEntity(entityType, entityId, modifiedFields)
     console.log('Saved modifications:', entityType, entityId)
   }
+
+  /**
+   * Handle entity card click to open description modal
+   */
+  function handleEntityClick(entityType, entity) {
+    selectedEntity = {
+      type: entityType,
+      id: entity.id
+    }
+    showDescriptionModal = true
+  }
+
+  /**
+   * Handle modal close
+   */
+  function handleModalClose() {
+    showDescriptionModal = false
+  }
+
+  /**
+   * Handle navigation within modal (when clicking related entities)
+   */
+  function handleModalNavigate(newType, newId) {
+    selectedEntity = { type: newType, id: newId }
+    // Modal stays open, content updates
+  }
 </script>
 
 <div class="browse-page">
@@ -188,7 +217,13 @@
       </div>
       <div class="items-grid">
         {#each filteredItems as item}
-          <div class="item-card">
+          <div
+            class="item-card"
+            on:click={() => handleEntityClick(category, item)}
+            on:keydown={(e) => e.key === 'Enter' && handleEntityClick(category, item)}
+            role="button"
+            tabindex="0"
+          >
             <div class="item-header">
               <h3 class="item-name">{item.label || item.title || 'Unnamed'}</h3>
               <div class="item-badges">
@@ -196,7 +231,7 @@
                 {#if $editModeEnabled}
                   <button
                     class="edit-button"
-                    on:click={() => handleEdit(item, category)}
+                    on:click|stopPropagation={() => handleEdit(item, category)}
                     aria-label="Edit {item.label || 'item'}"
                     title="Edit this {category.slice(0, -1)}"
                   >
@@ -221,6 +256,16 @@
     {/if}
   </div>
 </div>
+
+<!-- Description Modal -->
+{#if showDescriptionModal}
+  <DescriptionModal
+    entityType={selectedEntity.type}
+    entityId={selectedEntity.id}
+    onClose={handleModalClose}
+    onNavigate={handleModalNavigate}
+  />
+{/if}
 
 <!-- Entity Editor Modal -->
 {#if $currentlyEditing}
@@ -420,11 +465,21 @@
     background: var(--color-bg-secondary, #f5f5f5);
     border-radius: 8px;
     transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
   }
 
   .item-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .item-card:focus {
+    outline: 2px solid var(--color-accent, #8b2e1f);
+    outline-offset: 2px;
+  }
+
+  .item-card:active {
+    transform: translateY(0);
   }
 
   .item-header {
