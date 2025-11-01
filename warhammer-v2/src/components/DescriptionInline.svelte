@@ -38,8 +38,10 @@
 
   // Internal state
   let contentElement;
+  let containerElement;
   let contentHeight = 0;
   let isAnimating = false;
+  let resizeObserver;
 
   /**
    * Toggle expanded state
@@ -81,7 +83,27 @@
    */
   function measureHeight() {
     if (contentElement) {
-      contentHeight = contentElement.scrollHeight;
+      const newHeight = contentElement.scrollHeight;
+      if (newHeight !== contentHeight) {
+        contentHeight = newHeight;
+      }
+    }
+  }
+
+  /**
+   * Update container height when expanded
+   */
+  function updateContainerHeight() {
+    if (!containerElement) return;
+
+    if (expanded) {
+      // Measure the content height
+      measureHeight();
+      // Set explicit height for animation
+      containerElement.style.height = `${contentHeight}px`;
+    } else {
+      // Collapse to 0
+      containerElement.style.height = '0';
     }
   }
 
@@ -90,22 +112,40 @@
     // Use requestAnimationFrame to ensure DOM is updated
     requestAnimationFrame(() => {
       measureHeight();
+      updateContainerHeight();
     });
+  } else if (!expanded && containerElement) {
+    updateContainerHeight();
   }
 
-  // Set up keyboard listener on mount
+  // Set up keyboard listener and resize observer on mount
   onMount(() => {
     window.addEventListener('keydown', handleKeydown);
+
+    // Use ResizeObserver to automatically update height when content changes
+    if (typeof ResizeObserver !== 'undefined' && contentElement) {
+      resizeObserver = new ResizeObserver(() => {
+        if (expanded) {
+          measureHeight();
+          updateContainerHeight();
+        }
+      });
+      resizeObserver.observe(contentElement);
+    }
 
     // Initial height measurement
     if (expanded) {
       measureHeight();
+      updateContainerHeight();
     }
   });
 
   // Clean up on destroy
   onDestroy(() => {
     window.removeEventListener('keydown', handleKeydown);
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+    }
   });
 
   /**
@@ -120,9 +160,9 @@
    */
   function handleTransitionEnd() {
     isAnimating = false;
-    // Remeasure height after animation completes
-    if (expanded) {
-      measureHeight();
+    // After animation completes, if expanded, set height to 'auto' for flexibility
+    if (expanded && containerElement) {
+      containerElement.style.height = 'auto';
     }
   }
 </script>
@@ -147,7 +187,7 @@
   <!-- Expandable Content Container -->
   <div
     class="description-inline__container"
-    style="height: {expanded ? `${contentHeight}px` : '0'}"
+    bind:this={containerElement}
     on:transitionstart={handleTransitionStart}
     on:transitionend={handleTransitionEnd}
   >
@@ -246,6 +286,7 @@
 
   /* Expandable Container */
   .description-inline__container {
+    height: 0;
     overflow: hidden;
     transition: height var(--transition-base) ease-in-out;
     will-change: height;
