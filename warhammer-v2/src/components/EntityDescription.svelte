@@ -21,13 +21,11 @@
    * @event close - Fired when user closes the description viewer
    */
 
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { generateDescription } from '../lib/db-descriptions.js';
   import { getEntityLabel, getEntityUsage } from '../lib/db-relations.js';
   import { db } from '../lib/db.js';
   import DataTable from './DataTable.svelte';
-  import NavigationBar from './NavigationBar.svelte';
-  import { navigateToEntity, navigateBack, currentEntry } from '../stores/navigation.js';
 
   // Props
   export let entityType = '';
@@ -361,13 +359,6 @@
     }
     return classes.join(' ');
   }
-  // Track navigation when entity changes
-  onMount(() => {
-    if (entityType && entityId) {
-      const pluralType = entityType === "specie" || entityType === "species" ? "species" : entityType + "s";
-      navigateToEntity(pluralType, entityId);
-    }
-  });
 </script>
 
 <div class={getClassName('entity-description', { [displayMode]: true })}>
@@ -402,8 +393,6 @@
     {/if}
   </div>
 
-  <!-- Navigation Bar -->
-  <NavigationBar />
 
   <!-- Tab Navigation -->
   {#if !loading && !error}
@@ -510,12 +499,7 @@
                     <li class="entity-description__related-item">
                       <button
                         class="entity-description__related-link"
-                        on:click={() => {
-                          // Add to navigation history
-                          navigateToEntity(entity.entityType + 's', entity.id);
-                          // Also dispatch for parent components
-                          dispatch('navigate', { entityType: entity.entityType, entityId: entity.id });
-                        }}
+                        on:click={() => dispatch('navigate', { entityType: entity.entityType, entityId: entity.id })}
                       >
                         {entity.label || entity.name || entity.id}
                       </button>
@@ -532,12 +516,7 @@
                     ]}
                     rowHeight={48}
                     height="400px"
-                    onRowClick={(item) => {
-                      // Add to navigation history
-                      navigateToEntity(item.entityType + 's', item.id);
-                      // Also dispatch for parent components
-                      dispatch('navigate', { entityType: item.entityType, entityId: item.id });
-                    }}
+                    onRowClick={(item) => dispatch('navigate', { entityType: item.entityType, entityId: item.id })}
                     emptyMessage="No related entities found"
                   />
                 </div>
