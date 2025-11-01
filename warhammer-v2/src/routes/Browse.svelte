@@ -123,9 +123,38 @@
    * Handle entity card click to open description modal
    */
   function handleEntityClick(entityType, entity) {
+    // Convert plural category names to singular entity types
+    const typeMap = {
+      'species': 'specie',
+      'careers': 'career',
+      'skills': 'skill',
+      'talents': 'talent',
+      'spells': 'spell',
+      'traits': 'trait',
+      'trappings': 'trapping'
+    }
+
+    const singularType = typeMap[entityType] || entityType
+
+    // Species use index as ID (numeric), others use string IDs
+    // This is because species are stored with numeric IDs (0, 1, 2...) in IndexedDB
+    let entityId
+    if (entityType === 'species') {
+      entityId = entity.index !== null && entity.index !== undefined ? entity.index : entity.id
+    } else {
+      entityId = entity.id !== null && entity.id !== undefined ? entity.id : (entity.name || entity.label)
+    }
+
+    console.log('Opening entity:', { type: singularType, id: entityId })
+
+    if (entityId === undefined || entityId === null) {
+      console.error('No ID found for entity!', entity)
+      return
+    }
+
     selectedEntity = {
-      type: entityType,
-      id: entity.id
+      type: singularType,
+      id: entityId
     }
     showDescriptionModal = true
   }
