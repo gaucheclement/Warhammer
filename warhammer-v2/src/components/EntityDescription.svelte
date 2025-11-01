@@ -38,12 +38,14 @@
   // Internal state
   let loading = false;
   let error = null;
-  let currentTab = 'main';
+  let currentTab = ''; // Will be set to first tab when data loads
   let descriptionData = null;
-  let descriptionHtml = '';
   let entityLabel = '';
   let relatedEntities = null;
   let loadingRelated = false;
+
+  // Reactive variable for current tab content
+  let currentTabContent = '';
 
   // Cache for loaded descriptions to avoid redundant fetches
   const descriptionCache = new Map();
@@ -73,7 +75,6 @@
     if (descriptionCache.has(cacheKey)) {
       const cached = descriptionCache.get(cacheKey);
       descriptionData = cached.data;
-      descriptionHtml = cached.html;
       entityLabel = cached.label;
       error = null;
       return;
@@ -83,7 +84,6 @@
     loading = true;
     error = null;
     descriptionData = null;
-    descriptionHtml = '';
     entityLabel = '';
 
     try {
@@ -91,17 +91,21 @@
       const tableName = entityType === 'specie' || entityType === 'species' ? 'species' : entityType + 's';
       let entity = null;
 
+
       if (db[tableName]) {
         // Species use index (numeric 0, 1, 2...) instead of id (string)
         // When entityId is a number for species, search by index field
         if ((entityType === 'specie' || entityType === 'species') && typeof entityId === 'number') {
-          // Search by index field for species
-          entity = await db[tableName].where('index').equals(entityId).first();
+          // Load all species and find by index field
+          // (index is not indexed in DB schema, so we can't use .where())
+          const allSpecies = await db[tableName].toArray();
+          entity = allSpecies.find(s => s.index === entityId);
         } else {
           // For other types or string IDs, use primary key lookup
           entity = await db[tableName].get(entityId);
         }
       }
+
 
       if (!entity) {
         throw new Error(`Entity not found: ${entityType} with ID "${entityId}"`);
@@ -121,26 +125,15 @@
       if (typeof result === 'string') {
         // Simple string description
         descriptionData = { Info: result };
-        descriptionHtml = result;
       } else if (typeof result === 'object') {
-        // Object with sections (Info, Accès, etc.)
+        // Object with sections (Info, Détails, Caractéristiques, etc.)
         descriptionData = result;
-
-        // For now, just use the first section or 'Info' section as HTML
-        // Stream D will handle multi-tab rendering
-        if (result.Info) {
-          descriptionHtml = result.Info;
-        } else {
-          // Get first available section
-          const firstKey = Object.keys(result)[0];
-          descriptionHtml = result[firstKey] || '';
-        }
       }
+
 
       // Cache the result
       descriptionCache.set(cacheKey, {
         data: descriptionData,
-        html: descriptionHtml,
         label: entityLabel
       });
 
@@ -150,7 +143,6 @@
       console.error('Error loading description:', err);
       error = err.message || 'Failed to load description';
       descriptionData = null;
-      descriptionHtml = '';
       entityLabel = '';
     } finally {
       loading = false;
@@ -158,7 +150,8 @@
   }
 
   // STREAM B: Reactive statement to reload when props change
-  $: if (entityType && entityId) {
+  // Accept entityId of 0 as valid
+  $: if (entityType && (entityId !== null && entityId !== undefined)) {
     loadDescription();
     loadRelatedEntities();
   }
@@ -168,7 +161,7 @@
    * Shows all entities that reference this entity
    */
   async function loadRelatedEntities() {
-    if (!entityType || !entityId) return;
+    if (!entityType || (entityId === null || entityId === undefined)) return;
 
     // Create cache key
     const cacheKey = `${entityType}:${entityId}`;
@@ -181,9 +174,25 @@
 
     loadingRelated = true;
 
+    // Convert singular entity type to plural for getEntityUsage
+    // getEntityUsage expects plural form (skills, talents, etc.)
+    const pluralType = entityType === 'specie' || entityType === 'species' ? 'species' : entityType + 's';
+
     try {
+      // Fetch the actual entity to get its real ID (needed for species with index)
+      const tableName = pluralType;
+      let actualEntity = null;
+      if (db[tableName]) {
+        actualEntity = await db[tableName].get(entityId);
+      }
+
+      // Use the entity's real ID for relations (not index)
+      const realEntityId = actualEntity?.id || entityId;
+
       // Get entity usage (where is this entity used?)
-      const usage = await getEntityUsage(entityType, entityId);
+      // NOTE: This may return empty if data structure doesn't match ENTITY_RELATIONSHIP_CONFIG
+      // See issue #41 for Related entities system improvements
+      const usage = await getEntityUsage(pluralType, realEntityId);
 
       // Transform usage data into a format suitable for display
       const related = {};
@@ -298,11 +307,24 @@
     return descriptionData[currentTab] || '';
   }
 
-  // Reactive statement to reset to first tab when description changes
+  // Reactive statement to set initial tab or reset if invalid
+  // Don't reset if we're on the 'related' tab (it's not in descriptionData)
   $: if (descriptionData) {
     const tabs = getTabs();
-    if (tabs.length > 0 && !descriptionData[currentTab]) {
-      currentTab = tabs[0];
+    if (tabs.length > 0) {
+      // If currentTab is empty or invalid (and not 'related'), set to first tab
+      if (currentTab !== 'related' && (!currentTab || !descriptionData[currentTab])) {
+        currentTab = tabs[0];
+      }
+    }
+  }
+
+  // Reactive: Update content when tab or data changes
+  $: {
+    if (descriptionData && currentTab !== 'related') {
+      currentTabContent = descriptionData[currentTab] || '';
+    } else {
+      currentTabContent = '';
     }
   }
 
@@ -374,22 +396,24 @@
   <!-- Tab Navigation -->
   {#if !loading && !error}
     <div class="entity-description__tabs" role="tablist" aria-label="Entity information tabs">
-      <!-- Main/Info Tab -->
-      <button
-        class="entity-description__tab"
-        class:entity-description__tab--active={currentTab === 'main'}
-        role="tab"
-        aria-selected={currentTab === 'main'}
-        aria-controls="entity-content-main"
-        id="entity-tab-main"
-        on:click={() => switchTab('main')}
-        on:keydown={(e) => handleTabKeydown(e, 'main')}
-        tabindex={currentTab === 'main' ? 0 : -1}
-      >
-        Info
-      </button>
+      <!-- Dynamic tabs from descriptionData -->
+      {#each getTabs() as tabName}
+        <button
+          class="entity-description__tab"
+          class:entity-description__tab--active={currentTab === tabName}
+          role="tab"
+          aria-selected={currentTab === tabName}
+          aria-controls="entity-content-{tabName}"
+          id="entity-tab-{tabName}"
+          on:click={() => switchTab(tabName)}
+          on:keydown={(e) => handleTabKeydown(e, tabName)}
+          tabindex={currentTab === tabName ? 0 : -1}
+        >
+          {tabName}
+        </button>
+      {/each}
 
-      <!-- Related Tab -->
+      <!-- Related Tab (always shown) -->
       <button
         class="entity-description__tab"
         class:entity-description__tab--active={currentTab === 'related'}
@@ -432,19 +456,19 @@
           </p>
         {/if}
       </div>
-    {:else if currentTab === 'main'}
-      <!-- Main Tab: HTML Content Rendering -->
+    {:else if currentTab !== 'related'}
+      <!-- Content tabs: HTML Content Rendering -->
       <div
         class="entity-description__html-content"
         on:click={handleCrossReferenceClick}
         role="article"
       >
-        {#if descriptionHtml}
-          {@html descriptionHtml}
+        {#if currentTabContent}
+          {@html currentTabContent}
         {:else}
           <!-- Placeholder when no description available -->
           <p class="entity-description__placeholder">
-            No description available for this entity.
+            No description available for this tab.
           </p>
         {/if}
       </div>
