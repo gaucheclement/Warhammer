@@ -1507,7 +1507,7 @@ export async function generateCreatureDescription(creatureId) {
   // Skills, Talents, and Traits
   let abilitiesDesc = ''
 
-  if (creature.skills && creature.skills.length > 0) {
+  if (creature.skills && Array.isArray(creature.skills) && creature.skills.length > 0) {
     const skills = await Promise.all(
       creature.skills.map(s => {
         const id = typeof s === 'string' ? s : s.id
@@ -1520,7 +1520,7 @@ export async function generateCreatureDescription(creatureId) {
     }
   }
 
-  if (creature.talents && creature.talents.length > 0) {
+  if (creature.talents && Array.isArray(creature.talents) && creature.talents.length > 0) {
     const talents = await Promise.all(
       creature.talents.map(t => {
         const id = typeof t === 'string' ? t : t.id
@@ -1533,7 +1533,7 @@ export async function generateCreatureDescription(creatureId) {
     }
   }
 
-  if (creature.traits && creature.traits.length > 0) {
+  if (creature.traits && Array.isArray(creature.traits) && creature.traits.length > 0) {
     const traits = await Promise.all(
       creature.traits.map(t => {
         const id = typeof t === 'string' ? t : t.id
@@ -1546,7 +1546,7 @@ export async function generateCreatureDescription(creatureId) {
     }
   }
 
-  if (creature.optionals && creature.optionals.length > 0) {
+  if (creature.optionals && Array.isArray(creature.optionals) && creature.optionals.length > 0) {
     abilitiesDesc += '<b>Capacités optionnelles: </b><ul>'
     creature.optionals.forEach(opt => {
       abilitiesDesc += '<li>' + opt + '</li>'
@@ -1559,7 +1559,7 @@ export async function generateCreatureDescription(creatureId) {
   }
 
   // Spells
-  if (creature.spells && creature.spells.length > 0) {
+  if (creature.spells && Array.isArray(creature.spells) && creature.spells.length > 0) {
     const spells = await Promise.all(
       creature.spells.map(s => {
         const id = typeof s === 'string' ? s : s.id
@@ -1573,7 +1573,7 @@ export async function generateCreatureDescription(creatureId) {
   }
 
   // Trappings
-  if (creature.trappings && creature.trappings.length > 0) {
+  if (creature.trappings && Array.isArray(creature.trappings) && creature.trappings.length > 0) {
     const trappings = await Promise.all(
       creature.trappings.map(t => {
         const id = typeof t === 'string' ? t : t.id
