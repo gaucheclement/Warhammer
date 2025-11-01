@@ -707,6 +707,390 @@ export async function getSpellLore(spellId) {
   return lore
 }
 
+/**
+ * Get all divine spells granted by a specific god
+ *
+ * @param {string} godId - God ID
+ * @returns {Promise<Array>} Array of spell objects (blessings and miracles)
+ *
+ * @example
+ * const divineSpells = await getSpellsByGod('sigmar')
+ * // Returns: [{ id: 'blessing-of-sigmar', type: 'blessing', ... }, ...]
+ */
+export async function getSpellsByGod(godId) {
+  const cacheKey = `spell:byGod:${godId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const god = await db.gods.get(godId)
+  if (!god) return []
+
+  const spells = []
+
+  // Get blessings for this god
+  if (god.blessings && Array.isArray(god.blessings)) {
+    const blessings = await Promise.all(
+      god.blessings.map(id => db.spells.get(id))
+    )
+    spells.push(...blessings.filter(s => s !== null && s !== undefined))
+  }
+
+  // Get miracles for this god
+  if (god.miracles && Array.isArray(god.miracles)) {
+    const miracles = await Promise.all(
+      god.miracles.map(id => db.spells.get(id))
+    )
+    spells.push(...miracles.filter(s => s !== null && s !== undefined))
+  }
+
+  relationCache.set(cacheKey, spells)
+  return spells
+}
+
+/**
+ * Get the god associated with a divine spell (blessing or miracle)
+ *
+ * Reverse lookup: spell → god
+ *
+ * @param {string} spellId - Spell ID
+ * @returns {Promise<Object|null>} God object or null
+ *
+ * @example
+ * const god = await getSpellGod('blessing-of-sigmar')
+ * // Returns: { id: 'sigmar', name: 'Sigmar', ... }
+ */
+export async function getSpellGod(spellId) {
+  const cacheKey = `spell:god:${spellId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const allGods = await db.gods.toArray()
+
+  for (const god of allGods) {
+    // Check blessings
+    if (god.blessings && Array.isArray(god.blessings) && god.blessings.includes(spellId)) {
+      relationCache.set(cacheKey, god)
+      return god
+    }
+
+    // Check miracles
+    if (god.miracles && Array.isArray(god.miracles) && god.miracles.includes(spellId)) {
+      relationCache.set(cacheKey, god)
+      return god
+    }
+  }
+
+  relationCache.set(cacheKey, null)
+  return null
+}
+
+/**
+ * Get all spells granted by a specific talent
+ *
+ * Some talents grant access to specific spells (e.g., magic talents)
+ *
+ * @param {string} talentId - Talent ID
+ * @returns {Promise<Array>} Array of spell objects
+ *
+ * @example
+ * const spells = await getSpellsByTalent('arcane-magic-fire')
+ * // Returns: [{ id: 'fireball', type: 'spell', ... }, ...]
+ */
+export async function getSpellsByTalent(talentId) {
+  const cacheKey = `spell:byTalent:${talentId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const talent = await db.talents.get(talentId)
+  if (!talent || !talent.spells || !Array.isArray(talent.spells)) return []
+
+  const spells = await Promise.all(
+    talent.spells.map(id => db.spells.get(id))
+  )
+
+  const result = spells.filter(s => s !== null && s !== undefined)
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Get all talents that grant access to a specific spell
+ *
+ * Reverse lookup: spell → talents
+ *
+ * @param {string} spellId - Spell ID
+ * @returns {Promise<Array>} Array of talent objects
+ *
+ * @example
+ * const talents = await getTalentsBySpell('fireball')
+ * // Returns: [{ id: 'arcane-magic-fire', name: 'Arcane Magic (Fire)', ... }]
+ */
+export async function getTalentsBySpell(spellId) {
+  const cacheKey = `talent:bySpell:${spellId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const allTalents = await db.talents.toArray()
+
+  const result = allTalents.filter(talent => {
+    if (!talent.spells || !Array.isArray(talent.spells)) return false
+    return talent.spells.includes(spellId)
+  })
+
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+// ============================================================================
+// TRAPPING RELATIONSHIPS
+// ============================================================================
+
+/**
+ * Get all qualities for a specific trapping (weapon/armor qualities)
+ *
+ * @param {string} trappingId - Trapping ID
+ * @returns {Promise<Array>} Array of quality objects
+ *
+ * @example
+ * const qualities = await getTrappingQualities('sword')
+ * // Returns: [{ id: 'sharp', name: 'Sharp', ... }, ...]
+ */
+export async function getTrappingQualities(trappingId) {
+  const cacheKey = `trapping:qualities:${trappingId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const trapping = await db.trappings.get(trappingId)
+  if (!trapping || !trapping.qualities) return []
+
+  // qualities can be a string or array
+  const qualityIds = Array.isArray(trapping.qualities)
+    ? trapping.qualities
+    : trapping.qualities.split(',').map(q => q.trim())
+
+  const qualities = await Promise.all(
+    qualityIds.map(id => db.qualities.get(id))
+  )
+
+  const result = qualities.filter(q => q !== null && q !== undefined)
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Get all trappings that have a specific quality
+ *
+ * Reverse lookup: quality → trappings
+ *
+ * @param {string} qualityId - Quality ID
+ * @returns {Promise<Array>} Array of trapping objects
+ *
+ * @example
+ * const trappings = await getTrappingsByQuality('sharp')
+ * // Returns: [{ id: 'sword', name: 'Sword', ... }, ...]
+ */
+export async function getTrappingsByQuality(qualityId) {
+  const cacheKey = `trapping:byQuality:${qualityId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const allTrappings = await db.trappings.toArray()
+
+  const result = allTrappings.filter(trapping => {
+    if (!trapping.qualities) return false
+
+    const qualityIds = Array.isArray(trapping.qualities)
+      ? trapping.qualities
+      : trapping.qualities.split(',').map(q => q.trim())
+
+    return qualityIds.includes(qualityId)
+  })
+
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+// ============================================================================
+// TRAIT & CREATURE RELATIONSHIPS
+// ============================================================================
+
+/**
+ * Get all creatures that have a specific trait
+ *
+ * Reverse lookup: trait → creatures
+ *
+ * @param {string} traitId - Trait ID
+ * @returns {Promise<Array>} Array of creature objects
+ *
+ * @example
+ * const creatures = await getCreaturesByTrait('flight')
+ * // Returns: [{ id: 'griffon', name: 'Griffon', ... }, ...]
+ */
+export async function getCreaturesByTrait(traitId) {
+  const cacheKey = `creature:byTrait:${traitId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const allCreatures = await db.creatures.toArray()
+
+  const result = allCreatures.filter(creature => {
+    if (!creature.traits || !Array.isArray(creature.traits)) return false
+    return creature.traits.some(t => {
+      const id = typeof t === 'string' ? t : t.id
+      return id === traitId
+    })
+  })
+
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Get all traits for a specific creature
+ *
+ * @param {string} creatureId - Creature ID
+ * @returns {Promise<Array>} Array of trait objects
+ *
+ * @example
+ * const traits = await getCreatureTraits('griffon')
+ * // Returns: [{ id: 'flight', name: 'Flight', ... }, ...]
+ */
+export async function getCreatureTraits(creatureId) {
+  const cacheKey = `creature:traits:${creatureId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const creature = await db.creatures.get(creatureId)
+  if (!creature || !creature.traits || !Array.isArray(creature.traits)) return []
+
+  const traits = await Promise.all(
+    creature.traits.map(traitRef => {
+      const id = typeof traitRef === 'string' ? traitRef : traitRef.id
+      return db.traits.get(id)
+    })
+  )
+
+  const result = traits.filter(t => t !== null && t !== undefined)
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+// ============================================================================
+// GOD RELATIONSHIPS
+// ============================================================================
+
+/**
+ * Get all blessings for a specific god
+ *
+ * @param {string} godId - God ID
+ * @returns {Promise<Array>} Array of blessing objects
+ *
+ * @example
+ * const blessings = await getGodBlessings('sigmar')
+ * // Returns: [{ id: 'blessing-of-sigmar', type: 'blessing', ... }]
+ */
+export async function getGodBlessings(godId) {
+  const cacheKey = `god:blessings:${godId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const god = await db.gods.get(godId)
+  if (!god || !god.blessings || !Array.isArray(god.blessings)) return []
+
+  const blessings = await Promise.all(
+    god.blessings.map(id => db.spells.get(id))
+  )
+
+  const result = blessings.filter(b => b !== null && b !== undefined)
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Get all miracles for a specific god
+ *
+ * @param {string} godId - God ID
+ * @returns {Promise<Array>} Array of miracle objects
+ *
+ * @example
+ * const miracles = await getGodMiracles('sigmar')
+ * // Returns: [{ id: 'miracle-of-sigmar', type: 'miracle', ... }]
+ */
+export async function getGodMiracles(godId) {
+  const cacheKey = `god:miracles:${godId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const god = await db.gods.get(godId)
+  if (!god || !god.miracles || !Array.isArray(god.miracles)) return []
+
+  const miracles = await Promise.all(
+    god.miracles.map(id => db.spells.get(id))
+  )
+
+  const result = miracles.filter(m => m !== null && m !== undefined)
+  relationCache.set(cacheKey, result)
+  return result
+}
+
+// ============================================================================
+// LORE & MAGICK RELATIONSHIPS
+// ============================================================================
+
+/**
+ * Get the magick domain/tradition for a specific lore
+ *
+ * Lores belong to magick domains (e.g., Lore of Fire → Arcane Magic)
+ *
+ * @param {string} loreId - Lore ID
+ * @returns {Promise<Object|null>} Magick object or null
+ *
+ * @example
+ * const magick = await getLoreMagick('feu')
+ * // Returns: { id: 'arcane', name: 'Arcane Magic', ... }
+ */
+export async function getLoreMagick(loreId) {
+  const cacheKey = `lore:magick:${loreId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const lore = await db.lores.get(loreId)
+  if (!lore || !lore.parent) {
+    relationCache.set(cacheKey, null)
+    return null
+  }
+
+  const magick = await db.magicks.get(lore.parent)
+  relationCache.set(cacheKey, magick)
+  return magick
+}
+
+/**
+ * Get all lores within a specific magick domain
+ *
+ * Reverse lookup: magick → lores
+ *
+ * @param {string} magickId - Magick ID
+ * @returns {Promise<Array>} Array of lore objects
+ *
+ * @example
+ * const lores = await getLoresByMagick('arcane')
+ * // Returns: [{ id: 'feu', name: 'Lore of Fire', ... }, ...]
+ */
+export async function getLoresByMagick(magickId) {
+  const cacheKey = `lore:byMagick:${magickId}`
+  const cached = relationCache.get(cacheKey)
+  if (cached) return cached
+
+  const lores = await db.lores
+    .where('parent')
+    .equals(magickId)
+    .toArray()
+
+  relationCache.set(cacheKey, lores)
+  return lores
+}
+
 // ============================================================================
 // BIDIRECTIONAL SEARCH HELPERS
 // ============================================================================
