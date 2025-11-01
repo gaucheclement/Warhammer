@@ -300,7 +300,28 @@ async function loadTestData() {
         id: item.id || item.label || item.name
       }))
 
-      const tableName = type === 'psychologie' ? 'psychologies' : `${type}s`
+      // Map entity type names to database table names
+      const tableNames = {
+        'book': 'books',
+        'characteristic': 'characteristics',
+        'creature': 'creatures',
+        'star': 'stars',
+        'god': 'gods',
+        'trait': 'traits',
+        'lore': 'lores',
+        'magick': 'magicks',
+        'etat': 'etats',
+        'psychologie': 'psychologies',
+        'quality': 'qualities',
+        'tree': 'trees'
+      }
+
+      const tableName = tableNames[type]
+      if (!tableName) {
+        console.warn(`No table mapping for type: ${type}`)
+        continue
+      }
+
       await db[tableName].bulkAdd(normalizedData)
     }
   }
