@@ -1700,6 +1700,30 @@ export async function generateDescription(entityType, entityId) {
       return await generateSpeciesDescription(entityId)
     case 'trapping':
       return await generateTrappingDescription(entityId)
+    case 'characteristic':
+      return await generateCharacteristicDescription(entityId)
+    case 'god':
+      return await generateGodDescription(entityId)
+    case 'lore':
+      return await generateLoreDescription(entityId)
+    case 'star':
+      return await generateStarDescription(entityId)
+    case 'etat':
+      return await generateEtatDescription(entityId)
+    case 'psychologie':
+      return await generatePsychologieDescription(entityId)
+    case 'magick':
+      return await generateMagickDescription(entityId)
+    case 'quality':
+      return await generateQualityDescription(entityId)
+    case 'trait':
+      return await generateTraitDescription(entityId)
+    case 'tree':
+      return await generateTreeDescription(entityId)
+    case 'creature':
+      return await generateCreatureDescription(entityId)
+    case 'book':
+      return await generateBookDescription(entityId)
     default:
       // For other types, return basic description if available
       const entity = await db[entityType + 's']?.get(entityId)
