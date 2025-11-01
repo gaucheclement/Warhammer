@@ -1158,6 +1158,46 @@ export async function generateStarDescription(starId) {
 }
 
 /**
+ * Generate description for an Etat (condition/status effect)
+ *
+ * Implements etat.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} etatId - Etat ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generateEtatDescription('assomme')
+ * // Returns: "Type: ...<br>Description of stunned condition..."
+ */
+export async function generateEtatDescription(etatId) {
+  const etat = await db.etats.get(etatId)
+  if (!etat) return null
+
+  let desc = ''
+
+  // Type
+  if (etat.type) {
+    desc += '<b>Type: </b>' + etat.type + '<br><br>'
+  }
+
+  // Description with entity linking
+  if (etat.desc) {
+    const labelMap = await buildLabelMap({
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray(),
+      trait: await db.traits.toArray()
+    })
+    desc += applyHelp(etat.desc, { typeItem: 'etat', label: etat.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
