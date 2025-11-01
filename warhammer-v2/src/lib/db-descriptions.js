@@ -1317,6 +1317,43 @@ export async function generateQualityDescription(qualityId) {
 }
 
 /**
+ * Generate description for a Trait (creature trait or special ability)
+ *
+ * Implements trait.getDescription()
+ * Includes description with entity linking. Traits can have complex descriptions
+ * with ratings, modifiers, and references to other game mechanics.
+ *
+ * @param {string} traitId - Trait ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generateTraitDescription('arme-naturelle')
+ * // Returns: "Description of natural weapons trait with damage values..."
+ */
+export async function generateTraitDescription(traitId) {
+  const trait = await db.traits.get(traitId)
+  if (!trait) return null
+
+  let desc = ''
+
+  // Description with entity linking
+  if (trait.desc) {
+    const labelMap = await buildLabelMap({
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray(),
+      trait: await db.traits.toArray(),
+      quality: await db.qualities.toArray()
+    })
+    desc += applyHelp(trait.desc, { typeItem: 'trait', label: trait.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
