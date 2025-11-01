@@ -1432,6 +1432,164 @@ export async function generateTreeDescription(treeId) {
 }
 
 /**
+ * Generate description for a Creature
+ *
+ * Implements creature.getDescription()
+ * Most complex generator: includes characteristics, skills, talents, traits,
+ * optional abilities, trappings, and spells.
+ *
+ * @param {string} creatureId - Creature ID
+ * @returns {Promise<Object>} Object with multiple sections (Info, Stats, Capacités, etc.)
+ *
+ * @example
+ * const desc = await generateCreatureDescription('goblin')
+ * // Returns: {
+ * //   Info: "Description...",
+ * //   Stats: "Characteristics table...",
+ * //   Capacités: "Skills, talents, traits...",
+ * //   Sorts: "Spells if any...",
+ * //   Équipement: "Trappings if any..."
+ * // }
+ */
+export async function generateCreatureDescription(creatureId) {
+  const creature = await db.creatures.get(creatureId)
+  if (!creature) return null
+
+  const result = {}
+
+  // Basic description
+  if (creature.desc) {
+    const labelMap = await buildLabelMap({
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      trait: await db.traits.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray()
+    })
+    result['Info'] = applyHelp(creature.desc, { typeItem: 'creature', label: creature.label }, labelMap)
+  }
+
+  // Characteristics
+  if (creature.char) {
+    let statsDesc = '<b>Caractéristiques:</b><br><table class="stats-table">'
+    statsDesc += '<tr>'
+    const charOrder = ['m', 'cc', 'ct', 'f', 'e', 'i', 'ag', 'dex', 'int', 'fm', 'soc']
+    const charLabels = ['M', 'CC', 'CT', 'F', 'E', 'I', 'Ag', 'Dex', 'Int', 'FM', 'Soc']
+
+    for (let i = 0; i < charOrder.length; i++) {
+      statsDesc += '<th>' + charLabels[i] + '</th>'
+    }
+    statsDesc += '</tr><tr>'
+    for (let i = 0; i < charOrder.length; i++) {
+      const val = creature.char[charOrder[i]] || '-'
+      statsDesc += '<td>' + val + '</td>'
+    }
+    statsDesc += '</tr></table><br>'
+
+    // Additional stats
+    if (creature.char.b) {
+      statsDesc += '<b>Blessures: </b>' + creature.char.b + '<br>'
+    }
+    if (creature.char.bf) {
+      statsDesc += '<b>Bonus de Force: </b>' + creature.char.bf + '<br>'
+    }
+    if (creature.char.be) {
+      statsDesc += '<b>Bonus d\'Endurance: </b>' + creature.char.be + '<br>'
+    }
+    if (creature.char.pv) {
+      statsDesc += '<b>Points de Vie: </b>' + creature.char.pv + '<br>'
+    }
+
+    result['Stats'] = statsDesc
+  }
+
+  // Skills, Talents, and Traits
+  let abilitiesDesc = ''
+
+  if (creature.skills && creature.skills.length > 0) {
+    const skills = await Promise.all(
+      creature.skills.map(s => {
+        const id = typeof s === 'string' ? s : s.id
+        return db.skills.get(id)
+      })
+    )
+    const validSkills = skills.filter(s => s)
+    if (validSkills.length > 0) {
+      abilitiesDesc += '<b>Compétences: </b>' + toHtmlList(entitiesToSimpleArray(validSkills, true))
+    }
+  }
+
+  if (creature.talents && creature.talents.length > 0) {
+    const talents = await Promise.all(
+      creature.talents.map(t => {
+        const id = typeof t === 'string' ? t : t.id
+        return db.talents.get(id)
+      })
+    )
+    const validTalents = talents.filter(t => t)
+    if (validTalents.length > 0) {
+      abilitiesDesc += '<b>Talents: </b>' + toHtmlList(entitiesToSimpleArray(validTalents, true))
+    }
+  }
+
+  if (creature.traits && creature.traits.length > 0) {
+    const traits = await Promise.all(
+      creature.traits.map(t => {
+        const id = typeof t === 'string' ? t : t.id
+        return db.traits.get(id)
+      })
+    )
+    const validTraits = traits.filter(t => t)
+    if (validTraits.length > 0) {
+      abilitiesDesc += '<b>Traits: </b>' + toHtmlList(entitiesToSimpleArray(validTraits, true))
+    }
+  }
+
+  if (creature.optionals && creature.optionals.length > 0) {
+    abilitiesDesc += '<b>Capacités optionnelles: </b><ul>'
+    creature.optionals.forEach(opt => {
+      abilitiesDesc += '<li>' + opt + '</li>'
+    })
+    abilitiesDesc += '</ul>'
+  }
+
+  if (abilitiesDesc) {
+    result['Capacités'] = abilitiesDesc
+  }
+
+  // Spells
+  if (creature.spells && creature.spells.length > 0) {
+    const spells = await Promise.all(
+      creature.spells.map(s => {
+        const id = typeof s === 'string' ? s : s.id
+        return db.spells.get(id)
+      })
+    )
+    const validSpells = spells.filter(s => s)
+    if (validSpells.length > 0) {
+      result['Sorts'] = '<b>Sorts: </b>' + toHtmlList(entitiesToSimpleArray(validSpells, true))
+    }
+  }
+
+  // Trappings
+  if (creature.trappings && creature.trappings.length > 0) {
+    const trappings = await Promise.all(
+      creature.trappings.map(t => {
+        const id = typeof t === 'string' ? t : t.id
+        return db.trappings.get(id)
+      })
+    )
+    const validTrappings = trappings.filter(t => t)
+    if (validTrappings.length > 0) {
+      result['Équipement'] = '<b>Possessions: </b>' + toHtmlList(entitiesToSimpleArray(validTrappings, true))
+    }
+  }
+
+  return result
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
