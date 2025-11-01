@@ -1151,9 +1151,15 @@ export async function generateStarDescription(starId) {
   // Description with entity linking
   if (star.desc) {
     const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
       characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
       talent: await db.talents.toArray(),
-      skill: await db.skills.toArray()
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      trait: await db.traits.toArray(),
+      star: await db.stars.toArray()
     })
     desc += applyHelp(star.desc, { typeItem: 'star', label: star.label }, labelMap)
   }
@@ -1188,9 +1194,14 @@ export async function generateEtatDescription(etatId) {
   // Description with entity linking
   if (etat.desc) {
     const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
       characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
       talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
       etat: await db.etats.toArray(),
       psychologie: await db.psychologies.toArray(),
       trait: await db.traits.toArray()
@@ -1228,9 +1239,14 @@ export async function generatePsychologieDescription(psychologieId) {
   // Description with entity linking
   if (psychologie.desc) {
     const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
       characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
       talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
       etat: await db.etats.toArray(),
       psychologie: await db.psychologies.toArray(),
       trait: await db.traits.toArray()
@@ -1268,11 +1284,15 @@ export async function generateMagickDescription(magickId) {
   // Description with entity linking
   if (magick.desc) {
     const labelMap = await buildLabelMap({
-      lore: await db.lores.toArray(),
-      talent: await db.talents.toArray(),
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
-      magick: await db.magicks.toArray(),
-      characteristic: await db.characteristics.toArray()
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      lore: await db.lores.toArray(),
+      magick: await db.magicks.toArray()
     })
     desc += applyHelp(magick.desc, { typeItem: 'magick', label: magick.label }, labelMap)
   }
@@ -1307,12 +1327,17 @@ export async function generateQualityDescription(qualityId) {
   // Description with entity linking
   if (quality.desc) {
     const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
       characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
       talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
       etat: await db.etats.toArray(),
       quality: await db.qualities.toArray(),
-      trait: await db.traits.toArray()
+      trait: await db.traits.toArray(),
+      trapping: await db.trappings.toArray()
     })
     desc += applyHelp(quality.desc, { typeItem: 'quality', label: quality.label }, labelMap)
   }
@@ -1343,9 +1368,14 @@ export async function generateTraitDescription(traitId) {
   // Description with entity linking
   if (trait.desc) {
     const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
       characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
       talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
       etat: await db.etats.toArray(),
       psychologie: await db.psychologies.toArray(),
       trait: await db.traits.toArray(),
@@ -1464,9 +1494,14 @@ export async function generateCreatureDescription(creatureId) {
   // Basic description
   if (creature.desc) {
     const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
       characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
       talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
       trait: await db.traits.toArray(),
       etat: await db.etats.toArray(),
       psychologie: await db.psychologies.toArray()
