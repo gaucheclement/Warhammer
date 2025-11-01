@@ -150,13 +150,40 @@
     loadDescription();
   }
 
-  // TODO STREAM C: Add handleCrossReferenceClick(e) function here
-  // This function should:
-  // - Listen for clicks on elements with class 'showHelp'
-  // - Parse data-type and data-id attributes
-  // - Emit 'navigate' event with parsed entity info
-  // - Prevent default link behavior
-  // - Use event delegation on the content container
+  /**
+   * Handle cross-reference link clicks (STREAM C)
+   * Uses event delegation to capture clicks on .showHelp elements
+   * @param {MouseEvent} e - Click event
+   */
+  function handleCrossReferenceClick(e) {
+    // Find the closest .showHelp element (supports nested clicks)
+    const target = e.target.closest('.showHelp');
+
+    if (!target) {
+      return; // Not a cross-reference link
+    }
+
+    // Prevent default link behavior
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Parse entity information from data attributes
+    const entityType = target.getAttribute('data-type');
+    const entityId = target.getAttribute('data-id');
+
+    // Validate that we have the required data
+    if (!entityType || !entityId) {
+      console.warn('Cross-reference link missing data-type or data-id attributes', target);
+      return;
+    }
+
+    // Emit navigate event with parsed entity info
+    dispatch('navigate', {
+      entityType,
+      entityId
+    });
+  }
+
 
   /**
    * Switch to a different tab
@@ -313,14 +340,12 @@
         {/if}
       </div>
     {:else}
-      <!-- TODO STREAM C: Add HTML content rendering here -->
-      <!-- This section should:
-        - Use {@html descriptionHtml} to render content safely
-        - Add click event handler for cross-reference links
-        - Handle delegation from the container element
-        - Example: <div on:click={handleCrossReferenceClick}>
-      -->
-      <div class="entity-description__html-content">
+      <!-- HTML Content Rendering (STREAM C) -->
+      <div
+        class="entity-description__html-content"
+        on:click={handleCrossReferenceClick}
+        role="article"
+      >
         {#if descriptionHtml}
           {@html descriptionHtml}
         {:else}
@@ -572,12 +597,34 @@
     color: var(--color-text-secondary);
   }
 
-  /* TODO STREAM C: Add HTML content rendering styles here */
+  /* HTML Content Rendering (STREAM C) */
   .entity-description__html-content {
     line-height: 1.6;
   }
 
-  /* TODO STREAM C: Add cross-reference link styles here */
+  /* Cross-Reference Link Styles (STREAM C) */
+  .entity-description__html-content :global(.showHelp) {
+    color: var(--color-primary);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+  }
+
+  .entity-description__html-content :global(.showHelp):hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+  }
+
+  .entity-description__html-content :global(.showHelp):focus {
+    outline: var(--focus-ring-width) solid var(--color-border-focus);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-sm);
+  }
+
+  .entity-description__html-content :global(.showHelp):active {
+    color: var(--color-primary-darker);
+  }
+
   /* .entity-description__html-content :global(.showHelp) { ... } */
 
   .entity-description__placeholder {
@@ -679,6 +726,10 @@
 
     .entity-description__close-btn {
       transition: none;
+
+    .entity-description__html-content :global(.showHelp) {
+      transition: none;
+    }
     }
   }
 
@@ -690,6 +741,11 @@
 
     .entity-description__type-badge {
       border-width: 2px;
+
+    .entity-description__html-content :global(.showHelp) {
+      text-decoration: underline;
+      font-weight: var(--font-weight-bold);
+    }
     }
   }
 </style>
