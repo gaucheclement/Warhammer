@@ -1005,6 +1005,76 @@ export async function generateCharacteristicDescription(characteristicId) {
 }
 
 /**
+ * Generate description for a God
+ *
+ * Implements god.getDescription()
+ * Includes god description with entity linking, and lists of blessings/miracles.
+ *
+ * @param {string} godId - God ID
+ * @returns {Promise<Object|string>} Object with Info and Sorts sections, or just Info string
+ *
+ * @example
+ * const desc = await generateGodDescription('sigmar')
+ * // Returns: {
+ * //   Info: "Description of Sigmar...",
+ * //   Sorts: "Blessings and miracles..."
+ * // }
+ */
+export async function generateGodDescription(godId) {
+  const god = await db.gods.get(godId)
+  if (!god) return null
+
+  let desc = ''
+
+  // Description with entity linking
+  if (god.desc) {
+    const labelMap = await buildLabelMap({
+      lore: await db.lores.toArray(),
+      god: await db.gods.toArray(),
+      talent: await db.talents.toArray(),
+      skill: await db.skills.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    desc += applyHelp(god.desc, { typeItem: 'god', label: god.label }, labelMap)
+  }
+
+  // Get blessings and miracles
+  const blessings = await db.spells
+    .where('god')
+    .equals(godId)
+    .and(spell => spell.type === 'Bénédiction' || spell.type === 'blessing')
+    .toArray()
+
+  const miracles = await db.spells
+    .where('god')
+    .equals(godId)
+    .and(spell => spell.type === 'Miracle' || spell.type === 'miracle')
+    .toArray()
+
+  // If we have spells, create sections
+  if ((blessings && blessings.length > 0) || (miracles && miracles.length > 0)) {
+    const result = { Info: desc }
+    let spellsDesc = ''
+
+    if (blessings && blessings.length > 0) {
+      spellsDesc += '<b>Bénédictions: </b>' + toHtmlList(entitiesToSimpleArray(blessings, true))
+    }
+
+    if (miracles && miracles.length > 0) {
+      spellsDesc += '<b>Miracles: </b>' + toHtmlList(entitiesToSimpleArray(miracles, true))
+    }
+
+    if (spellsDesc) {
+      result['Sorts'] = spellsDesc
+    }
+
+    return result
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
