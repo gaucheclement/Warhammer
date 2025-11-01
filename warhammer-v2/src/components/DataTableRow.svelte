@@ -11,15 +11,13 @@
    * @prop {number} index - Row index (for aria-rowindex)
    */
 
-  let {
-    item = {},
-    columns = [],
-    hasSelection = false,
-    selected = false,
-    onSelect = () => {},
-    onClick = () => {},
-    index = 0
-  } = $props();
+  export let item = {}
+  export let columns = []
+  export let hasSelection = false
+  export let selected = false
+  export let onSelect = () => {}
+  export let onClick = () => {}
+  export let index = 0
 
   /**
    * Handle row selection
@@ -69,19 +67,19 @@
   class="datatable-row"
   class:datatable-row--selected={selected}
   class:datatable-row--clickable={onClick !== null}
-  onclick={handleClick}
+  on:click={handleClick}
   role="row"
   aria-rowindex={index + 2}
   aria-selected={selected}
 >
   {#if hasSelection}
-    <td class="datatable-cell datatable-cell--checkbox" onclick|stopPropagation>
+    <td class="datatable-cell datatable-cell--checkbox" on:click|stopPropagation>
       <label class="datatable-checkbox-label">
         <input
           type="checkbox"
           class="datatable-checkbox"
           checked={selected}
-          onchange={handleSelect}
+          on:change={handleSelect}
           aria-label="Select row"
         />
         <span class="datatable-checkbox-custom"></span>
