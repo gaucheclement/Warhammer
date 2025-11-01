@@ -5,6 +5,7 @@
   export let character = {}
   export let skills = []
   export let career = null
+  export let onEntityClick = null
 
   const dispatch = createEventDispatcher()
 
@@ -126,11 +127,23 @@
                 </span>
               </label>
 
-              {#if skill.characteristic}
-                <span class="skill-characteristic">
-                  ({skill.characteristic.toUpperCase()})
-                </span>
-              {/if}
+              <div class="skill-meta">
+                {#if skill.characteristic}
+                  <span class="skill-characteristic">
+                    ({skill.characteristic.toUpperCase()})
+                  </span>
+                {/if}
+                {#if onEntityClick}
+                  <button
+                    class="info-button"
+                    on:click|stopPropagation={() => onEntityClick('skill', skill.id)}
+                    title="View skill details"
+                    aria-label="View details for {skill.name}"
+                  >
+                    ℹ️
+                  </button>
+                {/if}
+              </div>
             </div>
 
             {#if skill.description}
@@ -318,10 +331,37 @@
     font-weight: 700;
   }
 
+  .skill-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .skill-characteristic {
     font-size: 0.875rem;
     color: var(--color-text-secondary, #666);
     font-weight: 500;
+  }
+
+  .info-button {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 1.125rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .info-button:hover {
+    background: var(--color-bg-secondary, #f5f5f5);
+  }
+
+  .info-button:active {
+    background: var(--color-border, #ddd);
   }
 
   .skill-description {
