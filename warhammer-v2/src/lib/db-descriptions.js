@@ -1354,6 +1354,84 @@ export async function generateTraitDescription(traitId) {
 }
 
 /**
+ * Generate description for a Tree (folder hierarchy node)
+ *
+ * Implements tree.getDescription()
+ * Shows folder information, parent folder, and lists child folders and entities.
+ *
+ * @param {string} treeId - Tree ID
+ * @returns {Promise<Object|string>} Object with Info and Contents sections, or just Info string
+ *
+ * @example
+ * const desc = await generateTreeDescription('carriere-guerriers')
+ * // Returns: {
+ * //   Info: "Type: carriere<br>Parent: ...",
+ * //   Contenu: "Child folders and entities..."
+ * // }
+ */
+export async function generateTreeDescription(treeId) {
+  const tree = await db.trees.get(treeId)
+  if (!tree) return null
+
+  let desc = ''
+
+  // Type
+  if (tree.type) {
+    desc += '<b>Type: </b>' + tree.type + '<br>'
+  }
+
+  // Parent folder
+  if (tree.parent) {
+    const parent = await db.trees.get(tree.parent)
+    if (parent) {
+      desc += '<b>Dossier parent: </b>' + showHelpTextFromElem({ ...parent, typeItem: 'tree' }) + '<br>'
+    }
+  }
+
+  // Get child folders
+  const childFolders = await db.trees
+    .where('parent')
+    .equals(treeId)
+    .toArray()
+
+  // Get entities in this folder based on type
+  let entities = []
+  if (tree.type) {
+    const tableName = tree.type + 's'
+    if (db[tableName]) {
+      entities = await db[tableName]
+        .where('folder')
+        .equals(treeId)
+        .toArray()
+    }
+  }
+
+  // If we have children or entities, create sections
+  if (childFolders.length > 0 || entities.length > 0) {
+    const result = { Info: desc }
+    let contentsDesc = ''
+
+    if (childFolders.length > 0) {
+      contentsDesc += '<b>Sous-dossiers: </b>'
+      contentsDesc += toHtmlList(childFolders.map(f => showHelpTextFromElem({ ...f, typeItem: 'tree' })))
+    }
+
+    if (entities.length > 0) {
+      contentsDesc += '<b>Éléments: </b>'
+      contentsDesc += toHtmlList(entitiesToSimpleArray(entities.map(e => ({ ...e, typeItem: tree.type })), true))
+    }
+
+    if (contentsDesc) {
+      result['Contenu'] = contentsDesc
+    }
+
+    return result
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
