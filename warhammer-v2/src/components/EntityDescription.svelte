@@ -23,8 +23,9 @@
 
   import { createEventDispatcher } from 'svelte';
   import { generateDescription } from '../lib/db-descriptions.js';
-  import { getEntityLabel } from '../lib/db-relations.js';
+  import { getEntityLabel, getEntityUsage } from '../lib/db-relations.js';
   import { db } from '../lib/db.js';
+  import DataTable from './DataTable.svelte';
 
   // Props
   export let entityType = '';
@@ -41,9 +42,12 @@
   let descriptionData = null;
   let descriptionHtml = '';
   let entityLabel = '';
+  let relatedEntities = null;
+  let loadingRelated = false;
 
   // Cache for loaded descriptions to avoid redundant fetches
   const descriptionCache = new Map();
+  const relatedCache = new Map();
 
   // Validation: ensure required props are provided
   $: isValid = entityType && entityId;
@@ -148,6 +152,55 @@
   // STREAM B: Reactive statement to reload when props change
   $: if (entityType && entityId) {
     loadDescription();
+    loadRelatedEntities();
+  }
+
+  /**
+   * Load related entities using the "Where Used" system
+   * Shows all entities that reference this entity
+   */
+  async function loadRelatedEntities() {
+    if (!entityType || !entityId) return;
+
+    // Create cache key
+    const cacheKey = `${entityType}:${entityId}`;
+
+    // Check cache first
+    if (relatedCache.has(cacheKey)) {
+      relatedEntities = relatedCache.get(cacheKey);
+      return;
+    }
+
+    loadingRelated = true;
+
+    try {
+      // Get entity usage (where is this entity used?)
+      const usage = await getEntityUsage(entityType, entityId);
+
+      // Transform usage data into a format suitable for display
+      const related = {};
+
+      for (const [tableName, entities] of Object.entries(usage)) {
+        if (entities && entities.length > 0) {
+          // Add labels to entities
+          const entitiesWithLabels = entities.map(entity => ({
+            ...entity,
+            label: getEntityLabel(entity),
+            entityType: tableName.replace(/s$/, '') // Remove trailing 's' for entity type
+          }));
+
+          related[tableName] = entitiesWithLabels;
+        }
+      }
+
+      relatedEntities = related;
+      relatedCache.set(cacheKey, related);
+    } catch (err) {
+      console.error('Error loading related entities:', err);
+      relatedEntities = {};
+    } finally {
+      loadingRelated = false;
+    }
   }
 
   /**
@@ -310,13 +363,45 @@
     {/if}
   </div>
 
-  <!-- TODO STREAM D: Add tab navigation UI here -->
-  <!-- This section should:
-    - Conditionally render based on whether entity has multiple tabs
-    - Display tabs with active state
-    - Call switchTab(tabName) on click
-    - Use BEM class naming: entity-description__tabs, entity-description__tab, entity-description__tab--active
-  -->
+  <!-- Tab Navigation -->
+  {#if !loading && !error}
+    <div class="entity-description__tabs" role="tablist" aria-label="Entity information tabs">
+      <!-- Main/Info Tab -->
+      <button
+        class="entity-description__tab"
+        class:entity-description__tab--active={currentTab === 'main'}
+        role="tab"
+        aria-selected={currentTab === 'main'}
+        aria-controls="entity-content-main"
+        id="entity-tab-main"
+        on:click={() => switchTab('main')}
+        on:keydown={(e) => handleTabKeydown(e, 'main')}
+        tabindex={currentTab === 'main' ? 0 : -1}
+      >
+        Info
+      </button>
+
+      <!-- Related Tab -->
+      <button
+        class="entity-description__tab"
+        class:entity-description__tab--active={currentTab === 'related'}
+        role="tab"
+        aria-selected={currentTab === 'related'}
+        aria-controls="entity-content-related"
+        id="entity-tab-related"
+        on:click={() => switchTab('related')}
+        on:keydown={(e) => handleTabKeydown(e, 'related')}
+        tabindex={currentTab === 'related' ? 0 : -1}
+      >
+        Related
+        {#if relatedEntities && Object.keys(relatedEntities).length > 0}
+          <span class="entity-description__tab-badge">
+            {Object.values(relatedEntities).reduce((sum, arr) => sum + arr.length, 0)}
+          </span>
+        {/if}
+      </button>
+    </div>
+  {/if}
 
   <!-- Content Area -->
   <div class="entity-description__content" role="tabpanel" id="entity-content-{currentTab}" aria-labelledby="entity-tab-{currentTab}">
@@ -339,8 +424,8 @@
           </p>
         {/if}
       </div>
-    {:else}
-      <!-- HTML Content Rendering (STREAM C) -->
+    {:else if currentTab === 'main'}
+      <!-- Main Tab: HTML Content Rendering -->
       <div
         class="entity-description__html-content"
         on:click={handleCrossReferenceClick}
@@ -352,6 +437,62 @@
           <!-- Placeholder when no description available -->
           <p class="entity-description__placeholder">
             No description available for this entity.
+          </p>
+        {/if}
+      </div>
+    {:else if currentTab === 'related'}
+      <!-- Related Tab: Show entities that reference this one -->
+      <div class="entity-description__related-content">
+        {#if loadingRelated}
+          <div class="entity-description__loading">
+            <div class="entity-description__spinner" aria-label="Loading related entities">
+              <div class="entity-description__spinner-circle"></div>
+            </div>
+            <p class="entity-description__loading-text">Loading related entities...</p>
+          </div>
+        {:else if relatedEntities && Object.keys(relatedEntities).length > 0}
+          <!-- Show related entities grouped by type -->
+          {#each Object.entries(relatedEntities) as [tableName, entities]}
+            <div class="entity-description__related-section">
+              <h3 class="entity-description__related-heading">
+                {tableName.charAt(0).toUpperCase() + tableName.slice(1)}
+                <span class="entity-description__related-count">({entities.length})</span>
+              </h3>
+
+              {#if entities.length <= 50}
+                <!-- Small lists: render directly -->
+                <ul class="entity-description__related-list">
+                  {#each entities as entity}
+                    <li class="entity-description__related-item">
+                      <button
+                        class="entity-description__related-link"
+                        on:click={() => dispatch('navigate', { entityType: entity.entityType, entityId: entity.id })}
+                      >
+                        {entity.label || entity.name || entity.id}
+                      </button>
+                    </li>
+                  {/each}
+                </ul>
+              {:else}
+                <!-- Large lists: use DataTable with pagination -->
+                <div class="entity-description__related-table">
+                  <DataTable
+                    data={entities}
+                    columns={[
+                      { key: 'label', label: 'Name', sortable: true, width: '100%' }
+                    ]}
+                    rowHeight={48}
+                    height="400px"
+                    onRowClick={(item) => dispatch('navigate', { entityType: item.entityType, entityId: item.id })}
+                    emptyMessage="No related entities found"
+                  />
+                </div>
+              {/if}
+            </div>
+          {/each}
+        {:else}
+          <p class="entity-description__placeholder">
+            This entity is not referenced by any other entities.
           </p>
         {/if}
       </div>
@@ -632,6 +773,109 @@
     font-style: italic;
     text-align: center;
     padding: var(--spacing-xl) 0;
+  }
+
+  /* Tab Badge (count indicator) */
+  .entity-description__tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 var(--spacing-xs);
+    margin-left: var(--spacing-xs);
+    background-color: var(--color-accent);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+  }
+
+  /* Related Content Styles */
+  .entity-description__related-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .entity-description__related-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+  }
+
+  .entity-description__related-heading {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .entity-description__related-count {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-secondary);
+  }
+
+  .entity-description__related-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .entity-description__related-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .entity-description__related-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    font-size: var(--font-size-md);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .entity-description__related-link:hover {
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-border-strong);
+    color: var(--color-primary-dark);
+  }
+
+  .entity-description__related-link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-border-focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .entity-description__related-link:active {
+    background-color: var(--color-accent);
+    color: var(--color-text-primary);
+  }
+
+  .entity-description__related-table {
+    width: 100%;
+    margin-top: var(--spacing-sm);
   }
 
   /* Responsive Breakpoints */
