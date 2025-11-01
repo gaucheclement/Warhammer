@@ -1648,6 +1648,7 @@ export async function getEntityUsage(entityType, entityId, options = {}) {
     const entity = await db[entityType].get(entityId)
     if (entity) {
       entityLabel = getEntityLabel(entity)
+      console.log('🔍 Using label for parseList:', entityLabel)
     }
   } catch (err) {
     console.warn(`Could not fetch entity for label:`, err)
