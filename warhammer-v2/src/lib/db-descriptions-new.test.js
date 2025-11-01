@@ -278,8 +278,11 @@ async function loadTestData() {
   // Load all entity types from all-data.json
   const fs = await import('fs')
   const path = await import('path')
+  const { fileURLToPath } = await import('url')
 
-  const dataPath = path.resolve('../../data/all-data.json')
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const dataPath = path.join(__dirname, '../../data/all-data.json')
   const allData = JSON.parse(fs.readFileSync(dataPath, 'utf8'))
 
   // Load each entity type
