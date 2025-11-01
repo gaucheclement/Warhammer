@@ -1261,12 +1261,11 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // TALENTS - referenced by careerLevels, species, creatures, and other talents
   talents: {
-    arrayReferences: [
-      { table: 'careerLevels', field: 'talents', type: 'array' },
-      { table: 'species', field: 'talents', type: 'array' },
-      { table: 'creatures', field: 'talents', type: 'array' }
-    ],
+    arrayReferences: [],
     stringReferences: [
+      { table: 'careerLevels', field: 'talents', indexed: false, parseList: true },
+      { table: 'species', field: 'talents', indexed: false, parseList: true },
+      { table: 'creatures', field: 'talents', indexed: false, parseList: true },
       { table: 'talents', field: 'addTalent', indexed: true }
     ],
     objectReferences: []
@@ -1274,12 +1273,11 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // SKILLS - referenced by careerLevels, species, creatures, talents
   skills: {
-    arrayReferences: [
-      { table: 'careerLevels', field: 'skills', type: 'array' },
-      { table: 'species', field: 'skills', type: 'array' },
-      { table: 'creatures', field: 'skills', type: 'array' }
-    ],
+    arrayReferences: [],
     stringReferences: [
+      { table: 'careerLevels', field: 'skills', indexed: false, parseList: true },
+      { table: 'species', field: 'skills', indexed: false, parseList: true },
+      { table: 'creatures', field: 'skills', indexed: false, parseList: true },
       { table: 'talents', field: 'addSkill', indexed: true },
       { table: 'skills', field: 'characteristic', indexed: true }
     ],
@@ -1288,10 +1286,9 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // CHARACTERISTICS - referenced by skills, careerLevels
   characteristics: {
-    arrayReferences: [
-      { table: 'careerLevels', field: 'characteristics', type: 'array' }
-    ],
+    arrayReferences: [],
     stringReferences: [
+      { table: 'careerLevels', field: 'characteristics', indexed: false, parseList: true },
       { table: 'skills', field: 'characteristic', indexed: true }
     ],
     objectReferences: [
@@ -1302,11 +1299,12 @@ const ENTITY_RELATIONSHIP_CONFIG = {
   // TRAPPINGS - referenced by careerLevels, classes, creatures
   trappings: {
     arrayReferences: [
-      { table: 'careerLevels', field: 'trappings', type: 'array' },
-      { table: 'classes', field: 'trappings', type: 'array' },
-      { table: 'creatures', field: 'trappings', type: 'array' }
+      { table: 'classes', field: 'trappings', type: 'array' }
     ],
-    stringReferences: [],
+    stringReferences: [
+      { table: 'careerLevels', field: 'trappings', indexed: false, parseList: true },
+      { table: 'creatures', field: 'trappings', indexed: false, parseList: true }
+    ],
     objectReferences: []
   },
 
@@ -1322,12 +1320,13 @@ const ENTITY_RELATIONSHIP_CONFIG = {
   // SPELLS - referenced by creatures, gods (blessings/miracles)
   spells: {
     arrayReferences: [
-      { table: 'creatures', field: 'spells', type: 'array' },
       { table: 'gods', field: 'blessings', type: 'array' },
       { table: 'gods', field: 'miracles', type: 'array' },
       { table: 'talents', field: 'spells', type: 'array' }
     ],
-    stringReferences: [],
+    stringReferences: [
+      { table: 'creatures', field: 'spells', indexed: false, parseList: true }
+    ],
     objectReferences: []
   },
 
@@ -1365,10 +1364,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // TRAITS - referenced by creatures
   traits: {
-    arrayReferences: [
-      { table: 'creatures', field: 'traits', type: 'array' }
+    arrayReferences: [],
+    stringReferences: [
+      { table: 'creatures', field: 'traits', indexed: false, parseList: true }
     ],
-    stringReferences: [],
     objectReferences: []
   },
 
@@ -1551,6 +1550,29 @@ async function queryObjectReference(table, field, entityId, pattern) {
     return false
   })
 }
+/**
+ * Query string field for entities containing a specific ID
+ * Handles exact match or comma-separated list parsing
+ * @private
+ */
+async function queryStringReference(table, field, entityId, parseList = false) {
+  const allEntities = await db[table].toArray()
+
+  return allEntities.filter(entity => {
+    const fieldValue = entity[field]
+    if (!fieldValue) return false
+    if (typeof fieldValue !== 'string') return false
+
+    if (parseList) {
+      // Parse comma-separated list and check if entityId is in it
+      const ids = fieldValue.split(',').map(s => s.trim())
+      return ids.includes(entityId)
+    } else {
+      // Exact match
+      return fieldValue === entityId
+    }
+  })
+}
 
 /**
  * Get all entities that reference (use) a specific entity
@@ -1633,9 +1655,14 @@ export async function getEntityUsage(entityType, entityId, options = {}) {
 
   // Query all string-based references
   const stringQueries = config.stringReferences.map(async ref => {
-    const entities = ref.indexed
-      ? await queryIndexedReference(ref.table, ref.field, entityId)
-      : await queryArrayReference(ref.table, ref.field, entityId, 'string')
+    let entities
+    if (ref.indexed) {
+      entities = await queryIndexedReference(ref.table, ref.field, entityId)
+    } else if (ref.parseList) {
+      entities = await queryStringReference(ref.table, ref.field, entityId, true)
+    } else {
+      entities = await queryStringReference(ref.table, ref.field, entityId, false)
+    }
     if (entities.length > 0) {
       if (!results[ref.table]) results[ref.table] = []
       results[ref.table].push(...entities)
