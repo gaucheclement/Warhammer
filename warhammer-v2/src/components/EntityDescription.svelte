@@ -92,7 +92,15 @@
       let entity = null;
 
       if (db[tableName]) {
-        entity = await db[tableName].get(entityId);
+        // Species use index (numeric 0, 1, 2...) instead of id (string)
+        // When entityId is a number for species, search by index field
+        if ((entityType === 'specie' || entityType === 'species') && typeof entityId === 'number') {
+          // Search by index field for species
+          entity = await db[tableName].where('index').equals(entityId).first();
+        } else {
+          // For other types or string IDs, use primary key lookup
+          entity = await db[tableName].get(entityId);
+        }
       }
 
       if (!entity) {
