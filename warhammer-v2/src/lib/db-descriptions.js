@@ -1039,17 +1039,18 @@ export async function generateGodDescription(godId) {
   }
 
   // Get blessings and miracles
-  const blessings = await db.spells
-    .where('god')
-    .equals(godId)
-    .and(spell => spell.type === 'Bénédiction' || spell.type === 'blessing')
-    .toArray()
+  // Spells use type='Invocation' and spec='god label' (not god id)
+  const allSpells = await db.spells.toArray()
 
-  const miracles = await db.spells
-    .where('god')
-    .equals(godId)
-    .and(spell => spell.type === 'Miracle' || spell.type === 'miracle')
-    .toArray()
+  const blessings = allSpells.filter(spell =>
+    (spell.type === 'Bénédiction' || spell.type === 'blessing') &&
+    spell.spec === god.label
+  )
+
+  const miracles = allSpells.filter(spell =>
+    (spell.type === 'Miracle' || spell.type === 'miracle') &&
+    spell.spec === god.label
+  )
 
   // If we have spells, create sections
   if ((blessings && blessings.length > 0) || (miracles && miracles.length > 0)) {
@@ -1110,10 +1111,9 @@ export async function generateLoreDescription(loreId) {
   }
 
   // Get spells for this lore
-  const spells = await db.spells
-    .where('lore')
-    .equals(loreId)
-    .toArray()
+  // Filter spells by lore field (not indexed)
+  const allSpells = await db.spells.toArray()
+  const spells = allSpells.filter(spell => spell.lore === loreId)
 
   // If we have spells, create sections
   if (spells && spells.length > 0) {
