@@ -1075,6 +1075,57 @@ export async function generateGodDescription(godId) {
 }
 
 /**
+ * Generate description for a Lore
+ *
+ * Implements lore.getDescription()
+ * Includes lore description with entity linking, and list of spells.
+ *
+ * @param {string} loreId - Lore ID
+ * @returns {Promise<Object|string>} Object with Info and Sorts sections, or just Info string
+ *
+ * @example
+ * const desc = await generateLoreDescription('feu')
+ * // Returns: {
+ * //   Info: "Description of fire magic...",
+ * //   Sorts: "List of fire spells..."
+ * // }
+ */
+export async function generateLoreDescription(loreId) {
+  const lore = await db.lores.get(loreId)
+  if (!lore) return null
+
+  let desc = ''
+
+  // Description with entity linking
+  if (lore.desc) {
+    const labelMap = await buildLabelMap({
+      lore: await db.lores.toArray(),
+      god: await db.gods.toArray(),
+      talent: await db.talents.toArray(),
+      skill: await db.skills.toArray(),
+      magick: await db.magicks.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    desc += applyHelp(lore.desc, { typeItem: 'lore', label: lore.label }, labelMap)
+  }
+
+  // Get spells for this lore
+  const spells = await db.spells
+    .where('lore')
+    .equals(loreId)
+    .toArray()
+
+  // If we have spells, create sections
+  if (spells && spells.length > 0) {
+    const result = { Info: desc }
+    result['Sorts'] = '<b>Sorts du domaine: </b>' + toHtmlList(entitiesToSimpleArray(spells, true))
+    return result
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
