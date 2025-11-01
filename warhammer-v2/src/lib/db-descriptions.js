@@ -1277,6 +1277,46 @@ export async function generateMagickDescription(magickId) {
 }
 
 /**
+ * Generate description for a Quality (weapon/armor quality or flaw)
+ *
+ * Implements quality.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} qualityId - Quality ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generateQualityDescription('percutant')
+ * // Returns: "Type: atout<br>Description of impact quality..."
+ */
+export async function generateQualityDescription(qualityId) {
+  const quality = await db.qualities.get(qualityId)
+  if (!quality) return null
+
+  let desc = ''
+
+  // Type
+  if (quality.type) {
+    desc += '<b>Type: </b>' + quality.type + '<br><br>'
+  }
+
+  // Description with entity linking
+  if (quality.desc) {
+    const labelMap = await buildLabelMap({
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      etat: await db.etats.toArray(),
+      quality: await db.qualities.toArray(),
+      trait: await db.traits.toArray()
+    })
+    desc += applyHelp(quality.desc, { typeItem: 'quality', label: quality.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
