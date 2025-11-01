@@ -816,7 +816,7 @@ export async function generateSpeciesDescription(speciesId) {
 
   // Skills and talents
   let skillsTalents = ''
-  if (species.skills && species.skills.length) {
+  if (species.skills && Array.isArray(species.skills) && species.skills.length) {
     const skills = await Promise.all(
       species.skills.map(s => {
         const id = typeof s === 'string' ? s : s.id
@@ -829,7 +829,7 @@ export async function generateSpeciesDescription(speciesId) {
     }
   }
 
-  if (species.talents && species.talents.length) {
+  if (species.talents && Array.isArray(species.talents) && species.talents.length) {
     const talents = await Promise.all(
       species.talents.map(t => {
         const id = typeof t === 'string' ? t : t.id
