@@ -1590,6 +1590,84 @@ export async function generateCreatureDescription(creatureId) {
 }
 
 /**
+ * Generate description for a Book (reference source book)
+ *
+ * Implements book.getDescription()
+ * Lists all content from this source book organized by type.
+ *
+ * @param {string} bookId - Book ID
+ * @returns {Promise<Object|string>} Object with Info and Content sections, or just Info string
+ *
+ * @example
+ * const desc = await generateBookDescription('core-rulebook')
+ * // Returns: {
+ * //   Info: "Abbreviation: CRB<br>Language: FR...",
+ * //   Contenu: "List of careers, talents, spells, etc. from this book..."
+ * // }
+ */
+export async function generateBookDescription(bookId) {
+  const book = await db.books.get(bookId)
+  if (!book) return null
+
+  let desc = ''
+
+  // Abbreviation
+  if (book.abr) {
+    desc += '<b>Abréviation: </b>' + book.abr + '<br>'
+  }
+
+  // Language
+  if (book.language) {
+    desc += '<b>Langue: </b>' + book.language + '<br>'
+  }
+
+  // Description
+  if (book.desc) {
+    desc += '<br>' + book.desc
+  }
+
+  // Get content from this book across all entity types
+  const contentTypes = [
+    { table: 'careers', label: 'Carrières', type: 'career' },
+    { table: 'talents', label: 'Talents', type: 'talent' },
+    { table: 'skills', label: 'Compétences', type: 'skill' },
+    { table: 'spells', label: 'Sorts', type: 'spell' },
+    { table: 'trappings', label: 'Équipement', type: 'trapping' },
+    { table: 'creatures', label: 'Créatures', type: 'creature' },
+    { table: 'traits', label: 'Traits', type: 'trait' },
+    { table: 'classes', label: 'Classes', type: 'class' },
+    { table: 'species', label: 'Races', type: 'specie' },
+    { table: 'gods', label: 'Dieux', type: 'god' },
+    { table: 'lores', label: 'Domaines', type: 'lore' }
+  ]
+
+  let contentDesc = ''
+  let hasContent = false
+
+  for (const contentType of contentTypes) {
+    const items = await db[contentType.table]
+      .where('book')
+      .equals(bookId)
+      .toArray()
+
+    if (items && items.length > 0) {
+      hasContent = true
+      contentDesc += '<b>' + contentType.label + ': </b>'
+      contentDesc += toHtmlList(entitiesToSimpleArray(items.map(i => ({ ...i, typeItem: contentType.type })), true))
+    }
+  }
+
+  if (hasContent) {
+    return {
+      Info: desc,
+      Contenu: contentDesc
+    }
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
