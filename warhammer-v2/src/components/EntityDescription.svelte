@@ -50,7 +50,7 @@
   const relatedCache = new Map();
 
   // Validation: ensure required props are provided
-  $: isValid = entityType && entityId;
+  $: isValid = entityType && (entityId !== null && entityId !== undefined);
   $: if (!isValid && !loading) {
     error = 'Entity type and ID are required';
   }
@@ -61,7 +61,7 @@
    * Implements caching to avoid redundant fetches
    */
   async function loadDescription() {
-    if (!entityType || !entityId) {
+    if (!entityType || entityId === null || entityId === undefined) {
       error = 'Entity type and ID are required';
       return;
     }
