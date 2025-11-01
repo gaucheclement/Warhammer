@@ -1238,6 +1238,45 @@ export async function generatePsychologieDescription(psychologieId) {
 }
 
 /**
+ * Generate description for a Magick (magic domain/tradition)
+ *
+ * Implements magick.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} magickId - Magick ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generateMagickDescription('arcane')
+ * // Returns: "Type: ...<br>Description of arcane magic..."
+ */
+export async function generateMagickDescription(magickId) {
+  const magick = await db.magicks.get(magickId)
+  if (!magick) return null
+
+  let desc = ''
+
+  // Type
+  if (magick.type) {
+    desc += '<b>Type: </b>' + magick.type + '<br><br>'
+  }
+
+  // Description with entity linking
+  if (magick.desc) {
+    const labelMap = await buildLabelMap({
+      lore: await db.lores.toArray(),
+      talent: await db.talents.toArray(),
+      skill: await db.skills.toArray(),
+      magick: await db.magicks.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    desc += applyHelp(magick.desc, { typeItem: 'magick', label: magick.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
