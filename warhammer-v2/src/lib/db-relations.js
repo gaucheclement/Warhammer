@@ -1469,6 +1469,17 @@ const ENTITY_RELATIONSHIP_CONFIG = {
     objectReferences: []
   }
 }
+// Add singular aliases for entity types used by components
+// These allow components to use singular forms (specie, career, skill, etc.)
+// while the main config uses plural forms (species, careers, skills, etc.)
+ENTITY_RELATIONSHIP_CONFIG.specie = ENTITY_RELATIONSHIP_CONFIG.species;
+ENTITY_RELATIONSHIP_CONFIG.career = ENTITY_RELATIONSHIP_CONFIG.careers;
+ENTITY_RELATIONSHIP_CONFIG.skill = ENTITY_RELATIONSHIP_CONFIG.skills;
+ENTITY_RELATIONSHIP_CONFIG.talent = ENTITY_RELATIONSHIP_CONFIG.talents;
+ENTITY_RELATIONSHIP_CONFIG.spell = ENTITY_RELATIONSHIP_CONFIG.spells;
+ENTITY_RELATIONSHIP_CONFIG.trait = ENTITY_RELATIONSHIP_CONFIG.traits;
+ENTITY_RELATIONSHIP_CONFIG.trapping = ENTITY_RELATIONSHIP_CONFIG.trappings;
+ENTITY_RELATIONSHIP_CONFIG.creature = ENTITY_RELATIONSHIP_CONFIG.creatures;
 
 /**
  * Query an indexed field for entities referencing a specific ID
