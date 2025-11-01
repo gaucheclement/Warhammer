@@ -6,6 +6,7 @@
   export let talents = []
   export let spells = []
   export let career = null
+  export let onEntityClick = null
 
   const dispatch = createEventDispatcher()
 
@@ -179,9 +180,21 @@
                 </span>
               </label>
 
-              {#if canTakeMultipleTimes(talent)}
-                <span class="max-rank">Max Rank: {talent.maxRank}</span>
-              {/if}
+              <div class="talent-meta">
+                {#if canTakeMultipleTimes(talent)}
+                  <span class="max-rank">Max Rank: {talent.maxRank}</span>
+                {/if}
+                {#if onEntityClick}
+                  <button
+                    class="info-button"
+                    on:click|stopPropagation={() => onEntityClick('talent', talent.id)}
+                    title="View talent details"
+                    aria-label="View details for {talent.name}"
+                  >
+                    ℹ️
+                  </button>
+                {/if}
+              </div>
             </div>
 
             {#if talent.description}
@@ -281,6 +294,16 @@
                     {/if}
                     {#if spell.range}
                       <span class="spell-stat">Range: {spell.range}</span>
+                    {/if}
+                    {#if onEntityClick}
+                      <button
+                        class="info-button"
+                        on:click|stopPropagation={() => onEntityClick('spell', spell.id)}
+                        title="View spell details"
+                        aria-label="View details for {spell.name}"
+                      >
+                        ℹ️
+                      </button>
                     {/if}
                   </div>
                 </div>
@@ -474,10 +497,37 @@
     font-weight: 700;
   }
 
+  .talent-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .max-rank {
     font-size: 0.875rem;
     color: var(--color-text-secondary, #666);
     font-weight: 500;
+  }
+
+  .info-button {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 1.125rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .info-button:hover {
+    background: var(--color-bg-secondary, #f5f5f5);
+  }
+
+  .info-button:active {
+    background: var(--color-border, #ddd);
   }
 
   .talent-description {
