@@ -158,11 +158,65 @@
   // - Prevent default link behavior
   // - Use event delegation on the content container
 
-  // TODO STREAM D: Add switchTab(tabName) function here
-  // This function should:
-  // - Update currentTab state
-  // - Handle tab visibility and active state
-  // - Support entities with multiple sections/tabs
+  /**
+   * Switch to a different tab
+   * @param {string} tabName - Name of the tab to switch to
+   */
+  function switchTab(tabName) {
+    currentTab = tabName;
+  }
+
+  /**
+   * Get available tabs from description data
+   * @returns {Array<string>} Array of tab names
+   */
+  function getTabs() {
+    if (!descriptionData || typeof descriptionData !== 'object') {
+      return [];
+    }
+    return Object.keys(descriptionData);
+  }
+
+  /**
+   * Check if entity has multiple tabs
+   * @returns {boolean} True if entity has tabs
+   */
+  function hasTabs() {
+    const tabs = getTabs();
+    return tabs.length > 1;
+  }
+
+  /**
+   * Get HTML content for current tab
+   * @returns {string} HTML content
+   */
+  function getCurrentTabContent() {
+    if (!descriptionData) return '';
+
+    // If descriptionData is a string, return it directly
+    if (typeof descriptionData === 'string') {
+      return descriptionData;
+    }
+
+    // If descriptionData is an object with tabs
+    const tabs = getTabs();
+    if (tabs.length === 0) return '';
+
+    // Ensure currentTab exists, otherwise use first tab
+    if (!descriptionData[currentTab]) {
+      currentTab = tabs[0];
+    }
+
+    return descriptionData[currentTab] || '';
+  }
+
+  // Reactive statement to reset to first tab when description changes
+  $: if (descriptionData) {
+    const tabs = getTabs();
+    if (tabs.length > 0 && !descriptionData[currentTab]) {
+      currentTab = tabs[0];
+    }
+  }
 
   /**
    * Handle close button click
@@ -180,6 +234,18 @@
       if (value) {
         classes.push(`${base}--${key}`);
       }
+
+  /**
+   * Handle keyboard navigation for tabs
+   * @param {KeyboardEvent} event - Keyboard event
+   * @param {string} tabName - Name of the tab
+   */
+  function handleTabKeydown(event, tabName) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      switchTab(tabName);
+    }
+  }
     }
     return classes.join(' ');
   }
@@ -226,7 +292,7 @@
   -->
 
   <!-- Content Area -->
-  <div class="entity-description__content">
+  <div class="entity-description__content" role="tabpanel" id="entity-content-{currentTab}" aria-labelledby="entity-tab-{currentTab}">
     {#if loading}
       <!-- Loading State -->
       <div class="entity-description__loading">
@@ -378,10 +444,57 @@
     font-weight: var(--font-weight-normal);
   }
 
-  /* TODO STREAM D: Add tab navigation styles here */
-  /* .entity-description__tabs { ... }
-     .entity-description__tab { ... }
-     .entity-description__tab--active { ... } */
+  /* Tab Navigation */
+  .entity-description__tabs {
+    display: flex;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .entity-description__tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast);
+    white-space: nowrap;
+    min-height: var(--touch-target-min);
+    display: flex;
+    align-items: center;
+  }
+
+  .entity-description__tab:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+  }
+
+  .entity-description__tab:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-border-focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .entity-description__tab--active {
+    background-color: var(--color-accent);
+    color: var(--color-text-primary);
+    border-color: var(--color-accent);
+  }
+
+  .entity-description__tab--active:hover {
+    background-color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+  }
 
   /* Content Area */
   .entity-description__content {
@@ -474,9 +587,89 @@
     padding: var(--spacing-xl) 0;
   }
 
-  /* TODO STREAM D: Add responsive breakpoints here */
-  /* @media (max-width: 768px) { ... } */
-  /* @media (max-width: 480px) { ... } */
+  /* Responsive Breakpoints */
+  @media (max-width: 768px) {
+    .entity-description--modal {
+      max-height: 90vh;
+      max-width: 95vw;
+    }
+
+    .entity-description__header {
+      padding: var(--spacing-md);
+    }
+
+    .entity-description__title {
+      font-size: var(--font-size-lg);
+    }
+
+    .entity-description__tabs {
+      padding: var(--spacing-sm) var(--spacing-md);
+      gap: var(--spacing-xs);
+    }
+
+    .entity-description__tab {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: var(--font-size-xs);
+    }
+
+    .entity-description__content {
+      padding: var(--spacing-md);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .entity-description--modal {
+      max-height: 95vh;
+      max-width: 100vw;
+      border-radius: 0;
+    }
+
+    .entity-description__header {
+      padding: var(--spacing-sm) var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    .entity-description__title-wrapper {
+      gap: var(--spacing-sm);
+    }
+
+    .entity-description__title {
+      font-size: var(--font-size-base);
+    }
+
+    .entity-description__type-badge {
+      font-size: 0.625rem;
+      padding: 2px var(--spacing-xs);
+    }
+
+    .entity-description__tabs {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .entity-description__tab {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .entity-description__content {
+      padding: var(--spacing-sm) var(--spacing-md);
+      min-height: 150px;
+    }
+
+    .entity-description__close-btn {
+      width: 32px;
+      height: 32px;
+    }
+
+    .entity-description__close-icon {
+      font-size: 24px;
+    }
+  }
 
   /* Reduced Motion Support */
   @media (prefers-reduced-motion: reduce) {
