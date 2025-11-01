@@ -21,65 +21,68 @@
 
   import { getIcon } from '$lib/icons.js';
   import { onMount, onDestroy } from 'svelte';
+  // Issue #38 Stream D: Import real navigation store
+  import {
+    navigationState,
+    canNavigateBack,
+    canNavigateForward,
+    navigateBack,
+    navigateForward,
+    jumpToHistoryIndex
+  } from '../stores/navigation.js';
 
   // Props
   export let showBreadcrumbs = true;
   export let showHistory = true;
 
-  // Navigation state (will be connected to actual store once Stream A completes)
-  // For now, we work with the interface contract defined in the analysis
-  let navigationHistory = [];
-  let currentIndex = -1;
+  // Local state
   let historyDropdownOpen = false;
 
-  // Mock store interface for development (to be replaced with actual store import)
-  // import { navigationHistory, currentIndex, navigateBack, navigateForward, navigateToIndex } from '../stores/navigation.js';
-
-  // Reactive computations
-  $: canGoBack = currentIndex > 0;
-  $: canGoForward = currentIndex < navigationHistory.length - 1;
-  $: breadcrumbs = getBreadcrumbs(navigationHistory, currentIndex);
-  $: recentHistory = getRecentHistory(navigationHistory, currentIndex);
+  // Reactive computations based on store
+  $: breadcrumbs = getBreadcrumbs($navigationState);
+  $: recentHistory = getRecentHistory($navigationState);
 
   /**
    * Get breadcrumb items (last 5 steps)
-   * @param {Array} history - Full navigation history
-   * @param {number} index - Current index in history
+   * @param {Object} state - Navigation state from store
    * @returns {Array} Breadcrumb items
    */
-  function getBreadcrumbs(history, index) {
-    if (!history || history.length === 0 || index < 0) {
+  function getBreadcrumbs(state) {
+    if (!state || !state.history || state.history.length === 0 || state.currentIndex < 0) {
       return [];
     }
 
+    const { history, currentIndex } = state;
+
     // Get up to 5 items ending at current index
-    const start = Math.max(0, index - 4);
-    const end = index + 1;
+    const start = Math.max(0, currentIndex - 4);
+    const end = currentIndex + 1;
     return history.slice(start, end).map((item, i) => ({
       ...item,
       historyIndex: start + i,
-      isCurrent: start + i === index
+      isCurrent: start + i === currentIndex
     }));
   }
 
   /**
    * Get recent history items for dropdown (last 10 items)
-   * @param {Array} history - Full navigation history
-   * @param {number} index - Current index in history
+   * @param {Object} state - Navigation state from store
    * @returns {Array} Recent history items
    */
-  function getRecentHistory(history, index) {
-    if (!history || history.length === 0 || index < 0) {
+  function getRecentHistory(state) {
+    if (!state || !state.history || state.history.length === 0 || state.currentIndex < 0) {
       return [];
     }
 
+    const { history, currentIndex } = state;
+
     // Get up to 10 most recent items (including current)
-    const start = Math.max(0, index - 9);
-    const end = index + 1;
+    const start = Math.max(0, currentIndex - 9);
+    const end = currentIndex + 1;
     return history.slice(start, end).reverse().map((item, i) => ({
       ...item,
-      historyIndex: index - i,
-      isCurrent: index - i === index
+      historyIndex: currentIndex - i,
+      isCurrent: currentIndex - i === currentIndex
     }));
   }
 
@@ -87,48 +90,28 @@
    * Handle back navigation
    */
   function handleBack() {
-    if (!canGoBack) return;
-
-    // TODO: Call actual store function once Stream A is complete
-    // navigateBack();
-
-    // Mock implementation for now
-    if (currentIndex > 0) {
-      currentIndex--;
-      console.log('Navigate back to:', navigationHistory[currentIndex]);
-    }
+    if (!$canNavigateBack) return;
+    navigateBack();
   }
 
   /**
    * Handle forward navigation
    */
   function handleForward() {
-    if (!canGoForward) return;
-
-    // TODO: Call actual store function once Stream A is complete
-    // navigateForward();
-
-    // Mock implementation for now
-    if (currentIndex < navigationHistory.length - 1) {
-      currentIndex++;
-      console.log('Navigate forward to:', navigationHistory[currentIndex]);
-    }
+    if (!$canNavigateForward) return;
+    navigateForward();
   }
 
   /**
    * Navigate to a specific history index
    * @param {number} index - History index to navigate to
    */
-  function navigateToIndex(index) {
-    if (index < 0 || index >= navigationHistory.length) return;
+  function handleNavigateToIndex(index) {
+    const state = $navigationState;
+    if (index < 0 || index >= state.history.length) return;
 
-    // TODO: Call actual store function once Stream A is complete
-    // navigateToIndex(index);
-
-    // Mock implementation for now
-    currentIndex = index;
+    jumpToHistoryIndex(index);
     historyDropdownOpen = false;
-    console.log('Navigate to index', index, ':', navigationHistory[index]);
   }
 
   /**
@@ -185,30 +168,12 @@
   onMount(() => {
     document.addEventListener('click', handleClickOutside);
     document.addEventListener('keydown', handleKeydown);
-
-    // TODO: Subscribe to navigation store once Stream A is complete
-    // const unsubscribe = navigationHistory.subscribe(value => {
-    //   navigationHistory = value.history;
-    //   currentIndex = value.currentIndex;
-    // });
-
-    // For now, set up mock data for testing
-    navigationHistory = [
-      { type: 'talent', id: 'talent1', label: 'Marksman', timestamp: Date.now() - 300000 },
-      { type: 'skill', id: 'skill1', label: 'Ranged (Bow)', timestamp: Date.now() - 240000 },
-      { type: 'career', id: 'career1', label: 'Soldier', timestamp: Date.now() - 180000 },
-      { type: 'spell', id: 'spell1', label: 'Fireball', timestamp: Date.now() - 120000 },
-      { type: 'talent', id: 'talent2', label: 'Warrior Born', timestamp: Date.now() - 60000 }
-    ];
-    currentIndex = 4;
   });
 
+  // Cleanup lifecycle
   onDestroy(() => {
     document.removeEventListener('click', handleClickOutside);
     document.removeEventListener('keydown', handleKeydown);
-
-    // TODO: Unsubscribe from store
-    // if (unsubscribe) unsubscribe();
   });
 </script>
 
@@ -218,7 +183,7 @@
     <button
       class="navigation-bar__btn navigation-bar__btn--back"
       on:click={handleBack}
-      disabled={!canGoBack}
+      disabled={!$canNavigateBack}
       aria-label="Navigate back"
       title="Go back (Alt+Left)"
     >
@@ -231,7 +196,7 @@
     <button
       class="navigation-bar__btn navigation-bar__btn--forward"
       on:click={handleForward}
-      disabled={!canGoForward}
+      disabled={!$canNavigateForward}
       aria-label="Navigate forward"
       title="Go forward (Alt+Right)"
     >
@@ -252,7 +217,7 @@
           <button
             class="navigation-bar__breadcrumb"
             class:navigation-bar__breadcrumb--current={crumb.isCurrent}
-            on:click={() => navigateToIndex(crumb.historyIndex)}
+            on:click={() => handleNavigateToIndex(crumb.historyIndex)}
             disabled={crumb.isCurrent}
             title="{crumb.label} ({crumb.type})"
           >
@@ -286,7 +251,7 @@
                 <button
                   class="navigation-bar__dropdown-item"
                   class:navigation-bar__dropdown-item--current={item.isCurrent}
-                  on:click={() => navigateToIndex(item.historyIndex)}
+                  on:click={() => handleNavigateToIndex(item.historyIndex)}
                   role="menuitem"
                   disabled={item.isCurrent}
                 >
