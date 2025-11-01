@@ -962,6 +962,49 @@ export async function generateTrappingDescription(trappingId) {
 }
 
 /**
+ * Generate description for a Characteristic
+ *
+ * Implements characteristic.getDescription()
+ * Includes abbreviation, type, and description with entity linking.
+ *
+ * @param {string} characteristicId - Characteristic ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generateCharacteristicDescription('ws')
+ * // Returns: "Abréviation: CC<br>Type: Combat...<br>Description..."
+ */
+export async function generateCharacteristicDescription(characteristicId) {
+  const characteristic = await db.characteristics.get(characteristicId)
+  if (!characteristic) return null
+
+  let desc = ''
+
+  // Abbreviation
+  if (characteristic.abr) {
+    desc += '<b>Abréviation: </b>' + characteristic.abr + '<br>'
+  }
+
+  // Type
+  if (characteristic.type) {
+    desc += '<b>Type: </b>' + characteristic.type + '<br>'
+  }
+
+  // Description
+  if (characteristic.desc) {
+    desc += '<br>'
+    const labelMap = await buildLabelMap({
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    desc += applyHelp(characteristic.desc, { typeItem: 'characteristic', label: characteristic.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
