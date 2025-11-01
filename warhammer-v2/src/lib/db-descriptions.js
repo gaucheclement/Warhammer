@@ -1754,5 +1754,17 @@ export default {
   generateSpellDescription,
   generateClassDescription,
   generateSpeciesDescription,
-  generateTrappingDescription
+  generateTrappingDescription,
+  generateCharacteristicDescription,
+  generateGodDescription,
+  generateLoreDescription,
+  generateStarDescription,
+  generateEtatDescription,
+  generatePsychologieDescription,
+  generateMagickDescription,
+  generateQualityDescription,
+  generateTraitDescription,
+  generateTreeDescription,
+  generateCreatureDescription,
+  generateBookDescription
 }
