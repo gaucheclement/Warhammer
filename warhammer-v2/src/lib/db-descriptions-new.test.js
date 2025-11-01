@@ -322,7 +322,8 @@ async function loadTestData() {
         continue
       }
 
-      await db[tableName].bulkAdd(normalizedData)
+      // Use bulkPut instead of bulkAdd to avoid constraint errors on duplicates
+      await db[tableName].bulkPut(normalizedData)
     }
   }
 }
