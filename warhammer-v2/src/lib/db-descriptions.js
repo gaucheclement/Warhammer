@@ -1198,6 +1198,46 @@ export async function generateEtatDescription(etatId) {
 }
 
 /**
+ * Generate description for a Psychologie (mental condition/psychological trait)
+ *
+ * Implements psychologie.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} psychologieId - Psychologie ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generatePsychologieDescription('animosite')
+ * // Returns: "Type: ...<br>Description of animosity..."
+ */
+export async function generatePsychologieDescription(psychologieId) {
+  const psychologie = await db.psychologies.get(psychologieId)
+  if (!psychologie) return null
+
+  let desc = ''
+
+  // Type
+  if (psychologie.type) {
+    desc += '<b>Type: </b>' + psychologie.type + '<br><br>'
+  }
+
+  // Description with entity linking
+  if (psychologie.desc) {
+    const labelMap = await buildLabelMap({
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray(),
+      trait: await db.traits.toArray()
+    })
+    desc += applyHelp(psychologie.desc, { typeItem: 'psychologie', label: psychologie.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
