@@ -1558,7 +1558,7 @@ export async function generateCreatureDescription(creatureId) {
     result['Capacités'] = abilitiesDesc
   }
 
-  // Spells
+  // Spells - grouped by type and spec
   if (creature.spells && Array.isArray(creature.spells) && creature.spells.length > 0) {
     const spells = await Promise.all(
       creature.spells.map(s => {
@@ -1567,8 +1567,34 @@ export async function generateCreatureDescription(creatureId) {
       })
     )
     const validSpells = spells.filter(s => s)
+
     if (validSpells.length > 0) {
-      result['Sorts'] = '<b>Sorts: </b>' + toHtmlList(entitiesToSimpleArray(validSpells, true))
+      // Group spells by type and spec
+      const spellsByGroupAndSpec = {}
+
+      validSpells.forEach(spell => {
+        const type = spell.type || 'Autre'
+        const spec = spell.spec || ''
+
+        if (!spellsByGroupAndSpec[type]) {
+          spellsByGroupAndSpec[type] = {}
+        }
+        if (!spellsByGroupAndSpec[type][spec]) {
+          spellsByGroupAndSpec[type][spec] = []
+        }
+        spellsByGroupAndSpec[type][spec].push(spell)
+      })
+
+      // Build HTML with grouped spells
+      let spellsDesc = ''
+      for (const [type, specGroups] of Object.entries(spellsByGroupAndSpec)) {
+        for (const [spec, spellList] of Object.entries(specGroups)) {
+          const groupLabel = type + (spec ? ' (' + spec + ')' : '')
+          spellsDesc += '<b>' + groupLabel + ': </b>' + toHtmlList(entitiesToSimpleArray(spellList, true)) + '<br>'
+        }
+      }
+
+      result['Sorts'] = spellsDesc
     }
   }
 
