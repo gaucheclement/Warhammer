@@ -54,10 +54,14 @@ function escapeRegExp(string) {
  * @param {string} text - Display text
  * @param {string} id - Entity ID
  * @param {string} type - Entity type
+ * @param {string} [tooltip] - Optional tooltip text for title attribute
+ * @param {boolean} [broken=false] - Whether this is a broken reference
  * @returns {string} HTML link
  */
-function showHelpText(text, id, type) {
-  return `<span class="showHelp" data-type="${type}" data-id="${id}">${text}</span>`
+function showHelpText(text, id, type, tooltip = null, broken = false) {
+  const brokenClass = broken ? ' broken' : ''
+  const titleAttr = tooltip ? ` title="${tooltip}"` : ''
+  return `<span class="showHelp${brokenClass}" data-type="${type}" data-id="${id}"${titleAttr}>${text}</span>`
 }
 
 /**
@@ -1792,5 +1796,300 @@ export default {
   generateTraitDescription,
   generateTreeDescription,
   generateCreatureDescription,
-  generateBookDescription
+  generateBookDescription,
+
+  // Tooltip and validation (Issue #40 Stream B)
+  getEntitySummary,
+  validateReferences,
+  enhanceWithTooltips
+}
+
+// ============================================================================
+// TOOLTIP AND VALIDATION SYSTEM (Stream B - Issue #40)
+// ============================================================================
+
+/**
+ * Get a 1-2 line summary for an entity to use in tooltips
+ *
+ * @param {string} type - Entity type (skill, talent, spell, etc.)
+ * @param {string} id - Entity ID
+ * @returns {Promise<string|null>} Summary text or null if not found
+ *
+ * @example
+ * const summary = await getEntitySummary('skill', 'dodge')
+ * // Returns: "Esquive - Compétence de base"
+ */
+export async function getEntitySummary(type, id) {
+  if (!type || !id) return null
+
+  try {
+    // Map 'species' to 'specie' for database lookup
+    const dbType = type === 'species' ? 'specie' : type
+    const tableName = dbType + 's'
+
+    if (!db[tableName]) {
+      return null
+    }
+
+    const entity = await db[tableName].get(id)
+    if (!entity) return null
+
+    const label = entity.label || entity.name || id
+
+    // Generate context-appropriate summaries based on entity type
+    switch (type) {
+      case 'skill':
+        if (entity.characteristic) {
+          const char = await db.characteristics.get(entity.characteristic)
+          const charLabel = char ? (char.abr || char.label) : entity.characteristic
+          const skillType = entity.type || 'base'
+          return `${label} - ${charLabel}, ${skillType}`
+        }
+        return `${label} - Compétence`
+
+      case 'talent':
+        if (entity.max) {
+          return `${label} - Talent (Max: ${entity.max})`
+        }
+        return `${label} - Talent`
+
+      case 'spell':
+        if (entity.cn) {
+          return `${label} - Sort (NI: ${entity.cn})`
+        }
+        return `${label} - Sort`
+
+      case 'characteristic':
+        if (entity.abr) {
+          return `${label} (${entity.abr}) - Caractéristique`
+        }
+        return `${label} - Caractéristique`
+
+      case 'trait':
+        return `${label} - Trait`
+
+      case 'quality':
+        if (entity.type) {
+          return `${label} - ${entity.type}`
+        }
+        return `${label} - Qualité`
+
+      case 'trapping':
+        if (entity.type) {
+          return `${label} - ${entity.type}`
+        }
+        return `${label} - Équipement`
+
+      case 'career':
+        if (entity.class) {
+          const classObj = await db.classes.get(entity.class)
+          const classLabel = classObj ? classObj.label : entity.class
+          return `${label} - Carrière (${classLabel})`
+        }
+        return `${label} - Carrière`
+
+      case 'careerLevel':
+        if (entity.career) {
+          const career = await db.careers.get(entity.career)
+          const careerLabel = career ? (career.label || career.name) : entity.career
+          return `${label} - ${careerLabel} Niv.${entity.level || '?'}`
+        }
+        return `${label} - Niveau de carrière`
+
+      case 'class':
+        return `${label} - Classe`
+
+      case 'specie':
+      case 'species':
+        return `${label} - Race`
+
+      case 'lore':
+        return `${label} - Domaine magique`
+
+      case 'god':
+        return `${label} - Divinité`
+
+      case 'creature':
+        return `${label} - Créature`
+
+      case 'etat':
+        return `${label} - État`
+
+      case 'psychologie':
+        return `${label} - Psychologie`
+
+      case 'magick':
+        return `${label} - Magie`
+
+      case 'star':
+        return `${label} - Signe astrologique`
+
+      case 'tree':
+        if (entity.type) {
+          return `${label} - Dossier (${entity.type})`
+        }
+        return `${label} - Dossier`
+
+      case 'book':
+        if (entity.abr) {
+          return `${label} (${entity.abr}) - Livre de règles`
+        }
+        return `${label} - Livre de règles`
+
+      default:
+        return `${label} - ${type}`
+    }
+  } catch (error) {
+    console.warn(`Error generating summary for ${type}:${id}`, error)
+    return null
+  }
+}
+
+/**
+ * Validate entity references in HTML content
+ *
+ * Checks if all entity references (showHelp spans) actually exist in the database.
+ * Returns a report of valid and broken references.
+ *
+ * @param {string} html - HTML content to validate
+ * @returns {Promise<Object>} Validation report with valid and broken references
+ *
+ * @example
+ * const report = await validateReferences(description)
+ * // Returns: {
+ * //   valid: [{ type: 'skill', id: 'dodge', label: 'Dodge' }],
+ * //   broken: [{ type: 'spell', id: 'invalid', label: 'Invalid Spell' }]
+ * // }
+ */
+export async function validateReferences(html) {
+  if (!html || typeof html !== 'string') {
+    return { valid: [], broken: [] }
+  }
+
+  const valid = []
+  const broken = []
+
+  // Find all showHelp spans
+  const spanRegex = /<span[^>]+class="showHelp"[^>]*>.*?<\/span>/gi
+  const matches = html.match(spanRegex)
+
+  if (!matches) {
+    return { valid: [], broken: [] }
+  }
+
+  for (const match of matches) {
+    // Extract data-type, data-id, and text content
+    const typeMatch = match.match(/data-type="([^"]+)"/)
+    const idMatch = match.match(/data-id="([^"]+)"/)
+    const textMatch = match.match(/>([^<]+)</)
+
+    if (!typeMatch || !idMatch || !textMatch) continue
+
+    const type = typeMatch[1]
+    const id = idMatch[1]
+    const label = textMatch[1]
+
+    // Check if entity exists
+    try {
+      const dbType = type === 'species' ? 'specie' : type
+      const tableName = dbType + 's'
+
+      if (!db[tableName]) {
+        broken.push({ type, id, label, reason: 'Unknown entity type' })
+        continue
+      }
+
+      const entity = await db[tableName].get(id)
+
+      if (entity) {
+        valid.push({ type, id, label })
+      } else {
+        broken.push({ type, id, label, reason: 'Entity not found' })
+      }
+    } catch (error) {
+      broken.push({ type, id, label, reason: error.message })
+    }
+  }
+
+  return { valid, broken }
+}
+
+/**
+ * Enhance HTML with tooltips for entity references
+ *
+ * Adds title attributes with entity summaries to showHelp spans.
+ * Adds "broken" class to spans for entities that don't exist.
+ *
+ * @param {string} html - HTML content to enhance
+ * @returns {Promise<string>} Enhanced HTML with tooltips and broken markers
+ *
+ * @example
+ * const enhanced = await enhanceWithTooltips(description)
+ * // Adds title="Esquive - Compétence de base" to skill spans
+ */
+export async function enhanceWithTooltips(html) {
+  if (!html || typeof html !== 'string') {
+    return html
+  }
+
+  // Find all showHelp spans
+  const spanRegex = /<span[^>]+class="showHelp"[^>]*>.*?<\/span>/gi
+  const matches = html.match(spanRegex)
+
+  if (!matches) {
+    return html
+  }
+
+  let enhancedHtml = html
+
+  for (const match of matches) {
+    // Skip if already has title attribute
+    if (match.includes('title=')) {
+      continue
+    }
+
+    // Extract data-type, data-id, and text content
+    const typeMatch = match.match(/data-type="([^"]+)"/)
+    const idMatch = match.match(/data-id="([^"]+)"/)
+
+    if (!typeMatch || !idMatch) continue
+
+    const type = typeMatch[1]
+    const id = idMatch[1]
+
+    // Check if entity exists and get summary
+    try {
+      const dbType = type === 'species' ? 'specie' : type
+      const tableName = dbType + 's'
+
+      if (!db[tableName]) {
+        // Unknown entity type - mark as broken
+        const brokenMatch = match.replace('class="showHelp"', 'class="showHelp broken" title="Type d\'entité inconnu"')
+        enhancedHtml = enhancedHtml.replace(match, brokenMatch)
+        continue
+      }
+
+      const entity = await db[tableName].get(id)
+
+      if (entity) {
+        // Entity exists - add tooltip
+        const summary = await getEntitySummary(type, id)
+        if (summary) {
+          const enhancedMatch = match.replace(/data-id="[^"]+"/,  `data-id="${id}" title="${summary}"`)
+          enhancedHtml = enhancedHtml.replace(match, enhancedMatch)
+        }
+      } else {
+        // Entity not found - mark as broken
+        const brokenMatch = match.replace('class="showHelp"', 'class="showHelp broken" title="Référence introuvable"')
+        enhancedHtml = enhancedHtml.replace(match, brokenMatch)
+      }
+    } catch (error) {
+      console.warn(`Error enhancing tooltip for ${type}:${id}`, error)
+      // Mark as broken on error
+      const brokenMatch = match.replace('class="showHelp"', `class="showHelp broken" title="Erreur: ${error.message}"`)
+      enhancedHtml = enhancedHtml.replace(match, brokenMatch)
+    }
+  }
+
+  return enhancedHtml
 }
