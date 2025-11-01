@@ -234,3 +234,54 @@
   color: var(--color-success);
   border-color: var(--color-success);
 }
+
+/* Cross-Reference System Styles (Issue #40 Stream C) */
+
+/* Help text links - base styling */
+.showHelp {
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-accent);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.showHelp:hover {
+  color: var(--color-accent-hover);
+  border-bottom-color: var(--color-accent-hover);
+  text-decoration: none;
+}
+
+.showHelp:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Broken reference indicator - red underline with warning style */
+.showHelp.broken {
+  color: var(--color-error);
+  border-bottom: 2px solid var(--color-error);
+  border-bottom-style: wavy;
+  cursor: help;
+  text-decoration: none;
+}
+
+.showHelp.broken:hover {
+  color: var(--color-error);
+  border-bottom-color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+/* Tooltip enhancement - native title attribute styling */
+/* Browsers handle title attribute tooltips natively, but we can enhance the element */
+.showHelp[title] {
+  /* Add subtle hint that tooltip is available */
+  border-bottom-style: dotted;
+}
+
+.showHelp.broken[title] {
+  /* Keep wavy underline for broken references even with tooltip */
+  border-bottom-style: wavy;
+}
