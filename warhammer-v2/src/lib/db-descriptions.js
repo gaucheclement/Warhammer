@@ -1126,6 +1126,38 @@ export async function generateLoreDescription(loreId) {
 }
 
 /**
+ * Generate description for a Star
+ *
+ * Implements star.getDescription()
+ * Includes star description with entity linking for astrological signs.
+ *
+ * @param {string} starId - Star ID
+ * @returns {Promise<string>} HTML description
+ *
+ * @example
+ * const desc = await generateStarDescription('gnuthus')
+ * // Returns: "Description of Gnuthus the Ox..."
+ */
+export async function generateStarDescription(starId) {
+  const star = await db.stars.get(starId)
+  if (!star) return null
+
+  let desc = ''
+
+  // Description with entity linking
+  if (star.desc) {
+    const labelMap = await buildLabelMap({
+      characteristic: await db.characteristics.toArray(),
+      talent: await db.talents.toArray(),
+      skill: await db.skills.toArray()
+    })
+    desc += applyHelp(star.desc, { typeItem: 'star', label: star.label }, labelMap)
+  }
+
+  return desc
+}
+
+/**
  * Generate description for any entity type
  *
  * Universal description generator that routes to the appropriate
