@@ -1844,6 +1844,40 @@ export default {
 // ============================================================================
 
 /**
+ * Get database table name for entity type
+ * Handles special pluralization cases and aliases
+ *
+ * @param {string} type - Entity type
+ * @returns {string|null} Table name or null if unknown
+ */
+function getTableName(type) {
+  const tableMap = {
+    skill: 'skills',
+    talent: 'talents',
+    spell: 'spells',
+    characteristic: 'characteristics',
+    trait: 'traits',
+    quality: 'qualities',
+    trapping: 'trappings',
+    career: 'careers',
+    careerLevel: 'careerLevels',
+    class: 'classes',
+    specie: 'species',
+    species: 'species',  // Alias
+    lore: 'lores',
+    god: 'gods',
+    creature: 'creatures',
+    etat: 'etats',
+    psychologie: 'psychologies',
+    magick: 'magicks',
+    star: 'stars',
+    tree: 'trees',
+    book: 'books'
+  }
+  return tableMap[type] || null
+}
+
+/**
  * Get a 1-2 line summary for an entity to use in tooltips
  *
  * @param {string} type - Entity type (skill, talent, spell, etc.)
@@ -1858,11 +1892,9 @@ export async function getEntitySummary(type, id) {
   if (!type || !id) return null
 
   try {
-    // Map 'species' to 'specie' for database lookup
-    const dbType = type === 'species' ? 'specie' : type
-    const tableName = dbType + 's'
+    const tableName = getTableName(type)
 
-    if (!db[tableName]) {
+    if (!tableName || !db[tableName]) {
       return null
     }
 
@@ -2026,10 +2058,9 @@ export async function validateReferences(html) {
 
     // Check if entity exists
     try {
-      const dbType = type === 'species' ? 'specie' : type
-      const tableName = dbType + 's'
+      const tableName = getTableName(type)
 
-      if (!db[tableName]) {
+      if (!tableName || !db[tableName]) {
         broken.push({ type, id, label, reason: 'Unknown entity type' })
         continue
       }
@@ -2094,10 +2125,9 @@ export async function enhanceWithTooltips(html) {
 
     // Check if entity exists and get summary
     try {
-      const dbType = type === 'species' ? 'specie' : type
-      const tableName = dbType + 's'
+      const tableName = getTableName(type)
 
-      if (!db[tableName]) {
+      if (!tableName || !db[tableName]) {
         // Unknown entity type - mark as broken
         const brokenMatch = match.replace('class="showHelp"', 'class="showHelp broken" title="Type d\'entité inconnu"')
         enhancedHtml = enhancedHtml.replace(match, brokenMatch)
