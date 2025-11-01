@@ -279,7 +279,7 @@ async function loadTestData() {
   const fs = await import('fs')
   const path = await import('path')
 
-  const dataPath = path.resolve('../../../../../../Warhammer/warhammer-v2/data/all-data.json')
+  const dataPath = path.resolve('../../data/all-data.json')
   const allData = JSON.parse(fs.readFileSync(dataPath, 'utf8'))
 
   // Load each entity type
