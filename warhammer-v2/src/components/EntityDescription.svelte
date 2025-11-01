@@ -22,6 +22,9 @@
    */
 
   import { createEventDispatcher } from 'svelte';
+  import { generateDescription } from '../lib/db-descriptions.js';
+  import { getEntityLabel } from '../lib/db-relations.js';
+  import { db } from '../lib/db.js';
 
   // Props
   export let entityType = '';
@@ -37,6 +40,10 @@
   let currentTab = 'main';
   let descriptionData = null;
   let descriptionHtml = '';
+  let entityLabel = '';
+
+  // Cache for loaded descriptions to avoid redundant fetches
+  const descriptionCache = new Map();
 
   // Validation: ensure required props are provided
   $: isValid = entityType && entityId;
@@ -44,19 +51,104 @@
     error = 'Entity type and ID are required';
   }
 
-  // TODO STREAM B: Add loadDescription() function here
-  // This function should:
-  // - Set loading = true
-  // - Call generateDescription(entityType, entityId) from db-descriptions.js
-  // - Set descriptionData and descriptionHtml from the result
-  // - Handle errors appropriately
-  // - Set loading = false
-  // - Implement caching to avoid redundant fetches
+  // STREAM B: Load description from db-descriptions.js generators
+  /**
+   * Load entity description from the database
+   * Implements caching to avoid redundant fetches
+   */
+  async function loadDescription() {
+    if (!entityType || !entityId) {
+      error = 'Entity type and ID are required';
+      return;
+    }
 
-  // TODO STREAM B: Add reactive statement to reload when props change
-  // $: if (entityType && entityId) {
-  //   loadDescription();
-  // }
+    // Create cache key from entityType and entityId
+    const cacheKey = `${entityType}:${entityId}`;
+
+    // Check cache first
+    if (descriptionCache.has(cacheKey)) {
+      const cached = descriptionCache.get(cacheKey);
+      descriptionData = cached.data;
+      descriptionHtml = cached.html;
+      entityLabel = cached.label;
+      error = null;
+      return;
+    }
+
+    // Set loading state
+    loading = true;
+    error = null;
+    descriptionData = null;
+    descriptionHtml = '';
+    entityLabel = '';
+
+    try {
+      // Fetch entity to get label
+      const tableName = entityType === 'specie' || entityType === 'species' ? 'species' : entityType + 's';
+      let entity = null;
+
+      if (db[tableName]) {
+        entity = await db[tableName].get(entityId);
+      }
+
+      if (!entity) {
+        throw new Error(`Entity not found: ${entityType} with ID "${entityId}"`);
+      }
+
+      // Get entity label
+      entityLabel = getEntityLabel(entity);
+
+      // Generate description using the description generators
+      const result = await generateDescription(entityType, entityId);
+
+      if (!result) {
+        throw new Error(`Failed to generate description for ${entityType}: ${entityId}`);
+      }
+
+      // Handle different return types
+      if (typeof result === 'string') {
+        // Simple string description
+        descriptionData = { Info: result };
+        descriptionHtml = result;
+      } else if (typeof result === 'object') {
+        // Object with sections (Info, Accès, etc.)
+        descriptionData = result;
+
+        // For now, just use the first section or 'Info' section as HTML
+        // Stream D will handle multi-tab rendering
+        if (result.Info) {
+          descriptionHtml = result.Info;
+        } else {
+          // Get first available section
+          const firstKey = Object.keys(result)[0];
+          descriptionHtml = result[firstKey] || '';
+        }
+      }
+
+      // Cache the result
+      descriptionCache.set(cacheKey, {
+        data: descriptionData,
+        html: descriptionHtml,
+        label: entityLabel
+      });
+
+      // Clear error on success
+      error = null;
+    } catch (err) {
+      console.error('Error loading description:', err);
+      error = err.message || 'Failed to load description';
+      descriptionData = null;
+      descriptionHtml = '';
+      entityLabel = '';
+    } finally {
+      loading = false;
+    }
+  }
+
+  // STREAM B: Reactive statement to reload when props change
+  $: if (entityType && entityId) {
+    loadDescription();
+  }
 
   // TODO STREAM C: Add handleCrossReferenceClick(e) function here
   // This function should:
@@ -102,8 +194,9 @@
           Loading...
         {:else if error}
           Error
+        {:else if entityLabel}
+          {entityLabel}
         {:else}
-          <!-- TODO STREAM B: Display entity label from descriptionData -->
           Entity Description
         {/if}
       </h2>
@@ -162,10 +255,14 @@
         - Example: <div on:click={handleCrossReferenceClick}>
       -->
       <div class="entity-description__html-content">
-        <!-- Placeholder for description content -->
-        <p class="entity-description__placeholder">
-          Description content will be rendered here by Stream B and C.
-        </p>
+        {#if descriptionHtml}
+          {@html descriptionHtml}
+        {:else}
+          <!-- Placeholder when no description available -->
+          <p class="entity-description__placeholder">
+            No description available for this entity.
+          </p>
+        {/if}
       </div>
     {/if}
   </div>
