@@ -15,6 +15,7 @@
 import { writable, derived, get } from 'svelte/store'
 import { db, getAllFromTable } from '../lib/db.js'
 import { mergeData } from '../lib/dataMerger.js'
+import { transformData, loadIntoIndexedDB, formatReport } from '../lib/db-loader.js'
 
 /**
  * @typedef {Object} OfficialData
@@ -183,53 +184,43 @@ export async function loadOfficialData() {
 
 /**
  * Seed IndexedDB with initial data from embedded JSON
+ *
+ * Issue #47/#48: Now uses transformData pipeline to:
+ * - Generate stable string IDs (e.g., "skill-athletisme")
+ * - Parse references into EntityReference objects
+ * - Validate and report data quality
+ *
  * @param {Object} data - The data object from window.__WARHAMMER_DATA__
  * @returns {Promise<void>}
  */
 async function seedIndexedDB(data) {
   try {
-    console.log('Seeding IndexedDB with initial data...', Object.keys(data))
+    console.log('Seeding IndexedDB with initial data...')
+    console.log('Issue #47/#48: Using transformData pipeline for ID generation and reference parsing')
 
-    // Map JSON keys (singular) to expected keys (plural)
-    const keyMapping = {
-      'book': 'books',
-      'career': 'careers',
-      'careerLevel': 'careerLevels',
-      'specie': 'species',
-      'class': 'classes',
-      'talent': 'talents',
-      'characteristic': 'characteristics',
-      'trapping': 'trappings',
-      'skill': 'skills',
-      'spell': 'spells',
-      'creature': 'creatures',
-      'star': 'stars',
-      'god': 'gods',
-      'eye': 'eyes',
-      'hair': 'hairs',
-      'detail': 'details',
-      'trait': 'traits',
-      'lore': 'lores',
-      'magick': 'magicks',
-      'etat': 'etats',
-      'psychologie': 'psychologies',
-      'quality': 'qualities',
-      'tree': 'trees'
-    }
+    // Transform data using db-loader pipeline
+    // This generates string IDs and parses all references into EntityReference objects
+    const { data: transformedData, report } = transformData(data, {
+      generateReport: true,
+      preserveOriginal: false
+    })
 
-    for (const [jsonKey, dbKey] of Object.entries(keyMapping)) {
-      const entities = data[jsonKey] || []
-      if (entities.length > 0) {
-        // Transform: add 'id' field from 'index' for Dexie primary key
-        const entitiesWithId = entities.map(e => ({ ...e, id: e.index }))
-        await db[dbKey].bulkAdd(entitiesWithId)
-        console.log(`Loaded ${entities.length} ${jsonKey} → ${dbKey}`)
-      } else {
-        console.warn(`No data found for ${jsonKey}`)
-      }
-    }
+    // Log transformation report showing data quality
+    console.log(formatReport(report))
 
+    // Load transformed data into IndexedDB
+    const stats = await loadIntoIndexedDB(db, transformedData)
+
+    // Log loading statistics
     console.log('IndexedDB seeded successfully')
+    console.log('Load statistics:', stats)
+
+    if (stats.errors && stats.errors.length > 0) {
+      console.error('Some tables failed to load:', stats.errors)
+      throw new Error(`Failed to load ${stats.errors.length} tables`)
+    }
+
+    return { transformedData, report, stats }
   } catch (error) {
     console.error('Error seeding IndexedDB:', error)
     throw error
