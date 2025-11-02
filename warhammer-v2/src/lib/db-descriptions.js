@@ -1022,16 +1022,65 @@ export async function generateSpeciesDescription(speciesId) {
     })
   }
 
-  // Details section (age, height, etc.) - simplified version
-  // Full implementation would require detail tables which aren't in scope
-  sections.push({
-    type: 'tab',
-    tabKey: 'Détails',
-    tabLabel: 'Détails',
-    sections: [
-      { type: 'text', content: 'Détails de la race (âge, taille, etc.)' }
-    ]
-  })
+  // Details section (age, height, etc.)
+  const detailsSections = []
+
+  // Age range
+  if (species.age && (species.age.min || species.age.max)) {
+    const ageText = species.age.min && species.age.max
+      ? `${species.age.min} - ${species.age.max} ans`
+      : species.age.min
+        ? `À partir de ${species.age.min} ans`
+        : `Jusqu'à ${species.age.max} ans`
+
+    detailsSections.push({
+      type: 'text',
+      label: 'Âge',
+      content: ageText
+    })
+  }
+
+  // Height range
+  if (species.height && (species.height.min || species.height.max)) {
+    const heightText = species.height.min && species.height.max
+      ? `${species.height.min} - ${species.height.max} cm`
+      : species.height.min
+        ? `À partir de ${species.height.min} cm`
+        : `Jusqu'à ${species.height.max} cm`
+
+    detailsSections.push({
+      type: 'text',
+      label: 'Taille',
+      content: heightText
+    })
+  }
+
+  // Eye colors
+  if (species.eyes && Array.isArray(species.eyes) && species.eyes.length > 0) {
+    detailsSections.push({
+      type: 'list',
+      label: 'Couleurs des yeux',
+      items: species.eyes.map(e => e)
+    })
+  }
+
+  // Hair colors
+  if (species.hair && Array.isArray(species.hair) && species.hair.length > 0) {
+    detailsSections.push({
+      type: 'list',
+      label: 'Couleurs des cheveux',
+      items: species.hair.map(h => h)
+    })
+  }
+
+  if (detailsSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Détails',
+      tabLabel: 'Détails',
+      sections: detailsSections
+    })
+  }
 
   // Skills and talents
   const compsTalentsSections = []
@@ -1101,15 +1150,64 @@ export async function generateSpeciesDescription(speciesId) {
     })
   }
 
-  // Characteristics table - simplified
-  sections.push({
-    type: 'tab',
-    tabKey: 'Caractéristiques',
-    tabLabel: 'Caractéristiques',
-    sections: [
-      { type: 'text', content: 'Table des caractéristiques de race' }
-    ]
-  })
+  // Characteristics table
+  const charSections = []
+
+  if (species.characteristics) {
+    // Build characteristics table
+    const charHeaders = ['Caractéristique', 'Valeur']
+    const charRows = []
+
+    // Get all characteristics from db to get proper labels
+    const allChars = await db.characteristics.toArray()
+    const charMap = {}
+    allChars.forEach(c => {
+      charMap[c.id] = c
+    })
+
+    // Build rows for each characteristic
+    for (const [charId, value] of Object.entries(species.characteristics)) {
+      const char = charMap[charId]
+      if (char) {
+        charRows.push([
+          char.label || char.abr || charId,
+          String(value)
+        ])
+      }
+    }
+
+    if (charRows.length > 0) {
+      charSections.push({
+        type: 'table',
+        label: 'Modificateurs de caractéristiques de race',
+        headers: charHeaders,
+        rows: charRows
+      })
+    }
+  }
+
+  // Add careers accessible to this species
+  const speciesCareers = await findCareersBySpecies(speciesId)
+  if (speciesCareers && speciesCareers.length > 0) {
+    charSections.push({
+      type: 'list',
+      label: 'Carrières accessibles',
+      items: speciesCareers.map(c => ({
+        id: c.id,
+        type: 'career',
+        label: getEntityLabel(c)
+      }))
+    })
+  }
+
+  if (charSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Caractéristiques',
+      tabLabel: 'Caractéristiques',
+      sections: charSections
+    })
+  }
 
   return { sections }
 }
