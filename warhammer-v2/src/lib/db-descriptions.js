@@ -1039,22 +1039,24 @@ export async function generateClassDescription(classId) {
  * racial skills/talents, and available careers.
  *
  * @param {string} speciesId - Species ID
- * @returns {Promise<Object>} Object with multiple sections (Info, Détails, Caractéristiques, etc.)
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
  *
  * @example
  * const desc = await generateSpeciesDescription('human')
  * // Returns: {
- * //   Info: "Species description...",
- * //   Détails: "Age, height, etc...",
- * //   'Comps/Talents': "Racial skills and talents...",
- * //   Carrières: "Available careers..."
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Détails', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Comps/Talents', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Carrières', sections: [...] }
+ * //   ]
  * // }
  */
 export async function generateSpeciesDescription(speciesId) {
   const species = await db.species.get(speciesId)
   if (!species) return null
 
-  const result = {}
+  const sections = []
 
   // Basic description
   if (species.desc) {
@@ -1063,22 +1065,47 @@ export async function generateSpeciesDescription(speciesId) {
       god: await db.gods.toArray(),
       psychologie: await db.psychologies.toArray()
     })
-    result['Info'] = applyHelp(species.desc, { typeItem: 'specie', label: species.name }, labelMap)
+    const descHtml = applyHelp(species.desc, { typeItem: 'specie', label: species.name }, labelMap)
+
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: [
+        { type: 'text', content: descHtml }
+      ]
+    })
   }
 
   // Details section (age, height, etc.) - simplified version
   // Full implementation would require detail tables which aren't in scope
-  result['Détails'] = 'Détails de la race (âge, taille, etc.)'
+  sections.push({
+    type: 'tab',
+    tabKey: 'Détails',
+    tabLabel: 'Détails',
+    sections: [
+      { type: 'text', content: 'Détails de la race (âge, taille, etc.)' }
+    ]
+  })
 
   // Skills and talents
-  let skillsTalents = ''
+  const compsTalentsSections = []
+
   if (species.skills && Array.isArray(species.skills) && species.skills.length) {
     const skills = await Promise.all(
       species.skills.map(s => resolveEntityReference(s, db.skills))
     )
     const validSkills = skills.filter(s => s)
     if (validSkills.length > 0) {
-      skillsTalents += '<b>Compétences de race: </b>' + toHtmlList(entitiesToSimpleArray(validSkills, true))
+      compsTalentsSections.push({
+        type: 'list',
+        label: 'Compétences de race',
+        items: validSkills.map(s => ({
+          id: s.id,
+          type: 'skill',
+          label: getEntityLabel(s)
+        }))
+      })
     }
   }
 
@@ -1088,24 +1115,58 @@ export async function generateSpeciesDescription(speciesId) {
     )
     const validTalents = talents.filter(t => t)
     if (validTalents.length > 0) {
-      skillsTalents += '<b>Talents de race: </b>' + toHtmlList(entitiesToSimpleArray(validTalents, true))
+      compsTalentsSections.push({
+        type: 'list',
+        label: 'Talents de race',
+        items: validTalents.map(t => ({
+          id: t.id,
+          type: 'talent',
+          label: getEntityLabel(t)
+        }))
+      })
     }
   }
 
-  if (skillsTalents) {
-    result['Comps/Talents'] = skillsTalents
+  if (compsTalentsSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Comps/Talents',
+      tabLabel: 'Comps/Talents',
+      sections: compsTalentsSections
+    })
   }
 
   // Available careers
   const careers = await findCareersBySpecies(speciesId)
   if (careers && careers.length > 0) {
-    result['Carrières'] = toHtmlList(entitiesToSimpleArray(careers, true))
+    sections.push({
+      type: 'tab',
+      tabKey: 'Carrières',
+      tabLabel: 'Carrières',
+      sections: [
+        {
+          type: 'list',
+          items: careers.map(c => ({
+            id: c.id,
+            type: 'career',
+            label: getEntityLabel(c)
+          }))
+        }
+      ]
+    })
   }
 
   // Characteristics table - simplified
-  result['Caractéristiques'] = 'Table des caractéristiques de race'
+  sections.push({
+    type: 'tab',
+    tabKey: 'Caractéristiques',
+    tabLabel: 'Caractéristiques',
+    sections: [
+      { type: 'text', content: 'Table des caractéristiques de race' }
+    ]
+  })
 
-  return result
+  return { sections }
 }
 
 /**
