@@ -477,3 +477,131 @@ export function deleteModification(entityType, entityId) {
 
   console.log(`Removed modification for ${entityType} entity:`, entityId)
 }
+
+/**
+ * Data query utilities
+ * Issue #48 Stream B: Ported from dataStore.js for unified data layer
+ *
+ * Provides convenient methods for querying merged data (official + custom).
+ * All methods work with the reactive mergedData store.
+ */
+export const dataQueries = {
+  /**
+   * Get a single entity by ID
+   *
+   * @param {string} entityType - Entity type
+   * @param {string} id - Entity ID
+   * @returns {object|null} The entity or null if not found
+   */
+  getById(entityType, id) {
+    const data = get(mergedData)
+    const entities = data[entityType] || []
+    return entities.find(e => e.id === id) || null
+  },
+
+  /**
+   * Get all entities of a specific type
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Array of entities
+   */
+  getAll(entityType) {
+    const data = get(mergedData)
+    return data[entityType] || []
+  },
+
+  /**
+   * Filter entities by predicate function
+   *
+   * @param {string} entityType - Entity type
+   * @param {function} predicate - Filter function
+   * @returns {array} Filtered entities
+   */
+  filter(entityType, predicate) {
+    const entities = this.getAll(entityType)
+    return entities.filter(predicate)
+  },
+
+  /**
+   * Get only official (unmodified) entities
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Official entities
+   */
+  getOfficial(entityType) {
+    return this.filter(
+      entityType,
+      entity => !entity._meta || (!entity._meta.isCustom && !entity._meta.isModified)
+    )
+  },
+
+  /**
+   * Get only custom entities
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Custom entities
+   */
+  getCustom(entityType) {
+    return this.filter(
+      entityType,
+      entity => entity._meta?.isCustom
+    )
+  },
+
+  /**
+   * Get only modified entities
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Modified entities
+   */
+  getModified(entityType) {
+    return this.filter(
+      entityType,
+      entity => entity._meta?.isModified && !entity._meta?.isCustom
+    )
+  },
+
+  /**
+   * Search entities by name (case-insensitive)
+   *
+   * @param {string} entityType - Entity type
+   * @param {string} searchTerm - Search term
+   * @returns {array} Matching entities
+   */
+  searchByName(entityType, searchTerm) {
+    const term = searchTerm.toLowerCase()
+    return this.filter(
+      entityType,
+      entity => entity.name?.toLowerCase().includes(term)
+    )
+  },
+
+  /**
+   * Get count of entities by type
+   *
+   * @param {string} entityType - Entity type
+   * @returns {object} Count breakdown
+   */
+  getCount(entityType) {
+    const all = this.getAll(entityType)
+    return {
+      total: all.length,
+      official: all.filter(e => !e._meta || (!e._meta.isCustom && !e._meta.isModified)).length,
+      custom: all.filter(e => e._meta?.isCustom).length,
+      modified: all.filter(e => e._meta?.isModified && !e._meta?.isCustom).length
+    }
+  },
+
+  /**
+   * Get statistics for all entity types
+   *
+   * @returns {object} Statistics object
+   */
+  getAllStats() {
+    const stats = {}
+    for (const entityType of ENTITY_TYPES) {
+      stats[entityType] = this.getCount(entityType)
+    }
+    return stats
+  }
+}

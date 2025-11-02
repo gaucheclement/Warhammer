@@ -16,10 +16,11 @@
  *
  * Issue #38 Stream A: Core navigation logic and state management
  * Issue #38 Stream C: Browser history API integration
+ * Issue #48 Stream B: Updated to use unified data layer (data.js)
  */
 
 import { writable, derived, get } from 'svelte/store';
-import { dataQueries } from './dataStore.js';
+import { dataQueries } from './data.js';
 
 /**
  * Maximum number of history items to keep

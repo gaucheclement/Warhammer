@@ -22,8 +22,8 @@ import {
   getNavigationStats
 } from './navigation.js';
 
-// Mock dataStore
-vi.mock('./dataStore.js', () => ({
+// Mock data.js (Issue #48 Stream B: Updated from dataStore.js)
+vi.mock('./data.js', () => ({
   dataQueries: {
     getById: (type, id) => ({
       name: `Mock ${type} ${id}`,
