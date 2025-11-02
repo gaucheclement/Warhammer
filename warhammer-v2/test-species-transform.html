@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Species Transform</title>
+  <script type="module">
+    import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.mjs';
+
+    const db = new Dexie('WarhammerDB');
+    db.version(2).stores({
+      species: 'id, label, refCareer, refDetail, refChar, book, page, folder',
+    });
+
+    async function testSpecies() {
+      try {
+        const species = await db.species.toArray();
+        console.log('Total species:', species.length);
+
+        if (species.length > 0) {
+          const firstSpecies = species[0];
+          console.log('\n=== First Species ===');
+          console.log('Label:', firstSpecies.label);
+          console.log('Skills type:', typeof firstSpecies.skills);
+          console.log('Skills value:', firstSpecies.skills);
+          console.log('Talents type:', typeof firstSpecies.talents);
+          console.log('Talents value:', firstSpecies.talents);
+          console.log('\nFull object:', firstSpecies);
+
+          document.getElementById('output').innerHTML = `
+            <h2>Species: ${firstSpecies.label}</h2>
+            <p><strong>Skills type:</strong> ${typeof firstSpecies.skills}</p>
+            <p><strong>Skills:</strong> ${JSON.stringify(firstSpecies.skills, null, 2)}</p>
+            <p><strong>Talents type:</strong> ${typeof firstSpecies.talents}</p>
+            <p><strong>Talents:</strong> ${JSON.stringify(firstSpecies.talents, null, 2)}</p>
+            <pre>${JSON.stringify(firstSpecies, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('output').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+      }
+    }
+
+    // Run on page load
+    window.addEventListener('DOMContentLoaded', testSpecies);
+  </script>
+</head>
+<body>
+  <h1>Test Species Data Transform</h1>
+  <div id="output">Loading...</div>
+</body>
+</html>
