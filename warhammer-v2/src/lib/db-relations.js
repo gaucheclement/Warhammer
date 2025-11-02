@@ -1808,6 +1808,68 @@ export async function findOrphanedEntities(entityType, options = {}) {
 // ============================================================================
 
 /**
+ * Resolve an entity reference with specific specializations
+ *
+ * When entities are referenced (e.g., a race has "Corps à corps (Base)"),
+ * the reference stores the specific specialization. This function retrieves
+ * the entity from the database and applies the reference-specific specs,
+ * overriding the entity's full spec list.
+ *
+ * @param {string|Object} reference - Reference (string ID or {id, spec/specs})
+ * @param {Object} dbCollection - Database collection (db.skills, db.talents, etc.)
+ * @returns {Promise<Object|null>} Entity with reference specs applied
+ *
+ * @example
+ * // Simple reference (no specific spec)
+ * await resolveEntityReference("athletisme", db.skills)
+ * // Returns entity as-is with all possible specs
+ *
+ * @example
+ * // Reference with single spec
+ * await resolveEntityReference({ id: "corps-a-corps", spec: "Base" }, db.skills)
+ * // Returns entity with specs = ["Base"] only
+ *
+ * @example
+ * // Reference with multiple specs
+ * await resolveEntityReference({ id: "metier", specs: ["Artillerie", "Armurie"] }, db.skills)
+ * // Returns entity with specs = ["Artillerie", "Armurie"]
+ */
+export async function resolveEntityReference(reference, dbCollection) {
+  if (!reference) return null
+
+  // Get the ID
+  const id = typeof reference === 'string' ? reference : reference.id
+  if (!id) return null
+
+  // Fetch entity from DB
+  const entity = await dbCollection.get(id)
+  if (!entity) return null
+
+  // If reference is just a string, return entity as-is (all specs)
+  if (typeof reference === 'string') {
+    return entity
+  }
+
+  // Apply reference-specific specs
+  const result = { ...entity }
+
+  if (reference.hasOwnProperty('specs')) {
+    // Reference has specific specs (can be array or string)
+    result.specs = Array.isArray(reference.specs)
+      ? reference.specs
+      : [reference.specs]
+    result.spec = result.specs[0] || ''
+  } else if (reference.hasOwnProperty('spec')) {
+    // Reference has a single spec
+    result.spec = reference.spec
+    result.specs = [reference.spec]
+  }
+  // If neither specs nor spec exist in reference, keep entity's original specs
+
+  return result
+}
+
+/**
  * Resolve an entity reference to its full object
  *
  * Entity references in the database can be:
@@ -1974,6 +2036,7 @@ export default {
   findOrphanedEntities,
 
   // Utilities
+  resolveEntityReference,
   resolveEntityRef,
   resolveEntityRefs,
   getEntityLabel,
