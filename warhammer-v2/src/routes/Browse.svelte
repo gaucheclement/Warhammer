@@ -136,14 +136,8 @@
 
     const singularType = typeMap[entityType] || entityType
 
-    // Species use index as ID (numeric), others use string IDs
-    // This is because species are stored with numeric IDs (0, 1, 2...) in IndexedDB
-    let entityId
-    if (entityType === 'species') {
-      entityId = entity.index !== null && entity.index !== undefined ? entity.index : entity.id
-    } else {
-      entityId = entity.id !== null && entity.id !== undefined ? entity.id : (entity.name || entity.label)
-    }
+    // Get entity ID (all entities now use string IDs)
+    const entityId = entity.id !== null && entity.id !== undefined ? entity.id : (entity.name || entity.label)
 
     console.log('Opening entity:', { type: singularType, id: entityId })
 

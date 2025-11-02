@@ -148,18 +148,26 @@ export function generateIdsForEntities(entities, entityType) {
     return []
   }
 
-  // First pass: collect existing IDs
+  // First pass: collect existing string IDs (skip numeric IDs)
   const existingIds = new Set()
   for (const entity of entities) {
-    if (entity.id) {
+    // Only preserve string IDs, regenerate numeric ones
+    if (entity.id && typeof entity.id === 'string') {
       existingIds.add(entity.id)
     }
   }
 
-  // Second pass: generate IDs for entities without one
+  // Second pass: generate IDs for entities without string ID
   for (const entity of entities) {
-    if (!entity.id) {
-      const label = entity.label || entity.name || ''
+    // Generate ID if missing OR if it's numeric (from index field)
+    if (!entity.id || typeof entity.id === 'number') {
+      // Handle special case: label is an object (eyes, hairs, details)
+      // Use index to generate unique ID
+      let label = entity.label || entity.name || ''
+      if (typeof label === 'object') {
+        // Use entityType + index for unique ID
+        label = `${entityType}-${entity.index !== undefined ? entity.index : existingIds.size}`
+      }
       const newId = generateStableId(label, entityType, existingIds)
       entity.id = newId
       existingIds.add(newId)
