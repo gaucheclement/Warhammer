@@ -657,7 +657,7 @@ export async function getSkillWithCharacteristic(skillId) {
 
   const result = {
     ...skill,
-    characteristicObj: characteristic
+    characteristicObj: characteristic ? { ...characteristic, typeItem: 'characteristic' } : null
   }
 
   relationCache.set(cacheKey, result)
