@@ -20,6 +20,7 @@
  */
 
 import { db } from './db.js'
+import { parseSpecs } from './db-reference-parser.js'
 
 /**
  * Simple in-memory cache for frequently accessed relationships
@@ -541,6 +542,7 @@ export async function getTalentWithRelations(talentId) {
  * Implements the specs parsing logic from DataTalent.html
  * Converts comma-separated string to array
  *
+ * @deprecated Use parseSpecs() from db-reference-parser.js instead
  * @param {Object} talent - Talent object
  * @returns {Object} Talent with parsed specs array
  *
@@ -549,22 +551,7 @@ export async function getTalentWithRelations(talentId) {
  * // Returns: { id: 'test', specs: ['Combat', 'Tir'], canHaveSpec: true }
  */
 export function parseTalentSpecs(talent) {
-  if (!talent) return talent
-
-  const parsed = { ...talent }
-
-  if (typeof parsed.specs === 'string' && parsed.specs) {
-    parsed.specs = parsed.specs.split(',').map(s => s.trim())
-    parsed.canHaveSpec = true
-  } else if (!parsed.specs) {
-    parsed.specs = []
-    parsed.canHaveSpec = false
-  }
-
-  parsed.spec = ''
-  parsed.origins = parsed.origins || []
-
-  return parsed
+  return parseSpecs(talent, { addSpecName: false })
 }
 
 // ============================================================================
@@ -626,13 +613,13 @@ export async function getSkillWithCharacteristic(skillId) {
   relationCache.set(cacheKey, result)
   return result
 }
-
 /**
  * Parse skill specializations
  *
  * Implements the specs parsing logic from DataSkill.html
  * Converts comma-separated string to array
  *
+ * @deprecated Use parseSpecs() from db-reference-parser.js instead
  * @param {Object} skill - Skill object
  * @returns {Object} Skill with parsed specs array
  *
@@ -641,24 +628,7 @@ export async function getSkillWithCharacteristic(skillId) {
  * // Returns: { id: 'test', specs: ['Épée', 'Hache'], canHaveSpec: true }
  */
 export function parseSkillSpecs(skill) {
-  if (!skill) return skill
-
-  const parsed = { ...skill }
-
-  if (typeof parsed.specs === 'string' && parsed.specs) {
-    parsed.specs = parsed.specs.split(',').map(s => s.trim())
-    parsed.canHaveSpec = true
-    parsed.specName = 'Au choix'
-  } else if (!parsed.specs) {
-    parsed.specs = []
-    parsed.canHaveSpec = false
-    parsed.specName = ''
-  }
-
-  parsed.spec = ''
-  parsed.origins = parsed.origins || []
-
-  return parsed
+  return parseSpecs(skill, { addSpecName: true })
 }
 
 // ============================================================================
