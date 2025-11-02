@@ -1964,23 +1964,25 @@ export async function generateTreeDescription(treeId) {
  * optional abilities, trappings, and spells.
  *
  * @param {string} creatureId - Creature ID
- * @returns {Promise<Object>} Object with multiple sections (Info, Stats, Capacités, etc.)
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
  *
  * @example
  * const desc = await generateCreatureDescription('goblin')
  * // Returns: {
- * //   Info: "Description...",
- * //   Stats: "Characteristics table...",
- * //   Capacités: "Skills, talents, traits...",
- * //   Sorts: "Spells if any...",
- * //   Équipement: "Trappings if any..."
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Stats', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Capacités', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Sorts', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Équipement', sections: [...] }
+ * //   ]
  * // }
  */
 export async function generateCreatureDescription(creatureId) {
   const creature = await db.creatures.get(creatureId)
   if (!creature) return null
 
-  const result = {}
+  const sections = []
 
   // Basic description
   if (creature.desc) {
@@ -1997,45 +1999,74 @@ export async function generateCreatureDescription(creatureId) {
       etat: await db.etats.toArray(),
       psychologie: await db.psychologies.toArray()
     })
-    result['Info'] = applyHelp(creature.desc, { typeItem: 'creature', label: creature.label }, labelMap)
+    const descHtml = applyHelp(creature.desc, { typeItem: 'creature', label: creature.label }, labelMap)
+
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: [
+        { type: 'text', content: descHtml }
+      ]
+    })
   }
 
   // Characteristics
   if (creature.char) {
-    let statsDesc = '<b>Caractéristiques:</b><br><table class="stats-table">'
-    statsDesc += '<tr>'
+    const statsSections = []
     const charOrder = ['m', 'cc', 'ct', 'f', 'e', 'i', 'ag', 'dex', 'int', 'fm', 'soc']
     const charLabels = ['M', 'CC', 'CT', 'F', 'E', 'I', 'Ag', 'Dex', 'Int', 'FM', 'Soc']
 
-    for (let i = 0; i < charOrder.length; i++) {
-      statsDesc += '<th>' + charLabels[i] + '</th>'
-    }
-    statsDesc += '</tr><tr>'
-    for (let i = 0; i < charOrder.length; i++) {
-      const val = creature.char[charOrder[i]] || '-'
-      statsDesc += '<td>' + val + '</td>'
-    }
-    statsDesc += '</tr></table><br>'
+    // Build characteristics table
+    const charValues = charOrder.map(key => creature.char[key] || '-')
+
+    statsSections.push({
+      type: 'table',
+      label: 'Caractéristiques',
+      headers: charLabels,
+      rows: [charValues]
+    })
 
     // Additional stats
     if (creature.char.b) {
-      statsDesc += '<b>Blessures: </b>' + creature.char.b + '<br>'
+      statsSections.push({
+        type: 'text',
+        label: 'Blessures',
+        content: creature.char.b.toString()
+      })
     }
     if (creature.char.bf) {
-      statsDesc += '<b>Bonus de Force: </b>' + creature.char.bf + '<br>'
+      statsSections.push({
+        type: 'text',
+        label: 'Bonus de Force',
+        content: creature.char.bf.toString()
+      })
     }
     if (creature.char.be) {
-      statsDesc += '<b>Bonus d\'Endurance: </b>' + creature.char.be + '<br>'
+      statsSections.push({
+        type: 'text',
+        label: "Bonus d'Endurance",
+        content: creature.char.be.toString()
+      })
     }
     if (creature.char.pv) {
-      statsDesc += '<b>Points de Vie: </b>' + creature.char.pv + '<br>'
+      statsSections.push({
+        type: 'text',
+        label: 'Points de Vie',
+        content: creature.char.pv.toString()
+      })
     }
 
-    result['Stats'] = statsDesc
+    sections.push({
+      type: 'tab',
+      tabKey: 'Stats',
+      tabLabel: 'Stats',
+      sections: statsSections
+    })
   }
 
   // Skills, Talents, and Traits
-  let abilitiesDesc = ''
+  const abilitiesSections = []
 
   if (creature.skills && Array.isArray(creature.skills) && creature.skills.length > 0) {
     const skills = await Promise.all(
@@ -2046,7 +2077,15 @@ export async function generateCreatureDescription(creatureId) {
     )
     const validSkills = skills.filter(s => s)
     if (validSkills.length > 0) {
-      abilitiesDesc += '<b>Compétences: </b>' + toHtmlList(entitiesToSimpleArray(validSkills, true))
+      abilitiesSections.push({
+        type: 'list',
+        label: 'Compétences',
+        items: validSkills.map(s => ({
+          id: s.id,
+          type: 'skill',
+          label: getEntityLabel(s)
+        }))
+      })
     }
   }
 
@@ -2059,7 +2098,15 @@ export async function generateCreatureDescription(creatureId) {
     )
     const validTalents = talents.filter(t => t)
     if (validTalents.length > 0) {
-      abilitiesDesc += '<b>Talents: </b>' + toHtmlList(entitiesToSimpleArray(validTalents, true))
+      abilitiesSections.push({
+        type: 'list',
+        label: 'Talents',
+        items: validTalents.map(t => ({
+          id: t.id,
+          type: 'talent',
+          label: getEntityLabel(t)
+        }))
+      })
     }
   }
 
@@ -2072,20 +2119,33 @@ export async function generateCreatureDescription(creatureId) {
     )
     const validTraits = traits.filter(t => t)
     if (validTraits.length > 0) {
-      abilitiesDesc += '<b>Traits: </b>' + toHtmlList(entitiesToSimpleArray(validTraits, true))
+      abilitiesSections.push({
+        type: 'list',
+        label: 'Traits',
+        items: validTraits.map(t => ({
+          id: t.id,
+          type: 'trait',
+          label: getEntityLabel(t)
+        }))
+      })
     }
   }
 
   if (creature.optionals && Array.isArray(creature.optionals) && creature.optionals.length > 0) {
-    abilitiesDesc += '<b>Capacités optionnelles: </b><ul>'
-    creature.optionals.forEach(opt => {
-      abilitiesDesc += '<li>' + opt + '</li>'
+    abilitiesSections.push({
+      type: 'list',
+      label: 'Capacités optionnelles',
+      items: creature.optionals.map(opt => opt)
     })
-    abilitiesDesc += '</ul>'
   }
 
-  if (abilitiesDesc) {
-    result['Capacités'] = abilitiesDesc
+  if (abilitiesSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Capacités',
+      tabLabel: 'Capacités',
+      sections: abilitiesSections
+    })
   }
 
   // Spells - grouped by type and spec
@@ -2115,16 +2175,29 @@ export async function generateCreatureDescription(creatureId) {
         spellsByGroupAndSpec[type][spec].push(spell)
       })
 
-      // Build HTML with grouped spells
-      let spellsDesc = ''
+      // Build spell sections grouped by type and spec
+      const spellsSections = []
       for (const [type, specGroups] of Object.entries(spellsByGroupAndSpec)) {
         for (const [spec, spellList] of Object.entries(specGroups)) {
           const groupLabel = type + (spec ? ' (' + spec + ')' : '')
-          spellsDesc += '<b>' + groupLabel + ': </b>' + toHtmlList(entitiesToSimpleArray(spellList, true)) + '<br>'
+          spellsSections.push({
+            type: 'list',
+            label: groupLabel,
+            items: spellList.map(s => ({
+              id: s.id,
+              type: 'spell',
+              label: getEntityLabel(s)
+            }))
+          })
         }
       }
 
-      result['Sorts'] = spellsDesc
+      sections.push({
+        type: 'tab',
+        tabKey: 'Sorts',
+        tabLabel: 'Sorts',
+        sections: spellsSections
+      })
     }
   }
 
@@ -2138,11 +2211,26 @@ export async function generateCreatureDescription(creatureId) {
     )
     const validTrappings = trappings.filter(t => t)
     if (validTrappings.length > 0) {
-      result['Équipement'] = '<b>Possessions: </b>' + toHtmlList(entitiesToSimpleArray(validTrappings, true))
+      sections.push({
+        type: 'tab',
+        tabKey: 'Équipement',
+        tabLabel: 'Équipement',
+        sections: [
+          {
+            type: 'list',
+            label: 'Possessions',
+            items: validTrappings.map(t => ({
+              id: t.id,
+              type: 'trapping',
+              label: getEntityLabel(t)
+            }))
+          }
+        ]
+      })
     }
   }
 
-  return result
+  return { sections }
 }
 
 /**
