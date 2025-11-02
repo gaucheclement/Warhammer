@@ -27,6 +27,7 @@
   import { db } from '../lib/db.js';
   import DataTable from './DataTable.svelte';
   import NavigationBar from './NavigationBar.svelte';
+  import DescriptionRenderer from './descriptions/DescriptionRenderer.svelte';
   import {
     navigationState,
     currentEntry,
@@ -51,14 +52,11 @@
   // Internal state
   let loading = false;
   let error = null;
-  let currentTab = ''; // Will be set to first tab when data loads
+  let currentTab = 'description'; // Either 'description' or 'related'
   let descriptionData = null;
   let entityLabel = '';
   let relatedEntities = null;
   let loadingRelated = false;
-
-  // Reactive variable for current tab content
-  let currentTabContent = '';
 
   // Cache for loaded descriptions to avoid redundant fetches
   const descriptionCache = new Map();
@@ -147,15 +145,8 @@
         throw new Error(`Failed to generate description for ${currentEntityType}: ${currentEntityId}`);
       }
 
-      // Handle different return types
-      if (typeof result === 'string') {
-        // Simple string description
-        descriptionData = { Info: result };
-      } else if (typeof result === 'object') {
-        // Object with sections (Info, Détails, Caractéristiques, etc.)
-        descriptionData = result;
-      }
-
+      // Store structured data directly
+      descriptionData = result;
 
       // Cache the result
       descriptionCache.set(cacheKey, {
@@ -239,8 +230,17 @@
   }
 
   /**
-   * Handle cross-reference link clicks (STREAM C)
-   * Uses event delegation to capture clicks on .showHelp elements
+   * Handle navigation from DescriptionRenderer
+   * @param {CustomEvent} event - Navigation event with {type, id}
+   */
+  function handleDescriptionNavigate(event) {
+    const { type, id } = event.detail;
+    navigateToEntity(type, id);
+  }
+
+  /**
+   * Handle cross-reference link clicks for legacy HTML content
+   * (Still needed for {@html} content that uses .showHelp spans)
    * @param {MouseEvent} e - Click event
    */
   function handleCrossReferenceClick(e) {
@@ -272,75 +272,10 @@
 
   /**
    * Switch to a different tab
-   * @param {string} tabName - Name of the tab to switch to
+   * @param {string} tabName - 'description' or 'related'
    */
   function switchTab(tabName) {
     currentTab = tabName;
-  }
-
-  /**
-   * Get available tabs from description data
-   * @returns {Array<string>} Array of tab names
-   */
-  function getTabs() {
-    if (!descriptionData || typeof descriptionData !== 'object') {
-      return [];
-    }
-    return Object.keys(descriptionData);
-  }
-
-  /**
-   * Check if entity has multiple tabs
-   * @returns {boolean} True if entity has tabs
-   */
-  function hasTabs() {
-    const tabs = getTabs();
-    return tabs.length > 1;
-  }
-
-  /**
-   * Get HTML content for current tab
-   * @returns {string} HTML content
-   */
-  function getCurrentTabContent() {
-    if (!descriptionData) return '';
-
-    // If descriptionData is a string, return it directly
-    if (typeof descriptionData === 'string') {
-      return descriptionData;
-    }
-
-    // If descriptionData is an object with tabs
-    const tabs = getTabs();
-    if (tabs.length === 0) return '';
-
-    // Ensure currentTab exists, otherwise use first tab
-    if (!descriptionData[currentTab]) {
-      currentTab = tabs[0];
-    }
-
-    return descriptionData[currentTab] || '';
-  }
-
-  // Reactive statement to set initial tab or reset if invalid
-  // Don't reset if we're on the 'related' tab (it's not in descriptionData)
-  $: if (descriptionData) {
-    const tabs = getTabs();
-    if (tabs.length > 0) {
-      // If currentTab is empty or invalid (and not 'related'), set to first tab
-      if (currentTab !== 'related' && (!currentTab || !descriptionData[currentTab])) {
-        currentTab = tabs[0];
-      }
-    }
-  }
-
-  // Reactive: Update content when tab or data changes
-  $: {
-    if (descriptionData && currentTab !== 'related') {
-      currentTabContent = descriptionData[currentTab] || '';
-    } else {
-      currentTabContent = '';
-    }
   }
 
   /**
@@ -430,24 +365,22 @@
   <!-- Tab Navigation -->
   {#if !loading && !error}
     <div class="entity-description__tabs" role="tablist" aria-label="Entity information tabs">
-      <!-- Dynamic tabs from descriptionData -->
-      {#each getTabs() as tabName}
-        <button
-          class="entity-description__tab"
-          class:entity-description__tab--active={currentTab === tabName}
-          role="tab"
-          aria-selected={currentTab === tabName}
-          aria-controls="entity-content-{tabName}"
-          id="entity-tab-{tabName}"
-          on:click={() => switchTab(tabName)}
-          on:keydown={(e) => handleTabKeydown(e, tabName)}
-          tabindex={currentTab === tabName ? 0 : -1}
-        >
-          {tabName}
-        </button>
-      {/each}
+      <!-- Description Tab -->
+      <button
+        class="entity-description__tab"
+        class:entity-description__tab--active={currentTab === 'description'}
+        role="tab"
+        aria-selected={currentTab === 'description'}
+        aria-controls="entity-content-description"
+        id="entity-tab-description"
+        on:click={() => switchTab('description')}
+        on:keydown={(e) => handleTabKeydown(e, 'description')}
+        tabindex={currentTab === 'description' ? 0 : -1}
+      >
+        Description
+      </button>
 
-      <!-- Related Tab (always shown) -->
+      <!-- Related Tab -->
       <button
         class="entity-description__tab"
         class:entity-description__tab--active={currentTab === 'related'}
@@ -490,19 +423,23 @@
           </p>
         {/if}
       </div>
-    {:else if currentTab !== 'related'}
-      <!-- Content tabs: HTML Content Rendering -->
+    {:else if currentTab === 'description'}
+      <!-- Description tab: Use DescriptionRenderer -->
       <div
-        class="entity-description__html-content"
+        class="entity-description__description-content"
         on:click={handleCrossReferenceClick}
         role="article"
       >
-        {#if currentTabContent}
-          {@html currentTabContent}
+        {#if descriptionData}
+          <DescriptionRenderer
+            entityType={currentEntityType}
+            data={descriptionData}
+            on:navigate={handleDescriptionNavigate}
+          />
         {:else}
           <!-- Placeholder when no description available -->
           <p class="entity-description__placeholder">
-            No description available for this tab.
+            No description available.
           </p>
         {/if}
       </div>
@@ -804,35 +741,33 @@
     color: var(--color-text-secondary);
   }
 
-  /* HTML Content Rendering (STREAM C) */
-  .entity-description__html-content {
+  /* Description Content Rendering */
+  .entity-description__description-content {
     line-height: 1.6;
   }
 
-  /* Cross-Reference Link Styles (STREAM C) */
-  .entity-description__html-content :global(.showHelp) {
+  /* Cross-Reference Link Styles (for legacy {@html} content) */
+  .entity-description__description-content :global(.showHelp) {
     color: var(--color-primary);
     text-decoration: underline;
     cursor: pointer;
     transition: color var(--transition-fast);
   }
 
-  .entity-description__html-content :global(.showHelp):hover {
+  .entity-description__description-content :global(.showHelp):hover {
     color: var(--color-primary-dark);
     text-decoration: underline;
   }
 
-  .entity-description__html-content :global(.showHelp):focus {
+  .entity-description__description-content :global(.showHelp):focus {
     outline: var(--focus-ring-width) solid var(--color-border-focus);
     outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-sm);
   }
 
-  .entity-description__html-content :global(.showHelp):active {
+  .entity-description__description-content :global(.showHelp):active {
     color: var(--color-primary-darker);
   }
-
-  /* .entity-description__html-content :global(.showHelp) { ... } */
 
   .entity-description__placeholder {
     color: var(--color-text-secondary);
@@ -1036,10 +971,10 @@
 
     .entity-description__close-btn {
       transition: none;
-
-    .entity-description__html-content :global(.showHelp) {
-      transition: none;
     }
+
+    .entity-description__description-content :global(.showHelp) {
+      transition: none;
     }
   }
 
@@ -1051,11 +986,11 @@
 
     .entity-description__type-badge {
       border-width: 2px;
+    }
 
-    .entity-description__html-content :global(.showHelp) {
+    .entity-description__description-content :global(.showHelp) {
       text-decoration: underline;
       font-weight: var(--font-weight-bold);
-    }
     }
   }
 </style>

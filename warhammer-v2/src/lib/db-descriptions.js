@@ -115,34 +115,10 @@ function showHelpTextFromElem(entity) {
   return showHelpText(getEntityLabel(entity), entity.id, entity.typeItem)
 }
 
-/**
- * Convert array to HTML list
- * @param {Array<string>} array - Array of strings
- * @returns {string} HTML unordered list
- */
-function toHtmlList(array) {
-  if (!array || !array.length) return ''
-  return '<ul><li>' + array.join('</li><li>') + '</li></ul>'
-}
-
-/**
- * Convert rank number to icon HTML
- * @param {number} rank - Career level rank (1-4)
- * @returns {string} HTML for rank icon
- */
-function rankToImg(rank) {
-  let icon = 'icon '
-  if (rank === 1) {
-    icon += 'cross_icon'
-  } else if (rank === 2) {
-    icon += 'sword_icon'
-  } else if (rank === 3) {
-    icon += 'skull_icon'
-  } else if (rank === 4) {
-    icon += 'shield_icon'
-  }
-  return `<div title="Rang ${rank}" class="${icon}"></div>`
-}
+// NOTE: toHtmlList() and rankToImg() have been removed
+// These functions are now replaced by Svelte components:
+// - toHtmlList() → DescriptionList.svelte
+// - rankToImg() → RankIcon.svelte
 
 /**
  * Convert array of entities to simple label strings with optional help links
@@ -321,39 +297,8 @@ function listMatchSimple(text, matches, key) {
   return html
 }
 
-/**
- * List career level matches with rank icons
- *
- * Implements DescriptionHelper.listMatchCareerLevel() for displaying
- * career levels with their rank indicators.
- *
- * @param {string} text - Section title
- * @param {Array} careerLevelMatches - Array of career level objects by rank
- * @returns {string} HTML formatted list with rank icons
- */
-function listMatchCareerLevel(text, careerLevelMatches) {
-  if (!careerLevelMatches || !careerLevelMatches.length) {
-    return ''
-  }
-
-  let html = '<b>' + text + ': </b><ul>'
-
-  careerLevelMatches.forEach((levelGroup, rank) => {
-    if (levelGroup) {
-      for (const [name, entity] of Object.entries(levelGroup)) {
-        html += '<li style="display: flex">'
-        html += '<div class="div_label">'
-        html += rankToImg(rank)
-        html += showHelpText(name, entity.id, 'careerLevel')
-        html += '</div>'
-        html += '</li>'
-      }
-    }
-  })
-
-  html += '</ul>'
-  return html
-}
+// NOTE: listMatchCareerLevel() has been removed
+// This legacy function is no longer used after refactoring to structured data
 
 // ============================================================================
 // ENTITY DESCRIPTION GENERATORS
@@ -496,8 +441,8 @@ export async function generateCareerDescription(careerId) {
 
       sections.push({
         type: 'tab',
-        tabKey: rankToImg(level.level),
-        tabLabel: rankToImg(level.level),
+        tabKey: `level-${level.level}`,
+        tabLabel: `Niveau ${level.level}`,
         rank: level.level,
         sections: levelSections
       })
@@ -2417,8 +2362,7 @@ export default {
   buildLabelMap,
   showHelpText,
   showHelpTextFromElem,
-  toHtmlList,
-  rankToImg,
+  // NOTE: toHtmlList and rankToImg have been removed - replaced by Svelte components
   entitiesToSimpleArray,
 
   // Description generators

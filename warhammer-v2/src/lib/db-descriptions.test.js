@@ -182,13 +182,17 @@ describe('Career Description Generation', () => {
   })
 
   describe('generateCareerDescription', () => {
-    it('should generate career description with levels', async () => {
+    it('should generate career description with structured data and tabs', async () => {
       const description = await generateCareerDescription('soldier')
 
       expect(description).toBeDefined()
-      expect(typeof description).toBe('object')
-      // Should have entries for career levels (rank icons as keys)
-      expect(Object.keys(description).length).toBeGreaterThan(0)
+      expect(description).toHaveProperty('sections')
+      expect(Array.isArray(description.sections)).toBe(true)
+      expect(description.sections.length).toBeGreaterThan(0)
+
+      // Should have tab sections for career levels
+      const tabSections = description.sections.filter(s => s.type === 'tab')
+      expect(tabSections.length).toBeGreaterThan(0)
     })
 
     it('should return null for non-existent career', async () => {
@@ -196,12 +200,29 @@ describe('Career Description Generation', () => {
       expect(description).toBeNull()
     })
 
-    it('should include career basic info', async () => {
+    it('should include career levels with rank metadata', async () => {
       const description = await generateCareerDescription('soldier')
 
-      // Check that it has some content
-      const allContent = Object.values(description).join(' ')
-      expect(allContent).toContain('Soldat')
+      // Find level tabs
+      const levelTabs = description.sections.filter(s => s.type === 'tab' && s.rank)
+      expect(levelTabs.length).toBeGreaterThan(0)
+
+      // Check first level has correct structure
+      const level1 = levelTabs.find(t => t.rank === 1)
+      expect(level1).toBeDefined()
+      expect(level1.tabKey).toBe('level-1')
+      expect(level1.tabLabel).toBe('Niveau 1')
+      expect(level1.sections).toBeDefined()
+      expect(Array.isArray(level1.sections)).toBe(true)
+    })
+
+    it('should include species access information', async () => {
+      const description = await generateCareerDescription('soldier')
+
+      // Find species access tab
+      const accessTab = description.sections.find(s => s.tabLabel === 'Accès')
+      expect(accessTab).toBeDefined()
+      expect(accessTab.type).toBe('tab')
     })
   })
 })
@@ -239,12 +260,13 @@ describe('Talent Description Generation', () => {
   })
 
   describe('generateTalentDescription', () => {
-    it('should generate talent description', async () => {
+    it('should generate talent description with structured data', async () => {
       const description = await generateTalentDescription('ambidextrous')
 
       expect(description).toBeDefined()
-      // Can be string or object
-      expect(['string', 'object']).toContain(typeof description)
+      expect(description).toHaveProperty('sections')
+      expect(Array.isArray(description.sections)).toBe(true)
+      expect(description.sections.length).toBeGreaterThan(0)
     })
 
     it('should return null for non-existent talent', async () => {
@@ -252,14 +274,23 @@ describe('Talent Description Generation', () => {
       expect(description).toBeNull()
     })
 
-    it('should include max rank if present', async () => {
+    it('should include max rank section if present', async () => {
       const description = await generateTalentDescription('ambidextrous')
 
-      if (typeof description === 'object' && description.Info) {
-        expect(description.Info).toContain('1')
-      } else if (typeof description === 'string') {
-        expect(description).toContain('1')
-      }
+      expect(description.sections).toBeDefined()
+      const maxSection = description.sections.find(s => s.label === 'Maxi')
+      expect(maxSection).toBeDefined()
+      expect(maxSection.type).toBe('text')
+      expect(maxSection.content).toContain('1')
+    })
+
+    it('should include description section', async () => {
+      const description = await generateTalentDescription('ambidextrous')
+
+      // Description section has no label, just content
+      const descSection = description.sections.find(s => s.type === 'text' && !s.label && s.content)
+      expect(descSection).toBeDefined()
+      expect(descSection.content).toContain('two weapons')
     })
   })
 })
@@ -300,11 +331,13 @@ describe('Skill Description Generation', () => {
   })
 
   describe('generateSkillDescription', () => {
-    it('should generate skill description', async () => {
+    it('should generate skill description with structured data', async () => {
       const description = await generateSkillDescription('athletisme')
 
       expect(description).toBeDefined()
-      expect(['string', 'object']).toContain(typeof description)
+      expect(description).toHaveProperty('sections')
+      expect(Array.isArray(description.sections)).toBe(true)
+      expect(description.sections.length).toBeGreaterThan(0)
     })
 
     it('should return null for non-existent skill', async () => {
@@ -312,17 +345,23 @@ describe('Skill Description Generation', () => {
       expect(description).toBeNull()
     })
 
-    it('should include characteristic', async () => {
+    it('should include characteristic link', async () => {
       const description = await generateSkillDescription('athletisme')
 
-      let content = description
-      if (typeof description === 'object' && description.Info) {
-        content = description.Info
-      }
+      const charSection = description.sections.find(s => s.label === 'Attribut')
+      expect(charSection).toBeDefined()
+      expect(charSection.type).toBe('link')
+      expect(charSection.entity).toBeDefined()
+      expect(charSection.entity.type).toBe('characteristic')
+      expect(charSection.entity.id).toBe('ag')
+    })
 
-      if (typeof content === 'string') {
-        expect(content.toLowerCase()).toContain('ag')
-      }
+    it('should include skill type', async () => {
+      const description = await generateSkillDescription('athletisme')
+
+      const typeSection = description.sections.find(s => s.label === 'Type')
+      expect(typeSection).toBeDefined()
+      expect(typeSection.type).toBe('text')
     })
   })
 })
@@ -355,11 +394,12 @@ describe('Spell Description Generation', () => {
   })
 
   describe('generateSpellDescription', () => {
-    it('should generate spell description', async () => {
+    it('should generate spell description with structured data', async () => {
       const description = await generateSpellDescription('fireball')
 
       expect(description).toBeDefined()
-      expect(typeof description).toBe('object')
+      expect(description).toHaveProperty('sections')
+      expect(Array.isArray(description.sections)).toBe(true)
     })
 
     it('should return null for non-existent spell', async () => {
@@ -370,17 +410,27 @@ describe('Spell Description Generation', () => {
     it('should include casting number', async () => {
       const description = await generateSpellDescription('fireball')
 
-      expect(description.Info).toBeDefined()
-      expect(description.Info).toContain('5')
+      const cnSection = description.sections.find(s => s.label === 'NI')
+      expect(cnSection).toBeDefined()
+      expect(cnSection.type).toBe('text')
+      expect(cnSection.content).toContain('5')
     })
 
-    it('should include range, target, duration', async () => {
+    it('should include range, target, duration as separate sections', async () => {
       const description = await generateSpellDescription('fireball')
 
-      const info = description.Info
-      expect(info).toContain('12 yards')
-      expect(info).toContain('One creature')
-      expect(info).toContain('Instant')
+      const rangeSection = description.sections.find(s => s.label === 'Portée')
+      expect(rangeSection).toBeDefined()
+      expect(rangeSection.type).toBe('text')
+      expect(rangeSection.content).toContain('12 yards')
+
+      const targetSection = description.sections.find(s => s.label === 'Cible')
+      expect(targetSection).toBeDefined()
+      expect(targetSection.content).toContain('One creature')
+
+      const durationSection = description.sections.find(s => s.label === 'Durée')
+      expect(durationSection).toBeDefined()
+      expect(durationSection.content).toContain('Instant')
     })
   })
 })
