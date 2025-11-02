@@ -1,4 +1,30 @@
 /**
+ * ⚠️ DEPRECATED - ARCHIVED FILE ⚠️
+ *
+ * This file has been SUPERSEDED by the unified data layer in `data.js`.
+ *
+ * Issue #48: Unified Data Layer Architecture
+ * Date Archived: 2025-11-02
+ *
+ * REASON FOR DEPRECATION:
+ * This was a parallel implementation that was never fully integrated into the application.
+ * It implemented Issue #47's transformData pipeline but lacked the complete API surface
+ * (characters store, helper functions) that the active `data.js` provided.
+ *
+ * MIGRATION:
+ * All functionality from this file has been integrated into `src/stores/data.js`:
+ * - transformData pipeline (Issue #47)
+ * - EntityReference parsing and validation
+ * - dataQueries utility object
+ * - optimizedMergedData derived store
+ *
+ * DO NOT USE THIS FILE. Import from `./data.js` instead.
+ *
+ * For details, see: .claude/epics/description/48-migration-guide.md
+ *
+ * ---
+ * ORIGINAL DOCUMENTATION (for reference only):
+ *
  * Data Store
  *
  * Central data management for Warhammer Fantasy 4e application.
@@ -14,6 +40,7 @@
 import { writable, derived, get } from 'svelte/store';
 import Dexie from 'dexie';
 import { customModifications, ENTITY_TYPES } from './customModifications.js';
+import { transformData, loadIntoIndexedDB, formatReport } from '../lib/db-loader.js';
 
 // Database for official data (created by Task #12)
 const db = new Dexie('WarhammerData');
@@ -47,54 +74,43 @@ db.version(1).stores({
 
 /**
  * Seed IndexedDB with initial data from window.__WARHAMMER_DATA__
- * Maps singular keys from JSON to plural table names
- * Transforms 'index' field to 'id' field for Dexie primary key
+ *
+ * Issue #47: Now uses db-loader to:
+ * - Generate stable string IDs (e.g., "skill-athletisme" instead of 0)
+ * - Parse references into EntityReference objects  
+ * - Validate and report data quality
  */
 async function seedIndexedDB(data) {
-  const keyMapping = {
-    'book': 'books',
-    'career': 'careers',
-    'careerLevel': 'careerLevels',
-    'specie': 'species',
-    'class': 'classes',
-    'talent': 'talents',
-    'characteristic': 'characteristics',
-    'trapping': 'trappings',
-    'skill': 'skills',
-    'spell': 'spells',
-    'creature': 'creatures',
-    'star': 'stars',
-    'god': 'gods',
-    'eye': 'eyes',
-    'hair': 'hairs',
-    'detail': 'details',
-    'trait': 'traits',
-    'lore': 'lores',
-    'magick': 'magicks',
-    'etat': 'etats',
-    'psychologie': 'psychologies',
-    'quality': 'qualities',
-    'tree': 'trees'
-  };
-
   console.log('Seeding IndexedDB with initial data...');
+  console.log('Issue #47: Using db-loader for ID generation and reference parsing');
 
-  for (const [singularKey, pluralKey] of Object.entries(keyMapping)) {
-    const entities = data[singularKey] || [];
-    if (entities.length > 0) {
-      // Transform: add 'id' field from 'index'
-      const entitiesWithId = entities.map(e => ({ ...e, id: e.index }));
-      try {
-        await db[pluralKey].bulkAdd(entitiesWithId);
-        console.log(`Loaded ${entities.length} ${singularKey} → ${pluralKey}`);
-      } catch (error) {
-        console.error(`Failed to load ${singularKey}:`, error);
-        // Continue with other entity types
-      }
+  try {
+    // Transform data using db-loader
+    // This generates string IDs and parses all references
+    const { data: transformedData, report } = transformData(data, {
+      generateReport: true,
+      preserveOriginal: false
+    });
+
+    // Log transformation report
+    console.log(formatReport(report));
+
+    // Load transformed data into IndexedDB
+    const stats = await loadIntoIndexedDB(db, transformedData);
+
+    // Log loading statistics
+    console.log('IndexedDB seeded successfully');
+    console.log('Load statistics:', stats);
+
+    if (stats.errors && stats.errors.length > 0) {
+      console.error('Some tables failed to load:', stats.errors);
     }
-  }
 
-  console.log('IndexedDB seeded successfully');
+    return { transformedData, report, stats };
+  } catch (error) {
+    console.error('Failed to seed IndexedDB:', error);
+    throw error;
+  }
 }
 
 /**
