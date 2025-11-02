@@ -252,12 +252,16 @@ export async function getCareerLevelSkills(careerLevelId, onlyThisLevel = false)
   let allSkills = []
 
   // If not only this level and level > 1, get previous levels' skills
-  if (!onlyThisLevel && careerLevel.level > 1) {
+  const levelNum = careerLevel.careerLevel || careerLevel.level || 1
+  if (!onlyThisLevel && levelNum > 1) {
     const previousLevels = await db.careerLevels
       .where('career')
       .equals(careerLevel.career)
-      .and(cl => cl.level < careerLevel.level)
-      .sortBy('level')
+      .and(cl => {
+        const clLevel = cl.careerLevel || cl.level || 1
+        return clLevel < levelNum
+      })
+      .sortBy('careerLevel')
 
     for (const prevLevel of previousLevels) {
       if (prevLevel.skills && Array.isArray(prevLevel.skills)) {
@@ -345,12 +349,16 @@ export async function getCareerLevelCharacteristics(careerLevelId, onlyThisLevel
   let allCharacteristics = []
 
   // If not only this level and level > 1, get previous levels' characteristics
-  if (!onlyThisLevel && careerLevel.level > 1) {
+  const levelNum = careerLevel.careerLevel || careerLevel.level || 1
+  if (!onlyThisLevel && levelNum > 1) {
     const previousLevels = await db.careerLevels
       .where('career')
       .equals(careerLevel.career)
-      .and(cl => cl.level < careerLevel.level)
-      .sortBy('level')
+      .and(cl => {
+        const clLevel = cl.careerLevel || cl.level || 1
+        return clLevel < levelNum
+      })
+      .sortBy('careerLevel')
 
     for (const prevLevel of previousLevels) {
       if (prevLevel.characteristics && Array.isArray(prevLevel.characteristics)) {
@@ -402,7 +410,8 @@ export async function getCareerLevelTrappings(careerLevelId, onlyThisLevel = fal
   let allTrappings = []
 
   // For level 1, include class trappings
-  if (!onlyThisLevel && careerLevel.level === 1) {
+  const levelNum = careerLevel.careerLevel || careerLevel.level || 1
+  if (!onlyThisLevel && levelNum === 1) {
     const career = await getCareerLevelCareer(careerLevelId)
     if (career) {
       const classObj = await getCareerClass(career.id)
@@ -1824,12 +1833,14 @@ export async function resolveEntityRef(ref, type) {
 
   // String ID
   if (typeof ref === 'string') {
-    return await db[type].get(ref)
+    const entity = await db[type].get(ref)
+    return entity !== undefined ? entity : null
   }
 
   // Object with ID
   if (ref.id) {
-    return await db[type].get(ref.id)
+    const entity = await db[type].get(ref.id)
+    return entity !== undefined ? entity : null
   }
 
   return null
