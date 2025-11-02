@@ -23,6 +23,52 @@ import { db } from './db.js'
 import { parseSpecs } from './db-reference-parser.js'
 
 /**
+ * Helper to resolve a reference that can be in multiple formats
+ *
+ * Handles:
+ * - string: direct ID → fetch from DB
+ * - array: [{entityType, id, label, originalText}] → extract id from first element
+ * - object with id: {id, ...} → extract id
+ * - null/undefined → return null
+ *
+ * @param {string|Array|Object} reference - The reference to resolve
+ * @param {Object} dbCollection - Dexie collection (db.skills, db.careers, etc.)
+ * @returns {Promise<Object|null>} The resolved entity or null
+ *
+ * @example
+ * // String ID
+ * await resolveReference('athletisme', db.skills)
+ *
+ * @example
+ * // Array reference
+ * await resolveReference([{entityType: 'skills', id: 'athletisme', ...}], db.skills)
+ *
+ * @example
+ * // Object with id
+ * await resolveReference({id: 'athletisme', ...}, db.skills)
+ */
+async function resolveReference(reference, dbCollection) {
+  if (!reference) return null
+
+  let entityId
+
+  if (typeof reference === 'string') {
+    // Direct string ID
+    entityId = reference
+  } else if (Array.isArray(reference) && reference[0]) {
+    // Array of reference objects [{entityType, id, label, originalText}]
+    entityId = reference[0].id
+  } else if (reference.id) {
+    // Object with id field
+    entityId = reference.id
+  }
+
+  if (!entityId) return null
+
+  return await dbCollection.get(entityId)
+}
+
+/**
  * Simple in-memory cache for frequently accessed relationships
  * Cache entries expire after 5 minutes
  */
@@ -158,7 +204,7 @@ export async function getCareerClass(careerId) {
   const career = await db.careers.get(careerId)
   if (!career || !career.class) return null
 
-  const classObj = await db.classes.get(career.class)
+  const classObj = await resolveReference(career.class, db.classes)
   relationCache.set(cacheKey, classObj)
   return classObj
 }
@@ -219,7 +265,7 @@ export async function getCareerLevelCareer(careerLevelId) {
   const careerLevel = await db.careerLevels.get(careerLevelId)
   if (!careerLevel || !careerLevel.career) return null
 
-  const career = await db.careers.get(careerLevel.career)
+  const career = await resolveReference(careerLevel.career, db.careers)
   relationCache.set(cacheKey, career)
   return career
 }
@@ -462,7 +508,7 @@ export async function getTalentSkill(talentId) {
   const talent = await db.talents.get(talentId)
   if (!talent || !talent.addSkill) return null
 
-  const skill = await db.skills.get(talent.addSkill)
+  const skill = await resolveReference(talent.addSkill, db.skills)
   if (!skill) return null
 
   // Apply talent's specializations to the skill
@@ -497,7 +543,7 @@ export async function getTalentTalent(talentId) {
   const talent = await db.talents.get(talentId)
   if (!talent || !talent.addTalent) return null
 
-  const relatedTalent = await db.talents.get(talent.addTalent)
+  const relatedTalent = await resolveReference(talent.addTalent, db.talents)
   if (!relatedTalent) return null
 
   const result = { ...relatedTalent, origins: ['talent', talentId] }
@@ -582,22 +628,7 @@ export async function getSkillCharacteristic(skillId) {
   const skill = await db.skills.get(skillId)
   if (!skill || !skill.characteristic) return null
 
-  // Handle different formats:
-  // - string: direct ID
-  // - array: reference object with {entityType, id, label, originalText}
-  // - object: full characteristic object
-  let characteristicId
-  if (typeof skill.characteristic === 'string') {
-    characteristicId = skill.characteristic
-  } else if (Array.isArray(skill.characteristic) && skill.characteristic[0]) {
-    characteristicId = skill.characteristic[0].id
-  } else if (skill.characteristic.id) {
-    characteristicId = skill.characteristic.id
-  }
-
-  if (!characteristicId) return null
-
-  const characteristic = await db.characteristics.get(characteristicId)
+  const characteristic = await resolveReference(skill.characteristic, db.characteristics)
   relationCache.set(cacheKey, characteristic)
   return characteristic
 }
@@ -694,7 +725,7 @@ export async function getSpellLore(spellId) {
   const spell = await db.spells.get(spellId)
   if (!spell || !spell.lore) return null
 
-  const lore = await db.lores.get(spell.lore)
+  const lore = await resolveReference(spell.lore, db.lores)
   relationCache.set(cacheKey, lore)
   return lore
 }
@@ -1052,7 +1083,7 @@ export async function getLoreMagick(loreId) {
     return null
   }
 
-  const magick = await db.magicks.get(lore.parent)
+  const magick = await resolveReference(lore.parent, db.magicks)
   relationCache.set(cacheKey, magick)
   return magick
 }
