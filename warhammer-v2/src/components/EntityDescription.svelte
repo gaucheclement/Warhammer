@@ -373,6 +373,9 @@
       if (value) {
         classes.push(`${base}--${key}`);
       }
+    }
+    return classes.join(' ');
+  }
 
   /**
    * Handle keyboard navigation for tabs
@@ -384,9 +387,6 @@
       event.preventDefault();
       switchTab(tabName);
     }
-  }
-    }
-    return classes.join(' ');
   }
 </script>
 
