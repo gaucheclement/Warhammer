@@ -277,11 +277,7 @@ export async function getCareerLevelSkills(careerLevelId, onlyThisLevel = false)
 
   // Resolve skill IDs to skill objects
   const skillObjects = await Promise.all(
-    allSkills.map(skillId => {
-      // Handle both string IDs and objects
-      const id = typeof skillId === 'string' ? skillId : skillId.id
-      return db.skills.get(id)
-    })
+    allSkills.map(skillId => resolveEntityReference(skillId, db.skills))
   )
 
   const result = skillObjects.filter(s => s !== null && s !== undefined)
@@ -314,10 +310,7 @@ export async function getCareerLevelTalents(careerLevelId) {
     : []
 
   const talentObjects = await Promise.all(
-    talentIds.map(talentId => {
-      const id = typeof talentId === 'string' ? talentId : talentId.id
-      return db.talents.get(id)
-    })
+    talentIds.map(talentId => resolveEntityReference(talentId, db.talents))
   )
 
   const result = talentObjects.filter(t => t !== null && t !== undefined)
@@ -431,10 +424,12 @@ export async function getCareerLevelTrappings(careerLevelId, onlyThisLevel = fal
   const trappingObjects = await Promise.all(
     allTrappings.map(async (trapping) => {
       if (typeof trapping === 'string') {
-        const obj = await db.trappings.get(trapping)
+        const obj = await resolveEntityReference(trapping, db.trappings)
         return obj || trapping // Return the object if found, otherwise the string
       }
-      return trapping
+      // Handle object references with specific specs
+      const resolved = await resolveEntityReference(trapping, db.trappings)
+      return resolved || trapping
     })
   )
 
