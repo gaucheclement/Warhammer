@@ -72,13 +72,10 @@
 
   // Initialize navigation when props change
   $: if (entityType && (entityId !== null && entityId !== undefined)) {
-    // Normalize ID
-    let normalizedId = entityId;
-
     currentEntityType = entityType;
-    currentEntityId = normalizedId;
+    currentEntityId = entityId;
     // Add to navigation history on initial load
-    navigateToEntity(entityType, normalizedId);
+    navigateToEntity(entityType, entityId);
   }
 
   // Listen to navigation state changes to update current entity
@@ -107,13 +104,8 @@
       return;
     }
 
-    // Normalize ID first for consistent caching
-    let normalizedId = currentEntityId;
-    if (typeof currentEntityId === 'string' && /^\d+$/.test(currentEntityId)) {
-    }
-
-    // Create cache key with normalized ID
-    const cacheKey = `${currentEntityType}:${normalizedId}`;
+    // Create cache key
+    const cacheKey = `${currentEntityType}:${currentEntityId}`;
 
     // Check cache first
     if (descriptionCache.has(cacheKey)) {
@@ -136,21 +128,8 @@
       let entity = null;
 
       if (db[tableName]) {
-        // Species use index (numeric 0, 1, 2...) instead of id (string)
-        // When entityId is a number for species, search by index field
-        if ((currentEntityType === 'specie' || currentEntityType === 'species') && typeof normalizedId === 'number') {
-          // Load all species and find by index field
-          // (index is not indexed in DB schema, so we can't use .where())
-          const allSpecies = await db[tableName].toArray();
-          entity = allSpecies.find(s => s.index === normalizedId);
-        } else {
-          // For other types or string IDs, use primary key lookup
-          // Try with normalized ID first, then original if that fails
-          entity = await db[tableName].get(normalizedId);
-          if (!entity && normalizedId !== currentEntityId) {
-            entity = await db[tableName].get(currentEntityId);
-          }
-        }
+        // Direct ID lookup
+        entity = await db[tableName].get(currentEntityId);
       }
 
 
@@ -162,8 +141,7 @@
       entityLabel = getEntityLabel(entity);
 
       // Generate description using the description generators
-      // Use normalizedId for consistency
-      const result = await generateDescription(currentEntityType, normalizedId);
+      const result = await generateDescription(currentEntityType, currentEntityId);
 
       if (!result) {
         throw new Error(`Failed to generate description for ${currentEntityType}: ${currentEntityId}`);
@@ -211,13 +189,8 @@
   async function loadRelatedEntities() {
     if (!currentEntityType || (currentEntityId === null || currentEntityId === undefined)) return;
 
-    // Normalize ID
-    let normalizedId = currentEntityId;
-    if (typeof currentEntityId === 'string' && /^\d+$/.test(currentEntityId)) {
-    }
-
-    // Create cache key with normalized ID
-    const cacheKey = `${currentEntityType}:${normalizedId}`;
+    // Create cache key
+    const cacheKey = `${currentEntityType}:${currentEntityId}`;
 
     // Check cache first
     if (relatedCache.has(cacheKey)) {
@@ -234,26 +207,10 @@
     const pluralType = currentEntityType === 'specie' || currentEntityType === 'species' ? 'species' : currentEntityType + 's';
 
     try {
-      // Fetch the actual entity to get its real ID (needed for species with index)
-      const tableName = pluralType;
-      let actualEntity = null;
-      if (db[tableName]) {
-        // Try normalized ID first
-        actualEntity = await db[tableName].get(normalizedId);
-        // For species, might need to search by index
-        if (!actualEntity && (currentEntityType === 'specie' || currentEntityType === 'species') && typeof normalizedId === 'number') {
-          const allSpecies = await db[tableName].toArray();
-          actualEntity = allSpecies.find(s => s.index === normalizedId);
-        }
-      }
-
-      // Use the entity's real ID for relations (not index)
-      const realEntityId = actualEntity?.id || normalizedId;
-
       // Get entity usage (where is this entity used?)
       // NOTE: This may return empty if data structure doesn't match ENTITY_RELATIONSHIP_CONFIG
       // See issue #41 for Related entities system improvements
-      const usage = await getEntityUsage(pluralType, realEntityId);
+      const usage = await getEntityUsage(pluralType, currentEntityId);
 
       // Transform usage data into a format suitable for display
       const related = {};
@@ -306,9 +263,6 @@
     if (!clickedType || (clickedId === null || clickedId === undefined)) {
       console.warn('Cross-reference link missing data-type or data-id attributes', target);
       return;
-    }
-
-    if (typeof clickedId === 'string' && /^\d+$/.test(clickedId)) {
     }
 
     // Navigate to the entity (adds to history and updates current entity)
@@ -402,11 +356,7 @@
    * Handle navigation from related entities
    */
   function handleRelatedEntityClick(clickedType, clickedId) {
-    // Normalize ID if needed
-    let normalizedId = clickedId;
-    if (typeof clickedId === 'string' && /^\d+$/.test(clickedId)) {
-    }
-    navigateToEntity(clickedType, normalizedId);
+    navigateToEntity(clickedType, clickedId);
   }
 
   // Clean up on destroy

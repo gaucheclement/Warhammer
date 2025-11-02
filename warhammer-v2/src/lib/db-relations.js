@@ -1231,11 +1231,12 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // TALENTS - referenced by careerLevels, species, creatures, and other talents
   talents: {
-    arrayReferences: [],
+    arrayReferences: [
+      { table: 'careerLevels', field: 'talents', type: 'array' },
+      { table: 'species', field: 'talents', type: 'array' },
+      { table: 'creatures', field: 'talents', type: 'array' }
+    ],
     stringReferences: [
-      { table: 'careerLevels', field: 'talents', indexed: false, parseList: true },
-      { table: 'species', field: 'talents', indexed: false, parseList: true },
-      { table: 'creatures', field: 'talents', indexed: false, parseList: true },
       { table: 'talents', field: 'addTalent', indexed: true }
     ],
     objectReferences: []
@@ -1243,11 +1244,12 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // SKILLS - referenced by careerLevels, species, creatures, talents
   skills: {
-    arrayReferences: [],
+    arrayReferences: [
+      { table: 'careerLevels', field: 'skills', type: 'array' },
+      { table: 'species', field: 'skills', type: 'array' },
+      { table: 'creatures', field: 'skills', type: 'array' }
+    ],
     stringReferences: [
-      { table: 'careerLevels', field: 'skills', indexed: false, parseList: true },
-      { table: 'species', field: 'skills', indexed: false, parseList: true },
-      { table: 'creatures', field: 'skills', indexed: false, parseList: true },
       { table: 'talents', field: 'addSkill', indexed: true },
       { table: 'skills', field: 'characteristic', indexed: true }
     ],
@@ -1256,9 +1258,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // CHARACTERISTICS - referenced by skills, careerLevels
   characteristics: {
-    arrayReferences: [],
+    arrayReferences: [
+      { table: 'careerLevels', field: 'characteristics', type: 'array' }
+    ],
     stringReferences: [
-      { table: 'careerLevels', field: 'characteristics', indexed: false, parseList: true },
       { table: 'skills', field: 'characteristic', indexed: true }
     ],
     objectReferences: [
@@ -1269,12 +1272,11 @@ const ENTITY_RELATIONSHIP_CONFIG = {
   // TRAPPINGS - referenced by careerLevels, classes, creatures
   trappings: {
     arrayReferences: [
-      { table: 'classes', field: 'trappings', type: 'array' }
+      { table: 'classes', field: 'trappings', type: 'array' },
+      { table: 'careerLevels', field: 'trappings', type: 'array' },
+      { table: 'creatures', field: 'trappings', type: 'array' }
     ],
-    stringReferences: [
-      { table: 'careerLevels', field: 'trappings', indexed: false, parseList: true },
-      { table: 'creatures', field: 'trappings', indexed: false, parseList: true }
-    ],
+    stringReferences: [],
     objectReferences: []
   },
 
@@ -1292,11 +1294,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
     arrayReferences: [
       { table: 'gods', field: 'blessings', type: 'array' },
       { table: 'gods', field: 'miracles', type: 'array' },
-      { table: 'talents', field: 'spells', type: 'array' }
+      { table: 'talents', field: 'spells', type: 'array' },
+      { table: 'creatures', field: 'spells', type: 'array' }
     ],
-    stringReferences: [
-      { table: 'creatures', field: 'spells', indexed: false, parseList: true }
-    ],
+    stringReferences: [],
     objectReferences: []
   },
 
@@ -1334,10 +1335,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // TRAITS - referenced by creatures
   traits: {
-    arrayReferences: [],
-    stringReferences: [
-      { table: 'creatures', field: 'traits', indexed: false, parseList: true }
+    arrayReferences: [
+      { table: 'creatures', field: 'traits', type: 'array' }
     ],
+    stringReferences: [],
     objectReferences: []
   },
 

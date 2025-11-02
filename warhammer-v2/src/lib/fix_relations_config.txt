@@ -1,0 +1,18 @@
+### SUMMARY OF NEEDED CHANGES:
+
+After db-loader transforms the data, fields that contain comma-separated lists (like "Arme +5, Coriace")
+are now ARRAYS of EntityReference objects like:
+[
+  { id: "arme", entityType: "traits", label: "Arme", rating: 5 },
+  { id: "coriace", entityType: "traits", label: "Coriace" }
+]
+
+The following fields need to be changed from `stringReferences` to `arrayReferences`:
+
+1. talents: careerLevels.talents, species.talents, creatures.talents
+2. skills: careerLevels.skills, species.skills, creatures.skills  
+3. traits: creatures.traits, creatures.optionals
+4. spells: creatures.spells (already listed in arrayReferences for gods, but also in stringReferences for creatures)
+5. trappings: careerLevels.trappings, creatures.trappings
+
+Let's fix this systematically...
