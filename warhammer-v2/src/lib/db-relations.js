@@ -582,16 +582,22 @@ export async function getSkillCharacteristic(skillId) {
   const skill = await db.skills.get(skillId)
   if (!skill || !skill.characteristic) return null
 
-  // Handle both string ID and object with full data
-  let characteristic
+  // Handle different formats:
+  // - string: direct ID
+  // - array: reference object with {entityType, id, label, originalText}
+  // - object: full characteristic object
+  let characteristicId
   if (typeof skill.characteristic === 'string') {
-    // It's an ID, fetch from DB
-    characteristic = await db.characteristics.get(skill.characteristic)
-  } else {
-    // It's already the full object, use it directly
-    characteristic = skill.characteristic
+    characteristicId = skill.characteristic
+  } else if (Array.isArray(skill.characteristic) && skill.characteristic[0]) {
+    characteristicId = skill.characteristic[0].id
+  } else if (skill.characteristic.id) {
+    characteristicId = skill.characteristic.id
   }
 
+  if (!characteristicId) return null
+
+  const characteristic = await db.characteristics.get(characteristicId)
   relationCache.set(cacheKey, characteristic)
   return characteristic
 }
