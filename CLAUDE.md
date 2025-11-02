@@ -14,3 +14,4 @@ Always run tests before committing:
 ## Code Style
 
 Follow existing patterns in the codebase.
+- L'application doit être en français
