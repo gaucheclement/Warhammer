@@ -33,7 +33,8 @@ import {
   findCareersBySpecies,
   findTalentsBySkill,
   getEntityLabel,
-  entitiesToLabels
+  entitiesToLabels,
+  resolveEntityReference
 } from './db-relations.js'
 
 // ============================================================================
@@ -761,10 +762,7 @@ export async function generateClassDescription(classId) {
   // Starting trappings
   if (classObj.trappings && classObj.trappings.length) {
     const trappings = await Promise.all(
-      classObj.trappings.map(t => {
-        const id = typeof t === 'string' ? t : t.id
-        return db.trappings.get(id)
-      })
+      classObj.trappings.map(t => resolveEntityReference(t, db.trappings))
     )
     const validTrappings = trappings.filter(t => t)
     if (validTrappings.length > 0) {
@@ -818,10 +816,7 @@ export async function generateSpeciesDescription(speciesId) {
   let skillsTalents = ''
   if (species.skills && Array.isArray(species.skills) && species.skills.length) {
     const skills = await Promise.all(
-      species.skills.map(s => {
-        const id = typeof s === 'string' ? s : s.id
-        return db.skills.get(id)
-      })
+      species.skills.map(s => resolveEntityReference(s, db.skills))
     )
     const validSkills = skills.filter(s => s)
     if (validSkills.length > 0) {
@@ -831,10 +826,7 @@ export async function generateSpeciesDescription(speciesId) {
 
   if (species.talents && Array.isArray(species.talents) && species.talents.length) {
     const talents = await Promise.all(
-      species.talents.map(t => {
-        const id = typeof t === 'string' ? t : t.id
-        return db.talents.get(id)
-      })
+      species.talents.map(t => resolveEntityReference(t, db.talents))
     )
     const validTalents = talents.filter(t => t)
     if (validTalents.length > 0) {
