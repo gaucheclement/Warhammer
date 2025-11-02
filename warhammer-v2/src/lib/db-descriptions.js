@@ -1700,31 +1700,47 @@ export async function generateTraitDescription(traitId) {
  * Shows folder information, parent folder, and lists child folders and entities.
  *
  * @param {string} treeId - Tree ID
- * @returns {Promise<Object|string>} Object with Info and Contents sections, or just Info string
+ * @returns {Promise<DescriptionData>} Structured description data
  *
  * @example
  * const desc = await generateTreeDescription('carriere-guerriers')
  * // Returns: {
- * //   Info: "Type: carriere<br>Parent: ...",
- * //   Contenu: "Child folders and entities..."
+ * //   sections: [
+ * //     { type: 'text', label: 'Type', content: 'carriere' },
+ * //     { type: 'link', label: 'Dossier parent', entity: {...} },
+ * //     { type: 'list', label: 'Sous-dossiers', items: [...] },
+ * //     { type: 'list', label: 'Éléments', items: [...] }
+ * //   ]
  * // }
  */
 export async function generateTreeDescription(treeId) {
   const tree = await db.trees.get(treeId)
   if (!tree) return null
 
-  let desc = ''
+  const sections = []
 
   // Type
   if (tree.type) {
-    desc += '<b>Type: </b>' + tree.type + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: tree.type
+    })
   }
 
   // Parent folder
   if (tree.parent) {
     const parent = await db.trees.get(tree.parent)
     if (parent) {
-      desc += '<b>Dossier parent: </b>' + showHelpTextFromElem({ ...parent, typeItem: 'tree' }) + '<br>'
+      sections.push({
+        type: 'link',
+        label: 'Dossier parent',
+        entity: {
+          id: parent.id,
+          type: 'tree',
+          label: parent.name || parent.label
+        }
+      })
     }
   }
 
@@ -1734,41 +1750,42 @@ export async function generateTreeDescription(treeId) {
     .equals(treeId)
     .toArray()
 
+  if (childFolders.length > 0) {
+    sections.push({
+      type: 'list',
+      label: 'Sous-dossiers',
+      items: childFolders.map(f => ({
+        id: f.id,
+        type: 'tree',
+        label: f.name || f.label
+      }))
+    })
+  }
+
   // Get entities in this folder based on type
-  let entities = []
   if (tree.type) {
     const tableName = tree.type + 's'
     if (db[tableName]) {
-      entities = await db[tableName]
+      const entities = await db[tableName]
         .where('folder')
         .equals(treeId)
         .toArray()
+
+      if (entities.length > 0) {
+        sections.push({
+          type: 'list',
+          label: 'Éléments',
+          items: entities.map(e => ({
+            id: e.id,
+            type: tree.type,
+            label: e.name || e.label
+          }))
+        })
+      }
     }
   }
 
-  // If we have children or entities, create sections
-  if (childFolders.length > 0 || entities.length > 0) {
-    const result = { Info: desc }
-    let contentsDesc = ''
-
-    if (childFolders.length > 0) {
-      contentsDesc += '<b>Sous-dossiers: </b>'
-      contentsDesc += toHtmlList(childFolders.map(f => showHelpTextFromElem({ ...f, typeItem: 'tree' })))
-    }
-
-    if (entities.length > 0) {
-      contentsDesc += '<b>Éléments: </b>'
-      contentsDesc += toHtmlList(entitiesToSimpleArray(entities.map(e => ({ ...e, typeItem: tree.type })), true))
-    }
-
-    if (contentsDesc) {
-      result['Contenu'] = contentsDesc
-    }
-
-    return result
-  }
-
-  return desc
+  return { sections }
 }
 
 /**
