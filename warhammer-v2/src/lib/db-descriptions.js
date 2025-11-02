@@ -1958,55 +1958,19 @@ export async function generateCreatureDescription(creatureId) {
 
   // Characteristics
   if (creature.char) {
-    const statsSections = []
-    const charOrder = ['m', 'cc', 'ct', 'f', 'e', 'i', 'ag', 'dex', 'int', 'fm', 'soc']
-    const charLabels = ['M', 'CC', 'CT', 'F', 'E', 'I', 'Ag', 'Dex', 'Int', 'FM', 'Soc']
-
-    // Build characteristics table
-    const charValues = charOrder.map(key => creature.char[key] || '-')
-
-    statsSections.push({
-      type: 'table',
-      label: 'Caractéristiques',
-      headers: charLabels,
-      rows: [charValues]
-    })
-
-    // Additional stats
-    if (creature.char.b) {
-      statsSections.push({
-        type: 'text',
-        label: 'Blessures',
-        content: creature.char.b.toString()
-      })
-    }
-    if (creature.char.bf) {
-      statsSections.push({
-        type: 'text',
-        label: 'Bonus de Force',
-        content: creature.char.bf.toString()
-      })
-    }
-    if (creature.char.be) {
-      statsSections.push({
-        type: 'text',
-        label: "Bonus d'Endurance",
-        content: creature.char.be.toString()
-      })
-    }
-    if (creature.char.pv) {
-      statsSections.push({
-        type: 'text',
-        label: 'Points de Vie',
-        content: creature.char.pv.toString()
-      })
-    }
-
+    // Pass the stats object directly to StatTable component
+    // StatTable handles rendering the main characteristics table
+    // and additional stats (b, bf, be, pv) via showAdditional prop
     sections.push({
       type: 'tab',
       tabKey: 'Stats',
       tabLabel: 'Stats',
-      sections: statsSections
+      sections: [
+        {
+          type: 'stats',
+          stats: creature.char  // Pass full char object
+        }
+      ]
     })
   }
 
@@ -2056,22 +2020,54 @@ export async function generateCreatureDescription(creatureId) {
   }
 
   if (creature.traits && Array.isArray(creature.traits) && creature.traits.length > 0) {
-    const traits = await Promise.all(
-      creature.traits.map(t => {
-        const id = typeof t === 'string' ? t : t.id
-        return db.traits.get(id)
-      })
-    )
-    const validTraits = traits.filter(t => t)
-    if (validTraits.length > 0) {
+    // Traits can be stored as:
+    // 1. Simple string IDs: "arme-naturelle"
+    // 2. EntityReference objects with specs: {id: "arme-naturelle", entityType: "trait", label: "Arme Naturelle", prefix: "+8"}
+    // 3. Arrays of EntityReference objects
+    const traitItems = []
+
+    for (const traitRef of creature.traits) {
+      if (typeof traitRef === 'string') {
+        // Simple ID - fetch the trait
+        const trait = await db.traits.get(traitRef)
+        if (trait) {
+          traitItems.push({
+            id: trait.id,
+            type: 'trait',
+            label: getEntityLabel(trait)
+          })
+        }
+      } else if (Array.isArray(traitRef) && traitRef.length > 0) {
+        // Array of EntityReference objects - use the first one
+        const ref = traitRef[0]
+        const trait = await db.traits.get(ref.id)
+        if (trait) {
+          // Merge trait with reference metadata (spec, prefix, etc.)
+          traitItems.push({
+            id: trait.id,
+            type: 'trait',
+            label: getEntityLabel({ ...trait, ...ref })  // Merge to preserve spec/prefix
+          })
+        }
+      } else if (traitRef && traitRef.id) {
+        // EntityReference object
+        const trait = await db.traits.get(traitRef.id)
+        if (trait) {
+          // Merge trait with reference metadata
+          traitItems.push({
+            id: trait.id,
+            type: 'trait',
+            label: getEntityLabel({ ...trait, ...traitRef })
+          })
+        }
+      }
+    }
+
+    if (traitItems.length > 0) {
       abilitiesSections.push({
         type: 'list',
         label: 'Traits',
-        items: validTraits.map(t => ({
-          id: t.id,
-          type: 'trait',
-          label: getEntityLabel(t)
-        }))
+        items: traitItems
       })
     }
   }
