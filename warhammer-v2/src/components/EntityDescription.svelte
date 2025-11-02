@@ -74,9 +74,6 @@
   $: if (entityType && (entityId !== null && entityId !== undefined)) {
     // Normalize ID
     let normalizedId = entityId;
-    if (typeof entityId === 'string' && /^\d+$/.test(entityId)) {
-      normalizedId = parseInt(entityId, 10);
-    }
 
     currentEntityType = entityType;
     currentEntityId = normalizedId;
@@ -113,7 +110,6 @@
     // Normalize ID first for consistent caching
     let normalizedId = currentEntityId;
     if (typeof currentEntityId === 'string' && /^\d+$/.test(currentEntityId)) {
-      normalizedId = parseInt(currentEntityId, 10);
     }
 
     // Create cache key with normalized ID
@@ -218,7 +214,6 @@
     // Normalize ID
     let normalizedId = currentEntityId;
     if (typeof currentEntityId === 'string' && /^\d+$/.test(currentEntityId)) {
-      normalizedId = parseInt(currentEntityId, 10);
     }
 
     // Create cache key with normalized ID
@@ -313,9 +308,7 @@
       return;
     }
 
-    // Normalize ID: data attributes are always strings, convert to number if appropriate
     if (typeof clickedId === 'string' && /^\d+$/.test(clickedId)) {
-      clickedId = parseInt(clickedId, 10);
     }
 
     // Navigate to the entity (adds to history and updates current entity)
@@ -412,7 +405,6 @@
     // Normalize ID if needed
     let normalizedId = clickedId;
     if (typeof clickedId === 'string' && /^\d+$/.test(clickedId)) {
-      normalizedId = parseInt(clickedId, 10);
     }
     navigateToEntity(clickedType, normalizedId);
   }
