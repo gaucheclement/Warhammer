@@ -205,8 +205,9 @@ export async function getCareerClass(careerId) {
   if (!career || !career.class) return null
 
   const classObj = await resolveReference(career.class, db.classes)
-  relationCache.set(cacheKey, classObj)
-  return classObj
+  const result = classObj ? { ...classObj, typeItem: 'class' } : null
+  relationCache.set(cacheKey, result)
+  return result
 }
 
 /**
@@ -512,7 +513,7 @@ export async function getTalentSkill(talentId) {
   if (!skill) return null
 
   // Apply talent's specializations to the skill
-  const result = { ...skill }
+  const result = { ...skill, typeItem: 'skill' }
   if (talent.specs) {
     result.spec = Array.isArray(talent.specs) ? talent.specs[0] : talent.specs
     result.specs = Array.isArray(talent.specs) ? talent.specs : [talent.specs]
@@ -546,7 +547,7 @@ export async function getTalentTalent(talentId) {
   const relatedTalent = await resolveReference(talent.addTalent, db.talents)
   if (!relatedTalent) return null
 
-  const result = { ...relatedTalent, origins: ['talent', talentId] }
+  const result = { ...relatedTalent, typeItem: 'talent', origins: ['talent', talentId] }
   relationCache.set(cacheKey, result)
   return result
 }
