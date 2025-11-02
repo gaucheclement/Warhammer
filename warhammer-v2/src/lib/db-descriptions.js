@@ -67,6 +67,7 @@ import {
 /**
  * @typedef {Object} DescriptionData
  * @property {Array<DescriptionSection>} sections - Array of description sections
+ * @property {Object} [metadata] - Optional metadata (e.g., tab_actif for career levels)
  */
 
 /**
@@ -534,11 +535,14 @@ export async function generateCareerDescription(careerId) {
  * Returns metadata about which tab should be active when displaying.
  *
  * @param {string} careerLevelId - Career level ID
- * @returns {Promise<Object>} Object with tab_actif property
+ * @returns {Promise<DescriptionData>} Structured description data with metadata
  *
  * @example
  * const desc = await generateCareerLevelDescription('artisan|apprenti artisan')
- * // Returns: { tab_actif: 1 }
+ * // Returns: {
+ * //   sections: [],
+ * //   metadata: { tab_actif: 1, careerLevel: 1 }
+ * // }
  */
 export async function generateCareerLevelDescription(careerLevelId) {
   const careerLevel = await db.careerLevels.get(careerLevelId)
@@ -547,7 +551,13 @@ export async function generateCareerLevelDescription(careerLevelId) {
   const career = await getCareerLevelCareer(careerLevelId)
   const tabOffset = career && career.desc ? 0 : 1
 
-  return { tab_actif: careerLevel.level - tabOffset }
+  return {
+    sections: [],
+    metadata: {
+      tab_actif: careerLevel.level - tabOffset,
+      careerLevel: careerLevel.level
+    }
+  }
 }
 
 /**
