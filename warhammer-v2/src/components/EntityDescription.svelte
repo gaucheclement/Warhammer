@@ -85,10 +85,17 @@
   }
 
   // Listen to navigation state changes to update current entity
-  $: if ($currentEntry && $currentEntry.type && $currentEntry.id) {
-    if ($currentEntry.type !== currentEntityType || $currentEntry.id !== currentEntityId) {
-      currentEntityType = $currentEntry.type;
-      currentEntityId = $currentEntry.id;
+  // This triggers when back/forward/history jump happens
+  $: if ($currentEntry && $currentEntry.type && ($currentEntry.id !== null && $currentEntry.id !== undefined)) {
+    // Force update even if values look the same (might be different after normalization)
+    const newType = $currentEntry.type;
+    const newId = $currentEntry.id;
+
+    // Only update if actually different
+    if (newType !== currentEntityType || newId !== currentEntityId) {
+      console.log(`Navigation state changed: ${newType}:${newId}`);
+      currentEntityType = newType;
+      currentEntityId = newId;
     }
   }
 
