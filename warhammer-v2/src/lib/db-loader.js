@@ -211,9 +211,15 @@ function transformComplexReference(value, entityType, labelMap) {
  */
 function needsComplexTransform(fieldName, value) {
   if (typeof value !== 'string') return false
+  if (!isReferenceField(fieldName)) return false
 
-  // All reference fields that are strings should be parsed as lists
-  return isReferenceField(fieldName)
+  // Simple ID reference (lowercase, no special chars, no commas) - keep as string
+  if (/^[a-z0-9-]+$/.test(value.trim())) {
+    return false
+  }
+
+  // Complex reference (has commas, parentheses, prefixes, or uppercase) - parse as EntityReference
+  return true
 }
 
 /**
