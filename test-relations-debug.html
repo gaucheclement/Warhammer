@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Relations Test</title>
+</head>
+<body>
+    <h1>Testing getEntityUsage for Skill "Charme"</h1>
+    <div id="output"></div>
+
+    <script type="module">
+        import { db } from './warhammer-v2/src/lib/db.js';
+        import { getEntityUsage, getEntityLabel } from './warhammer-v2/src/lib/db-relations.js';
+
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            output.innerHTML += `<p>${msg}</p>`;
+            console.log(msg);
+        }
+
+        async function test() {
+            try {
+                await db.open();
+                log('✅ Database opened');
+
+                // 1. Find skill "Charme"
+                const allSkills = await db.skills.toArray();
+                log(`📊 Total skills in DB: ${allSkills.length}`);
+
+                const charmeSkill = allSkills.find(s => s.name === 'Charme' || s.label === 'Charme');
+
+                if (!charmeSkill) {
+                    log('❌ Skill "Charme" not found');
+                    log('Available skills: ' + allSkills.slice(0, 10).map(s => s.name || s.label).join(', '));
+                    return;
+                }
+
+                log(`✅ Found skill: ${JSON.stringify({
+                    id: charmeSkill.id,
+                    name: charmeSkill.name,
+                    label: charmeSkill.label
+                })}`);
+
+                const label = getEntityLabel(charmeSkill);
+                log(`📝 Entity label: "${label}"`);
+
+                // 2. Check careerLevels data format
+                const sampleLevel = await db.careerLevels.limit(1).first();
+                log(`📋 Sample careerLevel skills field: type=${typeof sampleLevel.skills}, value="${sampleLevel.skills?.substring(0, 100)}"`);
+
+                // 3. Manual search in careerLevels
+                const allLevels = await db.careerLevels.toArray();
+                log(`📊 Total careerLevels: ${allLevels.length}`);
+
+                const matchingLevels = allLevels.filter(level => {
+                    if (!level.skills || typeof level.skills !== 'string') return false;
+                    const skillList = level.skills.split(',').map(s => s.trim());
+                    // Try matching by label
+                    return skillList.includes(label) ||
+                           skillList.includes(charmeSkill.name) ||
+                           skillList.includes(charmeSkill.id);
+                });
+
+                log(`🔍 Manual search results: ${matchingLevels.length} careerLevels contain "${label}"`);
+                if (matchingLevels.length > 0) {
+                    log(`Example: ${matchingLevels[0].career} - ${matchingLevels[0].label}`);
+                }
+
+                // 4. Test getEntityUsage
+                log(`🧪 Calling getEntityUsage('skills', '${charmeSkill.id}')`);
+                const usage = await getEntityUsage('skills', charmeSkill.id);
+
+                log(`📦 getEntityUsage result: ${JSON.stringify(usage, null, 2)}`);
+
+                if (Object.keys(usage).length === 0) {
+                    log('❌ getEntityUsage returned empty!');
+                } else {
+                    log(`✅ getEntityUsage found relationships in: ${Object.keys(usage).join(', ')}`);
+                }
+
+            } catch (err) {
+                log(`❌ Error: ${err.message}`);
+                console.error(err);
+            }
+        }
+
+        test();
+    </script>
+</body>
+</html>

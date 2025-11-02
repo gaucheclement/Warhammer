@@ -168,7 +168,7 @@ function detectCircularNavigation(history) {
  * @returns {boolean} True if navigation succeeded, false if circular navigation blocked
  */
 export function navigateToEntity(type, id) {
-  if (!type || !id) {
+  if (!type || (id === null || id === undefined)) {
     console.error('navigateToEntity: type and id are required');
     return false;
   }

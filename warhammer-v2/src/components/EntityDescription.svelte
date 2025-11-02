@@ -72,10 +72,16 @@
 
   // Initialize navigation when props change
   $: if (entityType && (entityId !== null && entityId !== undefined)) {
+    // Normalize ID
+    let normalizedId = entityId;
+    if (typeof entityId === 'string' && /^\d+$/.test(entityId)) {
+      normalizedId = parseInt(entityId, 10);
+    }
+
     currentEntityType = entityType;
-    currentEntityId = entityId;
+    currentEntityId = normalizedId;
     // Add to navigation history on initial load
-    navigateToEntity(entityType, entityId);
+    navigateToEntity(entityType, normalizedId);
   }
 
   // Listen to navigation state changes to update current entity
@@ -97,8 +103,14 @@
       return;
     }
 
-    // Create cache key from entityType and entityId
-    const cacheKey = `${currentEntityType}:${currentEntityId}`;
+    // Normalize ID first for consistent caching
+    let normalizedId = currentEntityId;
+    if (typeof currentEntityId === 'string' && /^\d+$/.test(currentEntityId)) {
+      normalizedId = parseInt(currentEntityId, 10);
+    }
+
+    // Create cache key with normalized ID
+    const cacheKey = `${currentEntityType}:${normalizedId}`;
 
     // Check cache first
     if (descriptionCache.has(cacheKey)) {
@@ -120,18 +132,21 @@
       const tableName = currentEntityType === 'specie' || currentEntityType === 'species' ? 'species' : currentEntityType + 's';
       let entity = null;
 
-
       if (db[tableName]) {
         // Species use index (numeric 0, 1, 2...) instead of id (string)
         // When entityId is a number for species, search by index field
-        if ((currentEntityType === 'specie' || currentEntityType === 'species') && typeof currentEntityId === 'number') {
+        if ((currentEntityType === 'specie' || currentEntityType === 'species') && typeof normalizedId === 'number') {
           // Load all species and find by index field
           // (index is not indexed in DB schema, so we can't use .where())
           const allSpecies = await db[tableName].toArray();
-          entity = allSpecies.find(s => s.index === currentEntityId);
+          entity = allSpecies.find(s => s.index === normalizedId);
         } else {
           // For other types or string IDs, use primary key lookup
-          entity = await db[tableName].get(currentEntityId);
+          // Try with normalized ID first, then original if that fails
+          entity = await db[tableName].get(normalizedId);
+          if (!entity && normalizedId !== currentEntityId) {
+            entity = await db[tableName].get(currentEntityId);
+          }
         }
       }
 
@@ -144,7 +159,8 @@
       entityLabel = getEntityLabel(entity);
 
       // Generate description using the description generators
-      const result = await generateDescription(currentEntityType, currentEntityId);
+      // Use normalizedId for consistency
+      const result = await generateDescription(currentEntityType, normalizedId);
 
       if (!result) {
         throw new Error(`Failed to generate description for ${currentEntityType}: ${currentEntityId}`);
@@ -192,8 +208,14 @@
   async function loadRelatedEntities() {
     if (!currentEntityType || (currentEntityId === null || currentEntityId === undefined)) return;
 
-    // Create cache key
-    const cacheKey = `${currentEntityType}:${currentEntityId}`;
+    // Normalize ID
+    let normalizedId = currentEntityId;
+    if (typeof currentEntityId === 'string' && /^\d+$/.test(currentEntityId)) {
+      normalizedId = parseInt(currentEntityId, 10);
+    }
+
+    // Create cache key with normalized ID
+    const cacheKey = `${currentEntityType}:${normalizedId}`;
 
     // Check cache first
     if (relatedCache.has(cacheKey)) {
@@ -201,6 +223,8 @@
       return;
     }
 
+    // Reset related entities when loading new ones
+    relatedEntities = null;
     loadingRelated = true;
 
     // Convert singular entity type to plural for getEntityUsage
@@ -212,11 +236,17 @@
       const tableName = pluralType;
       let actualEntity = null;
       if (db[tableName]) {
-        actualEntity = await db[tableName].get(currentEntityId);
+        // Try normalized ID first
+        actualEntity = await db[tableName].get(normalizedId);
+        // For species, might need to search by index
+        if (!actualEntity && (currentEntityType === 'specie' || currentEntityType === 'species') && typeof normalizedId === 'number') {
+          const allSpecies = await db[tableName].toArray();
+          actualEntity = allSpecies.find(s => s.index === normalizedId);
+        }
       }
 
       // Use the entity's real ID for relations (not index)
-      const realEntityId = actualEntity?.id || currentEntityId;
+      const realEntityId = actualEntity?.id || normalizedId;
 
       // Get entity usage (where is this entity used?)
       // NOTE: This may return empty if data structure doesn't match ENTITY_RELATIONSHIP_CONFIG
@@ -268,12 +298,17 @@
 
     // Parse entity information from data attributes
     const clickedType = target.getAttribute('data-type');
-    const clickedId = target.getAttribute('data-id');
+    let clickedId = target.getAttribute('data-id');
 
     // Validate that we have the required data
-    if (!clickedType || !clickedId) {
+    if (!clickedType || (clickedId === null || clickedId === undefined)) {
       console.warn('Cross-reference link missing data-type or data-id attributes', target);
       return;
+    }
+
+    // Normalize ID: data attributes are always strings, convert to number if appropriate
+    if (typeof clickedId === 'string' && /^\d+$/.test(clickedId)) {
+      clickedId = parseInt(clickedId, 10);
     }
 
     // Navigate to the entity (adds to history and updates current entity)
@@ -367,7 +402,12 @@
    * Handle navigation from related entities
    */
   function handleRelatedEntityClick(clickedType, clickedId) {
-    navigateToEntity(clickedType, clickedId);
+    // Normalize ID if needed
+    let normalizedId = clickedId;
+    if (typeof clickedId === 'string' && /^\d+$/.test(clickedId)) {
+      normalizedId = parseInt(clickedId, 10);
+    }
+    navigateToEntity(clickedType, normalizedId);
   }
 
   // Clean up on destroy
