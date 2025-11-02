@@ -2240,34 +2240,58 @@ export async function generateCreatureDescription(creatureId) {
  * Lists all content from this source book organized by type.
  *
  * @param {string} bookId - Book ID
- * @returns {Promise<Object|string>} Object with Info and Content sections, or just Info string
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
  *
  * @example
  * const desc = await generateBookDescription('core-rulebook')
  * // Returns: {
- * //   Info: "Abbreviation: CRB<br>Language: FR...",
- * //   Contenu: "List of careers, talents, spells, etc. from this book..."
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Contenu', sections: [...] }
+ * //   ]
  * // }
  */
 export async function generateBookDescription(bookId) {
   const book = await db.books.get(bookId)
   if (!book) return null
 
-  let desc = ''
+  const sections = []
+  const infoSections = []
 
   // Abbreviation
   if (book.abr) {
-    desc += '<b>Abréviation: </b>' + book.abr + '<br>'
+    infoSections.push({
+      type: 'text',
+      label: 'Abréviation',
+      content: book.abr
+    })
   }
 
   // Language
   if (book.language) {
-    desc += '<b>Langue: </b>' + book.language + '<br>'
+    infoSections.push({
+      type: 'text',
+      label: 'Langue',
+      content: book.language
+    })
   }
 
   // Description
   if (book.desc) {
-    desc += '<br>' + book.desc
+    infoSections.push({
+      type: 'text',
+      content: book.desc
+    })
+  }
+
+  // Add Info tab if there's any info
+  if (infoSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: infoSections
+    })
   }
 
   // Get content from this book across all entity types
@@ -2285,8 +2309,7 @@ export async function generateBookDescription(bookId) {
     { table: 'lores', label: 'Domaines', type: 'lore' }
   ]
 
-  let contentDesc = ''
-  let hasContent = false
+  const contentSections = []
 
   for (const contentType of contentTypes) {
     const items = await db[contentType.table]
@@ -2295,20 +2318,29 @@ export async function generateBookDescription(bookId) {
       .toArray()
 
     if (items && items.length > 0) {
-      hasContent = true
-      contentDesc += '<b>' + contentType.label + ': </b>'
-      contentDesc += toHtmlList(entitiesToSimpleArray(items.map(i => ({ ...i, typeItem: contentType.type })), true))
+      contentSections.push({
+        type: 'list',
+        label: contentType.label,
+        items: items.map(i => ({
+          id: i.id,
+          type: contentType.type,
+          label: i.name || i.label
+        }))
+      })
     }
   }
 
-  if (hasContent) {
-    return {
-      Info: desc,
-      Contenu: contentDesc
-    }
+  // Add Content tab if there's any content
+  if (contentSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Contenu',
+      tabLabel: 'Contenu',
+      sections: contentSections
+    })
   }
 
-  return desc
+  return { sections }
 }
 
 /**
