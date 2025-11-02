@@ -222,8 +222,8 @@ export function navigateToEntity(type, id) {
     currentIndex: newHistory.length - 1
   });
 
-  // Issue #38 Stream C: Update browser URL hash
-  updateBrowserHash(type, id);
+  // Issue #38: Browser integration disabled - navigation is modal-only
+  // updateBrowserHash(type, id);
 
   console.log(`Navigated to ${type}:${id} (${newEntry.label})`);
   return true;
@@ -249,8 +249,8 @@ export function navigateBack() {
 
   const entry = state.history[newIndex];
 
-  // Issue #38 Stream C: Update browser URL hash
-  updateBrowserHash(entry.type, entry.id);
+  // Issue #38: Browser integration disabled - navigation is modal-only
+  // updateBrowserHash(entry.type, entry.id);
 
   console.log(`Navigated back to ${entry.type}:${entry.id} (${entry.label})`);
   return entry;
@@ -276,8 +276,8 @@ export function navigateForward() {
 
   const entry = state.history[newIndex];
 
-  // Issue #38 Stream C: Update browser URL hash
-  updateBrowserHash(entry.type, entry.id);
+  // Issue #38: Browser integration disabled - navigation is modal-only
+  // updateBrowserHash(entry.type, entry.id);
 
   console.log(`Navigated forward to ${entry.type}:${entry.id} (${entry.label})`);
   return entry;
@@ -339,8 +339,8 @@ export function jumpToHistoryIndex(index) {
 
   const entry = state.history[index];
 
-  // Issue #38 Stream C: Update browser URL hash
-  updateBrowserHash(entry.type, entry.id);
+  // Issue #38: Browser integration disabled - navigation is modal-only
+  // updateBrowserHash(entry.type, entry.id);
 
   console.log(`Jumped to history index ${index}: ${entry.type}:${entry.id} (${entry.label})`);
   return entry;

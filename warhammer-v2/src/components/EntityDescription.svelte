@@ -21,11 +21,20 @@
    * @event close - Fired when user closes the description viewer
    */
 
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import { generateDescription } from '../lib/db-descriptions.js';
   import { getEntityLabel, getEntityUsage } from '../lib/db-relations.js';
   import { db } from '../lib/db.js';
   import DataTable from './DataTable.svelte';
+  import NavigationBar from './NavigationBar.svelte';
+  import {
+    navigationState,
+    currentEntry,
+    navigateToEntity,
+    navigateBack,
+    navigateForward,
+    clearHistory
+  } from '../stores/navigation.js';
 
   // Props
   export let entityType = '';
@@ -34,6 +43,10 @@
 
   // Event dispatcher
   const dispatch = createEventDispatcher();
+
+  // Internal state for navigation
+  let currentEntityType = entityType;
+  let currentEntityId = entityId;
 
   // Internal state
   let loading = false;
@@ -52,9 +65,25 @@
   const relatedCache = new Map();
 
   // Validation: ensure required props are provided
-  $: isValid = entityType && (entityId !== null && entityId !== undefined);
+  $: isValid = currentEntityType && (currentEntityId !== null && currentEntityId !== undefined);
   $: if (!isValid && !loading) {
     error = 'Entity type and ID are required';
+  }
+
+  // Initialize navigation when props change
+  $: if (entityType && (entityId !== null && entityId !== undefined)) {
+    currentEntityType = entityType;
+    currentEntityId = entityId;
+    // Add to navigation history on initial load
+    navigateToEntity(entityType, entityId);
+  }
+
+  // Listen to navigation state changes to update current entity
+  $: if ($currentEntry && $currentEntry.type && $currentEntry.id) {
+    if ($currentEntry.type !== currentEntityType || $currentEntry.id !== currentEntityId) {
+      currentEntityType = $currentEntry.type;
+      currentEntityId = $currentEntry.id;
+    }
   }
 
   // STREAM B: Load description from db-descriptions.js generators
@@ -63,13 +92,13 @@
    * Implements caching to avoid redundant fetches
    */
   async function loadDescription() {
-    if (!entityType || entityId === null || entityId === undefined) {
+    if (!currentEntityType || currentEntityId === null || currentEntityId === undefined) {
       error = 'Entity type and ID are required';
       return;
     }
 
     // Create cache key from entityType and entityId
-    const cacheKey = `${entityType}:${entityId}`;
+    const cacheKey = `${currentEntityType}:${currentEntityId}`;
 
     // Check cache first
     if (descriptionCache.has(cacheKey)) {
@@ -88,37 +117,37 @@
 
     try {
       // Fetch entity to get label
-      const tableName = entityType === 'specie' || entityType === 'species' ? 'species' : entityType + 's';
+      const tableName = currentEntityType === 'specie' || currentEntityType === 'species' ? 'species' : currentEntityType + 's';
       let entity = null;
 
 
       if (db[tableName]) {
         // Species use index (numeric 0, 1, 2...) instead of id (string)
         // When entityId is a number for species, search by index field
-        if ((entityType === 'specie' || entityType === 'species') && typeof entityId === 'number') {
+        if ((currentEntityType === 'specie' || currentEntityType === 'species') && typeof currentEntityId === 'number') {
           // Load all species and find by index field
           // (index is not indexed in DB schema, so we can't use .where())
           const allSpecies = await db[tableName].toArray();
-          entity = allSpecies.find(s => s.index === entityId);
+          entity = allSpecies.find(s => s.index === currentEntityId);
         } else {
           // For other types or string IDs, use primary key lookup
-          entity = await db[tableName].get(entityId);
+          entity = await db[tableName].get(currentEntityId);
         }
       }
 
 
       if (!entity) {
-        throw new Error(`Entity not found: ${entityType} with ID "${entityId}"`);
+        throw new Error(`Entity not found: ${currentEntityType} with ID "${currentEntityId}"`);
       }
 
       // Get entity label
       entityLabel = getEntityLabel(entity);
 
       // Generate description using the description generators
-      const result = await generateDescription(entityType, entityId);
+      const result = await generateDescription(currentEntityType, currentEntityId);
 
       if (!result) {
-        throw new Error(`Failed to generate description for ${entityType}: ${entityId}`);
+        throw new Error(`Failed to generate description for ${currentEntityType}: ${currentEntityId}`);
       }
 
       // Handle different return types
@@ -149,9 +178,9 @@
     }
   }
 
-  // STREAM B: Reactive statement to reload when props change
+  // STREAM B: Reactive statement to reload when current entity changes
   // Accept entityId of 0 as valid
-  $: if (entityType && (entityId !== null && entityId !== undefined)) {
+  $: if (currentEntityType && (currentEntityId !== null && currentEntityId !== undefined)) {
     loadDescription();
     loadRelatedEntities();
   }
@@ -161,10 +190,10 @@
    * Shows all entities that reference this entity
    */
   async function loadRelatedEntities() {
-    if (!entityType || (entityId === null || entityId === undefined)) return;
+    if (!currentEntityType || (currentEntityId === null || currentEntityId === undefined)) return;
 
     // Create cache key
-    const cacheKey = `${entityType}:${entityId}`;
+    const cacheKey = `${currentEntityType}:${currentEntityId}`;
 
     // Check cache first
     if (relatedCache.has(cacheKey)) {
@@ -176,18 +205,18 @@
 
     // Convert singular entity type to plural for getEntityUsage
     // getEntityUsage expects plural form (skills, talents, etc.)
-    const pluralType = entityType === 'specie' || entityType === 'species' ? 'species' : entityType + 's';
+    const pluralType = currentEntityType === 'specie' || currentEntityType === 'species' ? 'species' : currentEntityType + 's';
 
     try {
       // Fetch the actual entity to get its real ID (needed for species with index)
       const tableName = pluralType;
       let actualEntity = null;
       if (db[tableName]) {
-        actualEntity = await db[tableName].get(entityId);
+        actualEntity = await db[tableName].get(currentEntityId);
       }
 
       // Use the entity's real ID for relations (not index)
-      const realEntityId = actualEntity?.id || entityId;
+      const realEntityId = actualEntity?.id || currentEntityId;
 
       // Get entity usage (where is this entity used?)
       // NOTE: This may return empty if data structure doesn't match ENTITY_RELATIONSHIP_CONFIG
@@ -238,20 +267,17 @@
     e.stopPropagation();
 
     // Parse entity information from data attributes
-    const entityType = target.getAttribute('data-type');
-    const entityId = target.getAttribute('data-id');
+    const clickedType = target.getAttribute('data-type');
+    const clickedId = target.getAttribute('data-id');
 
     // Validate that we have the required data
-    if (!entityType || !entityId) {
+    if (!clickedType || !clickedId) {
       console.warn('Cross-reference link missing data-type or data-id attributes', target);
       return;
     }
 
-    // Emit navigate event with parsed entity info
-    dispatch('navigate', {
-      entityType,
-      entityId
-    });
+    // Navigate to the entity (adds to history and updates current entity)
+    navigateToEntity(clickedType, clickedId);
   }
 
 
@@ -332,8 +358,22 @@
    * Handle close button click
    */
   function handleClose() {
+    // Clear navigation history when modal closes
+    clearHistory();
     dispatch('close');
   }
+
+  /**
+   * Handle navigation from related entities
+   */
+  function handleRelatedEntityClick(clickedType, clickedId) {
+    navigateToEntity(clickedType, clickedId);
+  }
+
+  // Clean up on destroy
+  onDestroy(() => {
+    clearHistory();
+  });
 
   /**
    * Get BEM class name with modifiers
@@ -393,6 +433,10 @@
     {/if}
   </div>
 
+  <!-- Navigation Bar -->
+  {#if !loading && !error && $navigationState.history.length > 0}
+    <NavigationBar showBreadcrumbs={true} showHistory={true} />
+  {/if}
 
   <!-- Tab Navigation -->
   {#if !loading && !error}
@@ -499,7 +543,7 @@
                     <li class="entity-description__related-item">
                       <button
                         class="entity-description__related-link"
-                        on:click={() => dispatch('navigate', { entityType: entity.entityType, entityId: entity.id })}
+                        on:click={() => handleRelatedEntityClick(entity.entityType, entity.id)}
                       >
                         {entity.label || entity.name || entity.id}
                       </button>
@@ -516,7 +560,7 @@
                     ]}
                     rowHeight={48}
                     height="400px"
-                    onRowClick={(item) => dispatch('navigate', { entityType: item.entityType, entityId: item.id })}
+                    onRowClick={(item) => handleRelatedEntityClick(item.entityType, item.id)}
                     emptyMessage="No related entities found"
                   />
                 </div>
