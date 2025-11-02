@@ -14,6 +14,7 @@
 import { writable, derived, get } from 'svelte/store';
 import Dexie from 'dexie';
 import { customModifications, ENTITY_TYPES } from './customModifications.js';
+import { transformData, loadIntoIndexedDB, formatReport } from '../lib/db-loader.js';
 
 // Database for official data (created by Task #12)
 const db = new Dexie('WarhammerData');
@@ -47,54 +48,43 @@ db.version(1).stores({
 
 /**
  * Seed IndexedDB with initial data from window.__WARHAMMER_DATA__
- * Maps singular keys from JSON to plural table names
- * Transforms 'index' field to 'id' field for Dexie primary key
+ *
+ * Issue #47: Now uses db-loader to:
+ * - Generate stable string IDs (e.g., "skill-athletisme" instead of 0)
+ * - Parse references into EntityReference objects  
+ * - Validate and report data quality
  */
 async function seedIndexedDB(data) {
-  const keyMapping = {
-    'book': 'books',
-    'career': 'careers',
-    'careerLevel': 'careerLevels',
-    'specie': 'species',
-    'class': 'classes',
-    'talent': 'talents',
-    'characteristic': 'characteristics',
-    'trapping': 'trappings',
-    'skill': 'skills',
-    'spell': 'spells',
-    'creature': 'creatures',
-    'star': 'stars',
-    'god': 'gods',
-    'eye': 'eyes',
-    'hair': 'hairs',
-    'detail': 'details',
-    'trait': 'traits',
-    'lore': 'lores',
-    'magick': 'magicks',
-    'etat': 'etats',
-    'psychologie': 'psychologies',
-    'quality': 'qualities',
-    'tree': 'trees'
-  };
-
   console.log('Seeding IndexedDB with initial data...');
+  console.log('Issue #47: Using db-loader for ID generation and reference parsing');
 
-  for (const [singularKey, pluralKey] of Object.entries(keyMapping)) {
-    const entities = data[singularKey] || [];
-    if (entities.length > 0) {
-      // Transform: add 'id' field from 'index'
-      const entitiesWithId = entities.map(e => ({ ...e, id: e.index }));
-      try {
-        await db[pluralKey].bulkAdd(entitiesWithId);
-        console.log(`Loaded ${entities.length} ${singularKey} → ${pluralKey}`);
-      } catch (error) {
-        console.error(`Failed to load ${singularKey}:`, error);
-        // Continue with other entity types
-      }
+  try {
+    // Transform data using db-loader
+    // This generates string IDs and parses all references
+    const { data: transformedData, report } = transformData(data, {
+      generateReport: true,
+      preserveOriginal: false
+    });
+
+    // Log transformation report
+    console.log(formatReport(report));
+
+    // Load transformed data into IndexedDB
+    const stats = await loadIntoIndexedDB(db, transformedData);
+
+    // Log loading statistics
+    console.log('IndexedDB seeded successfully');
+    console.log('Load statistics:', stats);
+
+    if (stats.errors && stats.errors.length > 0) {
+      console.error('Some tables failed to load:', stats.errors);
     }
-  }
 
-  console.log('IndexedDB seeded successfully');
+    return { transformedData, report, stats };
+  } catch (error) {
+    console.error('Failed to seed IndexedDB:', error);
+    throw error;
+  }
 }
 
 /**
