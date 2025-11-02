@@ -50,7 +50,7 @@ import {
 
 /**
  * @typedef {Object} DescriptionSection
- * @property {string} type - Section type: 'text' | 'list' | 'link' | 'table' | 'rank' | 'stats'
+ * @property {string} type - Section type: 'text' | 'list' | 'link' | 'table' | 'rank' | 'stats' | 'tab'
  * @property {string} [label] - Section label (for list, table)
  * @property {string} [content] - Text content (for text type)
  * @property {Array<EntityRef|string>} [items] - List items (for list type)
@@ -59,6 +59,9 @@ import {
  * @property {number} [rank] - Career rank 1-4 (for rank type)
  * @property {Array<Array<string>>} [rows] - Table rows (for table type)
  * @property {Array<string>} [headers] - Table headers (for table type)
+ * @property {string} [tabKey] - Tab identifier (for tab type)
+ * @property {string} [tabLabel] - Tab display label (for tab type)
+ * @property {Array<DescriptionSection>} [sections] - Nested sections (for tab type)
  */
 
 /**
@@ -362,22 +365,23 @@ function listMatchCareerLevel(text, careerLevelMatches) {
  * Includes career info, all career levels with their details, and access information.
  *
  * @param {string} careerId - Career ID
- * @returns {Promise<Object>} Object with description sections (Info, rank icons, Accès)
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
  *
  * @example
  * const desc = await generateCareerDescription('artisan')
  * // Returns: {
- * //   Info: "Career description...",
- * //   [rank1Icon]: "Level 1 details...",
- * //   [rank2Icon]: "Level 2 details...",
- * //   Accès: "Species that can access..."
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', tabLabel: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'rank1', tabLabel: '[Rank 1 Icon]', rank: 1, sections: [...] },
+ * //     { type: 'tab', tabKey: 'Accès', tabLabel: 'Accès', sections: [...] }
+ * //   ]
  * // }
  */
 export async function generateCareerDescription(careerId) {
   const career = await getCareerWithLevels(careerId)
   if (!career) return null
 
-  const result = {}
+  const sections = []
 
   // Add basic description if present
   if (career.desc) {
@@ -385,7 +389,16 @@ export async function generateCareerDescription(careerId) {
       lore: await db.lores.toArray(),
       god: await db.gods.toArray()
     })
-    result['Info'] = applyHelp(career.desc, { typeItem: 'career', label: career.name }, labelMap)
+    const descHtml = applyHelp(career.desc, { typeItem: 'career', label: career.name }, labelMap)
+
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: [
+        { type: 'text', content: descHtml }
+      ]
+    })
   }
 
   // Add each career level
@@ -397,37 +410,121 @@ export async function generateCareerDescription(careerId) {
       const talents = await getCareerLevelTalents(level.id)
       const trappings = await getCareerLevelTrappings(level.id)
 
-      let levelDesc = ''
-      levelDesc += '<b>Niveau de carrière: </b>' + getEntityLabel(level) + '<BR><BR>'
-      levelDesc += '<b>Statut: </b>' + (level.status || '') + '<BR><BR>'
+      const levelSections = []
 
-      if (classObj) {
-        levelDesc += '<b>Classe: </b>' + showHelpTextFromElem(classObj) + '<BR><BR>'
+      // Level name
+      levelSections.push({
+        type: 'text',
+        label: 'Niveau de carrière',
+        content: getEntityLabel(level)
+      })
+
+      // Status
+      if (level.status) {
+        levelSections.push({
+          type: 'text',
+          label: 'Statut',
+          content: level.status
+        })
       }
 
-      levelDesc += '<b>Attributs: </b>' + toHtmlList(entitiesToSimpleArray(characteristics, true))
-      levelDesc += '<b>Compétences: </b>' + toHtmlList(entitiesToSimpleArray(skills, true))
-      levelDesc += '<b>Talents: </b>' + toHtmlList(entitiesToSimpleArray(talents, true))
-      levelDesc += '<b>Possessions: </b>' + toHtmlList(entitiesToSimpleArray(trappings, true))
+      // Class
+      if (classObj) {
+        levelSections.push({
+          type: 'link',
+          label: 'Classe',
+          entity: {
+            id: classObj.id,
+            type: 'class',
+            label: getEntityLabel(classObj)
+          }
+        })
+      }
 
-      result[rankToImg(level.level)] = levelDesc
+      // Characteristics
+      if (characteristics && characteristics.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Attributs',
+          items: characteristics.map(c => ({
+            id: c.id,
+            type: 'characteristic',
+            label: getEntityLabel(c)
+          }))
+        })
+      }
+
+      // Skills
+      if (skills && skills.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Compétences',
+          items: skills.map(s => ({
+            id: s.id,
+            type: 'skill',
+            label: getEntityLabel(s)
+          }))
+        })
+      }
+
+      // Talents
+      if (talents && talents.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Talents',
+          items: talents.map(t => ({
+            id: t.id,
+            type: 'talent',
+            label: getEntityLabel(t)
+          }))
+        })
+      }
+
+      // Trappings
+      if (trappings && trappings.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Possessions',
+          items: trappings.map(t => ({
+            id: t.id,
+            type: 'trapping',
+            label: getEntityLabel(t)
+          }))
+        })
+      }
+
+      sections.push({
+        type: 'tab',
+        tabKey: rankToImg(level.level),
+        tabLabel: rankToImg(level.level),
+        rank: level.level,
+        sections: levelSections
+      })
     }
   }
 
   // Add species access information
   const species = await getCareerSpecies(careerId)
   if (species && species.length > 0) {
-    const speciesMatches = {}
-    species.forEach(s => {
-      speciesMatches[s.name || s.label] = { id: s.id }
+    sections.push({
+      type: 'tab',
+      tabKey: 'Accès',
+      tabLabel: 'Accès',
+      sections: [
+        {
+          type: 'list',
+          label: 'Race donnant accès à cette carrière',
+          items: species.map(s => ({
+            id: s.id,
+            type: 'specie',
+            label: s.name || s.label
+          }))
+        }
+      ]
     })
-    const accessInfo = listMatchSimple('Race donnant accès à cette carrière', { specie: speciesMatches }, 'specie')
-    if (accessInfo) {
-      result['Accès'] = accessInfo
-    }
   }
 
-  return result
+  return { sections }
 }
 
 /**
