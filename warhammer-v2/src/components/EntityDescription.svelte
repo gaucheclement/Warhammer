@@ -416,8 +416,8 @@
           Entity Description
         {/if}
       </h2>
-      {#if entityType}
-        <span class="entity-description__type-badge">{entityType}</span>
+      {#if currentEntityType}
+        <span class="entity-description__type-badge">{currentEntityType}</span>
       {/if}
     </div>
 
