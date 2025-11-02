@@ -197,7 +197,13 @@ function transformComplexReference(value, entityType, labelMap) {
 /**
  * Check if a field needs complex reference transformation
  *
- * Complex references have modifiers like "+5" or specs like "(Épée)"
+ * Any reference field that is a string should be parsed as a list,
+ * whether it contains modifiers/specs or not.
+ *
+ * Examples:
+ * - "Calme, Charme, Combat" → needs parsing
+ * - "Combat (Épée), Athlétisme +5" → needs parsing
+ * - "Destinée" → needs parsing (single item list)
  *
  * @param {string} fieldName - Field name
  * @param {*} value - Field value
@@ -206,13 +212,8 @@ function transformComplexReference(value, entityType, labelMap) {
 function needsComplexTransform(fieldName, value) {
   if (typeof value !== 'string') return false
 
-  // Fields that commonly have modifiers or specs
-  const complexFields = ['traits', 'optionals', 'talents', 'skills', 'spells']
-
-  if (!complexFields.includes(fieldName)) return false
-
-  // Check if value contains modifiers or specializations
-  return /[+\-]\d+|[()]/. test(value)
+  // All reference fields that are strings should be parsed as lists
+  return isReferenceField(fieldName)
 }
 
 /**
@@ -314,13 +315,6 @@ export function transformData(jsonData, options = {}) {
       entities.map(e => ({ ...e })),  // Clone to avoid mutation
       tableName
     )
-
-    // Transform 'index' field to 'id' if 'id' doesn't exist
-    for (const entity of entitiesWithIds) {
-      if (!entity.id && entity.index !== undefined) {
-        entity.id = entity.index.toString()
-      }
-    }
 
     // Create label map for this type
     labelMaps[tableName] = createLabelToIdMap(entitiesWithIds)
