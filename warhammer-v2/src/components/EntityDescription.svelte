@@ -25,6 +25,7 @@
   import { generateDescription } from '../lib/db-descriptions.js';
   import { getEntityLabel, getEntityUsage } from '../lib/db-relations.js';
   import { db } from '../lib/db.js';
+  import { globalDescriptionCache } from '../lib/description-cache.js';
   import DataTable from './DataTable.svelte';
   import NavigationBar from './NavigationBar.svelte';
   import DescriptionRenderer from './descriptions/DescriptionRenderer.svelte';
@@ -58,9 +59,12 @@
   let relatedEntities = null;
   let loadingRelated = false;
 
-  // Cache for loaded descriptions to avoid redundant fetches
-  const descriptionCache = new Map();
+  // Use global LRU cache with TTL for descriptions
+  // Related entities use separate cache (less critical, simpler Map)
   const relatedCache = new Map();
+
+  // Performance tracking
+  let lastRenderTime = 0;
 
   // Validation: ensure required props are provided
   $: isValid = currentEntityType && (currentEntityId !== null && currentEntityId !== undefined);
@@ -102,15 +106,18 @@
       return;
     }
 
-    // Create cache key
-    const cacheKey = `${currentEntityType}:${currentEntityId}`;
+    // Start performance measurement
+    const perfStart = performance.now();
 
-    // Check cache first
-    if (descriptionCache.has(cacheKey)) {
-      const cached = descriptionCache.get(cacheKey);
+    // Check LRU cache first
+    const cached = globalDescriptionCache.get(currentEntityType, currentEntityId);
+    if (cached) {
       descriptionData = cached.data;
       entityLabel = cached.label;
       error = null;
+      lastRenderTime = performance.now() - perfStart;
+      console.log(`[Cache HIT] ${currentEntityType}:${currentEntityId} - ${lastRenderTime.toFixed(2)}ms`);
+      logCacheStats();
       return;
     }
 
@@ -148,14 +155,19 @@
       // Store structured data directly
       descriptionData = result;
 
-      // Cache the result
-      descriptionCache.set(cacheKey, {
+      // Cache the result using LRU cache
+      globalDescriptionCache.set(currentEntityType, currentEntityId, {
         data: descriptionData,
         label: entityLabel
       });
 
       // Clear error on success
       error = null;
+
+      // Log performance
+      lastRenderTime = performance.now() - perfStart;
+      console.log(`[Cache MISS] ${currentEntityType}:${currentEntityId} - ${lastRenderTime.toFixed(2)}ms`);
+      logCacheStats();
     } catch (err) {
       console.error('Error loading description:', err);
       error = err.message || 'Failed to load description';
@@ -323,6 +335,34 @@
       switchTab(tabName);
     }
   }
+
+  /**
+   * Log cache statistics to console (for development/monitoring)
+   */
+  function logCacheStats() {
+    const stats = globalDescriptionCache.getStats();
+
+    // Only log when hit rate monitoring is meaningful (>10 requests)
+    if (stats.hits + stats.misses >= 10) {
+      console.log(`[Cache Stats] Hit Rate: ${stats.hitRatePercent}% | Size: ${stats.size}/${stats.maxSize} (${stats.utilizationPercent}% full)`);
+
+      // Warning if hit rate is below target (70%)
+      if (stats.hitRate < 0.7 && stats.hits + stats.misses >= 20) {
+        console.warn(`[Cache] Hit rate below target: ${stats.hitRatePercent}% (target: ≥70%)`);
+      }
+    }
+  }
+
+  /**
+   * Expose cache stats for debugging (window.getDescriptionCacheStats())
+   */
+  if (typeof window !== 'undefined') {
+    window.getDescriptionCacheStats = () => {
+      const stats = globalDescriptionCache.getStats();
+      console.table(stats);
+      return stats;
+    };
+  }
 </script>
 
 <div class={getClassName('entity-description', { [displayMode]: true })}>
@@ -406,15 +446,15 @@
   <div class="entity-description__content" role="tabpanel" id="entity-content-{currentTab}" aria-labelledby="entity-tab-{currentTab}">
     {#if loading}
       <!-- Loading State -->
-      <div class="entity-description__loading">
+      <div class="entity-description__loading" role="status" aria-live="polite" aria-busy="true">
         <div class="entity-description__spinner" aria-label="Loading description">
-          <div class="entity-description__spinner-circle"></div>
+          <div class="entity-description__spinner-circle" aria-hidden="true"></div>
         </div>
         <p class="entity-description__loading-text">Loading description...</p>
       </div>
     {:else if error}
       <!-- Error State -->
-      <div class="entity-description__error">
+      <div class="entity-description__error" role="alert" aria-live="assertive">
         <div class="entity-description__error-icon" aria-hidden="true">⚠</div>
         <p class="entity-description__error-message">{error}</p>
         {#if !isValid}
@@ -447,9 +487,9 @@
       <!-- Related Tab: Show entities that reference this one -->
       <div class="entity-description__related-content">
         {#if loadingRelated}
-          <div class="entity-description__loading">
+          <div class="entity-description__loading" role="status" aria-live="polite" aria-busy="true">
             <div class="entity-description__spinner" aria-label="Loading related entities">
-              <div class="entity-description__spinner-circle"></div>
+              <div class="entity-description__spinner-circle" aria-hidden="true"></div>
             </div>
             <p class="entity-description__loading-text">Loading related entities...</p>
           </div>
@@ -462,14 +502,15 @@
                 <span class="entity-description__related-count">({entities.length})</span>
               </h3>
 
-              {#if entities.length <= 50}
-                <!-- Small lists: render directly -->
-                <ul class="entity-description__related-list">
+              {#if entities.length <= 100}
+                <!-- Small lists (<= 100 items): render directly -->
+                <ul class="entity-description__related-list" role="list">
                   {#each entities as entity}
-                    <li class="entity-description__related-item">
+                    <li class="entity-description__related-item" role="listitem">
                       <button
                         class="entity-description__related-link"
                         on:click={() => handleRelatedEntityClick(entity.entityType, entity.id)}
+                        aria-label="Navigate to {entity.label || entity.name || entity.id}"
                       >
                         {entity.label || entity.name || entity.id}
                       </button>
@@ -477,7 +518,7 @@
                   {/each}
                 </ul>
               {:else}
-                <!-- Large lists: use DataTable with pagination -->
+                <!-- Large lists (> 100 items): use DataTable with virtualization -->
                 <div class="entity-description__related-table">
                   <DataTable
                     data={entities}

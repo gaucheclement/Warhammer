@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { getInitStatus, forceReInitialize } from '../lib/initData.js'
   import { initializeDataStores, mergedData, getCustomModificationsCount } from '../stores/data.js'
-  import { runAllTests } from '../lib/__tests__/dataLayer.test.js'
+  // import { runAllTests } from '../lib/__tests__/dataLayer.test.js' // Commented out for production build
 
   let status = null
   let loading = true
@@ -53,8 +53,8 @@
 
   function handleRunTests() {
     console.log('Running data layer tests...')
-    const success = runAllTests()
-    alert(success ? 'All tests passed! Check console for details.' : 'Some tests failed. Check console for details.')
+    // const success = runAllTests() // Commented out for production build
+    alert('Test functionality disabled in production build. Use npm test instead.')
   }
 
   function handleExportData() {
