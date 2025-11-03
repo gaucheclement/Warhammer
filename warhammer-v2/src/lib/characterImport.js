@@ -7,6 +7,7 @@
 
 import { validateCompleteCharacter } from './characterValidation.js'
 import { createCharacter } from './dataOperations.js'
+import { sanitizeString, sanitizeObject, sanitizeArray } from './sanitization.js'
 
 /**
  * Import options
@@ -258,50 +259,6 @@ export function sanitizeCharacter(character) {
   return sanitized
 }
 
-/**
- * Sanitize a string to prevent XSS
- * @param {string} str - String to sanitize
- * @returns {string} Sanitized string
- */
-function sanitizeString(str) {
-  if (typeof str !== 'string') return str
-
-  // Remove script tags and event handlers
-  return str
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/on\w+="[^"]*"/gi, '')
-    .replace(/on\w+='[^']*'/gi, '')
-    .trim()
-}
-
-/**
- * Sanitize an object's string properties
- * @param {Object} obj - Object to sanitize
- * @param {Array} stringFields - Fields to sanitize
- * @returns {Object} Sanitized object
- */
-function sanitizeObject(obj, stringFields = []) {
-  if (!obj || typeof obj !== 'object') return obj
-
-  const sanitized = { ...obj }
-  for (const field of stringFields) {
-    if (sanitized[field] && typeof sanitized[field] === 'string') {
-      sanitized[field] = sanitizeString(sanitized[field])
-    }
-  }
-  return sanitized
-}
-
-/**
- * Sanitize an array of objects
- * @param {Array} arr - Array to sanitize
- * @param {Array} stringFields - Fields to sanitize in each object
- * @returns {Array} Sanitized array
- */
-function sanitizeArray(arr, stringFields = []) {
-  if (!Array.isArray(arr)) return []
-  return arr.map(item => sanitizeObject(item, stringFields))
-}
 
 /**
  * Import a character into the database

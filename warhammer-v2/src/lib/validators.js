@@ -531,28 +531,8 @@ export function getWarnings(entityType, values) {
   return warnings;
 }
 
-/**
- * Sanitize form values to prevent issues
- * @param {Object} values - Form values
- * @returns {Object} Sanitized values
- */
-export function sanitizeFormValues(values) {
-  const sanitized = {};
-
-  for (const [key, value] of Object.entries(values)) {
-    if (typeof value === 'string') {
-      // Trim whitespace
-      sanitized[key] = value.trim();
-    } else if (typeof value === 'number') {
-      // Ensure it's a valid number
-      sanitized[key] = isNaN(value) ? 0 : value;
-    } else {
-      sanitized[key] = value;
-    }
-  }
-
-  return sanitized;
-}
+// Re-export sanitization function from unified module
+export { sanitizeFormValues } from './sanitization.js'
 
 /**
  * Generate a unique ID from a name

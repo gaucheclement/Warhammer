@@ -267,70 +267,8 @@ export function validateImportData(data) {
   }
 }
 
-/**
- * Sanitize a string to prevent XSS attacks
- * @param {string} str - String to sanitize
- * @returns {string} Sanitized string
- */
-export function sanitizeString(str) {
-  if (typeof str !== 'string') {
-    return str
-  }
-
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
-}
-
-/**
- * Sanitize an entry object
- * @param {Object} entry - Entry to sanitize
- * @returns {Object} Sanitized entry
- */
-export function sanitizeEntry(entry) {
-  const sanitized = {}
-
-  for (const [key, value] of Object.entries(entry)) {
-    if (typeof value === 'string') {
-      sanitized[key] = sanitizeString(value)
-    } else if (Array.isArray(value)) {
-      sanitized[key] = value.map((item) =>
-        typeof item === 'string' ? sanitizeString(item) : item
-      )
-    } else if (typeof value === 'object' && value !== null) {
-      sanitized[key] = sanitizeEntry(value)
-    } else {
-      sanitized[key] = value
-    }
-  }
-
-  return sanitized
-}
-
-/**
- * Sanitize imported data
- * @param {Object} data - Data to sanitize
- * @returns {Object} Sanitized data
- */
-export function sanitizeImportData(data) {
-  const sanitized = {}
-
-  for (const [entityType, entries] of Object.entries(data)) {
-    if (Array.isArray(entries)) {
-      sanitized[entityType] = entries.map((entry) => sanitizeEntry(entry))
-    } else if (typeof entries === 'object' && entries !== null) {
-      sanitized[entityType] = sanitizeEntry(entries)
-    } else {
-      sanitized[entityType] = entries
-    }
-  }
-
-  return sanitized
-}
+// Re-export sanitization functions from unified module
+export { sanitizeString, sanitizeEntry, sanitizeImportData } from './sanitization.js'
 
 /**
  * Check for ID conflicts with existing data
