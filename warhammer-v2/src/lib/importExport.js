@@ -143,9 +143,23 @@ export async function importCustomModifications(
     }
 
     // Merge or replace data
-    const resultData = merge
-      ? mergeImportData(data, existingData, overwrite)
-      : data
+    // If entityTypes filter is applied, only merge/replace those types
+    let resultData
+    if (merge) {
+      resultData = mergeImportData(data, existingData, overwrite)
+      // If entityTypes filter was applied, ensure result only contains those types
+      if (entityTypes && Array.isArray(entityTypes)) {
+        const filtered = {}
+        for (const type of entityTypes) {
+          if (resultData[type]) {
+            filtered[type] = resultData[type]
+          }
+        }
+        resultData = filtered
+      }
+    } else {
+      resultData = data
+    }
 
     // Count imported and skipped entries
     for (const [entityType, entries] of Object.entries(resultData)) {

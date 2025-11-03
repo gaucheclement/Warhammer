@@ -15,6 +15,7 @@
 import { writable, derived, get } from 'svelte/store'
 import { db, getAllFromTable } from '../lib/db.js'
 import { mergeData } from '../lib/dataMerger.js'
+import { transformData, loadIntoIndexedDB, formatReport } from '../lib/db-loader.js'
 
 /**
  * @typedef {Object} OfficialData
@@ -183,53 +184,43 @@ export async function loadOfficialData() {
 
 /**
  * Seed IndexedDB with initial data from embedded JSON
+ *
+ * Issue #47/#48: Now uses transformData pipeline to:
+ * - Generate stable string IDs (e.g., "skill-athletisme")
+ * - Parse references into EntityReference objects
+ * - Validate and report data quality
+ *
  * @param {Object} data - The data object from window.__WARHAMMER_DATA__
  * @returns {Promise<void>}
  */
 async function seedIndexedDB(data) {
   try {
-    console.log('Seeding IndexedDB with initial data...', Object.keys(data))
+    console.log('Seeding IndexedDB with initial data...')
+    console.log('Issue #47/#48: Using transformData pipeline for ID generation and reference parsing')
 
-    // Map JSON keys (singular) to expected keys (plural)
-    const keyMapping = {
-      'book': 'books',
-      'career': 'careers',
-      'careerLevel': 'careerLevels',
-      'specie': 'species',
-      'class': 'classes',
-      'talent': 'talents',
-      'characteristic': 'characteristics',
-      'trapping': 'trappings',
-      'skill': 'skills',
-      'spell': 'spells',
-      'creature': 'creatures',
-      'star': 'stars',
-      'god': 'gods',
-      'eye': 'eyes',
-      'hair': 'hairs',
-      'detail': 'details',
-      'trait': 'traits',
-      'lore': 'lores',
-      'magick': 'magicks',
-      'etat': 'etats',
-      'psychologie': 'psychologies',
-      'quality': 'qualities',
-      'tree': 'trees'
-    }
+    // Transform data using db-loader pipeline
+    // This generates string IDs and parses all references into EntityReference objects
+    const { data: transformedData, report } = transformData(data, {
+      generateReport: true,
+      preserveOriginal: false
+    })
 
-    for (const [jsonKey, dbKey] of Object.entries(keyMapping)) {
-      const entities = data[jsonKey] || []
-      if (entities.length > 0) {
-        // Transform: add 'id' field from 'index' for Dexie primary key
-        const entitiesWithId = entities.map(e => ({ ...e, id: e.index }))
-        await db[dbKey].bulkAdd(entitiesWithId)
-        console.log(`Loaded ${entities.length} ${jsonKey} → ${dbKey}`)
-      } else {
-        console.warn(`No data found for ${jsonKey}`)
-      }
-    }
+    // Log transformation report showing data quality
+    console.log(formatReport(report))
 
+    // Load transformed data into IndexedDB
+    const stats = await loadIntoIndexedDB(db, transformedData)
+
+    // Log loading statistics
     console.log('IndexedDB seeded successfully')
+    console.log('Load statistics:', stats)
+
+    if (stats.errors && stats.errors.length > 0) {
+      console.error('Some tables failed to load:', stats.errors)
+      throw new Error(`Failed to load ${stats.errors.length} tables`)
+    }
+
+    return { transformedData, report, stats }
   } catch (error) {
     console.error('Error seeding IndexedDB:', error)
     throw error
@@ -485,4 +476,132 @@ export function deleteModification(entityType, entityId) {
   saveCustomModifications()
 
   console.log(`Removed modification for ${entityType} entity:`, entityId)
+}
+
+/**
+ * Data query utilities
+ * Issue #48 Stream B: Ported from dataStore.js for unified data layer
+ *
+ * Provides convenient methods for querying merged data (official + custom).
+ * All methods work with the reactive mergedData store.
+ */
+export const dataQueries = {
+  /**
+   * Get a single entity by ID
+   *
+   * @param {string} entityType - Entity type
+   * @param {string} id - Entity ID
+   * @returns {object|null} The entity or null if not found
+   */
+  getById(entityType, id) {
+    const data = get(mergedData)
+    const entities = data[entityType] || []
+    return entities.find(e => e.id === id) || null
+  },
+
+  /**
+   * Get all entities of a specific type
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Array of entities
+   */
+  getAll(entityType) {
+    const data = get(mergedData)
+    return data[entityType] || []
+  },
+
+  /**
+   * Filter entities by predicate function
+   *
+   * @param {string} entityType - Entity type
+   * @param {function} predicate - Filter function
+   * @returns {array} Filtered entities
+   */
+  filter(entityType, predicate) {
+    const entities = this.getAll(entityType)
+    return entities.filter(predicate)
+  },
+
+  /**
+   * Get only official (unmodified) entities
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Official entities
+   */
+  getOfficial(entityType) {
+    return this.filter(
+      entityType,
+      entity => !entity._meta || (!entity._meta.isCustom && !entity._meta.isModified)
+    )
+  },
+
+  /**
+   * Get only custom entities
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Custom entities
+   */
+  getCustom(entityType) {
+    return this.filter(
+      entityType,
+      entity => entity._meta?.isCustom
+    )
+  },
+
+  /**
+   * Get only modified entities
+   *
+   * @param {string} entityType - Entity type
+   * @returns {array} Modified entities
+   */
+  getModified(entityType) {
+    return this.filter(
+      entityType,
+      entity => entity._meta?.isModified && !entity._meta?.isCustom
+    )
+  },
+
+  /**
+   * Search entities by name (case-insensitive)
+   *
+   * @param {string} entityType - Entity type
+   * @param {string} searchTerm - Search term
+   * @returns {array} Matching entities
+   */
+  searchByName(entityType, searchTerm) {
+    const term = searchTerm.toLowerCase()
+    return this.filter(
+      entityType,
+      entity => entity.name?.toLowerCase().includes(term)
+    )
+  },
+
+  /**
+   * Get count of entities by type
+   *
+   * @param {string} entityType - Entity type
+   * @returns {object} Count breakdown
+   */
+  getCount(entityType) {
+    const all = this.getAll(entityType)
+    return {
+      total: all.length,
+      official: all.filter(e => !e._meta || (!e._meta.isCustom && !e._meta.isModified)).length,
+      custom: all.filter(e => e._meta?.isCustom).length,
+      modified: all.filter(e => e._meta?.isModified && !e._meta?.isCustom).length
+    }
+  },
+
+  /**
+   * Get statistics for all entity types
+   *
+   * @returns {object} Statistics object
+   */
+  getAllStats() {
+    const stats = {}
+    for (const entityType of ENTITY_TYPES) {
+      stats[entityType] = this.getCount(entityType)
+    }
+    return stats
+  }
 }

@@ -118,6 +118,15 @@ if (typeof window !== 'undefined') {
   if (storedSidebarState !== null) {
     isSidebarCollapsed.set(storedSidebarState === 'true')
   }
+
+  // Load description panel width preference
+  const storedPanelWidth = localStorage.getItem('descriptionPanelWidth')
+  if (storedPanelWidth) {
+    const width = parseInt(storedPanelWidth, 10)
+    if (!isNaN(width) && width >= 300 && width <= 800) {
+      descriptionPanelWidth.set(width)
+    }
+  }
 }
 
 // Subscribe to theme changes and persist
@@ -146,6 +155,13 @@ viewMode.subscribe((value) => {
 isSidebarCollapsed.subscribe((value) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('isSidebarCollapsed', value.toString())
+  }
+})
+
+// Subscribe to description panel width and persist
+descriptionPanelWidth.subscribe((value) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('descriptionPanelWidth', value.toString())
   }
 })
 
@@ -249,6 +265,52 @@ export function clearSearch() {
 }
 
 /**
+ * Open description panel with entity
+ * @param {string} entityType - Entity type (talent, skill, spell, etc.)
+ * @param {string} entityId - Entity ID
+ * @returns {void}
+ */
+export function openDescriptionPanel(entityType, entityId) {
+  descriptionPanelEntity.set({ type: entityType, id: entityId })
+  descriptionPanelOpen.set(true)
+}
+
+/**
+ * Close description panel
+ * @returns {void}
+ */
+export function closeDescriptionPanel() {
+  descriptionPanelOpen.set(false)
+  // Keep entity data for potential re-opening
+}
+
+/**
+ * Toggle description panel
+ * @param {string} [entityType] - Entity type (if opening)
+ * @param {string} [entityId] - Entity ID (if opening)
+ * @returns {void}
+ */
+export function toggleDescriptionPanel(entityType, entityId) {
+  descriptionPanelOpen.update((isOpen) => {
+    if (!isOpen && entityType && entityId) {
+      descriptionPanelEntity.set({ type: entityType, id: entityId })
+      return true
+    }
+    return !isOpen
+  })
+}
+
+/**
+ * Set description panel width
+ * @param {number} width - Width in pixels (300-800)
+ * @returns {void}
+ */
+export function setDescriptionPanelWidth(width) {
+  const clampedWidth = Math.max(300, Math.min(800, width))
+  descriptionPanelWidth.set(clampedWidth)
+}
+
+/**
  * Derived store: is any filter active?
  * @type {import('svelte/store').Readable<boolean>}
  */
@@ -269,3 +331,21 @@ export const hasActiveFilters = derived(filters, ($filters) => {
 export const isLoading = derived(loadingStates, ($states) => {
   return Object.values($states).some((state) => state === true)
 })
+
+/**
+ * Description panel state (open/closed)
+ * @type {import('svelte/store').Writable<boolean>}
+ */
+export const descriptionPanelOpen = writable(false)
+
+/**
+ * Description panel width
+ * @type {import('svelte/store').Writable<number>}
+ */
+export const descriptionPanelWidth = writable(400)
+
+/**
+ * Current entity displayed in description panel
+ * @type {import('svelte/store').Writable<{type: string, id: string}|null>}
+ */
+export const descriptionPanelEntity = writable(null)

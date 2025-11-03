@@ -40,17 +40,17 @@ import { validateEntry } from './validation.js'
  */
 export function createEntry(entityType, data) {
   try {
-    // Validate entry
-    const validation = validateEntry(entityType, data)
+    // Create custom entry with unique ID first
+    const entry = createCustomEntry(entityType, data)
+
+    // Then validate the complete entry (including generated ID)
+    const validation = validateEntry(entityType, entry)
     if (!validation.valid) {
       return {
         success: false,
         error: `Validation failed: ${validation.errors.join(', ')}`
       }
     }
-
-    // Create custom entry with unique ID
-    const entry = createCustomEntry(entityType, data)
 
     // Add to custom modifications store
     const current = get(customModifications)
@@ -514,7 +514,7 @@ export function duplicateEntry(entityType, id, mergedData, modifications = {}) {
       ...entry,
       ...modifications,
       id: generateCustomId(entityType),
-      name: modifications.name || `${entry.name} (Copy)`,
+      label: modifications.label || `${entry.label} (Copy)`,
       _copiedFrom: id,
       _copiedAt: new Date().toISOString()
     }

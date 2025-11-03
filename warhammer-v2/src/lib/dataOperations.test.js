@@ -6,17 +6,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { writable } from 'svelte/store'
 
-// Create mock stores
-const mockCustomModifications = writable({})
-const mockCharacters = writable([])
-const mockSaveCustomModifications = vi.fn()
-
-// Mock the stores module
+// Mock the stores module - must be declared before any imports that use it
 vi.mock('../stores/data.js', () => ({
   officialData: writable({}),
-  customModifications: mockCustomModifications,
-  characters: mockCharacters,
-  saveCustomModifications: mockSaveCustomModifications
+  customModifications: writable({}),
+  characters: writable([]),
+  saveCustomModifications: vi.fn()
 }))
 
 // Mock the db module
@@ -138,9 +133,7 @@ describe('dataOperations', () => {
   })
 
   beforeEach(() => {
-    // Reset stores before each test
-    mockCustomModifications.set({})
-    mockCharacters.set([])
+    // Clear all mocks before each test
     vi.clearAllMocks()
   })
 
@@ -149,7 +142,7 @@ describe('dataOperations', () => {
     describe('createEntry', () => {
       it('should create a new custom entry', () => {
         const data = {
-          name: 'New Talent',
+          label: 'New Talent',
           description: 'A new custom talent',
           maxRank: 3
         }
@@ -159,13 +152,13 @@ describe('dataOperations', () => {
         expect(result.success).toBe(true)
         expect(result.data).toBeDefined()
         expect(result.data.id).toBeDefined()
-        expect(result.data.name).toBe('New Talent')
+        expect(result.data.label).toBe('New Talent')
         expect(result.data.isCustom).toBe(true)
       })
 
       it('should reject invalid entries', () => {
         const data = {
-          description: 'Missing name field'
+          description: 'Missing label field'
         }
 
         const result = createEntry('talents', data)
@@ -178,8 +171,8 @@ describe('dataOperations', () => {
     describe('bulkCreateEntries', () => {
       it('should create multiple entries', () => {
         const entries = [
-          { name: 'Talent 1', description: 'Test 1' },
-          { name: 'Talent 2', description: 'Test 2' }
+          { label: 'Talent 1', description: 'Test 1' },
+          { label: 'Talent 2', description: 'Test 2' }
         ]
 
         const result = bulkCreateEntries('talents', entries)
@@ -191,8 +184,8 @@ describe('dataOperations', () => {
 
       it('should collect errors for invalid entries', () => {
         const entries = [
-          { name: 'Valid Talent', description: 'Test' },
-          { description: 'Missing name' }
+          { label: 'Valid Talent', description: 'Test' },
+          { description: 'Missing label' }
         ]
 
         const result = bulkCreateEntries('talents', entries)
@@ -215,7 +208,7 @@ describe('dataOperations', () => {
     describe('updateEntry', () => {
       it('should update an existing entry', () => {
         const updates = {
-          name: 'Updated Talent',
+          label: 'Updated Talent',
           description: 'Updated description'
         }
 
@@ -223,11 +216,11 @@ describe('dataOperations', () => {
 
         expect(result.success).toBe(true)
         expect(result.data).toBeDefined()
-        expect(result.data.name).toBe('Updated Talent')
+        expect(result.data.label).toBe('Updated Talent')
       })
 
       it('should reject updates for non-existent entry', () => {
-        const updates = { name: 'Updated' }
+        const updates = { label: 'Updated' }
         const result = updateEntry('talents', 999, updates, testMergedData)
 
         expect(result.success).toBe(false)
@@ -236,7 +229,7 @@ describe('dataOperations', () => {
 
       it('should reject invalid updates', () => {
         const updates = {
-          name: 123 // Invalid type
+          label: 123 // Invalid type
         }
 
         const result = updateEntry('talents', 1, updates, testMergedData)
@@ -249,8 +242,8 @@ describe('dataOperations', () => {
     describe('bulkUpdateEntries', () => {
       it('should update multiple entries', () => {
         const updates = [
-          { id: 1, updates: { name: 'Updated 1' } },
-          { id: 2, updates: { name: 'Updated 2' } }
+          { id: 1, updates: { label: 'Updated 1' } },
+          { id: 2, updates: { label: 'Updated 2' } }
         ]
 
         const result = bulkUpdateEntries('talents', updates, testMergedData)
@@ -262,8 +255,8 @@ describe('dataOperations', () => {
 
       it('should collect errors for invalid updates', () => {
         const updates = [
-          { id: 1, updates: { name: 'Valid' } },
-          { id: 999, updates: { name: 'Invalid ID' } }
+          { id: 1, updates: { label: 'Valid' } },
+          { id: 999, updates: { label: 'Invalid ID' } }
         ]
 
         const result = bulkUpdateEntries('talents', updates, testMergedData)
@@ -326,15 +319,15 @@ describe('dataOperations', () => {
         expect(result.success).toBe(true)
         expect(result.data).toBeDefined()
         expect(result.data.id).not.toBe(1)
-        expect(result.data.name).toContain('Copy')
+        expect(result.data.label).toContain('Copy')
       })
 
       it('should apply modifications to duplicate', () => {
-        const modifications = { name: 'Custom Name' }
+        const modifications = { label: 'Custom Name' }
         const result = duplicateEntry('talents', 1, testMergedData, modifications)
 
         expect(result.success).toBe(true)
-        expect(result.data.name).toBe('Custom Name')
+        expect(result.data.label).toBe('Custom Name')
       })
 
       it('should reject duplication of non-existent entry', () => {

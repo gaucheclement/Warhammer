@@ -94,8 +94,8 @@ db.version(2).stores({
 
   // SPELLS - Magic spells and prayers
   // Fields: id, label, type, subType, cn, range, target, duration, book, page, desc, folder
-  // Relationships: talent (magic talent granting access)
-  spells: 'id, label, type, subType, cn, range, target, duration, book, page, folder',
+  // Relationships: talent (magic talent granting access), lore (magic lore)
+  spells: 'id, label, type, subType, cn, range, target, duration, lore, book, page, folder',
 
   // CREATURES - NPCs and monsters
   // Fields: id, label, folder, char (object), book, page, desc

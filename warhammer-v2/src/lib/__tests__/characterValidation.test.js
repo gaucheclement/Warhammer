@@ -4,6 +4,7 @@
  * Unit tests for character validation functions
  */
 
+import { describe, it, expect } from 'vitest'
 import {
   validateCharacterName,
   validateCharacteristics,
@@ -18,335 +19,364 @@ import {
 
 import { createEmptyCharacter } from '../characterModel.js'
 
-/**
- * Test validateCharacterName
- */
-export function testValidateCharacterName() {
-  console.log('Testing validateCharacterName...')
+describe('characterValidation', () => {
+  describe('validateCharacterName', () => {
+    it('should accept valid name', () => {
+      const validResult = validateCharacterName('Gunther von Liebewitz')
+      expect(validResult.valid).toBe(true)
+    })
 
-  // Valid name
-  const validResult = validateCharacterName('Gunther von Liebewitz')
-  console.assert(validResult.valid === true, 'Valid name should pass')
+    it('should reject empty name', () => {
+      const emptyResult = validateCharacterName('')
+      expect(emptyResult.valid).toBe(false)
+      expect(emptyResult.errors.length).toBeGreaterThan(0)
+    })
 
-  // Empty name
-  const emptyResult = validateCharacterName('')
-  console.assert(emptyResult.valid === false, 'Empty name should fail')
-  console.assert(emptyResult.errors.length > 0, 'Should have errors')
+    it('should reject name too short', () => {
+      const shortResult = validateCharacterName('A')
+      expect(shortResult.valid).toBe(false)
+    })
 
-  // Too short
-  const shortResult = validateCharacterName('A')
-  console.assert(shortResult.valid === false, 'Name too short should fail')
+    it('should reject name too long', () => {
+      const longName = 'A'.repeat(101)
+      const longResult = validateCharacterName(longName)
+      expect(longResult.valid).toBe(false)
+    })
 
-  // Too long
-  const longName = 'A'.repeat(101)
-  const longResult = validateCharacterName(longName)
-  console.assert(longResult.valid === false, 'Name too long should fail')
+    it('should warn about duplicate names', () => {
+      const existingCharacters = [{ name: 'Test Character' }]
+      const duplicateResult = validateCharacterName('Test Character', existingCharacters)
+      expect(duplicateResult.warnings.length).toBeGreaterThan(0)
+    })
+  })
 
-  // Check uniqueness
-  const existingCharacters = [{ name: 'Test Character' }]
-  const duplicateResult = validateCharacterName('Test Character', existingCharacters)
-  console.assert(duplicateResult.warnings.length > 0, 'Duplicate name should warn')
+  describe('validateCharacteristics', () => {
+    it('should accept valid characteristics', () => {
+      const validCharacteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      const validResult = validateCharacteristics(validCharacteristics)
+      expect(validResult.valid).toBe(true)
+    })
 
-  console.log('✓ validateCharacterName tests passed')
-}
+    it('should reject missing characteristic', () => {
+      const missingResult = validateCharacteristics({ M: 4, WS: 30 })
+      expect(missingResult.valid).toBe(false)
+    })
 
-/**
- * Test validateCharacteristics
- */
-export function testValidateCharacteristics() {
-  console.log('Testing validateCharacteristics...')
+    it('should reject out of range value', () => {
+      const validCharacteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      const outOfRangeResult = validateCharacteristics({ ...validCharacteristics, WS: 150 })
+      expect(outOfRangeResult.valid).toBe(false)
+    })
 
-  // Valid characteristics
-  const validCharacteristics = {
-    M: 4,
-    WS: 30,
-    BS: 28,
-    S: 32,
-    T: 35,
-    I: 30,
-    Ag: 28,
-    Dex: 30,
-    Int: 32,
-    WP: 33,
-    Fel: 28
-  }
-  const validResult = validateCharacteristics(validCharacteristics)
-  console.assert(validResult.valid === true, 'Valid characteristics should pass')
+    it('should reject negative value', () => {
+      const validCharacteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      const negativeResult = validateCharacteristics({ ...validCharacteristics, S: -10 })
+      expect(negativeResult.valid).toBe(false)
+    })
+  })
 
-  // Missing characteristic
-  const missingResult = validateCharacteristics({ M: 4, WS: 30 })
-  console.assert(missingResult.valid === false, 'Missing characteristics should fail')
+  describe('validateSkillSelection', () => {
+    it('should accept valid skills', () => {
+      const validSkills = [
+        { id: 'melee', name: 'Melee', advances: 10, characteristic: 'ws' },
+        { id: 'ranged', name: 'Ranged', advances: 5, characteristic: 'bs' }
+      ]
+      const validResult = validateSkillSelection(validSkills)
+      expect(validResult.valid).toBe(true)
+    })
 
-  // Out of range
-  const outOfRangeResult = validateCharacteristics({ ...validCharacteristics, WS: 150 })
-  console.assert(outOfRangeResult.valid === false, 'Out of range value should fail')
+    it('should reject missing fields', () => {
+      const invalidSkills = [{ id: 'melee' }]
+      const invalidResult = validateSkillSelection(invalidSkills)
+      expect(invalidResult.valid).toBe(false)
+    })
 
-  // Negative value
-  const negativeResult = validateCharacteristics({ ...validCharacteristics, S: -10 })
-  console.assert(negativeResult.valid === false, 'Negative value should fail')
+    it('should reject negative advances', () => {
+      const negativeSkills = [{ id: 'melee', name: 'Melee', advances: -5 }]
+      const negativeResult = validateSkillSelection(negativeSkills)
+      expect(negativeResult.valid).toBe(false)
+    })
 
-  console.log('✓ validateCharacteristics tests passed')
-}
+    it('should reject duplicate skills', () => {
+      const duplicateSkills = [
+        { id: 'melee', name: 'Melee', advances: 10 },
+        { id: 'melee', name: 'Melee', advances: 5 }
+      ]
+      const duplicateResult = validateSkillSelection(duplicateSkills)
+      expect(duplicateResult.valid).toBe(false)
+    })
+  })
 
-/**
- * Test validateSkillSelection
- */
-export function testValidateSkillSelection() {
-  console.log('Testing validateSkillSelection...')
+  describe('validateTalentPrerequisites', () => {
+    it('should accept valid talents', () => {
+      const character = createEmptyCharacter()
+      const validTalents = [
+        { id: 'hardy', name: 'Hardy', times: 1 },
+        { id: 'savvy', name: 'Savvy', times: 1 }
+      ]
+      const validResult = validateTalentPrerequisites(validTalents, character)
+      expect(validResult.valid).toBe(true)
+    })
 
-  // Valid skills
-  const validSkills = [
-    { id: 'melee', name: 'Melee', advances: 10, characteristic: 'ws' },
-    { id: 'ranged', name: 'Ranged', advances: 5, characteristic: 'bs' }
-  ]
-  const validResult = validateSkillSelection(validSkills)
-  console.assert(validResult.valid === true, 'Valid skills should pass')
+    it('should reject missing fields', () => {
+      const character = createEmptyCharacter()
+      const invalidTalents = [{ id: 'hardy' }]
+      const invalidResult = validateTalentPrerequisites(invalidTalents, character)
+      expect(invalidResult.valid).toBe(false)
+    })
 
-  // Missing fields
-  const invalidSkills = [{ id: 'melee' }]
-  const invalidResult = validateSkillSelection(invalidSkills)
-  console.assert(invalidResult.valid === false, 'Missing fields should fail')
+    it('should reject invalid times value', () => {
+      const character = createEmptyCharacter()
+      const invalidTimes = [{ id: 'hardy', name: 'Hardy', times: 0 }]
+      const timesResult = validateTalentPrerequisites(invalidTimes, character)
+      expect(timesResult.valid).toBe(false)
+    })
 
-  // Negative advances
-  const negativeSkills = [{ id: 'melee', name: 'Melee', advances: -5 }]
-  const negativeResult = validateSkillSelection(negativeSkills)
-  console.assert(negativeResult.valid === false, 'Negative advances should fail')
+    it('should reject duplicate talents', () => {
+      const character = createEmptyCharacter()
+      const duplicateTalents = [
+        { id: 'hardy', name: 'Hardy', times: 1 },
+        { id: 'hardy', name: 'Hardy', times: 1 }
+      ]
+      const duplicateResult = validateTalentPrerequisites(duplicateTalents, character)
+      expect(duplicateResult.valid).toBe(false)
+    })
+  })
 
-  // Duplicate skills
-  const duplicateSkills = [
-    { id: 'melee', name: 'Melee', advances: 10 },
-    { id: 'melee', name: 'Melee', advances: 5 }
-  ]
-  const duplicateResult = validateSkillSelection(duplicateSkills)
-  console.assert(duplicateResult.valid === false, 'Duplicate skills should fail')
+  describe('validateSpells', () => {
+    it('should accept valid spells', () => {
+      const validSpells = [
+        { id: 'magic-missile', name: 'Magic Missile', cn: 5 },
+        { id: 'fireball', name: 'Fireball', cn: 7 }
+      ]
+      const validResult = validateSpells(validSpells)
+      expect(validResult.valid).toBe(true)
+    })
 
-  console.log('✓ validateSkillSelection tests passed')
-}
+    it('should reject missing fields', () => {
+      const invalidSpells = [{ id: 'magic-missile' }]
+      const invalidResult = validateSpells(invalidSpells)
+      expect(invalidResult.valid).toBe(false)
+    })
 
-/**
- * Test validateTalentPrerequisites
- */
-export function testValidateTalentPrerequisites() {
-  console.log('Testing validateTalentPrerequisites...')
+    it('should reject duplicate spells', () => {
+      const duplicateSpells = [
+        { id: 'fireball', name: 'Fireball', cn: 7 },
+        { id: 'fireball', name: 'Fireball', cn: 7 }
+      ]
+      const duplicateResult = validateSpells(duplicateSpells)
+      expect(duplicateResult.valid).toBe(false)
+    })
+  })
 
-  const character = createEmptyCharacter()
+  describe('validateTrappings', () => {
+    it('should accept valid trappings', () => {
+      const validTrappings = [
+        { id: 'sword', name: 'Sword', quantity: 1, equipped: true },
+        { id: 'shield', name: 'Shield', quantity: 1, equipped: false }
+      ]
+      const validResult = validateTrappings(validTrappings)
+      expect(validResult.valid).toBe(true)
+    })
 
-  // Valid talents
-  const validTalents = [
-    { id: 'hardy', name: 'Hardy', times: 1 },
-    { id: 'savvy', name: 'Savvy', times: 1 }
-  ]
-  const validResult = validateTalentPrerequisites(validTalents, character)
-  console.assert(validResult.valid === true, 'Valid talents should pass')
+    it('should reject missing fields', () => {
+      const invalidTrappings = [{ id: 'sword' }]
+      const invalidResult = validateTrappings(invalidTrappings)
+      expect(invalidResult.valid).toBe(false)
+    })
 
-  // Missing fields
-  const invalidTalents = [{ id: 'hardy' }]
-  const invalidResult = validateTalentPrerequisites(invalidTalents, character)
-  console.assert(invalidResult.valid === false, 'Missing fields should fail')
+    it('should reject negative quantity', () => {
+      const negativeTrappings = [{ id: 'sword', name: 'Sword', quantity: -1, equipped: true }]
+      const negativeResult = validateTrappings(negativeTrappings)
+      expect(negativeResult.valid).toBe(false)
+    })
+  })
 
-  // Invalid times value
-  const invalidTimes = [{ id: 'hardy', name: 'Hardy', times: 0 }]
-  const timesResult = validateTalentPrerequisites(invalidTimes, character)
-  console.assert(timesResult.valid === false, 'Times < 1 should fail')
+  describe('validateExperience', () => {
+    it('should accept valid experience', () => {
+      const validExperience = { total: 500, spent: 200, available: 300 }
+      const validResult = validateExperience(validExperience)
+      expect(validResult.valid).toBe(true)
+    })
 
-  // Duplicate talents
-  const duplicateTalents = [
-    { id: 'hardy', name: 'Hardy', times: 1 },
-    { id: 'hardy', name: 'Hardy', times: 1 }
-  ]
-  const duplicateResult = validateTalentPrerequisites(duplicateTalents, character)
-  console.assert(duplicateResult.valid === false, 'Duplicate talents should fail')
+    it('should reject inconsistent calculation', () => {
+      const inconsistentExperience = { total: 500, spent: 200, available: 200 }
+      const inconsistentResult = validateExperience(inconsistentExperience)
+      expect(inconsistentResult.valid).toBe(false)
+    })
 
-  console.log('✓ validateTalentPrerequisites tests passed')
-}
+    it('should reject negative values', () => {
+      const negativeExperience = { total: -100, spent: 0, available: -100 }
+      const negativeResult = validateExperience(negativeExperience)
+      expect(negativeResult.valid).toBe(false)
+    })
 
-/**
- * Test validateSpells
- */
-export function testValidateSpells() {
-  console.log('Testing validateSpells...')
+    it('should reject spent exceeding total', () => {
+      const exceededExperience = { total: 100, spent: 200, available: -100 }
+      const exceededResult = validateExperience(exceededExperience)
+      expect(exceededResult.valid).toBe(false)
+    })
+  })
 
-  // Valid spells
-  const validSpells = [
-    { id: 'magic-missile', name: 'Magic Missile', cn: 5 },
-    { id: 'fireball', name: 'Fireball', cn: 7 }
-  ]
-  const validResult = validateSpells(validSpells)
-  console.assert(validResult.valid === true, 'Valid spells should pass')
+  describe('validateCompleteCharacter', () => {
+    it('should accept valid character', () => {
+      const validCharacter = createEmptyCharacter()
+      validCharacter.name = 'Test Character'
+      validCharacter.species = { id: 'human', name: 'Human' }
+      validCharacter.career = { id: 'warrior', name: 'Warrior', level: 1 }
+      validCharacter.characteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      validCharacter.wounds = { current: 12, max: 12 }
+      validCharacter.fate = { current: 2, max: 2 }
+      validCharacter.resilience = { current: 1, max: 1 }
 
-  // Missing fields
-  const invalidSpells = [{ id: 'magic-missile' }]
-  const invalidResult = validateSpells(invalidSpells)
-  console.assert(invalidResult.valid === false, 'Missing fields should fail')
+      const validResult = validateCompleteCharacter(validCharacter)
+      expect(validResult.valid).toBe(true)
+    })
 
-  // Duplicate spells
-  const duplicateSpells = [
-    { id: 'fireball', name: 'Fireball', cn: 7 },
-    { id: 'fireball', name: 'Fireball', cn: 7 }
-  ]
-  const duplicateResult = validateSpells(duplicateSpells)
-  console.assert(duplicateResult.valid === false, 'Duplicate spells should fail')
+    it('should reject character without name', () => {
+      const validCharacter = createEmptyCharacter()
+      validCharacter.species = { id: 'human', name: 'Human' }
+      validCharacter.career = { id: 'warrior', name: 'Warrior', level: 1 }
+      validCharacter.characteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      validCharacter.wounds = { current: 12, max: 12 }
+      validCharacter.fate = { current: 2, max: 2 }
+      validCharacter.resilience = { current: 1, max: 1 }
 
-  console.log('✓ validateSpells tests passed')
-}
+      const noNameCharacter = { ...validCharacter, name: '' }
+      const noNameResult = validateCompleteCharacter(noNameCharacter)
+      expect(noNameResult.valid).toBe(false)
+    })
 
-/**
- * Test validateTrappings
- */
-export function testValidateTrappings() {
-  console.log('Testing validateTrappings...')
+    it('should reject character without species', () => {
+      const validCharacter = createEmptyCharacter()
+      validCharacter.name = 'Test Character'
+      validCharacter.career = { id: 'warrior', name: 'Warrior', level: 1 }
+      validCharacter.characteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      validCharacter.wounds = { current: 12, max: 12 }
+      validCharacter.fate = { current: 2, max: 2 }
+      validCharacter.resilience = { current: 1, max: 1 }
 
-  // Valid trappings
-  const validTrappings = [
-    { id: 'sword', name: 'Sword', quantity: 1, equipped: true },
-    { id: 'shield', name: 'Shield', quantity: 1, equipped: false }
-  ]
-  const validResult = validateTrappings(validTrappings)
-  console.assert(validResult.valid === true, 'Valid trappings should pass')
+      const noSpeciesCharacter = { ...validCharacter, species: { id: null } }
+      const noSpeciesResult = validateCompleteCharacter(noSpeciesCharacter)
+      expect(noSpeciesResult.valid).toBe(false)
+    })
 
-  // Missing fields
-  const invalidTrappings = [{ id: 'sword' }]
-  const invalidResult = validateTrappings(invalidTrappings)
-  console.assert(invalidResult.valid === false, 'Missing fields should fail')
+    it('should reject invalid career level', () => {
+      const validCharacter = createEmptyCharacter()
+      validCharacter.name = 'Test Character'
+      validCharacter.species = { id: 'human', name: 'Human' }
+      validCharacter.characteristics = {
+        M: 4,
+        WS: 30,
+        BS: 28,
+        S: 32,
+        T: 35,
+        I: 30,
+        Ag: 28,
+        Dex: 30,
+        Int: 32,
+        WP: 33,
+        Fel: 28
+      }
+      validCharacter.wounds = { current: 12, max: 12 }
+      validCharacter.fate = { current: 2, max: 2 }
+      validCharacter.resilience = { current: 1, max: 1 }
 
-  // Negative quantity
-  const negativeTrappings = [{ id: 'sword', name: 'Sword', quantity: -1, equipped: true }]
-  const negativeResult = validateTrappings(negativeTrappings)
-  console.assert(negativeResult.valid === false, 'Negative quantity should fail')
+      const invalidLevelCharacter = {
+        ...validCharacter,
+        career: { id: 'warrior', name: 'Warrior', level: 10 }
+      }
+      const invalidLevelResult = validateCompleteCharacter(invalidLevelCharacter)
+      expect(invalidLevelResult.valid).toBe(false)
+    })
+  })
 
-  console.log('✓ validateTrappings tests passed')
-}
+  describe('validateCharacterDraft', () => {
+    it('should accept valid draft with warnings', () => {
+      const validDraft = createEmptyCharacter()
+      validDraft.name = 'Draft Character'
 
-/**
- * Test validateExperience
- */
-export function testValidateExperience() {
-  console.log('Testing validateExperience...')
+      const validResult = validateCharacterDraft(validDraft)
+      expect(validResult.valid).toBe(true)
+      expect(validResult.warnings.length).toBeGreaterThan(0)
+    })
 
-  // Valid experience
-  const validExperience = { total: 500, spent: 200, available: 300 }
-  const validResult = validateExperience(validExperience)
-  console.assert(validResult.valid === true, 'Valid experience should pass')
-
-  // Inconsistent calculation
-  const inconsistentExperience = { total: 500, spent: 200, available: 200 }
-  const inconsistentResult = validateExperience(inconsistentExperience)
-  console.assert(inconsistentResult.valid === false, 'Inconsistent calculation should fail')
-
-  // Negative values
-  const negativeExperience = { total: -100, spent: 0, available: -100 }
-  const negativeResult = validateExperience(negativeExperience)
-  console.assert(negativeResult.valid === false, 'Negative values should fail')
-
-  // Spent exceeds total
-  const exceededExperience = { total: 100, spent: 200, available: -100 }
-  const exceededResult = validateExperience(exceededExperience)
-  console.assert(exceededResult.valid === false, 'Spent > total should fail')
-
-  console.log('✓ validateExperience tests passed')
-}
-
-/**
- * Test validateCompleteCharacter
- */
-export function testValidateCompleteCharacter() {
-  console.log('Testing validateCompleteCharacter...')
-
-  // Create valid character
-  const validCharacter = createEmptyCharacter()
-  validCharacter.name = 'Test Character'
-  validCharacter.species = { id: 'human', name: 'Human' }
-  validCharacter.career = { id: 'warrior', name: 'Warrior', level: 1 }
-  validCharacter.characteristics = {
-    M: 4,
-    WS: 30,
-    BS: 28,
-    S: 32,
-    T: 35,
-    I: 30,
-    Ag: 28,
-    Dex: 30,
-    Int: 32,
-    WP: 33,
-    Fel: 28
-  }
-  validCharacter.wounds = { current: 12, max: 12 }
-  validCharacter.fate = { current: 2, max: 2 }
-  validCharacter.resilience = { current: 1, max: 1 }
-
-  const validResult = validateCompleteCharacter(validCharacter)
-  console.assert(validResult.valid === true, 'Valid character should pass')
-
-  // Missing name
-  const noNameCharacter = { ...validCharacter, name: '' }
-  const noNameResult = validateCompleteCharacter(noNameCharacter)
-  console.assert(noNameResult.valid === false, 'Character without name should fail')
-
-  // Missing species
-  const noSpeciesCharacter = { ...validCharacter, species: { id: null } }
-  const noSpeciesResult = validateCompleteCharacter(noSpeciesCharacter)
-  console.assert(noSpeciesResult.valid === false, 'Character without species should fail')
-
-  // Invalid career level
-  const invalidLevelCharacter = {
-    ...validCharacter,
-    career: { id: 'warrior', name: 'Warrior', level: 10 }
-  }
-  const invalidLevelResult = validateCompleteCharacter(invalidLevelCharacter)
-  console.assert(invalidLevelResult.valid === false, 'Invalid career level should fail')
-
-  console.log('✓ validateCompleteCharacter tests passed')
-}
-
-/**
- * Test validateCharacterDraft
- */
-export function testValidateCharacterDraft() {
-  console.log('Testing validateCharacterDraft...')
-
-  // Valid draft (minimal requirements)
-  const validDraft = createEmptyCharacter()
-  validDraft.name = 'Draft Character'
-
-  const validResult = validateCharacterDraft(validDraft)
-  console.assert(validResult.valid === true, 'Valid draft should pass')
-  console.assert(validResult.warnings.length > 0, 'Draft should have warnings about missing data')
-
-  // Invalid draft (no name)
-  const invalidDraft = createEmptyCharacter()
-  const invalidResult = validateCharacterDraft(invalidDraft)
-  console.assert(invalidResult.valid === false, 'Draft without name should fail')
-
-  console.log('✓ validateCharacterDraft tests passed')
-}
-
-/**
- * Run all character validation tests
- */
-export function runCharacterValidationTests() {
-  console.log('=== Running Character Validation Tests ===\n')
-
-  try {
-    testValidateCharacterName()
-    testValidateCharacteristics()
-    testValidateSkillSelection()
-    testValidateTalentPrerequisites()
-    testValidateSpells()
-    testValidateTrappings()
-    testValidateExperience()
-    testValidateCompleteCharacter()
-    testValidateCharacterDraft()
-
-    console.log('\n=== All character validation tests passed! ===')
-    return true
-  } catch (error) {
-    console.error('\n=== Test failed! ===')
-    console.error(error)
-    return false
-  }
-}
-
-// Export for browser console testing
-if (typeof window !== 'undefined') {
-  window.runCharacterValidationTests = runCharacterValidationTests
-}
+    it('should reject draft without name', () => {
+      const invalidDraft = createEmptyCharacter()
+      const invalidResult = validateCharacterDraft(invalidDraft)
+      expect(invalidResult.valid).toBe(false)
+    })
+  })
+})

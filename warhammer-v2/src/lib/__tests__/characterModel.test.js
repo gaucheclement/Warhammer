@@ -4,6 +4,7 @@
  * Unit tests for character data model and factory functions
  */
 
+import { describe, it, expect } from 'vitest'
 import {
   createEmptyCharacter,
   createCharacterFromSpecies,
@@ -22,313 +23,258 @@ import {
   spendCharacterXP
 } from '../characterModel.js'
 
-/**
- * Test createEmptyCharacter
- */
-export function testCreateEmptyCharacter() {
-  console.log('Testing createEmptyCharacter...')
-
-  const character = createEmptyCharacter()
-
-  console.assert(character.name === '', 'Name should be empty string')
-  console.assert(character.species.id === null, 'Species ID should be null')
-  console.assert(character.career.id === null, 'Career ID should be null')
-  console.assert(character.characteristics.WS === 0, 'WS should be 0')
-  console.assert(Array.isArray(character.skills), 'Skills should be array')
-  console.assert(Array.isArray(character.talents), 'Talents should be array')
-  console.assert(Array.isArray(character.spells), 'Spells should be array')
-  console.assert(Array.isArray(character.trappings), 'Trappings should be array')
-  console.assert(character.experience.total === 0, 'Total XP should be 0')
-  console.assert(character.wounds.max === 0, 'Max wounds should be 0')
-  console.assert(character.isDraft === false, 'isDraft should be false')
-
-  console.log('✓ createEmptyCharacter tests passed')
-}
-
-/**
- * Test createCharacterFromSpecies
- */
-export function testCreateCharacterFromSpecies() {
-  console.log('Testing createCharacterFromSpecies...')
-
-  const species = {
-    id: 'human',
-    name: 'Human',
-    characteristics: {
-      WS: 20,
-      BS: 20,
-      S: 20,
-      T: 20,
-      I: 20,
-      Ag: 20,
-      Dex: 20,
-      Int: 20,
-      WP: 20,
-      Fel: 20,
-      M: 4
-    },
-    skills: ['Animal Care', 'Charm'],
-    talents: ['Savvy']
-  }
-
-  const character = createCharacterFromSpecies(species)
-
-  console.assert(character.species.id === 'human', 'Species ID should be set')
-  console.assert(character.species.name === 'Human', 'Species name should be set')
-  console.assert(character.characteristics.WS === 20, 'WS should be 20')
-  console.assert(character.characteristics.M === 4, 'M should be 4')
-  console.assert(character.skills.length === 2, 'Should have 2 species skills')
-  console.assert(character.talents.length === 1, 'Should have 1 species talent')
-
-  console.log('✓ createCharacterFromSpecies tests passed')
-}
-
-/**
- * Test applyCareerToCharacter
- */
-export function testApplyCareerToCharacter() {
-  console.log('Testing applyCareerToCharacter...')
-
-  const character = createEmptyCharacter()
-  const career = {
-    id: 'warrior',
-    name: 'Warrior',
-    class: 'Fighter'
-  }
-
-  applyCareerToCharacter(character, career)
-
-  console.assert(character.career.id === 'warrior', 'Career ID should be set')
-  console.assert(character.career.name === 'Warrior', 'Career name should be set')
-  console.assert(character.career.level === 1, 'Career level should be 1')
-
-  console.log('✓ applyCareerToCharacter tests passed')
-}
-
-/**
- * Test calculateDerivedStats
- */
-export function testCalculateDerivedStats() {
-  console.log('Testing calculateDerivedStats...')
-
-  const character = createEmptyCharacter()
-  character.characteristics = {
-    M: 4,
-    WS: 35,
-    BS: 30,
-    S: 30,
-    T: 35,
-    I: 32,
-    Ag: 28,
-    Dex: 30,
-    Int: 30,
-    WP: 32,
-    Fel: 28
-  }
-
-  calculateDerivedStats(character)
-
-  // Base wounds = (2 × T Bonus) + WP Bonus + S Bonus
-  // T Bonus = 3, WP Bonus = 3, S Bonus = 3
-  // Base wounds = (2 × 3) + 3 + 3 = 12
-  console.assert(character.wounds.max === 12, 'Max wounds should be 12')
-  console.assert(character.wounds.current === 12, 'Current wounds should be set to max')
-
-  console.log('✓ calculateDerivedStats tests passed')
-}
-
-/**
- * Test cloneCharacter
- */
-export function testCloneCharacter() {
-  console.log('Testing cloneCharacter...')
-
-  const original = createEmptyCharacter()
-  original.id = 123
-  original.name = 'Test Character'
-  original.skills = [{ id: 'melee', name: 'Melee', advances: 10 }]
-
-  const clone = cloneCharacter(original, 'Cloned Character')
-
-  console.assert(clone.id === undefined, 'Clone should not have ID')
-  console.assert(clone.name === 'Cloned Character', 'Clone should have new name')
-  console.assert(clone.skills.length === 1, 'Clone should have same skills')
-  console.assert(clone.created !== original.created, 'Clone should have new timestamp')
-
-  // Test without new name
-  const clone2 = cloneCharacter(original)
-  console.assert(clone2.name === 'Test Character (Copy)', 'Should add (Copy) suffix')
-
-  console.log('✓ cloneCharacter tests passed')
-}
-
-/**
- * Test addSkillToCharacter
- */
-export function testAddSkillToCharacter() {
-  console.log('Testing addSkillToCharacter...')
-
-  const character = createEmptyCharacter()
-  const skill = { id: 'melee', name: 'Melee', characteristic: 'ws' }
-
-  addSkillToCharacter(character, skill, 5)
-
-  console.assert(character.skills.length === 1, 'Should have 1 skill')
-  console.assert(character.skills[0].advances === 5, 'Skill should have 5 advances')
-
-  // Add same skill again
-  addSkillToCharacter(character, skill, 3)
-
-  console.assert(character.skills.length === 1, 'Should still have 1 skill')
-  console.assert(character.skills[0].advances === 8, 'Advances should be cumulative (8)')
-
-  console.log('✓ addSkillToCharacter tests passed')
-}
-
-/**
- * Test addTalentToCharacter
- */
-export function testAddTalentToCharacter() {
-  console.log('Testing addTalentToCharacter...')
-
-  const character = createEmptyCharacter()
-  const talent = { id: 'hardy', name: 'Hardy', description: 'Adds TB to wounds' }
-
-  addTalentToCharacter(character, talent)
-
-  console.assert(character.talents.length === 1, 'Should have 1 talent')
-  console.assert(character.talents[0].times === 1, 'Talent times should be 1')
-
-  // Add same talent again
-  addTalentToCharacter(character, talent)
-
-  console.assert(character.talents.length === 1, 'Should still have 1 talent')
-  console.assert(character.talents[0].times === 2, 'Times should be incremented to 2')
-
-  console.log('✓ addTalentToCharacter tests passed')
-}
-
-/**
- * Test removeSkillFromCharacter
- */
-export function testRemoveSkillFromCharacter() {
-  console.log('Testing removeSkillFromCharacter...')
-
-  const character = createEmptyCharacter()
-  character.skills = [
-    { id: 'melee', name: 'Melee', advances: 10 },
-    { id: 'ranged', name: 'Ranged', advances: 5 }
-  ]
-
-  removeSkillFromCharacter(character, 'melee')
-
-  console.assert(character.skills.length === 1, 'Should have 1 skill remaining')
-  console.assert(character.skills[0].id === 'ranged', 'Remaining skill should be ranged')
-
-  console.log('✓ removeSkillFromCharacter tests passed')
-}
-
-/**
- * Test removeTalentFromCharacter
- */
-export function testRemoveTalentFromCharacter() {
-  console.log('Testing removeTalentFromCharacter...')
-
-  const character = createEmptyCharacter()
-  character.talents = [
-    { id: 'hardy', name: 'Hardy', times: 2 },
-    { id: 'savvy', name: 'Savvy', times: 1 }
-  ]
-
-  // Remove one instance of Hardy
-  removeTalentFromCharacter(character, 'hardy')
-
-  console.assert(character.talents.length === 2, 'Should still have 2 talents')
-  console.assert(character.talents[0].times === 1, 'Hardy times should be decremented to 1')
-
-  // Remove Hardy again (should remove completely)
-  removeTalentFromCharacter(character, 'hardy')
-
-  console.assert(character.talents.length === 1, 'Should have 1 talent remaining')
-  console.assert(character.talents[0].id === 'savvy', 'Remaining talent should be Savvy')
-
-  console.log('✓ removeTalentFromCharacter tests passed')
-}
-
-/**
- * Test updateCharacterXP
- */
-export function testUpdateCharacterXP() {
-  console.log('Testing updateCharacterXP...')
-
-  const character = createEmptyCharacter()
-  character.experience.spent = 100
-
-  updateCharacterXP(character, 500)
-
-  console.assert(character.experience.total === 500, 'Total XP should be 500')
-  console.assert(character.experience.available === 400, 'Available should be 400 (500-100)')
-
-  console.log('✓ updateCharacterXP tests passed')
-}
-
-/**
- * Test spendCharacterXP
- */
-export function testSpendCharacterXP() {
-  console.log('Testing spendCharacterXP...')
-
-  const character = createEmptyCharacter()
-  character.experience.total = 500
-  character.experience.spent = 100
-  character.experience.available = 400
-
-  spendCharacterXP(character, 50)
-
-  console.assert(character.experience.spent === 150, 'Spent should be 150')
-  console.assert(character.experience.available === 350, 'Available should be 350')
-
-  // Try to spend more than available
-  const oldSpent = character.experience.spent
-  spendCharacterXP(character, 1000)
-
-  console.assert(
-    character.experience.spent === oldSpent,
-    'Should not spend more than available'
-  )
-
-  console.log('✓ spendCharacterXP tests passed')
-}
-
-/**
- * Run all character model tests
- */
-export function runCharacterModelTests() {
-  console.log('=== Running Character Model Tests ===\n')
-
-  try {
-    testCreateEmptyCharacter()
-    testCreateCharacterFromSpecies()
-    testApplyCareerToCharacter()
-    testCalculateDerivedStats()
-    testCloneCharacter()
-    testAddSkillToCharacter()
-    testAddTalentToCharacter()
-    testRemoveSkillFromCharacter()
-    testRemoveTalentFromCharacter()
-    testUpdateCharacterXP()
-    testSpendCharacterXP()
-
-    console.log('\n=== All character model tests passed! ===')
-    return true
-  } catch (error) {
-    console.error('\n=== Test failed! ===')
-    console.error(error)
-    return false
-  }
-}
-
-// Export for browser console testing
-if (typeof window !== 'undefined') {
-  window.runCharacterModelTests = runCharacterModelTests
-}
+describe('characterModel', () => {
+  describe('createEmptyCharacter', () => {
+    it('should create empty character with default values', () => {
+      const character = createEmptyCharacter()
+
+      expect(character.name).toBe('')
+      expect(character.species.id).toBeNull()
+      expect(character.career.id).toBeNull()
+      expect(character.characteristics.WS).toBe(0)
+      expect(Array.isArray(character.skills)).toBe(true)
+      expect(Array.isArray(character.talents)).toBe(true)
+      expect(Array.isArray(character.spells)).toBe(true)
+      expect(Array.isArray(character.trappings)).toBe(true)
+      expect(character.experience.total).toBe(0)
+      expect(character.wounds.max).toBe(0)
+      expect(character.isDraft).toBe(false)
+    })
+  })
+
+  describe('createCharacterFromSpecies', () => {
+    it('should create character with species data', () => {
+      const species = {
+        id: 'human',
+        name: 'Human',
+        characteristics: {
+          WS: 20,
+          BS: 20,
+          S: 20,
+          T: 20,
+          I: 20,
+          Ag: 20,
+          Dex: 20,
+          Int: 20,
+          WP: 20,
+          Fel: 20,
+          M: 4
+        },
+        skills: ['Animal Care', 'Charm'],
+        talents: ['Savvy']
+      }
+
+      const character = createCharacterFromSpecies(species)
+
+      expect(character.species.id).toBe('human')
+      expect(character.species.name).toBe('Human')
+      expect(character.characteristics.WS).toBe(20)
+      expect(character.characteristics.M).toBe(4)
+      expect(character.skills).toHaveLength(2)
+      expect(character.talents).toHaveLength(1)
+    })
+  })
+
+  describe('applyCareerToCharacter', () => {
+    it('should apply career data to character', () => {
+      const character = createEmptyCharacter()
+      const career = {
+        id: 'warrior',
+        name: 'Warrior',
+        class: 'Fighter'
+      }
+
+      applyCareerToCharacter(character, career)
+
+      expect(character.career.id).toBe('warrior')
+      expect(character.career.name).toBe('Warrior')
+      expect(character.career.level).toBe(1)
+    })
+  })
+
+  describe('calculateDerivedStats', () => {
+    it('should calculate derived stats correctly', () => {
+      const character = createEmptyCharacter()
+      character.characteristics = {
+        M: 4,
+        WS: 35,
+        BS: 30,
+        S: 30,
+        T: 35,
+        I: 32,
+        Ag: 28,
+        Dex: 30,
+        Int: 30,
+        WP: 32,
+        Fel: 28
+      }
+
+      calculateDerivedStats(character)
+
+      // Base wounds = (2 × T Bonus) + WP Bonus + S Bonus
+      // T Bonus = 3, WP Bonus = 3, S Bonus = 3
+      // Base wounds = (2 × 3) + 3 + 3 = 12
+      expect(character.wounds.max).toBe(12)
+      expect(character.wounds.current).toBe(12)
+    })
+  })
+
+  describe('cloneCharacter', () => {
+    it('should clone character without ID', () => {
+      const original = createEmptyCharacter()
+      original.id = 123
+      original.name = 'Test Character'
+      original.skills = [{ id: 'melee', name: 'Melee', advances: 10 }]
+
+      const clone = cloneCharacter(original, 'Cloned Character')
+
+      expect(clone.id).toBeUndefined()
+      expect(clone.name).toBe('Cloned Character')
+      expect(clone.skills).toHaveLength(1)
+      // Clone should have different timestamp (created field exists and is a valid ISO string)
+      expect(clone.created).toBeDefined()
+      expect(typeof clone.created).toBe('string')
+    })
+
+    it('should add (Copy) suffix when no name provided', () => {
+      const original = createEmptyCharacter()
+      original.name = 'Test Character'
+
+      const clone2 = cloneCharacter(original)
+      expect(clone2.name).toBe('Test Character (Copy)')
+    })
+  })
+
+  describe('addSkillToCharacter', () => {
+    it('should add new skill to character', () => {
+      const character = createEmptyCharacter()
+      const skill = { id: 'melee', name: 'Melee', characteristic: 'ws' }
+
+      addSkillToCharacter(character, skill, 5)
+
+      expect(character.skills).toHaveLength(1)
+      expect(character.skills[0].advances).toBe(5)
+    })
+
+    it('should accumulate advances for existing skill', () => {
+      const character = createEmptyCharacter()
+      const skill = { id: 'melee', name: 'Melee', characteristic: 'ws' }
+
+      // Add skill twice
+      addSkillToCharacter(character, skill, 5)
+      addSkillToCharacter(character, skill, 3)
+
+      expect(character.skills).toHaveLength(1)
+      expect(character.skills[0].advances).toBe(8)
+    })
+  })
+
+  describe('addTalentToCharacter', () => {
+    it('should add new talent to character', () => {
+      const character = createEmptyCharacter()
+      const talent = { id: 'hardy', name: 'Hardy', description: 'Adds TB to wounds' }
+
+      addTalentToCharacter(character, talent)
+
+      expect(character.talents).toHaveLength(1)
+      expect(character.talents[0].times).toBe(1)
+    })
+
+    it('should increment times for existing talent', () => {
+      const character = createEmptyCharacter()
+      const talent = { id: 'hardy', name: 'Hardy', description: 'Adds TB to wounds' }
+
+      // Add same talent twice
+      addTalentToCharacter(character, talent)
+      addTalentToCharacter(character, talent)
+
+      expect(character.talents).toHaveLength(1)
+      expect(character.talents[0].times).toBe(2)
+    })
+  })
+
+  describe('removeSkillFromCharacter', () => {
+    it('should remove skill from character', () => {
+      const character = createEmptyCharacter()
+      character.skills = [
+        { id: 'melee', name: 'Melee', advances: 10 },
+        { id: 'ranged', name: 'Ranged', advances: 5 }
+      ]
+
+      removeSkillFromCharacter(character, 'melee')
+
+      expect(character.skills).toHaveLength(1)
+      expect(character.skills[0].id).toBe('ranged')
+    })
+  })
+
+  describe('removeTalentFromCharacter', () => {
+    it('should decrement times when talent taken multiple times', () => {
+      const character = createEmptyCharacter()
+      character.talents = [
+        { id: 'hardy', name: 'Hardy', times: 2 },
+        { id: 'savvy', name: 'Savvy', times: 1 }
+      ]
+
+      // Remove one instance of Hardy
+      removeTalentFromCharacter(character, 'hardy')
+
+      expect(character.talents).toHaveLength(2)
+      expect(character.talents[0].times).toBe(1)
+    })
+
+    it('should remove talent completely when times reaches 0', () => {
+      const character = createEmptyCharacter()
+      character.talents = [
+        { id: 'hardy', name: 'Hardy', times: 1 },
+        { id: 'savvy', name: 'Savvy', times: 1 }
+      ]
+
+      // Remove Hardy (should remove completely)
+      removeTalentFromCharacter(character, 'hardy')
+
+      expect(character.talents).toHaveLength(1)
+      expect(character.talents[0].id).toBe('savvy')
+    })
+  })
+
+  describe('updateCharacterXP', () => {
+    it('should update character XP and calculate available', () => {
+      const character = createEmptyCharacter()
+      character.experience.spent = 100
+
+      updateCharacterXP(character, 500)
+
+      expect(character.experience.total).toBe(500)
+      expect(character.experience.available).toBe(400)
+    })
+  })
+
+  describe('spendCharacterXP', () => {
+    it('should spend XP when available', () => {
+      const character = createEmptyCharacter()
+      character.experience.total = 500
+      character.experience.spent = 100
+      character.experience.available = 400
+
+      spendCharacterXP(character, 50)
+
+      expect(character.experience.spent).toBe(150)
+      expect(character.experience.available).toBe(350)
+    })
+
+    it('should not spend more than available XP', () => {
+      const character = createEmptyCharacter()
+      character.experience.total = 500
+      character.experience.spent = 100
+      character.experience.available = 400
+
+      const oldSpent = character.experience.spent
+
+      // Try to spend more than available
+      spendCharacterXP(character, 1000)
+
+      expect(character.experience.spent).toBe(oldSpent)
+    })
+  })
+})

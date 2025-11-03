@@ -20,6 +20,7 @@
   import WizardStep7Details from '../components/wizard/WizardStep7Details.svelte'
   import WizardStep8Experience from '../components/wizard/WizardStep8Experience.svelte'
   import WizardStep9Review from '../components/wizard/WizardStep9Review.svelte'
+  import DescriptionModal from '../components/DescriptionModal.svelte'
 
   let currentStep = 1
   const totalSteps = 9
@@ -33,6 +34,8 @@
   let lastSaved = null
   let showRestoreModal = false
   let draftMetadata = null
+  let showDescriptionModal = false
+  let selectedEntity = { type: '', id: '' }
 
   const steps = [
     { id: 1, name: 'Species' },
@@ -199,6 +202,33 @@
   $: selectedCareer = character.career?.id
     ? $mergedData.careers?.find(c => c.id === character.career.id)
     : null
+
+  /**
+   * Handle entity description click (to be passed to wizard components)
+   * Note: This requires wizard step components to be modified to emit entity-click events
+   */
+  function handleEntityClick(entityType, entityId) {
+    selectedEntity = {
+      type: entityType,
+      id: entityId
+    }
+    showDescriptionModal = true
+  }
+
+  /**
+   * Handle modal close
+   */
+  function handleModalClose() {
+    showDescriptionModal = false
+  }
+
+  /**
+   * Handle navigation within modal (when clicking related entities)
+   */
+  function handleModalNavigate(newType, newId) {
+    selectedEntity = { type: newType, id: newId }
+    // Modal stays open, content updates
+  }
 </script>
 
 <div class="creator-page">
@@ -245,6 +275,7 @@
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
+        onEntityClick={handleEntityClick}
       />
     {:else if currentStep === 5}
       <WizardStep5Talents
@@ -254,6 +285,7 @@
         career={selectedCareer}
         on:change={handleChange}
         on:validate={handleValidate}
+        onEntityClick={handleEntityClick}
       />
     {:else if currentStep === 6}
       <WizardStep6Equipment
@@ -298,6 +330,16 @@
     on:validate={validateCurrentStep}
   />
 </div>
+
+<!-- Description Modal -->
+{#if showDescriptionModal}
+  <DescriptionModal
+    entityType={selectedEntity.type}
+    entityId={selectedEntity.id}
+    onClose={handleModalClose}
+    onNavigate={handleModalNavigate}
+  />
+{/if}
 
 <style>
   .creator-page {

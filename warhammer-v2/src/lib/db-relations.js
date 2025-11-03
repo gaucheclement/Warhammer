@@ -20,6 +20,53 @@
  */
 
 import { db } from './db.js'
+import { parseSpecs } from './db-reference-parser.js'
+
+/**
+ * Helper to resolve a reference that can be in multiple formats
+ *
+ * Handles:
+ * - string: direct ID → fetch from DB
+ * - array: [{entityType, id, label, originalText}] → extract id from first element
+ * - object with id: {id, ...} → extract id
+ * - null/undefined → return null
+ *
+ * @param {string|Array|Object} reference - The reference to resolve
+ * @param {Object} dbCollection - Dexie collection (db.skills, db.careers, etc.)
+ * @returns {Promise<Object|null>} The resolved entity or null
+ *
+ * @example
+ * // String ID
+ * await resolveReference('athletisme', db.skills)
+ *
+ * @example
+ * // Array reference
+ * await resolveReference([{entityType: 'skills', id: 'athletisme', ...}], db.skills)
+ *
+ * @example
+ * // Object with id
+ * await resolveReference({id: 'athletisme', ...}, db.skills)
+ */
+async function resolveReference(reference, dbCollection) {
+  if (!reference) return null
+
+  let entityId
+
+  if (typeof reference === 'string') {
+    // Direct string ID
+    entityId = reference
+  } else if (Array.isArray(reference) && reference[0]) {
+    // Array of reference objects [{entityType, id, label, originalText}]
+    entityId = reference[0].id
+  } else if (reference.id) {
+    // Object with id field
+    entityId = reference.id
+  }
+
+  if (!entityId) return null
+
+  return await dbCollection.get(entityId)
+}
 
 /**
  * Simple in-memory cache for frequently accessed relationships
@@ -157,9 +204,10 @@ export async function getCareerClass(careerId) {
   const career = await db.careers.get(careerId)
   if (!career || !career.class) return null
 
-  const classObj = await db.classes.get(career.class)
-  relationCache.set(cacheKey, classObj)
-  return classObj
+  const classObj = await resolveReference(career.class, db.classes)
+  const result = classObj ? { ...classObj, typeItem: 'class' } : null
+  relationCache.set(cacheKey, result)
+  return result
 }
 
 /**
@@ -218,7 +266,7 @@ export async function getCareerLevelCareer(careerLevelId) {
   const careerLevel = await db.careerLevels.get(careerLevelId)
   if (!careerLevel || !careerLevel.career) return null
 
-  const career = await db.careers.get(careerLevel.career)
+  const career = await resolveReference(careerLevel.career, db.careers)
   relationCache.set(cacheKey, career)
   return career
 }
@@ -251,12 +299,16 @@ export async function getCareerLevelSkills(careerLevelId, onlyThisLevel = false)
   let allSkills = []
 
   // If not only this level and level > 1, get previous levels' skills
-  if (!onlyThisLevel && careerLevel.level > 1) {
+  const levelNum = careerLevel.careerLevel || careerLevel.level || 1
+  if (!onlyThisLevel && levelNum > 1) {
     const previousLevels = await db.careerLevels
       .where('career')
       .equals(careerLevel.career)
-      .and(cl => cl.level < careerLevel.level)
-      .sortBy('level')
+      .and(cl => {
+        const clLevel = cl.careerLevel || cl.level || 1
+        return clLevel < levelNum
+      })
+      .sortBy('careerLevel')
 
     for (const prevLevel of previousLevels) {
       if (prevLevel.skills && Array.isArray(prevLevel.skills)) {
@@ -272,11 +324,7 @@ export async function getCareerLevelSkills(careerLevelId, onlyThisLevel = false)
 
   // Resolve skill IDs to skill objects
   const skillObjects = await Promise.all(
-    allSkills.map(skillId => {
-      // Handle both string IDs and objects
-      const id = typeof skillId === 'string' ? skillId : skillId.id
-      return db.skills.get(id)
-    })
+    allSkills.map(skillId => resolveEntityReference(skillId, db.skills))
   )
 
   const result = skillObjects.filter(s => s !== null && s !== undefined)
@@ -309,10 +357,7 @@ export async function getCareerLevelTalents(careerLevelId) {
     : []
 
   const talentObjects = await Promise.all(
-    talentIds.map(talentId => {
-      const id = typeof talentId === 'string' ? talentId : talentId.id
-      return db.talents.get(id)
-    })
+    talentIds.map(talentId => resolveEntityReference(talentId, db.talents))
   )
 
   const result = talentObjects.filter(t => t !== null && t !== undefined)
@@ -344,12 +389,16 @@ export async function getCareerLevelCharacteristics(careerLevelId, onlyThisLevel
   let allCharacteristics = []
 
   // If not only this level and level > 1, get previous levels' characteristics
-  if (!onlyThisLevel && careerLevel.level > 1) {
+  const levelNum = careerLevel.careerLevel || careerLevel.level || 1
+  if (!onlyThisLevel && levelNum > 1) {
     const previousLevels = await db.careerLevels
       .where('career')
       .equals(careerLevel.career)
-      .and(cl => cl.level < careerLevel.level)
-      .sortBy('level')
+      .and(cl => {
+        const clLevel = cl.careerLevel || cl.level || 1
+        return clLevel < levelNum
+      })
+      .sortBy('careerLevel')
 
     for (const prevLevel of previousLevels) {
       if (prevLevel.characteristics && Array.isArray(prevLevel.characteristics)) {
@@ -401,7 +450,8 @@ export async function getCareerLevelTrappings(careerLevelId, onlyThisLevel = fal
   let allTrappings = []
 
   // For level 1, include class trappings
-  if (!onlyThisLevel && careerLevel.level === 1) {
+  const levelNum = careerLevel.careerLevel || careerLevel.level || 1
+  if (!onlyThisLevel && levelNum === 1) {
     const career = await getCareerLevelCareer(careerLevelId)
     if (career) {
       const classObj = await getCareerClass(career.id)
@@ -421,10 +471,12 @@ export async function getCareerLevelTrappings(careerLevelId, onlyThisLevel = fal
   const trappingObjects = await Promise.all(
     allTrappings.map(async (trapping) => {
       if (typeof trapping === 'string') {
-        const obj = await db.trappings.get(trapping)
+        const obj = await resolveEntityReference(trapping, db.trappings)
         return obj || trapping // Return the object if found, otherwise the string
       }
-      return trapping
+      // Handle object references with specific specs
+      const resolved = await resolveEntityReference(trapping, db.trappings)
+      return resolved || trapping
     })
   )
 
@@ -457,11 +509,11 @@ export async function getTalentSkill(talentId) {
   const talent = await db.talents.get(talentId)
   if (!talent || !talent.addSkill) return null
 
-  const skill = await db.skills.get(talent.addSkill)
+  const skill = await resolveReference(talent.addSkill, db.skills)
   if (!skill) return null
 
   // Apply talent's specializations to the skill
-  const result = { ...skill }
+  const result = { ...skill, typeItem: 'skill' }
   if (talent.specs) {
     result.spec = Array.isArray(talent.specs) ? talent.specs[0] : talent.specs
     result.specs = Array.isArray(talent.specs) ? talent.specs : [talent.specs]
@@ -492,10 +544,10 @@ export async function getTalentTalent(talentId) {
   const talent = await db.talents.get(talentId)
   if (!talent || !talent.addTalent) return null
 
-  const relatedTalent = await db.talents.get(talent.addTalent)
+  const relatedTalent = await resolveReference(talent.addTalent, db.talents)
   if (!relatedTalent) return null
 
-  const result = { ...relatedTalent, origins: ['talent', talentId] }
+  const result = { ...relatedTalent, typeItem: 'talent', origins: ['talent', talentId] }
   relationCache.set(cacheKey, result)
   return result
 }
@@ -541,6 +593,7 @@ export async function getTalentWithRelations(talentId) {
  * Implements the specs parsing logic from DataTalent.html
  * Converts comma-separated string to array
  *
+ * @deprecated Use parseSpecs() from db-reference-parser.js instead
  * @param {Object} talent - Talent object
  * @returns {Object} Talent with parsed specs array
  *
@@ -549,22 +602,7 @@ export async function getTalentWithRelations(talentId) {
  * // Returns: { id: 'test', specs: ['Combat', 'Tir'], canHaveSpec: true }
  */
 export function parseTalentSpecs(talent) {
-  if (!talent) return talent
-
-  const parsed = { ...talent }
-
-  if (typeof parsed.specs === 'string' && parsed.specs) {
-    parsed.specs = parsed.specs.split(',').map(s => s.trim())
-    parsed.canHaveSpec = true
-  } else if (!parsed.specs) {
-    parsed.specs = []
-    parsed.canHaveSpec = false
-  }
-
-  parsed.spec = ''
-  parsed.origins = parsed.origins || []
-
-  return parsed
+  return parseSpecs(talent, { addSpecName: false })
 }
 
 // ============================================================================
@@ -591,7 +629,7 @@ export async function getSkillCharacteristic(skillId) {
   const skill = await db.skills.get(skillId)
   if (!skill || !skill.characteristic) return null
 
-  const characteristic = await db.characteristics.get(skill.characteristic)
+  const characteristic = await resolveReference(skill.characteristic, db.characteristics)
   relationCache.set(cacheKey, characteristic)
   return characteristic
 }
@@ -620,19 +658,19 @@ export async function getSkillWithCharacteristic(skillId) {
 
   const result = {
     ...skill,
-    characteristicObj: characteristic
+    characteristicObj: characteristic ? { ...characteristic, typeItem: 'characteristic' } : null
   }
 
   relationCache.set(cacheKey, result)
   return result
 }
-
 /**
  * Parse skill specializations
  *
  * Implements the specs parsing logic from DataSkill.html
  * Converts comma-separated string to array
  *
+ * @deprecated Use parseSpecs() from db-reference-parser.js instead
  * @param {Object} skill - Skill object
  * @returns {Object} Skill with parsed specs array
  *
@@ -641,24 +679,7 @@ export async function getSkillWithCharacteristic(skillId) {
  * // Returns: { id: 'test', specs: ['Épée', 'Hache'], canHaveSpec: true }
  */
 export function parseSkillSpecs(skill) {
-  if (!skill) return skill
-
-  const parsed = { ...skill }
-
-  if (typeof parsed.specs === 'string' && parsed.specs) {
-    parsed.specs = parsed.specs.split(',').map(s => s.trim())
-    parsed.canHaveSpec = true
-    parsed.specName = 'Au choix'
-  } else if (!parsed.specs) {
-    parsed.specs = []
-    parsed.canHaveSpec = false
-    parsed.specName = ''
-  }
-
-  parsed.spec = ''
-  parsed.origins = parsed.origins || []
-
-  return parsed
+  return parseSpecs(skill, { addSpecName: true })
 }
 
 // ============================================================================
@@ -705,7 +726,7 @@ export async function getSpellLore(spellId) {
   const spell = await db.spells.get(spellId)
   if (!spell || !spell.lore) return null
 
-  const lore = await db.lores.get(spell.lore)
+  const lore = await resolveReference(spell.lore, db.lores)
   relationCache.set(cacheKey, lore)
   return lore
 }
@@ -1063,7 +1084,7 @@ export async function getLoreMagick(loreId) {
     return null
   }
 
-  const magick = await db.magicks.get(lore.parent)
+  const magick = await resolveReference(lore.parent, db.magicks)
   relationCache.set(cacheKey, magick)
   return magick
 }
@@ -1261,11 +1282,12 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // TALENTS - referenced by careerLevels, species, creatures, and other talents
   talents: {
-    arrayReferences: [],
+    arrayReferences: [
+      { table: 'careerLevels', field: 'talents', type: 'array' },
+      { table: 'species', field: 'talents', type: 'array' },
+      { table: 'creatures', field: 'talents', type: 'array' }
+    ],
     stringReferences: [
-      { table: 'careerLevels', field: 'talents', indexed: false, parseList: true },
-      { table: 'species', field: 'talents', indexed: false, parseList: true },
-      { table: 'creatures', field: 'talents', indexed: false, parseList: true },
       { table: 'talents', field: 'addTalent', indexed: true }
     ],
     objectReferences: []
@@ -1273,11 +1295,12 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // SKILLS - referenced by careerLevels, species, creatures, talents
   skills: {
-    arrayReferences: [],
+    arrayReferences: [
+      { table: 'careerLevels', field: 'skills', type: 'array' },
+      { table: 'species', field: 'skills', type: 'array' },
+      { table: 'creatures', field: 'skills', type: 'array' }
+    ],
     stringReferences: [
-      { table: 'careerLevels', field: 'skills', indexed: false, parseList: true },
-      { table: 'species', field: 'skills', indexed: false, parseList: true },
-      { table: 'creatures', field: 'skills', indexed: false, parseList: true },
       { table: 'talents', field: 'addSkill', indexed: true },
       { table: 'skills', field: 'characteristic', indexed: true }
     ],
@@ -1286,9 +1309,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // CHARACTERISTICS - referenced by skills, careerLevels
   characteristics: {
-    arrayReferences: [],
+    arrayReferences: [
+      { table: 'careerLevels', field: 'characteristics', type: 'array' }
+    ],
     stringReferences: [
-      { table: 'careerLevels', field: 'characteristics', indexed: false, parseList: true },
       { table: 'skills', field: 'characteristic', indexed: true }
     ],
     objectReferences: [
@@ -1299,12 +1323,11 @@ const ENTITY_RELATIONSHIP_CONFIG = {
   // TRAPPINGS - referenced by careerLevels, classes, creatures
   trappings: {
     arrayReferences: [
-      { table: 'classes', field: 'trappings', type: 'array' }
+      { table: 'classes', field: 'trappings', type: 'array' },
+      { table: 'careerLevels', field: 'trappings', type: 'array' },
+      { table: 'creatures', field: 'trappings', type: 'array' }
     ],
-    stringReferences: [
-      { table: 'careerLevels', field: 'trappings', indexed: false, parseList: true },
-      { table: 'creatures', field: 'trappings', indexed: false, parseList: true }
-    ],
+    stringReferences: [],
     objectReferences: []
   },
 
@@ -1322,11 +1345,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
     arrayReferences: [
       { table: 'gods', field: 'blessings', type: 'array' },
       { table: 'gods', field: 'miracles', type: 'array' },
-      { table: 'talents', field: 'spells', type: 'array' }
+      { table: 'talents', field: 'spells', type: 'array' },
+      { table: 'creatures', field: 'spells', type: 'array' }
     ],
-    stringReferences: [
-      { table: 'creatures', field: 'spells', indexed: false, parseList: true }
-    ],
+    stringReferences: [],
     objectReferences: []
   },
 
@@ -1364,10 +1386,10 @@ const ENTITY_RELATIONSHIP_CONFIG = {
 
   // TRAITS - referenced by creatures
   traits: {
-    arrayReferences: [],
-    stringReferences: [
-      { table: 'creatures', field: 'traits', indexed: false, parseList: true }
+    arrayReferences: [
+      { table: 'creatures', field: 'traits', type: 'array' }
     ],
+    stringReferences: [],
     objectReferences: []
   },
 
@@ -1642,18 +1664,6 @@ export async function getEntityUsage(entityType, entityId, options = {}) {
     return {}
   }
 
-  // Get the entity label for parseList searches (data uses names, not IDs)
-  let entityLabel = entityId
-  try {
-    const entity = await db[entityType].get(entityId)
-    if (entity) {
-      entityLabel = getEntityLabel(entity)
-      console.log('🔍 Using label for parseList:', entityLabel)
-    }
-  } catch (err) {
-    console.warn(`Could not fetch entity for label:`, err)
-  }
-
   const results = {}
 
   // Query all array-based references
@@ -1671,8 +1681,7 @@ export async function getEntityUsage(entityType, entityId, options = {}) {
     if (ref.indexed) {
       entities = await queryIndexedReference(ref.table, ref.field, entityId)
     } else if (ref.parseList) {
-      // Use entity label for parseList searches (data uses names, not IDs)
-      entities = await queryStringReference(ref.table, ref.field, entityLabel, true)
+      entities = await queryStringReference(ref.table, ref.field, entityId, true)
     } else {
       entities = await queryStringReference(ref.table, ref.field, entityId, false)
     }
@@ -1841,6 +1850,68 @@ export async function findOrphanedEntities(entityType, options = {}) {
 // ============================================================================
 
 /**
+ * Resolve an entity reference with specific specializations
+ *
+ * When entities are referenced (e.g., a race has "Corps à corps (Base)"),
+ * the reference stores the specific specialization. This function retrieves
+ * the entity from the database and applies the reference-specific specs,
+ * overriding the entity's full spec list.
+ *
+ * @param {string|Object} reference - Reference (string ID or {id, spec/specs})
+ * @param {Object} dbCollection - Database collection (db.skills, db.talents, etc.)
+ * @returns {Promise<Object|null>} Entity with reference specs applied
+ *
+ * @example
+ * // Simple reference (no specific spec)
+ * await resolveEntityReference("athletisme", db.skills)
+ * // Returns entity as-is with all possible specs
+ *
+ * @example
+ * // Reference with single spec
+ * await resolveEntityReference({ id: "corps-a-corps", spec: "Base" }, db.skills)
+ * // Returns entity with specs = ["Base"] only
+ *
+ * @example
+ * // Reference with multiple specs
+ * await resolveEntityReference({ id: "metier", specs: ["Artillerie", "Armurie"] }, db.skills)
+ * // Returns entity with specs = ["Artillerie", "Armurie"]
+ */
+export async function resolveEntityReference(reference, dbCollection) {
+  if (!reference) return null
+
+  // Get the ID
+  const id = typeof reference === 'string' ? reference : reference.id
+  if (!id) return null
+
+  // Fetch entity from DB
+  const entity = await dbCollection.get(id)
+  if (!entity) return null
+
+  // If reference is just a string, return entity as-is (all specs)
+  if (typeof reference === 'string') {
+    return entity
+  }
+
+  // Apply reference-specific specs
+  const result = { ...entity }
+
+  if (reference.hasOwnProperty('specs')) {
+    // Reference has specific specs (can be array or string)
+    result.specs = Array.isArray(reference.specs)
+      ? reference.specs
+      : [reference.specs]
+    result.spec = result.specs[0] || ''
+  } else if (reference.hasOwnProperty('spec')) {
+    // Reference has a single spec
+    result.spec = reference.spec
+    result.specs = [reference.spec]
+  }
+  // If neither specs nor spec exist in reference, keep entity's original specs
+
+  return result
+}
+
+/**
  * Resolve an entity reference to its full object
  *
  * Entity references in the database can be:
@@ -1866,12 +1937,14 @@ export async function resolveEntityRef(ref, type) {
 
   // String ID
   if (typeof ref === 'string') {
-    return await db[type].get(ref)
+    const entity = await db[type].get(ref)
+    return entity !== undefined ? entity : null
   }
 
   // Object with ID
   if (ref.id) {
-    return await db[type].get(ref.id)
+    const entity = await db[type].get(ref.id)
+    return entity !== undefined ? entity : null
   }
 
   return null
@@ -2005,6 +2078,7 @@ export default {
   findOrphanedEntities,
 
   // Utilities
+  resolveEntityReference,
   resolveEntityRef,
   resolveEntityRefs,
   getEntityLabel,

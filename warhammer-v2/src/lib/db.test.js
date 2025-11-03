@@ -65,6 +65,17 @@ describe('Database Schema', () => {
 })
 
 describe('Schema Migration (v1 to v2)', () => {
+  beforeEach(async () => {
+    // Clear database before each test
+    await db.delete()
+    await db.open()
+  })
+
+  afterEach(async () => {
+    // Clean up after each test
+    await db.close()
+  })
+
   it('should have v2 enhanced fields in schema', async () => {
     // Test that v2 fields are available
     const careerSchema = db.table('careers').schema

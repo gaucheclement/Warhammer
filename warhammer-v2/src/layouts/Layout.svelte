@@ -3,6 +3,8 @@
   import Header from './Header.svelte'
   import Sidebar from './Sidebar.svelte'
   import Footer from './Footer.svelte'
+  // Issue #38 Stream D: Import NavigationBar component
+  import NavigationBar from '../components/NavigationBar.svelte'
 
   // Sidebar state management
   let sidebarOpen = true
@@ -52,6 +54,11 @@
     <div class="backdrop" on:click={closeSidebar} role="presentation"></div>
   {/if}
 
+  <!-- Issue #38 Stream D: Navigation Bar for entity navigation -->
+  <div class="navigation-bar-container">
+    <NavigationBar />
+  </div>
+
   <main class="main-content">
     <slot />
   </main>
@@ -64,16 +71,25 @@
     display: grid;
     grid-template-areas:
       "header header"
+      "sidebar navbar"
       "sidebar main"
       "footer footer";
     grid-template-columns: 250px 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
     min-height: 100vh;
     transition: grid-template-columns 0.3s ease;
   }
 
   .layout:not(.sidebar-open) {
     grid-template-columns: 0 1fr;
+  }
+
+  /* Issue #38 Stream D: Navigation bar container styling */
+  .navigation-bar-container {
+    grid-area: navbar;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
   .main-content {
@@ -109,6 +125,7 @@
     .layout {
       grid-template-areas:
         "header"
+        "navbar"
         "main"
         "footer";
       grid-template-columns: 1fr;

@@ -30,7 +30,11 @@ import {
   resolveEntityRefs,
   getEntityLabel,
   entitiesToLabels,
-  clearRelationCache
+  clearRelationCache,
+  getEntityUsage,
+  getEntityUsageStats,
+  getEntityUsageBatch,
+  findOrphanedEntities
 } from './db-relations.js'
 
 describe('Career Relationships', () => {
@@ -790,5 +794,454 @@ describe('Caching', () => {
     expect(class1).not.toBe(class2)
     // But same data
     expect(class1.id).toBe(class2.id)
+  })
+})
+
+describe('Where Used / Reverse Lookup System', () => {
+  beforeEach(async () => {
+    await db.delete()
+    await db.open()
+    clearRelationCache()
+
+    // Set up comprehensive test data
+    // Species
+    await db.species.bulkAdd([
+      { id: 'human', label: 'Humain', skills: ['athletics'], talents: ['tough'] },
+      { id: 'elf', label: 'Elfe', skills: ['perception'] }
+    ])
+
+    // Classes
+    await db.classes.bulkAdd([
+      { id: 'warriors', label: 'Guerriers', trappings: ['sword'] },
+      { id: 'rogues', label: 'Roublards', trappings: ['lockpick'] }
+    ])
+
+    // Careers
+    await db.careers.bulkAdd([
+      { id: 'soldier', label: 'Soldat', class: 'warriors', species: ['human', 'elf'] },
+      { id: 'thief', label: 'Voleur', class: 'rogues', species: ['human'] }
+    ])
+
+    // Career Levels
+    await db.careerLevels.bulkAdd([
+      {
+        id: 'soldier-1',
+        label: 'Recrue',
+        career: 'soldier',
+        level: 1,
+        skills: ['athletics', 'combat'],
+        talents: ['tough', 'strike-mighty'],
+        characteristics: ['str', 'tgh'],
+        trappings: ['sword', 'armor']
+      },
+      {
+        id: 'soldier-2',
+        label: 'Soldat',
+        career: 'soldier',
+        level: 2,
+        skills: ['athletics', 'leadership'],
+        talents: ['combat-master']
+      },
+      {
+        id: 'thief-1',
+        label: 'Voleur',
+        career: 'thief',
+        level: 1,
+        skills: ['stealth', 'lockpick'],
+        talents: ['nimble']
+      }
+    ])
+
+    // Skills
+    await db.skills.bulkAdd([
+      { id: 'athletics', label: 'Athlétisme', characteristic: 'ag' },
+      { id: 'combat', label: 'Combat', characteristic: 'ws' },
+      { id: 'leadership', label: 'Commandement', characteristic: 'fel' },
+      { id: 'stealth', label: 'Discrétion', characteristic: 'ag' },
+      { id: 'lockpick', label: 'Crochetage', characteristic: 'dex' },
+      { id: 'perception', label: 'Perception', characteristic: 'int' }
+    ])
+
+    // Characteristics
+    await db.characteristics.bulkAdd([
+      { id: 'str', label: 'Force' },
+      { id: 'tgh', label: 'Endurance' },
+      { id: 'ag', label: 'Agilité' },
+      { id: 'ws', label: 'Capacité de Combat' },
+      { id: 'fel', label: 'Sociabilité' },
+      { id: 'dex', label: 'Dextérité' },
+      { id: 'int', label: 'Intelligence' }
+    ])
+
+    // Talents
+    await db.talents.bulkAdd([
+      { id: 'tough', label: 'Résistant' },
+      { id: 'strike-mighty', label: 'Frappe puissante', addSkill: 'combat' },
+      { id: 'combat-master', label: 'Maître du combat', addTalent: 'strike-mighty' },
+      { id: 'nimble', label: 'Agile' }
+    ])
+
+    // Trappings
+    await db.trappings.bulkAdd([
+      { id: 'sword', label: 'Épée', qualities: ['sharp', 'metal'] },
+      { id: 'armor', label: 'Armure', qualities: ['metal', 'heavy'] },
+      { id: 'lockpick', label: 'Crochets', qualities: ['small'] }
+    ])
+
+    // Qualities
+    await db.qualities.bulkAdd([
+      { id: 'sharp', label: 'Tranchant' },
+      { id: 'metal', label: 'Métal' },
+      { id: 'heavy', label: 'Lourd' },
+      { id: 'small', label: 'Petit' }
+    ])
+
+    // Lores and Magicks
+    await db.magicks.add({ id: 'arcane', label: 'Magie Arcanique' })
+    await db.lores.add({ id: 'fire', label: 'Domaine du Feu', parent: 'arcane' })
+
+    // Spells
+    await db.spells.bulkAdd([
+      { id: 'fireball', label: 'Boule de feu', lore: 'fire' },
+      { id: 'flame-wall', label: 'Mur de flammes', lore: 'fire' }
+    ])
+
+    // Gods
+    await db.gods.add({
+      id: 'sigmar',
+      label: 'Sigmar',
+      blessings: ['blessing-of-sigmar'],
+      miracles: ['miracle-of-sigmar']
+    })
+
+    // Divine spells
+    await db.spells.bulkAdd([
+      { id: 'blessing-of-sigmar', label: 'Bénédiction de Sigmar', type: 'blessing' },
+      { id: 'miracle-of-sigmar', label: 'Miracle de Sigmar', type: 'miracle' }
+    ])
+
+    // Creatures
+    await db.creatures.add({
+      id: 'goblin',
+      label: 'Gobelin',
+      skills: ['stealth'],
+      talents: ['nimble'],
+      trappings: ['sword'],
+      traits: ['night-vision', 'small-size']
+    })
+
+    // Traits
+    await db.traits.bulkAdd([
+      { id: 'night-vision', label: 'Vision nocturne' },
+      { id: 'small-size', label: 'Petite taille' }
+    ])
+  })
+
+  afterEach(async () => {
+    await db.close()
+  })
+
+  describe('getEntityUsage', () => {
+    it('should find all entities using a skill', async () => {
+      const usage = await getEntityUsage('skills', 'athletics')
+
+      // Athletics is used by:
+      // - careerLevels: soldier-1, soldier-2
+      // - species: human
+      expect(usage.careerLevels).toHaveLength(2)
+      expect(usage.careerLevels.some(cl => cl.id === 'soldier-1')).toBe(true)
+      expect(usage.careerLevels.some(cl => cl.id === 'soldier-2')).toBe(true)
+      expect(usage.species).toHaveLength(1)
+      expect(usage.species[0].id).toBe('human')
+    })
+
+    it('should find all entities using a talent', async () => {
+      const usage = await getEntityUsage('talents', 'strike-mighty')
+
+      // strike-mighty is used by:
+      // - careerLevels: soldier-1
+      // - talents: combat-master (via addTalent)
+      expect(usage.careerLevels).toHaveLength(1)
+      expect(usage.careerLevels[0].id).toBe('soldier-1')
+      expect(usage.talents).toHaveLength(1)
+      expect(usage.talents[0].id).toBe('combat-master')
+    })
+
+    it('should find all entities using a characteristic', async () => {
+      const usage = await getEntityUsage('characteristics', 'ag')
+
+      // ag (Agilité) is used by:
+      // - skills: athletics, stealth
+      expect(usage.skills).toHaveLength(2)
+      expect(usage.skills.some(s => s.id === 'athletics')).toBe(true)
+      expect(usage.skills.some(s => s.id === 'stealth')).toBe(true)
+    })
+
+    it('should find all entities using a career', async () => {
+      const usage = await getEntityUsage('careers', 'soldier')
+
+      // soldier career is used by:
+      // - careerLevels: soldier-1, soldier-2
+      expect(usage.careerLevels).toHaveLength(2)
+    })
+
+    it('should find all entities using a class', async () => {
+      const usage = await getEntityUsage('classes', 'warriors')
+
+      // warriors class is used by:
+      // - careers: soldier
+      expect(usage.careers).toHaveLength(1)
+      expect(usage.careers[0].id).toBe('soldier')
+    })
+
+    it('should find all entities using a trapping', async () => {
+      const usage = await getEntityUsage('trappings', 'sword')
+
+      // sword is used by:
+      // - careerLevels: soldier-1
+      // - classes: warriors
+      // - creatures: goblin
+      expect(usage.careerLevels).toHaveLength(1)
+      expect(usage.classes).toHaveLength(1)
+      expect(usage.creatures).toHaveLength(1)
+    })
+
+    it('should find all entities using a quality', async () => {
+      const usage = await getEntityUsage('qualities', 'metal')
+
+      // metal quality is used by:
+      // - trappings: sword, armor
+      expect(usage.trappings).toHaveLength(2)
+      expect(usage.trappings.some(t => t.id === 'sword')).toBe(true)
+      expect(usage.trappings.some(t => t.id === 'armor')).toBe(true)
+    })
+
+    it('should find all entities using a lore', async () => {
+      const usage = await getEntityUsage('lores', 'fire')
+
+      // fire lore is used by:
+      // - spells: fireball, flame-wall
+      expect(usage.spells).toHaveLength(2)
+      expect(usage.spells.some(s => s.id === 'fireball')).toBe(true)
+      expect(usage.spells.some(s => s.id === 'flame-wall')).toBe(true)
+    })
+
+    it('should find all entities using a magick domain', async () => {
+      const usage = await getEntityUsage('magicks', 'arcane')
+
+      // arcane magick is used by:
+      // - lores: fire
+      expect(usage.lores).toHaveLength(1)
+      expect(usage.lores[0].id).toBe('fire')
+    })
+
+    it('should find all entities using a trait', async () => {
+      const usage = await getEntityUsage('traits', 'night-vision')
+
+      // night-vision is used by:
+      // - creatures: goblin
+      expect(usage.creatures).toHaveLength(1)
+      expect(usage.creatures[0].id).toBe('goblin')
+    })
+
+    it('should return empty object for unused entity', async () => {
+      // Add an unused skill
+      await db.skills.add({ id: 'unused-skill', label: 'Unused Skill' })
+
+      const usage = await getEntityUsage('skills', 'unused-skill')
+
+      expect(Object.keys(usage)).toHaveLength(0)
+    })
+
+    it('should cache results', async () => {
+      const usage1 = await getEntityUsage('skills', 'athletics')
+      const usage2 = await getEntityUsage('skills', 'athletics')
+
+      // Should be same reference (cached)
+      expect(usage1).toBe(usage2)
+    })
+
+    it('should skip cache when requested', async () => {
+      const usage1 = await getEntityUsage('skills', 'athletics')
+      const usage2 = await getEntityUsage('skills', 'athletics', { skipCache: true })
+
+      // Should be different references
+      expect(usage1).not.toBe(usage2)
+      // But same content
+      expect(usage1.careerLevels?.length).toBe(usage2.careerLevels?.length)
+    })
+
+    it('should provide performance metrics when benchmarking', async () => {
+      const result = await getEntityUsage('skills', 'athletics', { benchmark: true })
+
+      expect(result._performance).toBeDefined()
+      expect(result._performance.queryTime).toBeGreaterThanOrEqual(0)
+      expect(result._performance.cacheHit).toBeDefined()
+    })
+
+    it('should handle bidirectional relationships', async () => {
+      // If skill is used by talent (via addSkill), talent should appear in usage
+      const usage = await getEntityUsage('skills', 'combat')
+
+      expect(usage.talents).toHaveLength(1)
+      expect(usage.talents[0].id).toBe('strike-mighty')
+    })
+  })
+
+  describe('getEntityUsageStats', () => {
+    it('should return usage statistics', async () => {
+      const stats = await getEntityUsageStats('skills', 'athletics')
+
+      expect(stats.counts).toBeDefined()
+      expect(stats.counts.careerLevels).toBe(2)
+      expect(stats.counts.species).toBe(1)
+      expect(stats.total).toBe(3)
+      expect(stats.canDelete).toBe(false)
+    })
+
+    it('should indicate entity can be deleted when unused', async () => {
+      await db.skills.add({ id: 'unused', label: 'Unused' })
+
+      const stats = await getEntityUsageStats('skills', 'unused')
+
+      expect(stats.total).toBe(0)
+      expect(stats.canDelete).toBe(true)
+    })
+
+    it('should count unique references', async () => {
+      // Even if skill appears in multiple arrays in same entity,
+      // it should only count that entity once
+      const stats = await getEntityUsageStats('trappings', 'sword')
+
+      // sword is in careerLevels, classes, creatures
+      expect(stats.total).toBe(3)
+    })
+  })
+
+  describe('getEntityUsageBatch', () => {
+    it('should get usage for multiple entities', async () => {
+      const batchUsage = await getEntityUsageBatch('skills', ['athletics', 'combat', 'stealth'])
+
+      expect(Object.keys(batchUsage)).toHaveLength(3)
+      expect(batchUsage.athletics).toBeDefined()
+      expect(batchUsage.combat).toBeDefined()
+      expect(batchUsage.stealth).toBeDefined()
+    })
+
+    it('should process requests in parallel', async () => {
+      const start = Date.now()
+      await getEntityUsageBatch('skills', ['athletics', 'combat', 'stealth', 'leadership'])
+      const duration = Date.now() - start
+
+      // Should be reasonably fast (< 500ms for 4 queries)
+      expect(duration).toBeLessThan(500)
+    })
+  })
+
+  describe('findOrphanedEntities', () => {
+    it('should find unused entities', async () => {
+      // Add some unused skills
+      await db.skills.bulkAdd([
+        { id: 'orphan1', label: 'Orphan 1' },
+        { id: 'orphan2', label: 'Orphan 2' }
+      ])
+
+      const orphans = await findOrphanedEntities('skills', { limit: 10 })
+
+      expect(orphans.length).toBeGreaterThanOrEqual(2)
+      expect(orphans.some(o => o.id === 'orphan1')).toBe(true)
+      expect(orphans.some(o => o.id === 'orphan2')).toBe(true)
+    })
+
+    it('should respect limit parameter', async () => {
+      // Add many unused entities
+      await db.skills.bulkAdd([
+        { id: 'orphan1', label: 'Orphan 1' },
+        { id: 'orphan2', label: 'Orphan 2' },
+        { id: 'orphan3', label: 'Orphan 3' },
+        { id: 'orphan4', label: 'Orphan 4' },
+        { id: 'orphan5', label: 'Orphan 5' }
+      ])
+
+      const orphans = await findOrphanedEntities('skills', { limit: 2 })
+
+      expect(orphans.length).toBeLessThanOrEqual(2)
+    })
+
+    it('should return empty array when all entities are used', async () => {
+      const orphans = await findOrphanedEntities('careers', { limit: 10 })
+
+      // All careers should be referenced by careerLevels
+      expect(orphans).toHaveLength(0)
+    })
+  })
+
+  describe('Performance', () => {
+    it('should query in under 100ms for typical usage', async () => {
+      const start = performance.now()
+      await getEntityUsage('skills', 'athletics')
+      const duration = performance.now() - start
+
+      // Target: < 100ms
+      expect(duration).toBeLessThan(100)
+    })
+
+    it('should handle large result sets efficiently', async () => {
+      // Add many career levels using the same skill
+      const manyLevels = []
+      for (let i = 0; i < 100; i++) {
+        manyLevels.push({
+          id: `level-${i}`,
+          label: `Level ${i}`,
+          career: 'soldier',
+          level: i + 1,
+          skills: ['athletics']
+        })
+      }
+      await db.careerLevels.bulkAdd(manyLevels)
+
+      const start = performance.now()
+      const usage = await getEntityUsage('skills', 'athletics')
+      const duration = performance.now() - start
+
+      expect(usage.careerLevels.length).toBeGreaterThan(100)
+      // Should still be reasonably fast even with large result set
+      expect(duration).toBeLessThan(200)
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should handle entity type with no relationships configured', async () => {
+      // Eyes, hairs, stars are not referenced by other entities
+      const usage = await getEntityUsage('eyes', 'blue')
+
+      expect(Object.keys(usage)).toHaveLength(0)
+    })
+
+    it('should handle non-existent entity type', async () => {
+      const usage = await getEntityUsage('nonexistent', 'test')
+
+      expect(Object.keys(usage)).toHaveLength(0)
+    })
+
+    it('should handle empty database', async () => {
+      await db.delete()
+      await db.open()
+
+      const usage = await getEntityUsage('skills', 'test')
+
+      expect(Object.keys(usage)).toHaveLength(0)
+    })
+
+    it('should deduplicate results within entity types', async () => {
+      // Even if an entity appears multiple times in queries,
+      // it should only appear once in results
+      const usage = await getEntityUsage('talents', 'tough')
+
+      // tough is in careerLevels and species
+      // Each should have unique entries
+      expect(usage.careerLevels).toHaveLength(1)
+      expect(usage.species).toHaveLength(1)
+    })
   })
 })

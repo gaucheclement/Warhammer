@@ -33,8 +33,47 @@ import {
   findCareersBySpecies,
   findTalentsBySkill,
   getEntityLabel,
-  entitiesToLabels
+  entitiesToLabels,
+  resolveEntityReference
 } from './db-relations.js'
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * @typedef {Object} EntityRef
+ * @property {string} id - Entity ID
+ * @property {string} type - Entity type (skill, talent, career, etc.)
+ * @property {string} label - Display label
+ */
+
+/**
+ * @typedef {Object} DescriptionSection
+ * @property {string} type - Section type: 'text' | 'list' | 'link' | 'table' | 'rank' | 'stats' | 'tab'
+ * @property {string} [label] - Section label (for list, table)
+ * @property {string} [content] - Text content (for text type)
+ * @property {Array<EntityRef|string>} [items] - List items (for list type)
+ * @property {EntityRef} [entity] - Entity reference (for link type)
+ * @property {Object} [stats] - Statistics data (for stats type)
+ * @property {number} [rank] - Career rank 1-4 (for rank type)
+ * @property {Array<Array<string>>} [rows] - Table rows (for table type)
+ * @property {Array<string>} [headers] - Table headers (for table type)
+ * @property {string} [tabKey] - Tab identifier (for tab type)
+ * @property {string} [tabLabel] - Tab display label (for tab type)
+ * @property {Array<DescriptionSection>} [sections] - Nested sections (for tab type)
+ */
+
+/**
+ * @typedef {Object} DescriptionData
+ * @property {Array<DescriptionSection>} sections - Array of description sections
+ * @property {Object} [metadata] - Optional metadata (e.g., tab_actif for career levels)
+ */
+
+/**
+ * @typedef {Object|string} DescriptionResult
+ * Either a DescriptionData object with sections, or a simple string for backward compatibility
+ */
 
 // ============================================================================
 // CORE UTILITIES
@@ -54,10 +93,14 @@ function escapeRegExp(string) {
  * @param {string} text - Display text
  * @param {string} id - Entity ID
  * @param {string} type - Entity type
+ * @param {string} [tooltip] - Optional tooltip text for title attribute
+ * @param {boolean} [broken=false] - Whether this is a broken reference
  * @returns {string} HTML link
  */
-function showHelpText(text, id, type) {
-  return `<span class="showHelp" data-type="${type}" data-id="${id}">${text}</span>`
+function showHelpText(text, id, type, tooltip = null, broken = false) {
+  const brokenClass = broken ? ' broken' : ''
+  const titleAttr = tooltip ? ` title="${tooltip}"` : ''
+  return `<span class="showHelp${brokenClass}" data-type="${type}" data-id="${id}"${titleAttr}>${text}</span>`
 }
 
 /**
@@ -72,34 +115,10 @@ function showHelpTextFromElem(entity) {
   return showHelpText(getEntityLabel(entity), entity.id, entity.typeItem)
 }
 
-/**
- * Convert array to HTML list
- * @param {Array<string>} array - Array of strings
- * @returns {string} HTML unordered list
- */
-function toHtmlList(array) {
-  if (!array || !array.length) return ''
-  return '<ul><li>' + array.join('</li><li>') + '</li></ul>'
-}
-
-/**
- * Convert rank number to icon HTML
- * @param {number} rank - Career level rank (1-4)
- * @returns {string} HTML for rank icon
- */
-function rankToImg(rank) {
-  let icon = 'icon '
-  if (rank === 1) {
-    icon += 'cross_icon'
-  } else if (rank === 2) {
-    icon += 'sword_icon'
-  } else if (rank === 3) {
-    icon += 'skull_icon'
-  } else if (rank === 4) {
-    icon += 'shield_icon'
-  }
-  return `<div title="Rang ${rank}" class="${icon}"></div>`
-}
+// NOTE: toHtmlList() and rankToImg() have been removed
+// These functions are now replaced by Svelte components:
+// - toHtmlList() → DescriptionList.svelte
+// - rankToImg() → RankIcon.svelte
 
 /**
  * Convert array of entities to simple label strings with optional help links
@@ -278,39 +297,8 @@ function listMatchSimple(text, matches, key) {
   return html
 }
 
-/**
- * List career level matches with rank icons
- *
- * Implements DescriptionHelper.listMatchCareerLevel() for displaying
- * career levels with their rank indicators.
- *
- * @param {string} text - Section title
- * @param {Array} careerLevelMatches - Array of career level objects by rank
- * @returns {string} HTML formatted list with rank icons
- */
-function listMatchCareerLevel(text, careerLevelMatches) {
-  if (!careerLevelMatches || !careerLevelMatches.length) {
-    return ''
-  }
-
-  let html = '<b>' + text + ': </b><ul>'
-
-  careerLevelMatches.forEach((levelGroup, rank) => {
-    if (levelGroup) {
-      for (const [name, entity] of Object.entries(levelGroup)) {
-        html += '<li style="display: flex">'
-        html += '<div class="div_label">'
-        html += rankToImg(rank)
-        html += showHelpText(name, entity.id, 'careerLevel')
-        html += '</div>'
-        html += '</li>'
-      }
-    }
-  })
-
-  html += '</ul>'
-  return html
-}
+// NOTE: listMatchCareerLevel() has been removed
+// This legacy function is no longer used after refactoring to structured data
 
 // ============================================================================
 // ENTITY DESCRIPTION GENERATORS
@@ -323,22 +311,23 @@ function listMatchCareerLevel(text, careerLevelMatches) {
  * Includes career info, all career levels with their details, and access information.
  *
  * @param {string} careerId - Career ID
- * @returns {Promise<Object>} Object with description sections (Info, rank icons, Accès)
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
  *
  * @example
  * const desc = await generateCareerDescription('artisan')
  * // Returns: {
- * //   Info: "Career description...",
- * //   [rank1Icon]: "Level 1 details...",
- * //   [rank2Icon]: "Level 2 details...",
- * //   Accès: "Species that can access..."
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', tabLabel: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'rank1', tabLabel: '[Rank 1 Icon]', rank: 1, sections: [...] },
+ * //     { type: 'tab', tabKey: 'Accès', tabLabel: 'Accès', sections: [...] }
+ * //   ]
  * // }
  */
 export async function generateCareerDescription(careerId) {
   const career = await getCareerWithLevels(careerId)
   if (!career) return null
 
-  const result = {}
+  const sections = []
 
   // Add basic description if present
   if (career.desc) {
@@ -346,7 +335,16 @@ export async function generateCareerDescription(careerId) {
       lore: await db.lores.toArray(),
       god: await db.gods.toArray()
     })
-    result['Info'] = applyHelp(career.desc, { typeItem: 'career', label: career.name }, labelMap)
+    const descHtml = applyHelp(career.desc, { typeItem: 'career', label: career.name }, labelMap)
+
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: [
+        { type: 'text', content: descHtml }
+      ]
+    })
   }
 
   // Add each career level
@@ -358,37 +356,121 @@ export async function generateCareerDescription(careerId) {
       const talents = await getCareerLevelTalents(level.id)
       const trappings = await getCareerLevelTrappings(level.id)
 
-      let levelDesc = ''
-      levelDesc += '<b>Niveau de carrière: </b>' + getEntityLabel(level) + '<BR><BR>'
-      levelDesc += '<b>Statut: </b>' + (level.status || '') + '<BR><BR>'
+      const levelSections = []
 
-      if (classObj) {
-        levelDesc += '<b>Classe: </b>' + showHelpTextFromElem(classObj) + '<BR><BR>'
+      // Level name
+      levelSections.push({
+        type: 'text',
+        label: 'Niveau de carrière',
+        content: getEntityLabel(level)
+      })
+
+      // Status
+      if (level.status) {
+        levelSections.push({
+          type: 'text',
+          label: 'Statut',
+          content: level.status
+        })
       }
 
-      levelDesc += '<b>Attributs: </b>' + toHtmlList(entitiesToSimpleArray(characteristics, true))
-      levelDesc += '<b>Compétences: </b>' + toHtmlList(entitiesToSimpleArray(skills, true))
-      levelDesc += '<b>Talents: </b>' + toHtmlList(entitiesToSimpleArray(talents, true))
-      levelDesc += '<b>Possessions: </b>' + toHtmlList(entitiesToSimpleArray(trappings, true))
+      // Class
+      if (classObj) {
+        levelSections.push({
+          type: 'link',
+          label: 'Classe',
+          entity: {
+            id: classObj.id,
+            type: 'class',
+            label: getEntityLabel(classObj)
+          }
+        })
+      }
 
-      result[rankToImg(level.level)] = levelDesc
+      // Characteristics
+      if (characteristics && characteristics.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Attributs',
+          items: characteristics.map(c => ({
+            id: c.id,
+            type: 'characteristic',
+            label: getEntityLabel(c)
+          }))
+        })
+      }
+
+      // Skills
+      if (skills && skills.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Compétences',
+          items: skills.map(s => ({
+            id: s.id,
+            type: 'skill',
+            label: getEntityLabel(s)
+          }))
+        })
+      }
+
+      // Talents
+      if (talents && talents.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Talents',
+          items: talents.map(t => ({
+            id: t.id,
+            type: 'talent',
+            label: getEntityLabel(t)
+          }))
+        })
+      }
+
+      // Trappings
+      if (trappings && trappings.length > 0) {
+        levelSections.push({
+          type: 'list',
+          label: 'Possessions',
+          items: trappings.map(t => ({
+            id: t.id,
+            type: 'trapping',
+            label: getEntityLabel(t)
+          }))
+        })
+      }
+
+      sections.push({
+        type: 'tab',
+        tabKey: `level-${level.level}`,
+        tabLabel: `Niveau ${level.level}`,
+        rank: level.level,
+        sections: levelSections
+      })
     }
   }
 
   // Add species access information
   const species = await getCareerSpecies(careerId)
   if (species && species.length > 0) {
-    const speciesMatches = {}
-    species.forEach(s => {
-      speciesMatches[s.name || s.label] = { id: s.id }
+    sections.push({
+      type: 'tab',
+      tabKey: 'Accès',
+      tabLabel: 'Accès',
+      sections: [
+        {
+          type: 'list',
+          label: 'Race donnant accès à cette carrière',
+          items: species.map(s => ({
+            id: s.id,
+            type: 'specie',
+            label: s.name || s.label
+          }))
+        }
+      ]
     })
-    const accessInfo = listMatchSimple('Race donnant accès à cette carrière', { specie: speciesMatches }, 'specie')
-    if (accessInfo) {
-      result['Accès'] = accessInfo
-    }
   }
 
-  return result
+  return { sections }
 }
 
 /**
@@ -398,11 +480,14 @@ export async function generateCareerDescription(careerId) {
  * Returns metadata about which tab should be active when displaying.
  *
  * @param {string} careerLevelId - Career level ID
- * @returns {Promise<Object>} Object with tab_actif property
+ * @returns {Promise<DescriptionData>} Structured description data with metadata
  *
  * @example
  * const desc = await generateCareerLevelDescription('artisan|apprenti artisan')
- * // Returns: { tab_actif: 1 }
+ * // Returns: {
+ * //   sections: [],
+ * //   metadata: { tab_actif: 1, careerLevel: 1 }
+ * // }
  */
 export async function generateCareerLevelDescription(careerLevelId) {
   const careerLevel = await db.careerLevels.get(careerLevelId)
@@ -411,7 +496,13 @@ export async function generateCareerLevelDescription(careerLevelId) {
   const career = await getCareerLevelCareer(careerLevelId)
   const tabOffset = career && career.desc ? 0 : 1
 
-  return { tab_actif: careerLevel.level - tabOffset }
+  return {
+    sections: [],
+    metadata: {
+      tab_actif: careerLevel.level - tabOffset,
+      careerLevel: careerLevel.level
+    }
+  }
 }
 
 /**
@@ -422,34 +513,46 @@ export async function generateCareerLevelDescription(careerLevelId) {
  * and access information (species and career levels).
  *
  * @param {string} talentId - Talent ID
- * @returns {Promise<Object|string>} Object with Info/Accès sections, or just Info string
+ * @returns {Promise<DescriptionData>} Structured description data
  *
  * @example
  * const desc = await generateTalentDescription('combat')
  * // Returns: {
- * //   Info: "Max: 5<br>Tests: ...<br>Description...",
- * //   Accès: "Careers and species..."
+ * //   sections: [
+ * //     { type: 'text', label: 'Maxi', content: '5' },
+ * //     { type: 'text', label: 'Tests', content: '...' },
+ * //     { type: 'text', content: 'Description...' },
+ * //     { type: 'list', label: 'Spécialisations', items: [...] },
+ * //     { type: 'list', label: 'Carrières donnant accès', items: [...] }
+ * //   ]
  * // }
  */
 export async function generateTalentDescription(talentId) {
   const talent = await getTalentWithRelations(talentId)
   if (!talent) return null
 
-  let desc = ''
+  const sections = []
 
   // Max rank
   if (talent.max) {
-    desc += '<b>Maxi: </b>' + talent.max + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Maxi',
+      content: String(talent.max)
+    })
   }
 
   // Tests
   if (talent.tests) {
-    desc += '<b>Tests: </b>' + talent.tests + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Tests',
+      content: talent.tests
+    })
   }
 
   // Description with entity linking
   if (talent.desc) {
-    desc += '<br>'
     const labelMap = await buildLabelMap({
       characteristic: await db.characteristics.toArray(),
       skill: await db.skills.toArray(),
@@ -462,35 +565,49 @@ export async function generateTalentDescription(talentId) {
       talent: await db.talents.toArray(),
       psychologie: await db.psychologies.toArray()
     })
-    desc += applyHelp(talent.desc, { typeItem: 'talent', label: talent.name }, labelMap)
+    const processedDesc = applyHelp(talent.desc, { typeItem: 'talent', label: talent.name }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
   }
 
   // Specializations
   if (talent.specs && talent.specs.length) {
     const specs = Array.isArray(talent.specs) ? talent.specs : talent.specs.split(', ')
-    desc += '<br><br><b>Spécialisations: </b>' + specs.join(', ') + '<br>'
+    sections.push({
+      type: 'list',
+      label: 'Spécialisations',
+      items: specs.map(spec => ({
+        type: 'text',
+        label: spec
+      }))
+    })
   }
 
-  const result = { Info: desc }
-
-  // Access information
+  // Access information - Career levels
   const careerLevels = await findCareerLevelsByTalent(talentId)
   if (careerLevels && careerLevels.length > 0) {
-    // Build career level matches grouped by rank
-    const careerLevelMatches = []
+    // Build career level items grouped by rank
+    const careerItems = []
     for (const cl of careerLevels) {
       const career = await getCareerLevelCareer(cl.id)
       if (career) {
-        if (!careerLevelMatches[cl.level]) {
-          careerLevelMatches[cl.level] = {}
-        }
-        careerLevelMatches[cl.level][career.name || career.label] = { id: cl.id }
+        careerItems.push({
+          id: cl.id,
+          type: 'careerLevel',
+          label: career.name || career.label,
+          rank: cl.level
+        })
       }
     }
 
-    const accessInfo = listMatchCareerLevel('Carrières donnant accès à ce talent', careerLevelMatches)
-    if (accessInfo) {
-      result['Accès'] = accessInfo
+    if (careerItems.length > 0) {
+      sections.push({
+        type: 'list',
+        label: 'Carrières donnant accès à ce talent',
+        items: careerItems
+      })
     }
   }
 
@@ -502,16 +619,19 @@ export async function generateTalentDescription(talentId) {
       .toArray()
 
     if (minorSpells && minorSpells.length > 0) {
-      result['Sorts'] = '<b>Sorts uniques: </b>' + toHtmlList(entitiesToSimpleArray(minorSpells, true))
+      sections.push({
+        type: 'list',
+        label: 'Sorts uniques',
+        items: minorSpells.map(spell => ({
+          id: spell.id,
+          type: 'spell',
+          label: spell.name || spell.label
+        }))
+      })
     }
   }
 
-  // Return just the info string if no other sections
-  if (!result['Sorts'] && !result['Accès']) {
-    return result['Info']
-  }
-
-  return result
+  return { sections }
 }
 
 /**
@@ -522,40 +642,55 @@ export async function generateTalentDescription(talentId) {
  * examples, specializations, and access information.
  *
  * @param {string} skillId - Skill ID
- * @returns {Promise<Object|string>} Object with Info/Accès sections, or just Info string
+ * @returns {Promise<DescriptionData>} Structured description data
  *
  * @example
  * const desc = await generateSkillDescription('athletisme')
  * // Returns: {
- * //   Info: "Attribut: Agilité...",
- * //   Accès: "Species and careers..."
+ * //   sections: [
+ * //     { type: 'link', label: 'Attribut', entity: { id: 'ag', type: 'characteristic', label: 'Agilité' } },
+ * //     { type: 'text', label: 'Type', content: 'de base, groupée' },
+ * //     { type: 'text', content: 'Description...' },
+ * //     { type: 'list', label: 'Spécialisations', items: [...] }
+ * //   ]
  * // }
  */
 export async function generateSkillDescription(skillId) {
   const skill = await getSkillWithCharacteristic(skillId)
   if (!skill) return null
 
-  let desc = ''
+  const sections = []
 
   // Characteristic
   if (skill.characteristicObj) {
-    desc += '<b>Attribut: </b>' + showHelpTextFromElem(skill.characteristicObj)
+    sections.push({
+      type: 'link',
+      label: 'Attribut',
+      entity: {
+        id: skill.characteristicObj.id,
+        type: 'characteristic',
+        label: getEntityLabel(skill.characteristicObj)
+      }
+    })
   }
 
   // Type and grouped status
   const type = skill.type || 'base'
-  desc += '<i>, ' + (type === 'base' ? 'de ' : '') + type
-
+  let typeText = (type === 'base' ? 'de ' : '') + type
   if (skill.specs && skill.specs.length) {
-    desc += ', groupée'
+    typeText += ', groupée'
   }
-  desc += '</i><br><br>'
+  sections.push({
+    type: 'text',
+    label: 'Type',
+    content: typeText
+  })
 
   // Description with entity linking
   if (skill.desc) {
     let tmpDesc = skill.desc
     if (skill.example) {
-      tmpDesc += '<br><br><b>Exemple: </b>' + skill.example
+      tmpDesc += '\n\nExemple: ' + skill.example
     }
 
     const labelMap = await buildLabelMap({
@@ -567,52 +702,66 @@ export async function generateSkillDescription(skillId) {
       etat: await db.etats.toArray(),
       psychologie: await db.psychologies.toArray()
     })
-    desc += applyHelp(tmpDesc, { typeItem: 'skill', label: skill.name }, labelMap)
+    const processedDesc = applyHelp(tmpDesc, { typeItem: 'skill', label: skill.name }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
   }
 
   // Specializations
   if (skill.specs && skill.specs.length) {
     const specs = Array.isArray(skill.specs) ? skill.specs : skill.specs.split(', ')
-    desc += '<br><br><b>Spécialisations: </b>' + specs.join(', ')
+    sections.push({
+      type: 'list',
+      label: 'Spécialisations',
+      items: specs.map(spec => ({
+        type: 'text',
+        label: spec
+      }))
+    })
   }
 
-  // Access information
-  let accessInfo = ''
-
-  // Career levels
+  // Access information - Career levels
   const careerLevels = await findCareerLevelsBySkill(skillId)
   if (careerLevels && careerLevels.length > 0) {
-    const careerLevelMatches = []
+    const careerItems = []
     for (const cl of careerLevels) {
       const career = await getCareerLevelCareer(cl.id)
       if (career) {
-        if (!careerLevelMatches[cl.level]) {
-          careerLevelMatches[cl.level] = {}
-        }
-        careerLevelMatches[cl.level][career.name || career.label] = { id: cl.id }
+        careerItems.push({
+          id: cl.id,
+          type: 'careerLevel',
+          label: career.name || career.label,
+          rank: cl.level
+        })
       }
     }
-    accessInfo += listMatchCareerLevel('Carrières donnant accès à cette compétence', careerLevelMatches)
+
+    if (careerItems.length > 0) {
+      sections.push({
+        type: 'list',
+        label: 'Carrières donnant accès à cette compétence',
+        items: careerItems
+      })
+    }
   }
 
   // Talents
   const talents = await findTalentsBySkill(skillId)
   if (talents && talents.length > 0) {
-    const talentMatches = {}
-    talents.forEach(t => {
-      talentMatches[t.name || t.label] = { id: t.id }
+    sections.push({
+      type: 'list',
+      label: 'Talents liés à cette compétence',
+      items: talents.map(t => ({
+        id: t.id,
+        type: 'talent',
+        label: t.name || t.label
+      }))
     })
-    accessInfo += listMatchSimple('Talents liés à cette compétence', { talent: talentMatches }, 'talent')
   }
 
-  if (accessInfo) {
-    return {
-      Info: desc,
-      Accès: accessInfo
-    }
-  }
-
-  return desc
+  return { sections }
 }
 
 /**
@@ -623,33 +772,48 @@ export async function generateSkillDescription(skillId) {
  * description, and access information (lores and gods).
  *
  * @param {string} spellId - Spell ID
- * @returns {Promise<Object>} Object with Info and potentially Accès sections
+ * @returns {Promise<DescriptionData>} Structured description data
  *
  * @example
  * const desc = await generateSpellDescription('boule-de-feu')
  * // Returns: {
- * //   Info: "Talent: Magie...<br>NI: 7...",
- * //   Accès: "Lores..."
+ * //   sections: [
+ * //     { type: 'link', label: 'Talent', entity: {...} },
+ * //     { type: 'text', label: 'NI', content: '7' },
+ * //     { type: 'text', label: 'Portée', content: '...' },
+ * //     { type: 'text', content: 'Description...' }
+ * //   ]
  * // }
  */
 export async function generateSpellDescription(spellId) {
   const spell = await db.spells.get(spellId)
   if (!spell) return null
 
-  const result = {}
-  let desc = ''
+  const sections = []
 
   // Talent requirement
   if (spell.talent) {
     const talent = await db.talents.get(spell.talent)
     if (talent) {
-      desc += '<b>Talent: </b>' + showHelpTextFromElem(talent) + '<br>'
+      sections.push({
+        type: 'link',
+        label: 'Talent',
+        entity: {
+          id: talent.id,
+          type: 'talent',
+          label: getEntityLabel(talent)
+        }
+      })
     }
   }
 
   // Casting number
   if (spell.cn) {
-    desc += '<b>NI: </b>' + spell.cn + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'NI',
+      content: String(spell.cn)
+    })
   }
 
   // Range, target, duration with entity linking
@@ -658,18 +822,32 @@ export async function generateSpellDescription(spellId) {
   })
 
   if (spell.range) {
-    desc += '<b>Portée: </b>' + applyHelp(spell.range, { typeItem: 'spell', label: spell.name }, labelMap) + '<br>'
+    const processedRange = applyHelp(spell.range, { typeItem: 'spell', label: spell.name }, labelMap)
+    sections.push({
+      type: 'text',
+      label: 'Portée',
+      content: processedRange
+    })
   }
   if (spell.target) {
-    desc += '<b>Cible: </b>' + applyHelp(spell.target, { typeItem: 'spell', label: spell.name }, labelMap) + '<br>'
+    const processedTarget = applyHelp(spell.target, { typeItem: 'spell', label: spell.name }, labelMap)
+    sections.push({
+      type: 'text',
+      label: 'Cible',
+      content: processedTarget
+    })
   }
   if (spell.duration) {
-    desc += '<b>Durée: </b>' + applyHelp(spell.duration, { typeItem: 'spell', label: spell.name }, labelMap) + '<br>'
+    const processedDuration = applyHelp(spell.duration, { typeItem: 'spell', label: spell.name }, labelMap)
+    sections.push({
+      type: 'text',
+      label: 'Durée',
+      content: processedDuration
+    })
   }
 
   // Description
   if (spell.desc) {
-    desc += '<br>'
     const fullLabelMap = await buildLabelMap({
       lore: await db.lores.toArray(),
       talent: await db.talents.toArray(),
@@ -682,21 +860,26 @@ export async function generateSpellDescription(spellId) {
       skill: await db.skills.toArray(),
       god: await db.gods.toArray()
     })
-    desc += applyHelp(spell.desc, { typeItem: 'spell', label: spell.name }, fullLabelMap)
+    const processedDesc = applyHelp(spell.desc, { typeItem: 'spell', label: spell.name }, fullLabelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
   }
 
-  if (desc) {
-    result['Info'] = desc
-  }
-
-  // Access information
-  let accessInfo = ''
-
-  // Lore access
+  // Access information - Lore access
   if (spell.lore) {
     const lore = await db.lores.get(spell.lore)
     if (lore) {
-      accessInfo += listMatchSimple('Domaines donnant accès à ce sort', { lore: { [lore.name || lore.label]: { id: lore.id } } }, 'lore')
+      sections.push({
+        type: 'list',
+        label: 'Domaines donnant accès à ce sort',
+        items: [{
+          id: lore.id,
+          type: 'lore',
+          label: lore.name || lore.label
+        }]
+      })
     }
   }
 
@@ -704,15 +887,19 @@ export async function generateSpellDescription(spellId) {
   if (spell.god) {
     const god = await db.gods.get(spell.god)
     if (god) {
-      accessInfo += listMatchSimple('Dieux donnant accès à ce sort', { god: { [god.name || god.label]: { id: god.id } } }, 'god')
+      sections.push({
+        type: 'list',
+        label: 'Dieux donnant accès à ce sort',
+        items: [{
+          id: god.id,
+          type: 'god',
+          label: god.name || god.label
+        }]
+      })
     }
   }
 
-  if (accessInfo) {
-    result['Accès'] = accessInfo
-  }
-
-  return result
+  return { sections }
 }
 
 /**
@@ -722,17 +909,23 @@ export async function generateSpellDescription(spellId) {
  * Includes class description, career options, and starting trappings.
  *
  * @param {string} classId - Class ID
- * @returns {Promise<string>} HTML description
+ * @returns {Promise<DescriptionData>} Structured description data
  *
  * @example
  * const desc = await generateClassDescription('rangers')
- * // Returns: "Description...<br>Career options...<br>Possessions..."
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', content: 'Description...' },
+ * //     { type: 'list', label: 'Options de Carrière', items: [...] },
+ * //     { type: 'list', label: 'Possessions', items: [...] }
+ * //   ]
+ * // }
  */
 export async function generateClassDescription(classId) {
   const classObj = await db.classes.get(classId)
   if (!classObj) return null
 
-  let desc = ''
+  const sections = []
 
   // Description
   if (classObj.desc) {
@@ -740,35 +933,47 @@ export async function generateClassDescription(classId) {
       lore: await db.lores.toArray(),
       god: await db.gods.toArray()
     })
-    desc += applyHelp(classObj.desc, { typeItem: 'class', label: classObj.name }, labelMap)
-    desc += '<br><br>'
+    const processedDesc = applyHelp(classObj.desc, { typeItem: 'class', label: classObj.name }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
   }
 
   // Career options
   const careers = await db.careers.where('class').equals(classId).toArray()
   if (careers && careers.length > 0) {
-    const careerMatches = {}
-    careers.forEach(c => {
-      careerMatches[c.name || c.label] = { id: c.id }
+    sections.push({
+      type: 'list',
+      label: 'Options de Carrière',
+      items: careers.map(c => ({
+        id: c.id,
+        type: 'career',
+        label: c.name || c.label
+      }))
     })
-    desc += listMatchSimple('Options de Carrière', { career: careerMatches }, 'career')
   }
 
   // Starting trappings
   if (classObj.trappings && classObj.trappings.length) {
     const trappings = await Promise.all(
-      classObj.trappings.map(t => {
-        const id = typeof t === 'string' ? t : t.id
-        return db.trappings.get(id)
-      })
+      classObj.trappings.map(t => resolveEntityReference(t, db.trappings))
     )
     const validTrappings = trappings.filter(t => t)
     if (validTrappings.length > 0) {
-      desc += '<b>Possesssions: </b>' + toHtmlList(entitiesToSimpleArray(validTrappings, true))
+      sections.push({
+        type: 'list',
+        label: 'Possessions',
+        items: validTrappings.map(t => ({
+          id: t.id,
+          type: 'trapping',
+          label: t.name || t.label
+        }))
+      })
     }
   }
 
-  return desc
+  return { sections }
 }
 
 /**
@@ -779,22 +984,24 @@ export async function generateClassDescription(classId) {
  * racial skills/talents, and available careers.
  *
  * @param {string} speciesId - Species ID
- * @returns {Promise<Object>} Object with multiple sections (Info, Détails, Caractéristiques, etc.)
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
  *
  * @example
  * const desc = await generateSpeciesDescription('human')
  * // Returns: {
- * //   Info: "Species description...",
- * //   Détails: "Age, height, etc...",
- * //   'Comps/Talents': "Racial skills and talents...",
- * //   Carrières: "Available careers..."
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Détails', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Comps/Talents', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Carrières', sections: [...] }
+ * //   ]
  * // }
  */
 export async function generateSpeciesDescription(speciesId) {
   const species = await db.species.get(speciesId)
   if (!species) return null
 
-  const result = {}
+  const sections = []
 
   // Basic description
   if (species.desc) {
@@ -803,55 +1010,206 @@ export async function generateSpeciesDescription(speciesId) {
       god: await db.gods.toArray(),
       psychologie: await db.psychologies.toArray()
     })
-    result['Info'] = applyHelp(species.desc, { typeItem: 'specie', label: species.name }, labelMap)
+    const descHtml = applyHelp(species.desc, { typeItem: 'specie', label: species.name }, labelMap)
+
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: [
+        { type: 'text', content: descHtml }
+      ]
+    })
   }
 
-  // Details section (age, height, etc.) - simplified version
-  // Full implementation would require detail tables which aren't in scope
-  result['Détails'] = 'Détails de la race (âge, taille, etc.)'
+  // Details section (age, height, etc.)
+  const detailsSections = []
+
+  // Age range
+  if (species.age && (species.age.min || species.age.max)) {
+    const ageText = species.age.min && species.age.max
+      ? `${species.age.min} - ${species.age.max} ans`
+      : species.age.min
+        ? `À partir de ${species.age.min} ans`
+        : `Jusqu'à ${species.age.max} ans`
+
+    detailsSections.push({
+      type: 'text',
+      label: 'Âge',
+      content: ageText
+    })
+  }
+
+  // Height range
+  if (species.height && (species.height.min || species.height.max)) {
+    const heightText = species.height.min && species.height.max
+      ? `${species.height.min} - ${species.height.max} cm`
+      : species.height.min
+        ? `À partir de ${species.height.min} cm`
+        : `Jusqu'à ${species.height.max} cm`
+
+    detailsSections.push({
+      type: 'text',
+      label: 'Taille',
+      content: heightText
+    })
+  }
+
+  // Eye colors
+  if (species.eyes && Array.isArray(species.eyes) && species.eyes.length > 0) {
+    detailsSections.push({
+      type: 'list',
+      label: 'Couleurs des yeux',
+      items: species.eyes.map(e => e)
+    })
+  }
+
+  // Hair colors
+  if (species.hair && Array.isArray(species.hair) && species.hair.length > 0) {
+    detailsSections.push({
+      type: 'list',
+      label: 'Couleurs des cheveux',
+      items: species.hair.map(h => h)
+    })
+  }
+
+  if (detailsSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Détails',
+      tabLabel: 'Détails',
+      sections: detailsSections
+    })
+  }
 
   // Skills and talents
-  let skillsTalents = ''
-  if (species.skills && species.skills.length) {
+  const compsTalentsSections = []
+
+  if (species.skills && Array.isArray(species.skills) && species.skills.length) {
     const skills = await Promise.all(
-      species.skills.map(s => {
-        const id = typeof s === 'string' ? s : s.id
-        return db.skills.get(id)
-      })
+      species.skills.map(s => resolveEntityReference(s, db.skills))
     )
     const validSkills = skills.filter(s => s)
     if (validSkills.length > 0) {
-      skillsTalents += '<b>Compétences de race: </b>' + toHtmlList(entitiesToSimpleArray(validSkills, true))
+      compsTalentsSections.push({
+        type: 'list',
+        label: 'Compétences de race',
+        items: validSkills.map(s => ({
+          id: s.id,
+          type: 'skill',
+          label: getEntityLabel(s)
+        }))
+      })
     }
   }
 
-  if (species.talents && species.talents.length) {
+  if (species.talents && Array.isArray(species.talents) && species.talents.length) {
     const talents = await Promise.all(
-      species.talents.map(t => {
-        const id = typeof t === 'string' ? t : t.id
-        return db.talents.get(id)
-      })
+      species.talents.map(t => resolveEntityReference(t, db.talents))
     )
     const validTalents = talents.filter(t => t)
     if (validTalents.length > 0) {
-      skillsTalents += '<b>Talents de race: </b>' + toHtmlList(entitiesToSimpleArray(validTalents, true))
+      compsTalentsSections.push({
+        type: 'list',
+        label: 'Talents de race',
+        items: validTalents.map(t => ({
+          id: t.id,
+          type: 'talent',
+          label: getEntityLabel(t)
+        }))
+      })
     }
   }
 
-  if (skillsTalents) {
-    result['Comps/Talents'] = skillsTalents
+  if (compsTalentsSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Comps/Talents',
+      tabLabel: 'Comps/Talents',
+      sections: compsTalentsSections
+    })
   }
 
   // Available careers
   const careers = await findCareersBySpecies(speciesId)
   if (careers && careers.length > 0) {
-    result['Carrières'] = toHtmlList(entitiesToSimpleArray(careers, true))
+    sections.push({
+      type: 'tab',
+      tabKey: 'Carrières',
+      tabLabel: 'Carrières',
+      sections: [
+        {
+          type: 'list',
+          items: careers.map(c => ({
+            id: c.id,
+            type: 'career',
+            label: getEntityLabel(c)
+          }))
+        }
+      ]
+    })
   }
 
-  // Characteristics table - simplified
-  result['Caractéristiques'] = 'Table des caractéristiques de race'
+  // Characteristics table
+  const charSections = []
 
-  return result
+  if (species.characteristics) {
+    // Build characteristics table
+    const charHeaders = ['Caractéristique', 'Valeur']
+    const charRows = []
+
+    // Get all characteristics from db to get proper labels
+    const allChars = await db.characteristics.toArray()
+    const charMap = {}
+    allChars.forEach(c => {
+      charMap[c.id] = c
+    })
+
+    // Build rows for each characteristic
+    for (const [charId, value] of Object.entries(species.characteristics)) {
+      const char = charMap[charId]
+      if (char) {
+        charRows.push([
+          char.label || char.abr || charId,
+          String(value)
+        ])
+      }
+    }
+
+    if (charRows.length > 0) {
+      charSections.push({
+        type: 'table',
+        label: 'Modificateurs de caractéristiques de race',
+        headers: charHeaders,
+        rows: charRows
+      })
+    }
+  }
+
+  // Add careers accessible to this species
+  const speciesCareers = await findCareersBySpecies(speciesId)
+  if (speciesCareers && speciesCareers.length > 0) {
+    charSections.push({
+      type: 'list',
+      label: 'Carrières accessibles',
+      items: speciesCareers.map(c => ({
+        id: c.id,
+        type: 'career',
+        label: getEntityLabel(c)
+      }))
+    })
+  }
+
+  if (charSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Caractéristiques',
+      tabLabel: 'Caractéristiques',
+      sections: charSections
+    })
+  }
+
+  return { sections }
 }
 
 /**
@@ -862,71 +1220,124 @@ export async function generateSpeciesDescription(speciesId) {
  * qualities/flaws, and description.
  *
  * @param {string} trappingId - Trapping ID
- * @returns {Promise<string>} HTML description
+ * @returns {Promise<DescriptionData>} Structured description data
  *
  * @example
  * const desc = await generateTrappingDescription('epee-courte')
- * // Returns: "Catégorie: melee<br>Groupe: Épées<br>Price: ...<br>Damage: ..."
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Catégorie', content: 'melee' },
+ * //     { type: 'text', label: 'Prix', content: '10 co' },
+ * //     { type: 'text', label: 'Dégâts', content: '+7' },
+ * //     { type: 'list', label: 'Atouts et Défauts', items: [...] },
+ * //     { type: 'text', content: 'Description...' }
+ * //   ]
+ * // }
  */
 export async function generateTrappingDescription(trappingId) {
   const trapping = await db.trappings.get(trappingId)
   if (!trapping) return null
 
+  const sections = []
   const type = trapping.type || 'trapping'
   const isVehicle = type === 'vehicle'
   const isRanged = type === 'ranged' || type === 'ammunition'
-  const isWeapon = type === 'melee' || isRanged
-  const isArmor = type === 'armor'
 
-  let desc = '<b>Catégorie: </b>' + type + '<br>'
+  // Category
+  sections.push({
+    type: 'text',
+    label: 'Catégorie',
+    content: type
+  })
 
+  // Sub-type (weapon group)
   if (trapping.subType) {
-    desc += '<b>Groupe d\'armes: </b>' + trapping.subType + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Groupe d\'armes',
+      content: trapping.subType
+    })
   }
-  desc += '<br>'
 
+  // Basic stats
   if (trapping.price) {
-    desc += '<b>Prix: </b>' + trapping.price + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Prix',
+      content: trapping.price
+    })
   }
   if (trapping.availability) {
-    desc += '<b>Disponibilité: </b>' + trapping.availability + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Disponibilité',
+      content: trapping.availability
+    })
   }
   if (trapping.enc) {
-    desc += '<b>Encombrement: </b>' + trapping.enc + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Encombrement',
+      content: String(trapping.enc)
+    })
   }
-  desc += '<br>'
 
+  // Combat stats
   if (trapping.reach) {
-    if (isRanged) {
-      desc += '<b>Porté: </b>' + trapping.reach + '<br>'
-    } else {
-      desc += '<b>Allonge: </b>' + trapping.reach + '<br>'
-    }
+    sections.push({
+      type: 'text',
+      label: isRanged ? 'Porté' : 'Allonge',
+      content: trapping.reach
+    })
   }
   if (trapping.damage) {
-    desc += '<b>Dégâts: </b>' + trapping.damage + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Dégâts',
+      content: trapping.damage
+    })
   }
   if (trapping.loc) {
-    desc += '<b>Emplacements: </b>' + trapping.loc + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Emplacements',
+      content: trapping.loc
+    })
   }
   if (trapping.pa) {
-    desc += '<b>Points d\'armure: </b>' + trapping.pa + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Points d\'armure',
+      content: String(trapping.pa)
+    })
   }
   if (trapping.carry) {
-    if (isVehicle) {
-      desc += '<b>Chargement: </b>' + trapping.carry + '<br>'
-    } else {
-      desc += '<b>Contenu: </b>' + trapping.carry + '<br>'
-    }
+    sections.push({
+      type: 'text',
+      label: isVehicle ? 'Chargement' : 'Contenu',
+      content: trapping.carry
+    })
   }
   if (trapping.mode) {
-    desc += '<b>Mode: </b>' + trapping.mode + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Mode',
+      content: trapping.mode
+    })
   }
   if (trapping.toughness) {
-    desc += '<b>Endurance: </b>' + trapping.toughness + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Endurance',
+      content: String(trapping.toughness)
+    })
   }
   if (trapping.wounds) {
-    desc += '<b>Blessures: </b>' + trapping.wounds + '<br>'
+    sections.push({
+      type: 'text',
+      label: 'Blessures',
+      content: String(trapping.wounds)
+    })
   }
 
   // Qualities and flaws
@@ -939,13 +1350,20 @@ export async function generateTrappingDescription(trappingId) {
     )
     const validQualities = qualities.filter(q => q)
     if (validQualities.length > 0) {
-      desc += '<b>Atouts et Défauts: </b>' + entitiesToSimpleArray(validQualities, true).join(', ') + '<br>'
+      sections.push({
+        type: 'list',
+        label: 'Atouts et Défauts',
+        items: validQualities.map(q => ({
+          id: q.id,
+          type: 'quality',
+          label: q.name || q.label
+        }))
+      })
     }
   }
 
   // Description
   if (trapping.desc) {
-    desc += '<br>'
     const labelMap = await buildLabelMap({
       lore: await db.lores.toArray(),
       god: await db.gods.toArray(),
@@ -955,10 +1373,1013 @@ export async function generateTrappingDescription(trappingId) {
       characteristic: await db.characteristics.toArray(),
       psychologie: await db.psychologies.toArray()
     })
-    desc += applyHelp(trapping.desc, { typeItem: 'trapping', label: trapping.name }, labelMap)
+    const processedDesc = applyHelp(trapping.desc, { typeItem: 'trapping', label: trapping.name }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
   }
 
-  return desc
+  return { sections }
+}
+
+/**
+ * Generate description for a Characteristic
+ *
+ * Implements characteristic.getDescription()
+ * Includes abbreviation, type, and description with entity linking.
+ *
+ * @param {string} characteristicId - Characteristic ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateCharacteristicDescription('ws')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Abréviation', content: 'CC' },
+ * //     { type: 'text', label: 'Type', content: 'Combat' },
+ * //     { type: 'text', content: 'Description...' }
+ * //   ]
+ * // }
+ */
+export async function generateCharacteristicDescription(characteristicId) {
+  const characteristic = await db.characteristics.get(characteristicId)
+  if (!characteristic) return null
+
+  const sections = []
+
+  // Abbreviation
+  if (characteristic.abr) {
+    sections.push({
+      type: 'text',
+      label: 'Abréviation',
+      content: characteristic.abr
+    })
+  }
+
+  // Type
+  if (characteristic.type) {
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: characteristic.type
+    })
+  }
+
+  // Description
+  if (characteristic.desc) {
+    const labelMap = await buildLabelMap({
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    const processedDesc = applyHelp(characteristic.desc, { typeItem: 'characteristic', label: characteristic.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a God
+ *
+ * Implements god.getDescription()
+ * Includes god description with entity linking, and lists of blessings/miracles.
+ *
+ * @param {string} godId - God ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateGodDescription('sigmar')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', content: 'Description of Sigmar...' },
+ * //     { type: 'list', label: 'Bénédictions', items: [...] },
+ * //     { type: 'list', label: 'Miracles', items: [...] }
+ * //   ]
+ * // }
+ */
+export async function generateGodDescription(godId) {
+  const god = await db.gods.get(godId)
+  if (!god) return null
+
+  const sections = []
+
+  // Description with entity linking
+  if (god.desc) {
+    const labelMap = await buildLabelMap({
+      lore: await db.lores.toArray(),
+      god: await db.gods.toArray(),
+      talent: await db.talents.toArray(),
+      skill: await db.skills.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    const processedDesc = applyHelp(god.desc, { typeItem: 'god', label: god.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  // Get blessings and miracles
+  // Spells use type='Invocation' and spec='god label' (not god id)
+  const allSpells = await db.spells.toArray()
+
+  const blessings = allSpells.filter(spell =>
+    (spell.type === 'Bénédiction' || spell.type === 'blessing') &&
+    spell.spec === god.label
+  )
+
+  const miracles = allSpells.filter(spell =>
+    (spell.type === 'Miracle' || spell.type === 'miracle') &&
+    spell.spec === god.label
+  )
+
+  if (blessings && blessings.length > 0) {
+    sections.push({
+      type: 'list',
+      label: 'Bénédictions',
+      items: blessings.map(spell => ({
+        id: spell.id,
+        type: 'spell',
+        label: spell.name || spell.label
+      }))
+    })
+  }
+
+  if (miracles && miracles.length > 0) {
+    sections.push({
+      type: 'list',
+      label: 'Miracles',
+      items: miracles.map(spell => ({
+        id: spell.id,
+        type: 'spell',
+        label: spell.name || spell.label
+      }))
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Lore
+ *
+ * Implements lore.getDescription()
+ * Includes lore description with entity linking, and list of spells.
+ *
+ * @param {string} loreId - Lore ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateLoreDescription('feu')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', content: 'Description of fire magic...' },
+ * //     { type: 'list', label: 'Sorts du domaine', items: [...] }
+ * //   ]
+ * // }
+ */
+export async function generateLoreDescription(loreId) {
+  const lore = await db.lores.get(loreId)
+  if (!lore) return null
+
+  const sections = []
+
+  // Description with entity linking
+  if (lore.desc) {
+    const labelMap = await buildLabelMap({
+      lore: await db.lores.toArray(),
+      god: await db.gods.toArray(),
+      talent: await db.talents.toArray(),
+      skill: await db.skills.toArray(),
+      magick: await db.magicks.toArray(),
+      characteristic: await db.characteristics.toArray()
+    })
+    const processedDesc = applyHelp(lore.desc, { typeItem: 'lore', label: lore.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  // Get spells for this lore
+  // Filter spells by lore field (not indexed)
+  const allSpells = await db.spells.toArray()
+  const spells = allSpells.filter(spell => spell.lore === loreId)
+
+  if (spells && spells.length > 0) {
+    sections.push({
+      type: 'list',
+      label: 'Sorts du domaine',
+      items: spells.map(spell => ({
+        id: spell.id,
+        type: 'spell',
+        label: spell.name || spell.label
+      }))
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Star
+ *
+ * Implements star.getDescription()
+ * Includes star description with entity linking for astrological signs.
+ *
+ * @param {string} starId - Star ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateStarDescription('gnuthus')
+ * // Returns: { sections: [{ type: 'text', content: 'Description of Gnuthus the Ox...' }] }
+ */
+export async function generateStarDescription(starId) {
+  const star = await db.stars.get(starId)
+  if (!star) return null
+
+  const sections = []
+
+  // Description with entity linking
+  if (star.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      trait: await db.traits.toArray(),
+      star: await db.stars.toArray()
+    })
+    const processedDesc = applyHelp(star.desc, { typeItem: 'star', label: star.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for an Etat (condition/status effect)
+ *
+ * Implements etat.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} etatId - Etat ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateEtatDescription('assomme')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Type', content: '...' },
+ * //     { type: 'text', content: 'Description of stunned condition...' }
+ * //   ]
+ * // }
+ */
+export async function generateEtatDescription(etatId) {
+  const etat = await db.etats.get(etatId)
+  if (!etat) return null
+
+  const sections = []
+
+  // Type
+  if (etat.type) {
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: etat.type
+    })
+  }
+
+  // Description with entity linking
+  if (etat.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray(),
+      trait: await db.traits.toArray()
+    })
+    const processedDesc = applyHelp(etat.desc, { typeItem: 'etat', label: etat.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Psychologie (mental condition/psychological trait)
+ *
+ * Implements psychologie.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} psychologieId - Psychologie ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generatePsychologieDescription('animosite')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Type', content: '...' },
+ * //     { type: 'text', content: 'Description of animosity...' }
+ * //   ]
+ * // }
+ */
+export async function generatePsychologieDescription(psychologieId) {
+  const psychologie = await db.psychologies.get(psychologieId)
+  if (!psychologie) return null
+
+  const sections = []
+
+  // Type
+  if (psychologie.type) {
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: psychologie.type
+    })
+  }
+
+  // Description with entity linking
+  if (psychologie.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray(),
+      trait: await db.traits.toArray()
+    })
+    const processedDesc = applyHelp(psychologie.desc, { typeItem: 'psychologie', label: psychologie.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Magick (magic domain/tradition)
+ *
+ * Implements magick.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} magickId - Magick ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateMagickDescription('arcane')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Type', content: '...' },
+ * //     { type: 'text', content: 'Description of arcane magic...' }
+ * //   ]
+ * // }
+ */
+export async function generateMagickDescription(magickId) {
+  const magick = await db.magicks.get(magickId)
+  if (!magick) return null
+
+  const sections = []
+
+  // Type
+  if (magick.type) {
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: magick.type
+    })
+  }
+
+  // Description with entity linking
+  if (magick.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      lore: await db.lores.toArray(),
+      magick: await db.magicks.toArray()
+    })
+    const processedDesc = applyHelp(magick.desc, { typeItem: 'magick', label: magick.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Quality (weapon/armor quality or flaw)
+ *
+ * Implements quality.getDescription()
+ * Includes type and description with entity linking.
+ *
+ * @param {string} qualityId - Quality ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateQualityDescription('percutant')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Type', content: 'atout' },
+ * //     { type: 'text', content: 'Description of impact quality...' }
+ * //   ]
+ * // }
+ */
+export async function generateQualityDescription(qualityId) {
+  const quality = await db.qualities.get(qualityId)
+  if (!quality) return null
+
+  const sections = []
+
+  // Type
+  if (quality.type) {
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: quality.type
+    })
+  }
+
+  // Description with entity linking
+  if (quality.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      etat: await db.etats.toArray(),
+      quality: await db.qualities.toArray(),
+      trait: await db.traits.toArray(),
+      trapping: await db.trappings.toArray()
+    })
+    const processedDesc = applyHelp(quality.desc, { typeItem: 'quality', label: quality.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Trait (creature trait or special ability)
+ *
+ * Implements trait.getDescription()
+ * Includes description with entity linking. Traits can have complex descriptions
+ * with ratings, modifiers, and references to other game mechanics.
+ *
+ * @param {string} traitId - Trait ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateTraitDescription('arme-naturelle')
+ * // Returns: { sections: [{ type: 'text', content: 'Description of natural weapons trait...' }] }
+ */
+export async function generateTraitDescription(traitId) {
+  const trait = await db.traits.get(traitId)
+  if (!trait) return null
+
+  const sections = []
+
+  // Description with entity linking
+  if (trait.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray(),
+      trait: await db.traits.toArray(),
+      quality: await db.qualities.toArray()
+    })
+    const processedDesc = applyHelp(trait.desc, { typeItem: 'trait', label: trait.label }, labelMap)
+    sections.push({
+      type: 'text',
+      content: processedDesc
+    })
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Tree (folder hierarchy node)
+ *
+ * Implements tree.getDescription()
+ * Shows folder information, parent folder, and lists child folders and entities.
+ *
+ * @param {string} treeId - Tree ID
+ * @returns {Promise<DescriptionData>} Structured description data
+ *
+ * @example
+ * const desc = await generateTreeDescription('carriere-guerriers')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'text', label: 'Type', content: 'carriere' },
+ * //     { type: 'link', label: 'Dossier parent', entity: {...} },
+ * //     { type: 'list', label: 'Sous-dossiers', items: [...] },
+ * //     { type: 'list', label: 'Éléments', items: [...] }
+ * //   ]
+ * // }
+ */
+export async function generateTreeDescription(treeId) {
+  const tree = await db.trees.get(treeId)
+  if (!tree) return null
+
+  const sections = []
+
+  // Type
+  if (tree.type) {
+    sections.push({
+      type: 'text',
+      label: 'Type',
+      content: tree.type
+    })
+  }
+
+  // Parent folder
+  if (tree.parent) {
+    const parent = await db.trees.get(tree.parent)
+    if (parent) {
+      sections.push({
+        type: 'link',
+        label: 'Dossier parent',
+        entity: {
+          id: parent.id,
+          type: 'tree',
+          label: parent.name || parent.label
+        }
+      })
+    }
+  }
+
+  // Get child folders
+  const childFolders = await db.trees
+    .where('parent')
+    .equals(treeId)
+    .toArray()
+
+  if (childFolders.length > 0) {
+    sections.push({
+      type: 'list',
+      label: 'Sous-dossiers',
+      items: childFolders.map(f => ({
+        id: f.id,
+        type: 'tree',
+        label: f.name || f.label
+      }))
+    })
+  }
+
+  // Get entities in this folder based on type
+  if (tree.type) {
+    const tableName = tree.type + 's'
+    if (db[tableName]) {
+      const entities = await db[tableName]
+        .where('folder')
+        .equals(treeId)
+        .toArray()
+
+      if (entities.length > 0) {
+        sections.push({
+          type: 'list',
+          label: 'Éléments',
+          items: entities.map(e => ({
+            id: e.id,
+            type: tree.type,
+            label: e.name || e.label
+          }))
+        })
+      }
+    }
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Creature
+ *
+ * Implements creature.getDescription()
+ * Most complex generator: includes characteristics, skills, talents, traits,
+ * optional abilities, trappings, and spells.
+ *
+ * @param {string} creatureId - Creature ID
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
+ *
+ * @example
+ * const desc = await generateCreatureDescription('goblin')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Stats', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Capacités', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Sorts', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Équipement', sections: [...] }
+ * //   ]
+ * // }
+ */
+export async function generateCreatureDescription(creatureId) {
+  const creature = await db.creatures.get(creatureId)
+  if (!creature) return null
+
+  const sections = []
+
+  // Basic description
+  if (creature.desc) {
+    const labelMap = await buildLabelMap({
+      book: await db.books.toArray(),
+      career: await db.careers.toArray(),
+      specie: await db.species.toArray(),
+      characteristic: await db.characteristics.toArray(),
+      skill: await db.skills.toArray(),
+      talent: await db.talents.toArray(),
+      spell: await db.spells.toArray(),
+      creature: await db.creatures.toArray(),
+      trait: await db.traits.toArray(),
+      etat: await db.etats.toArray(),
+      psychologie: await db.psychologies.toArray()
+    })
+    const descHtml = applyHelp(creature.desc, { typeItem: 'creature', label: creature.label }, labelMap)
+
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: [
+        { type: 'text', content: descHtml }
+      ]
+    })
+  }
+
+  // Characteristics
+  if (creature.char) {
+    // Pass the stats object directly to StatTable component
+    // StatTable handles rendering the main characteristics table
+    // and additional stats (b, bf, be, pv) via showAdditional prop
+    sections.push({
+      type: 'tab',
+      tabKey: 'Stats',
+      tabLabel: 'Stats',
+      sections: [
+        {
+          type: 'stats',
+          stats: creature.char  // Pass full char object
+        }
+      ]
+    })
+  }
+
+  // Skills, Talents, and Traits
+  const abilitiesSections = []
+
+  if (creature.skills && Array.isArray(creature.skills) && creature.skills.length > 0) {
+    const skills = await Promise.all(
+      creature.skills.map(s => {
+        const id = typeof s === 'string' ? s : s.id
+        return db.skills.get(id)
+      })
+    )
+    const validSkills = skills.filter(s => s)
+    if (validSkills.length > 0) {
+      abilitiesSections.push({
+        type: 'list',
+        label: 'Compétences',
+        items: validSkills.map(s => ({
+          id: s.id,
+          type: 'skill',
+          label: getEntityLabel(s)
+        }))
+      })
+    }
+  }
+
+  if (creature.talents && Array.isArray(creature.talents) && creature.talents.length > 0) {
+    const talents = await Promise.all(
+      creature.talents.map(t => {
+        const id = typeof t === 'string' ? t : t.id
+        return db.talents.get(id)
+      })
+    )
+    const validTalents = talents.filter(t => t)
+    if (validTalents.length > 0) {
+      abilitiesSections.push({
+        type: 'list',
+        label: 'Talents',
+        items: validTalents.map(t => ({
+          id: t.id,
+          type: 'talent',
+          label: getEntityLabel(t)
+        }))
+      })
+    }
+  }
+
+  if (creature.traits && Array.isArray(creature.traits) && creature.traits.length > 0) {
+    // Traits can be stored as:
+    // 1. Simple string IDs: "arme-naturelle"
+    // 2. EntityReference objects with specs: {id: "arme-naturelle", entityType: "trait", label: "Arme Naturelle", prefix: "+8"}
+    // 3. Arrays of EntityReference objects
+    const traitItems = []
+
+    for (const traitRef of creature.traits) {
+      if (typeof traitRef === 'string') {
+        // Simple ID - fetch the trait
+        const trait = await db.traits.get(traitRef)
+        if (trait) {
+          traitItems.push({
+            id: trait.id,
+            type: 'trait',
+            label: getEntityLabel(trait)
+          })
+        }
+      } else if (Array.isArray(traitRef) && traitRef.length > 0) {
+        // Array of EntityReference objects - use the first one
+        const ref = traitRef[0]
+        const trait = await db.traits.get(ref.id)
+        if (trait) {
+          // Merge trait with reference metadata (spec, prefix, etc.)
+          traitItems.push({
+            id: trait.id,
+            type: 'trait',
+            label: getEntityLabel({ ...trait, ...ref })  // Merge to preserve spec/prefix
+          })
+        }
+      } else if (traitRef && traitRef.id) {
+        // EntityReference object
+        const trait = await db.traits.get(traitRef.id)
+        if (trait) {
+          // Merge trait with reference metadata
+          traitItems.push({
+            id: trait.id,
+            type: 'trait',
+            label: getEntityLabel({ ...trait, ...traitRef })
+          })
+        }
+      }
+    }
+
+    if (traitItems.length > 0) {
+      abilitiesSections.push({
+        type: 'list',
+        label: 'Traits',
+        items: traitItems
+      })
+    }
+  }
+
+  if (creature.optionals && Array.isArray(creature.optionals) && creature.optionals.length > 0) {
+    abilitiesSections.push({
+      type: 'list',
+      label: 'Capacités optionnelles',
+      items: creature.optionals.map(opt => opt)
+    })
+  }
+
+  if (abilitiesSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Capacités',
+      tabLabel: 'Capacités',
+      sections: abilitiesSections
+    })
+  }
+
+  // Spells - grouped by type and spec
+  if (creature.spells && Array.isArray(creature.spells) && creature.spells.length > 0) {
+    const spells = await Promise.all(
+      creature.spells.map(s => {
+        const id = typeof s === 'string' ? s : s.id
+        return db.spells.get(id)
+      })
+    )
+    const validSpells = spells.filter(s => s)
+
+    if (validSpells.length > 0) {
+      // Group spells by type and spec
+      const spellsByGroupAndSpec = {}
+
+      validSpells.forEach(spell => {
+        const type = spell.type || 'Autre'
+        const spec = spell.spec || ''
+
+        if (!spellsByGroupAndSpec[type]) {
+          spellsByGroupAndSpec[type] = {}
+        }
+        if (!spellsByGroupAndSpec[type][spec]) {
+          spellsByGroupAndSpec[type][spec] = []
+        }
+        spellsByGroupAndSpec[type][spec].push(spell)
+      })
+
+      // Build spell sections grouped by type and spec
+      const spellsSections = []
+      for (const [type, specGroups] of Object.entries(spellsByGroupAndSpec)) {
+        for (const [spec, spellList] of Object.entries(specGroups)) {
+          const groupLabel = type + (spec ? ' (' + spec + ')' : '')
+          spellsSections.push({
+            type: 'list',
+            label: groupLabel,
+            items: spellList.map(s => ({
+              id: s.id,
+              type: 'spell',
+              label: getEntityLabel(s)
+            }))
+          })
+        }
+      }
+
+      sections.push({
+        type: 'tab',
+        tabKey: 'Sorts',
+        tabLabel: 'Sorts',
+        sections: spellsSections
+      })
+    }
+  }
+
+  // Trappings
+  if (creature.trappings && Array.isArray(creature.trappings) && creature.trappings.length > 0) {
+    const trappings = await Promise.all(
+      creature.trappings.map(t => {
+        const id = typeof t === 'string' ? t : t.id
+        return db.trappings.get(id)
+      })
+    )
+    const validTrappings = trappings.filter(t => t)
+    if (validTrappings.length > 0) {
+      sections.push({
+        type: 'tab',
+        tabKey: 'Équipement',
+        tabLabel: 'Équipement',
+        sections: [
+          {
+            type: 'list',
+            label: 'Possessions',
+            items: validTrappings.map(t => ({
+              id: t.id,
+              type: 'trapping',
+              label: getEntityLabel(t)
+            }))
+          }
+        ]
+      })
+    }
+  }
+
+  return { sections }
+}
+
+/**
+ * Generate description for a Book (reference source book)
+ *
+ * Implements book.getDescription()
+ * Lists all content from this source book organized by type.
+ *
+ * @param {string} bookId - Book ID
+ * @returns {Promise<DescriptionData>} Structured description data with tabs
+ *
+ * @example
+ * const desc = await generateBookDescription('core-rulebook')
+ * // Returns: {
+ * //   sections: [
+ * //     { type: 'tab', tabKey: 'Info', sections: [...] },
+ * //     { type: 'tab', tabKey: 'Contenu', sections: [...] }
+ * //   ]
+ * // }
+ */
+export async function generateBookDescription(bookId) {
+  const book = await db.books.get(bookId)
+  if (!book) return null
+
+  const sections = []
+  const infoSections = []
+
+  // Abbreviation
+  if (book.abr) {
+    infoSections.push({
+      type: 'text',
+      label: 'Abréviation',
+      content: book.abr
+    })
+  }
+
+  // Language
+  if (book.language) {
+    infoSections.push({
+      type: 'text',
+      label: 'Langue',
+      content: book.language
+    })
+  }
+
+  // Description
+  if (book.desc) {
+    infoSections.push({
+      type: 'text',
+      content: book.desc
+    })
+  }
+
+  // Add Info tab if there's any info
+  if (infoSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Info',
+      tabLabel: 'Info',
+      sections: infoSections
+    })
+  }
+
+  // Get content from this book across all entity types
+  const contentTypes = [
+    { table: 'careers', label: 'Carrières', type: 'career' },
+    { table: 'talents', label: 'Talents', type: 'talent' },
+    { table: 'skills', label: 'Compétences', type: 'skill' },
+    { table: 'spells', label: 'Sorts', type: 'spell' },
+    { table: 'trappings', label: 'Équipement', type: 'trapping' },
+    { table: 'creatures', label: 'Créatures', type: 'creature' },
+    { table: 'traits', label: 'Traits', type: 'trait' },
+    { table: 'classes', label: 'Classes', type: 'class' },
+    { table: 'species', label: 'Races', type: 'specie' },
+    { table: 'gods', label: 'Dieux', type: 'god' },
+    { table: 'lores', label: 'Domaines', type: 'lore' }
+  ]
+
+  const contentSections = []
+
+  for (const contentType of contentTypes) {
+    const items = await db[contentType.table]
+      .where('book')
+      .equals(bookId)
+      .toArray()
+
+    if (items && items.length > 0) {
+      contentSections.push({
+        type: 'list',
+        label: contentType.label,
+        items: items.map(i => ({
+          id: i.id,
+          type: contentType.type,
+          label: i.name || i.label
+        }))
+      })
+    }
+  }
+
+  // Add Content tab if there's any content
+  if (contentSections.length > 0) {
+    sections.push({
+      type: 'tab',
+      tabKey: 'Contenu',
+      tabLabel: 'Contenu',
+      sections: contentSections
+    })
+  }
+
+  return { sections }
 }
 
 /**
@@ -994,6 +2415,30 @@ export async function generateDescription(entityType, entityId) {
       return await generateSpeciesDescription(entityId)
     case 'trapping':
       return await generateTrappingDescription(entityId)
+    case 'characteristic':
+      return await generateCharacteristicDescription(entityId)
+    case 'god':
+      return await generateGodDescription(entityId)
+    case 'lore':
+      return await generateLoreDescription(entityId)
+    case 'star':
+      return await generateStarDescription(entityId)
+    case 'etat':
+      return await generateEtatDescription(entityId)
+    case 'psychologie':
+      return await generatePsychologieDescription(entityId)
+    case 'magick':
+      return await generateMagickDescription(entityId)
+    case 'quality':
+      return await generateQualityDescription(entityId)
+    case 'trait':
+      return await generateTraitDescription(entityId)
+    case 'tree':
+      return await generateTreeDescription(entityId)
+    case 'creature':
+      return await generateCreatureDescription(entityId)
+    case 'book':
+      return await generateBookDescription(entityId)
     default:
       // For other types, return basic description if available
       const entity = await db[entityType + 's']?.get(entityId)
@@ -1011,8 +2456,7 @@ export default {
   buildLabelMap,
   showHelpText,
   showHelpTextFromElem,
-  toHtmlList,
-  rankToImg,
+  // NOTE: toHtmlList and rankToImg have been removed - replaced by Svelte components
   entitiesToSimpleArray,
 
   // Description generators
@@ -1024,5 +2468,342 @@ export default {
   generateSpellDescription,
   generateClassDescription,
   generateSpeciesDescription,
-  generateTrappingDescription
+  generateTrappingDescription,
+  generateCharacteristicDescription,
+  generateGodDescription,
+  generateLoreDescription,
+  generateStarDescription,
+  generateEtatDescription,
+  generatePsychologieDescription,
+  generateMagickDescription,
+  generateQualityDescription,
+  generateTraitDescription,
+  generateTreeDescription,
+  generateCreatureDescription,
+  generateBookDescription,
+
+  // Tooltip and validation (Issue #40 Stream B)
+  getEntitySummary,
+  validateReferences,
+  enhanceWithTooltips
+}
+
+// ============================================================================
+// TOOLTIP AND VALIDATION SYSTEM (Stream B - Issue #40)
+// ============================================================================
+
+/**
+ * Get database table name for entity type
+ * Handles special pluralization cases and aliases
+ *
+ * @param {string} type - Entity type
+ * @returns {string|null} Table name or null if unknown
+ */
+function getTableName(type) {
+  const tableMap = {
+    skill: 'skills',
+    talent: 'talents',
+    spell: 'spells',
+    characteristic: 'characteristics',
+    trait: 'traits',
+    quality: 'qualities',
+    trapping: 'trappings',
+    career: 'careers',
+    careerLevel: 'careerLevels',
+    class: 'classes',
+    specie: 'species',
+    species: 'species',  // Alias
+    lore: 'lores',
+    god: 'gods',
+    creature: 'creatures',
+    etat: 'etats',
+    psychologie: 'psychologies',
+    magick: 'magicks',
+    star: 'stars',
+    tree: 'trees',
+    book: 'books'
+  }
+  return tableMap[type] || null
+}
+
+/**
+ * Get a 1-2 line summary for an entity to use in tooltips
+ *
+ * @param {string} type - Entity type (skill, talent, spell, etc.)
+ * @param {string} id - Entity ID
+ * @returns {Promise<string|null>} Summary text or null if not found
+ *
+ * @example
+ * const summary = await getEntitySummary('skill', 'dodge')
+ * // Returns: "Esquive - Compétence de base"
+ */
+export async function getEntitySummary(type, id) {
+  if (!type || !id) return null
+
+  try {
+    const tableName = getTableName(type)
+
+    if (!tableName || !db[tableName]) {
+      return null
+    }
+
+    const entity = await db[tableName].get(id)
+    if (!entity) return null
+
+    const label = entity.label || entity.name || id
+
+    // Generate context-appropriate summaries based on entity type
+    switch (type) {
+      case 'skill':
+        if (entity.characteristic) {
+          const char = await db.characteristics.get(entity.characteristic)
+          const charLabel = char ? (char.abr || char.label) : entity.characteristic
+          const skillType = entity.type || 'base'
+          return `${label} - ${charLabel}, ${skillType}`
+        }
+        return `${label} - Compétence`
+
+      case 'talent':
+        if (entity.max) {
+          return `${label} - Talent (Max: ${entity.max})`
+        }
+        return `${label} - Talent`
+
+      case 'spell':
+        if (entity.cn) {
+          return `${label} - Sort (NI: ${entity.cn})`
+        }
+        return `${label} - Sort`
+
+      case 'characteristic':
+        if (entity.abr) {
+          return `${label} (${entity.abr}) - Caractéristique`
+        }
+        return `${label} - Caractéristique`
+
+      case 'trait':
+        return `${label} - Trait`
+
+      case 'quality':
+        if (entity.type) {
+          return `${label} - ${entity.type}`
+        }
+        return `${label} - Qualité`
+
+      case 'trapping':
+        if (entity.type) {
+          return `${label} - ${entity.type}`
+        }
+        return `${label} - Équipement`
+
+      case 'career':
+        if (entity.class) {
+          const classObj = await db.classes.get(entity.class)
+          const classLabel = classObj ? classObj.label : entity.class
+          return `${label} - Carrière (${classLabel})`
+        }
+        return `${label} - Carrière`
+
+      case 'careerLevel':
+        if (entity.career) {
+          const career = await db.careers.get(entity.career)
+          const careerLabel = career ? (career.label || career.name) : entity.career
+          return `${label} - ${careerLabel} Niv.${entity.level || '?'}`
+        }
+        return `${label} - Niveau de carrière`
+
+      case 'class':
+        return `${label} - Classe`
+
+      case 'specie':
+      case 'species':
+        return `${label} - Race`
+
+      case 'lore':
+        return `${label} - Domaine magique`
+
+      case 'god':
+        return `${label} - Divinité`
+
+      case 'creature':
+        return `${label} - Créature`
+
+      case 'etat':
+        return `${label} - État`
+
+      case 'psychologie':
+        return `${label} - Psychologie`
+
+      case 'magick':
+        return `${label} - Magie`
+
+      case 'star':
+        return `${label} - Signe astrologique`
+
+      case 'tree':
+        if (entity.type) {
+          return `${label} - Dossier (${entity.type})`
+        }
+        return `${label} - Dossier`
+
+      case 'book':
+        if (entity.abr) {
+          return `${label} (${entity.abr}) - Livre de règles`
+        }
+        return `${label} - Livre de règles`
+
+      default:
+        return `${label} - ${type}`
+    }
+  } catch (error) {
+    console.warn(`Error generating summary for ${type}:${id}`, error)
+    return null
+  }
+}
+
+/**
+ * Validate entity references in HTML content
+ *
+ * Checks if all entity references (showHelp spans) actually exist in the database.
+ * Returns a report of valid and broken references.
+ *
+ * @param {string} html - HTML content to validate
+ * @returns {Promise<Object>} Validation report with valid and broken references
+ *
+ * @example
+ * const report = await validateReferences(description)
+ * // Returns: {
+ * //   valid: [{ type: 'skill', id: 'dodge', label: 'Dodge' }],
+ * //   broken: [{ type: 'spell', id: 'invalid', label: 'Invalid Spell' }]
+ * // }
+ */
+export async function validateReferences(html) {
+  if (!html || typeof html !== 'string') {
+    return { valid: [], broken: [] }
+  }
+
+  const valid = []
+  const broken = []
+
+  // Find all showHelp spans
+  const spanRegex = /<span[^>]+class="showHelp"[^>]*>.*?<\/span>/gi
+  const matches = html.match(spanRegex)
+
+  if (!matches) {
+    return { valid: [], broken: [] }
+  }
+
+  for (const match of matches) {
+    // Extract data-type, data-id, and text content
+    const typeMatch = match.match(/data-type="([^"]+)"/)
+    const idMatch = match.match(/data-id="([^"]+)"/)
+    const textMatch = match.match(/>([^<]+)</)
+
+    if (!typeMatch || !idMatch || !textMatch) continue
+
+    const type = typeMatch[1]
+    const id = idMatch[1]
+    const label = textMatch[1]
+
+    // Check if entity exists
+    try {
+      const tableName = getTableName(type)
+
+      if (!tableName || !db[tableName]) {
+        broken.push({ type, id, label, reason: 'Unknown entity type' })
+        continue
+      }
+
+      const entity = await db[tableName].get(id)
+
+      if (entity) {
+        valid.push({ type, id, label })
+      } else {
+        broken.push({ type, id, label, reason: 'Entity not found' })
+      }
+    } catch (error) {
+      broken.push({ type, id, label, reason: error.message })
+    }
+  }
+
+  return { valid, broken }
+}
+
+/**
+ * Enhance HTML with tooltips for entity references
+ *
+ * Adds title attributes with entity summaries to showHelp spans.
+ * Adds "broken" class to spans for entities that don't exist.
+ *
+ * @param {string} html - HTML content to enhance
+ * @returns {Promise<string>} Enhanced HTML with tooltips and broken markers
+ *
+ * @example
+ * const enhanced = await enhanceWithTooltips(description)
+ * // Adds title="Esquive - Compétence de base" to skill spans
+ */
+export async function enhanceWithTooltips(html) {
+  if (!html || typeof html !== 'string') {
+    return html
+  }
+
+  // Find all showHelp spans
+  const spanRegex = /<span[^>]+class="showHelp"[^>]*>.*?<\/span>/gi
+  const matches = html.match(spanRegex)
+
+  if (!matches) {
+    return html
+  }
+
+  let enhancedHtml = html
+
+  for (const match of matches) {
+    // Skip if already has title attribute
+    if (match.includes('title=')) {
+      continue
+    }
+
+    // Extract data-type, data-id, and text content
+    const typeMatch = match.match(/data-type="([^"]+)"/)
+    const idMatch = match.match(/data-id="([^"]+)"/)
+
+    if (!typeMatch || !idMatch) continue
+
+    const type = typeMatch[1]
+    const id = idMatch[1]
+
+    // Check if entity exists and get summary
+    try {
+      const tableName = getTableName(type)
+
+      if (!tableName || !db[tableName]) {
+        // Unknown entity type - mark as broken
+        const brokenMatch = match.replace('class="showHelp"', 'class="showHelp broken" title="Type d\'entité inconnu"')
+        enhancedHtml = enhancedHtml.replace(match, brokenMatch)
+        continue
+      }
+
+      const entity = await db[tableName].get(id)
+
+      if (entity) {
+        // Entity exists - add tooltip
+        const summary = await getEntitySummary(type, id)
+        if (summary) {
+          const enhancedMatch = match.replace(/data-id="[^"]+"/,  `data-id="${id}" title="${summary}"`)
+          enhancedHtml = enhancedHtml.replace(match, enhancedMatch)
+        }
+      } else {
+        // Entity not found - mark as broken
+        const brokenMatch = match.replace('class="showHelp"', 'class="showHelp broken" title="Référence introuvable"')
+        enhancedHtml = enhancedHtml.replace(match, brokenMatch)
+      }
+    } catch (error) {
+      console.warn(`Error enhancing tooltip for ${type}:${id}`, error)
+      // Mark as broken on error
+      const brokenMatch = match.replace('class="showHelp"', `class="showHelp broken" title="Erreur: ${error.message}"`)
+      enhancedHtml = enhancedHtml.replace(match, brokenMatch)
+    }
+  }
+
+  return enhancedHtml
 }
