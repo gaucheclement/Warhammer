@@ -1,9 +1,10 @@
 ---
 name: description
-status: in-progress
+status: completed
 created: 2025-11-01T12:40:22Z
-updated: 2025-11-02T15:49:36Z
-progress: 20%
+updated: 2025-11-03T11:14:00Z
+completed: 2025-11-03T11:14:00Z
+progress: 100%
 prd: .claude/prds/description.md
 github: https://github.com/gaucheclement/Warhammer/issues/35
 ---
