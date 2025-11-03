@@ -5,7 +5,7 @@
  * species, career, characteristics, skills, talents, and trappings.
  */
 
-import { rollAllCharacteristics } from './characterCalculations.js'
+import { rollAllCharacteristics, calculateDefaultFate, calculateDefaultResilience } from './characterCalculations.js'
 import { createEmptyCharacter } from './characterModel.js'
 import { calculateDerivedStats } from './characterModel.js'
 
@@ -351,32 +351,11 @@ export function generateRandomCharacter(mergedData, options = {}) {
   }
 
   // Calculate derived stats (wounds, fate, resilience)
-  const speciesName = species.name.toLowerCase()
-
-  // Set fate based on species
-  const fateBySpecies = {
-    human: 2,
-    halfling: 3,
-    dwarf: 2,
-    elf: 2,
-    'high elf': 2,
-    'wood elf': 2,
-    gnome: 3
-  }
-  character.fate.max = fateBySpecies[speciesName] || 2
+  // Use centralized species defaults from characterCalculations
+  character.fate.max = calculateDefaultFate(species.name)
   character.fate.current = character.fate.max
 
-  // Set resilience based on species
-  const resilienceBySpecies = {
-    human: 1,
-    halfling: 2,
-    dwarf: 2,
-    elf: 0,
-    'high elf': 0,
-    'wood elf': 0,
-    gnome: 1
-  }
-  character.resilience.max = resilienceBySpecies[speciesName] || 1
+  character.resilience.max = calculateDefaultResilience(species.name)
   character.resilience.current = character.resilience.max
 
   // Calculate wounds

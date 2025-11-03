@@ -6,6 +6,17 @@
  */
 
 /**
+ * Calculate characteristic bonus (divide by 10, round down)
+ * Core WFRP 4e mechanic used throughout the system
+ *
+ * @param {number} characteristic - Characteristic value
+ * @returns {number} Characteristic bonus
+ */
+export function calculateCharacteristicBonus(characteristic) {
+  return Math.floor(characteristic / 10)
+}
+
+/**
  * Calculate maximum wounds for a character
  * Based on WFRP 4e formula: (2 × T Bonus) + WP Bonus + S Bonus
  * Bonus = Characteristic / 10 (rounded down)
@@ -18,9 +29,9 @@
  */
 export function calculateWounds(T, S, WP, talents = []) {
   // Calculate characteristic bonuses (divide by 10, round down)
-  const tBonus = Math.floor(T / 10)
-  const sBonus = Math.floor(S / 10)
-  const wpBonus = Math.floor(WP / 10)
+  const tBonus = calculateCharacteristicBonus(T)
+  const sBonus = calculateCharacteristicBonus(S)
+  const wpBonus = calculateCharacteristicBonus(WP)
 
   // Base wounds calculation
   let maxWounds = (2 * tBonus) + wpBonus + sBonus
@@ -71,8 +82,8 @@ export function calculateMovement(M, encumbrance = 0, maxEncumbrance = null) {
  * @returns {number} Initiative bonus (sum of bonuses)
  */
 export function calculateInitiative(I, Ag) {
-  const iBonus = Math.floor(I / 10)
-  const agBonus = Math.floor(Ag / 10)
+  const iBonus = calculateCharacteristicBonus(I)
+  const agBonus = calculateCharacteristicBonus(Ag)
 
   return iBonus + agBonus
 }
@@ -104,21 +115,11 @@ export function calculateEncumbrance(trappings) {
  * @returns {number} Maximum encumbrance capacity
  */
 export function calculateMaxEncumbrance(T, S) {
-  const tBonus = Math.floor(T / 10)
-  const sBonus = Math.floor(S / 10)
+  const tBonus = calculateCharacteristicBonus(T)
+  const sBonus = calculateCharacteristicBonus(S)
 
   // Maximum encumbrance = (T Bonus + S Bonus) × 10
   return (tBonus + sBonus) * 10
-}
-
-/**
- * Calculate characteristic bonus (divide by 10, round down)
- *
- * @param {number} characteristic - Characteristic value
- * @returns {number} Characteristic bonus
- */
-export function calculateCharacteristicBonus(characteristic) {
-  return Math.floor(characteristic / 10)
 }
 
 /**
@@ -144,6 +145,56 @@ export function calculateAllCharacteristicBonuses(characteristics) {
 }
 
 /**
+ * Get species defaults (fate and resilience) based on species name
+ * These values come from the WFRP 4e characteristics data
+ *
+ * @param {string} speciesName - Species name (e.g., "Humain", "Nain", "Halfling")
+ * @returns {Object} Object with fate and resilience values
+ */
+export function getSpeciesDefaults(speciesName) {
+  // Normalize species name for matching
+  // The characteristics.json uses French names: Humain, Halfling, Nain, Haut Elfe, Elfe Sylvain, Gnome
+  const normalized = (speciesName || '').toLowerCase()
+
+  // Map various species name variations to standard values
+  // Source: characteristics.json "Destin" (index 11), "Résilience" (index 13), "Extra Points" (index 15)
+  // Note: Values represent typical/recommended distribution of base + extra points
+  // - Humain: Base 2 + 3 extra (typically 2 fate, 1 resilience = 2/1)
+  // - Halfling: Base 0 + 3 extra (typically 3 fate or 1 fate + 2 resilience = 3/2 for balanced)
+  // - Nain: Base 0 + 2 extra (typically distributed as 2/2)
+  // - Haut/Elfe Sylvain: Base 0 + 2 extra (typically concentrated in fate = 2/0)
+  // - Gnome: Base 2 + 2 extra (typically 3/1 or balanced)
+  const speciesDefaults = {
+    // Humain: Typical fate 2, resilience 1
+    'humain': { fate: 2, resilience: 1 },
+    'human': { fate: 2, resilience: 1 },
+    'reiklander': { fate: 2, resilience: 1 },
+
+    // Halfling: Typical fate 3 (extra points all to fate) or balanced 1/2
+    // Using 3/2 to represent halfling's luck (high fate) and toughness (high resilience)
+    'halfling': { fate: 3, resilience: 2 },
+
+    // Nain: Typical fate 2 (some extra to fate), resilience 2 (base + some extra)
+    'nain': { fate: 2, resilience: 2 },
+    'dwarf': { fate: 2, resilience: 2 },
+
+    // Haut Elfe: Typical fate 2 (all extra to fate), resilience 0
+    'haut elfe': { fate: 2, resilience: 0 },
+    'high elf': { fate: 2, resilience: 0 },
+    'elf': { fate: 2, resilience: 0 },
+
+    // Elfe Sylvain: Typical fate 2 (all extra to fate), resilience 0
+    'elfe sylvain': { fate: 2, resilience: 0 },
+    'wood elf': { fate: 2, resilience: 0 },
+
+    // Gnome: Typical fate 3 (base + extra), resilience 1 (some extra)
+    'gnome': { fate: 3, resilience: 1 }
+  }
+
+  return speciesDefaults[normalized] || { fate: 0, resilience: 0 }
+}
+
+/**
  * Calculate fate points based on species
  * Typically species-specific, default values provided
  *
@@ -151,20 +202,7 @@ export function calculateAllCharacteristicBonuses(characteristics) {
  * @returns {number} Default fate points for species
  */
 export function calculateDefaultFate(speciesName) {
-  const speciesLower = (speciesName || '').toLowerCase()
-
-  // Default fate points by common species (WFRP 4e values)
-  const fateBySpecies = {
-    human: 2,
-    halfling: 3,
-    dwarf: 2,
-    'high elf': 2,
-    'wood elf': 2,
-    elf: 2,
-    gnome: 3
-  }
-
-  return fateBySpecies[speciesLower] || 0
+  return getSpeciesDefaults(speciesName).fate
 }
 
 /**
@@ -175,20 +213,7 @@ export function calculateDefaultFate(speciesName) {
  * @returns {number} Default resilience points for species
  */
 export function calculateDefaultResilience(speciesName) {
-  const speciesLower = (speciesName || '').toLowerCase()
-
-  // Default resilience points by common species (WFRP 4e values)
-  const resilienceBySpecies = {
-    human: 1,
-    halfling: 2,
-    dwarf: 2,
-    'high elf': 0,
-    'wood elf': 0,
-    elf: 0,
-    gnome: 1
-  }
-
-  return resilienceBySpecies[speciesLower] || 0
+  return getSpeciesDefaults(speciesName).resilience
 }
 
 /**
@@ -280,7 +305,7 @@ export function calculateTotalXPSpent(character, skillDefinitions = []) {
  * @returns {number} Damage bonus
  */
 export function calculateDamageBonus(S) {
-  return Math.floor(S / 10)
+  return calculateCharacteristicBonus(S)
 }
 
 /**
@@ -399,7 +424,7 @@ export function calculatePointBuyCharacteristics(totalPoints, allocations, speci
 export function calculateCorruptionEffects(corruptionPoints) {
   const effects = {
     points: corruptionPoints,
-    mutations: Math.floor(corruptionPoints / 10),
+    mutations: calculateCharacteristicBonus(corruptionPoints),
     insanity: Math.floor(corruptionPoints / 5),
     warning: ''
   }

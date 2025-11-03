@@ -182,6 +182,42 @@ function validateCrossReferences(html) {
 }
 
 /**
+ * Extract HTML strings from modern sections format
+ * @param {Array} sections - Array of section objects
+ * @returns {Array<string>} HTML strings found in sections
+ */
+function extractHTMLFromSections(sections) {
+  const htmlStrings = []
+
+  if (!sections || !Array.isArray(sections)) {
+    return htmlStrings
+  }
+
+  sections.forEach(section => {
+    // Extract content strings
+    if (section.content && typeof section.content === 'string') {
+      htmlStrings.push(section.content)
+    }
+
+    // Recursively extract from nested sections (for tabs)
+    if (section.sections && Array.isArray(section.sections)) {
+      htmlStrings.push(...extractHTMLFromSections(section.sections))
+    }
+
+    // Extract from list items
+    if (section.items && Array.isArray(section.items)) {
+      section.items.forEach(item => {
+        if (typeof item === 'string') {
+          htmlStrings.push(item)
+        }
+      })
+    }
+  })
+
+  return htmlStrings
+}
+
+/**
  * Validate tab structure for complex entities
  * @param {Object|string} result - Generator result
  * @returns {Object} Validation result
@@ -196,6 +232,19 @@ function validateTabStructure(result) {
     return { valid: false, error: 'Result is not an object or string' }
   }
 
+  // Modern format: { sections: [...] }
+  if (result.sections && Array.isArray(result.sections)) {
+    // Check for tabs in sections
+    const tabSections = result.sections.filter(s => s.type === 'tab')
+    return {
+      valid: true,
+      hasMultipleTabs: tabSections.length > 1,
+      tabs: tabSections.map(s => s.tabKey || s.tabLabel),
+      isModernFormat: true
+    }
+  }
+
+  // Legacy format: { tab1: "html", tab2: "html" }
   const tabs = Object.keys(result)
   const hasMultipleTabs = tabs.length > 1
 
@@ -211,7 +260,8 @@ function validateTabStructure(result) {
   return {
     valid: true,
     hasMultipleTabs,
-    tabs
+    tabs,
+    isModernFormat: false
   }
 }
 
@@ -240,11 +290,17 @@ function runAllValidations(result, entityType, entityId) {
   if (typeof result === 'string') {
     htmlStrings.push(result)
   } else if (typeof result === 'object' && result !== null) {
-    Object.values(result).forEach(value => {
-      if (typeof value === 'string') {
-        htmlStrings.push(value)
-      }
-    })
+    // Modern format: { sections: [...] }
+    if (result.sections && Array.isArray(result.sections)) {
+      htmlStrings.push(...extractHTMLFromSections(result.sections))
+    } else {
+      // Legacy format: { tab1: "html", tab2: "html" }
+      Object.values(result).forEach(value => {
+        if (typeof value === 'string') {
+          htmlStrings.push(value)
+        }
+      })
+    }
   }
 
   // Validate each HTML string
@@ -297,8 +353,17 @@ async function loadTestData() {
         id: item.id || item.label || item.name
       }))
 
-      const tableName = type === 'psychologie' ? 'psychologies' : `${type}s`
-      await db[tableName].bulkAdd(normalizedData)
+      // Handle special pluralization cases
+      let tableName
+      if (type === 'psychologie') {
+        tableName = 'psychologies'
+      } else if (type === 'quality') {
+        tableName = 'qualities'
+      } else {
+        tableName = `${type}s`
+      }
+
+      await db[tableName].bulkPut(normalizedData)
     }
   }
 }

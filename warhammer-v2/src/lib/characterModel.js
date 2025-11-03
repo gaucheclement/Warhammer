@@ -10,6 +10,8 @@
  * - Character initialization and transformation utilities
  */
 
+import { calculateCharacteristicBonus } from './characterCalculations.js'
+
 /**
  * @typedef {Object} CharacterCharacteristics
  * @property {number} M - Movement
@@ -307,9 +309,9 @@ export function calculateDerivedStats(character, options = {}) {
   // T Bonus = T / 10 (rounded down)
   // WP Bonus = WP / 10 (rounded down)
   // S Bonus = S / 10 (rounded down)
-  const tBonus = Math.floor(character.characteristics.T / 10)
-  const wpBonus = Math.floor(character.characteristics.WP / 10)
-  const sBonus = Math.floor(character.characteristics.S / 10)
+  const tBonus = calculateCharacteristicBonus(character.characteristics.T)
+  const wpBonus = calculateCharacteristicBonus(character.characteristics.WP)
+  const sBonus = calculateCharacteristicBonus(character.characteristics.S)
 
   let maxWounds = (2 * tBonus) + wpBonus + sBonus
 

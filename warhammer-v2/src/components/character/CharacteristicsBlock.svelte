@@ -1,4 +1,6 @@
 <script>
+  import { calculateCharacteristicBonus } from '../../lib/characterCalculations.js'
+
   export let characteristics
   export let isEditMode = false
 
@@ -14,10 +16,6 @@
     { key: 'WP', label: 'Willpower' },
     { key: 'Fel', label: 'Fellowship' }
   ]
-
-  function calculateBonus(value) {
-    return Math.floor(value / 10)
-  }
 </script>
 
 <div class="characteristics-block">
@@ -39,7 +37,7 @@
           <div class="char-value">{characteristics[char.key] || 0}</div>
         {/if}
         <div class="char-bonus">
-          Bonus: {calculateBonus(characteristics[char.key] || 0)}
+          Bonus: {calculateCharacteristicBonus(characteristics[char.key] || 0)}
         </div>
       </div>
     {/each}

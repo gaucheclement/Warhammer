@@ -5,22 +5,15 @@
  * content from JSON files. It validates the import data, detects conflicts with existing
  * modifications, and provides conflict resolution options.
  *
- * Import Process:
- * 1. Validate file is valid JSON
- * 2. Validate structure matches export format
- * 3. Check version compatibility
- * 4. Detect conflicts (ID collisions with existing modifications)
- * 5. Resolve conflicts (user chooses: keep, overwrite, or merge)
- * 6. Apply import with resolved conflicts
+ * Uses ImportExportService for all import operations.
  */
 
 import { get } from 'svelte/store'
 import { customModifications, saveCustomModifications } from '../stores/data.js'
+import { createModificationsService } from './importExportConfigs.js'
 
-/**
- * Supported import versions
- */
-const SUPPORTED_VERSIONS = ['1.0']
+// Create service instance
+const modificationsService = createModificationsService()
 
 /**
  * Entity types that can be imported
@@ -39,57 +32,24 @@ const ENTITY_TYPES = [
  * @returns {Promise<Object>} Validation result with parsed data or error
  */
 export async function validateImportFile(file) {
-  try {
-    // Check file type
-    if (!file.name.endsWith('.json')) {
-      return {
-        valid: false,
-        error: 'File must be a JSON file (.json)',
-        data: null
-      }
-    }
+  const result = await modificationsService.importFromFile(file, { validate: true })
 
-    // Check file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024 // 10MB
-    if (file.size > maxSize) {
-      return {
-        valid: false,
-        error: 'File size exceeds 10MB limit',
-        data: null
-      }
-    }
-
-    // Read file content
-    const text = await file.text()
-
-    // Parse JSON
-    let data
-    try {
-      data = JSON.parse(text)
-    } catch (parseError) {
-      return {
-        valid: false,
-        error: `Invalid JSON: ${parseError.message}`,
-        data: null
-      }
-    }
-
-    // Validate structure
-    const structureValidation = validateImportData(data)
-    if (!structureValidation.valid) {
-      return structureValidation
-    }
-
-    return {
-      valid: true,
-      error: null,
-      data
-    }
-  } catch (error) {
+  if (!result.success) {
     return {
       valid: false,
-      error: `Failed to read file: ${error.message}`,
+      error: result.errors[0] || 'Validation failed',
       data: null
+    }
+  }
+
+  // Return in legacy format
+  return {
+    valid: true,
+    error: null,
+    data: {
+      version: result.metadata.version,
+      exported: result.metadata.exported,
+      modifications: result.data
     }
   }
 }
@@ -100,76 +60,22 @@ export async function validateImportFile(file) {
  * @returns {Object} Validation result
  */
 export function validateImportData(data) {
-  // Check required fields
-  if (!data.version) {
-    return {
-      valid: false,
-      error: 'Missing required field: version',
-      data: null
-    }
+  // Convert to service format
+  const serviceData = {
+    _version: data.version,
+    _exported: data.exported,
+    _type: 'warhammer-modifications',
+    modifications: data.modifications
   }
 
-  if (!data.modifications) {
+  const jsonString = JSON.stringify(serviceData)
+  const result = modificationsService.import(jsonString, { validate: true })
+
+  if (!result.success) {
     return {
       valid: false,
-      error: 'Missing required field: modifications',
+      error: result.errors[0] || 'Validation failed',
       data: null
-    }
-  }
-
-  if (!data.exported) {
-    return {
-      valid: false,
-      error: 'Missing required field: exported (timestamp)',
-      data: null
-    }
-  }
-
-  // Check version compatibility
-  if (!SUPPORTED_VERSIONS.includes(data.version)) {
-    return {
-      valid: false,
-      error: `Unsupported version: ${data.version}. Supported versions: ${SUPPORTED_VERSIONS.join(', ')}`,
-      data: null
-    }
-  }
-
-  // Validate modifications structure
-  if (typeof data.modifications !== 'object' || data.modifications === null) {
-    return {
-      valid: false,
-      error: 'Invalid modifications structure (must be an object)',
-      data: null
-    }
-  }
-
-  // Validate each entity type in modifications
-  for (const entityType of Object.keys(data.modifications)) {
-    if (!ENTITY_TYPES.includes(entityType)) {
-      return {
-        valid: false,
-        error: `Invalid entity type: ${entityType}`,
-        data: null
-      }
-    }
-
-    if (!Array.isArray(data.modifications[entityType])) {
-      return {
-        valid: false,
-        error: `Invalid data for ${entityType} (must be an array)`,
-        data: null
-      }
-    }
-
-    // Validate each entity has an ID
-    for (const entity of data.modifications[entityType]) {
-      if (!entity.id) {
-        return {
-          valid: false,
-          error: `Entity in ${entityType} is missing required 'id' field`,
-          data: null
-        }
-      }
     }
   }
 

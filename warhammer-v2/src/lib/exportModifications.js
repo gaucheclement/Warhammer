@@ -5,37 +5,15 @@
  * content as JSON files. The export includes only modified/custom entries (not the
  * full official dataset) to minimize file size.
  *
- * Export Format:
- * {
- *   version: '1.0',
- *   exported: timestamp,
- *   author: 'User Name (optional)',
- *   modifications: {
- *     talents: [...],
- *     careers: [...],
- *     // ... other entity types
- *   }
- * }
+ * Uses ImportExportService for all export operations.
  */
 
 import { get } from 'svelte/store'
 import { customModifications } from '../stores/data.js'
+import { createModificationsService } from './importExportConfigs.js'
 
-/**
- * Export version - increment this when export format changes
- */
-const EXPORT_VERSION = '1.0'
-
-/**
- * Entity types that can be exported
- */
-const ENTITY_TYPES = [
-  'books', 'careers', 'careerLevels', 'species', 'classes',
-  'talents', 'characteristics', 'trappings', 'skills', 'spells',
-  'creatures', 'stars', 'gods', 'eyes', 'hairs', 'details',
-  'traits', 'lores', 'magicks', 'etats', 'psychologies',
-  'qualities', 'trees'
-]
+// Create service instance
+const modificationsService = createModificationsService()
 
 /**
  * Generate export data from customModifications store
@@ -44,23 +22,7 @@ const ENTITY_TYPES = [
  */
 export function generateExportData(authorName = '') {
   const modifications = get(customModifications)
-  const exported = new Date().toISOString()
-
-  // Filter out empty entity types (no modifications)
-  const filteredModifications = {}
-  for (const entityType of ENTITY_TYPES) {
-    const entries = modifications[entityType]
-    if (entries && entries.length > 0) {
-      filteredModifications[entityType] = entries
-    }
-  }
-
-  return {
-    version: EXPORT_VERSION,
-    exported,
-    author: authorName || undefined,
-    modifications: filteredModifications
-  }
+  return modifications
 }
 
 /**
@@ -69,15 +31,7 @@ export function generateExportData(authorName = '') {
  * @returns {string} Filename
  */
 export function generateExportFilename() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  const hours = String(now.getHours()).padStart(2, '0')
-  const minutes = String(now.getMinutes()).padStart(2, '0')
-  const seconds = String(now.getSeconds()).padStart(2, '0')
-
-  return `warhammer-mods-${year}${month}${day}-${hours}${minutes}${seconds}.json`
+  return modificationsService.filenameGenerator({})
 }
 
 /**
@@ -87,22 +41,7 @@ export function generateExportFilename() {
  */
 export function downloadJSON(data, filename) {
   const jsonStr = JSON.stringify(data, null, 2)
-  const blob = new Blob([jsonStr], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  link.style.display = 'none'
-
-  document.body.appendChild(link)
-  link.click()
-
-  // Clean up
-  setTimeout(() => {
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }, 100)
+  modificationsService.downloadJSON(jsonStr, filename)
 }
 
 /**
@@ -112,25 +51,23 @@ export function downloadJSON(data, filename) {
  */
 export function exportModifications(authorName = '') {
   try {
-    const data = generateExportData(authorName)
-    const filename = generateExportFilename()
+    const modifications = generateExportData(authorName)
+    const metadata = authorName ? { author: authorName } : {}
+    const result = modificationsService.exportAndDownload(modifications, { metadata })
 
-    // Check if there are any modifications to export
-    if (Object.keys(data.modifications).length === 0) {
+    if (!result.success) {
       return {
         success: false,
-        error: 'No modifications to export',
+        error: result.errors[0] || 'Export failed',
         data: null
       }
     }
 
-    downloadJSON(data, filename)
-
     return {
       success: true,
-      filename,
-      data,
-      count: countModifications(data.modifications)
+      filename: result.filename,
+      data: result.data,
+      count: countModifications(modifications)
     }
   } catch (error) {
     console.error('Error exporting modifications:', error)

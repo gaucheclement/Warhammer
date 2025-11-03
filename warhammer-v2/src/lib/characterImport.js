@@ -3,11 +3,16 @@
  *
  * This module provides functionality to import characters from JSON format,
  * validate the data, handle ID conflicts, and sanitize input.
+ *
+ * Uses ImportExportService for all import operations.
  */
 
-import { validateCompleteCharacter } from './characterValidation.js'
+import { createCharacterService, createBatchCharactersService } from './importExportConfigs.js'
 import { createCharacter } from './dataOperations.js'
-import { sanitizeString, sanitizeObject, sanitizeArray } from './sanitization.js'
+
+// Create service instances
+const characterService = createCharacterService()
+const batchService = createBatchCharactersService()
 
 /**
  * Import options
@@ -25,78 +30,60 @@ import { sanitizeString, sanitizeObject, sanitizeArray } from './sanitization.js
  * @returns {Object} Parsed data or error
  */
 export function parseCharacterJSON(jsonString) {
-  const errors = []
-  const warnings = []
+  // Try single character first
+  const singleResult = characterService.import(jsonString, { validate: false })
 
-  // Check if JSON string is valid
-  if (!jsonString || typeof jsonString !== 'string') {
+  if (singleResult.success) {
     return {
-      success: false,
-      errors: ['Invalid JSON string provided']
+      success: true,
+      data: {
+        characters: [singleResult.data.character],
+        exportType: 'single',
+        metadata: singleResult.metadata
+      },
+      errors: [],
+      warnings: singleResult.warnings
     }
   }
 
-  // Attempt to parse JSON
-  let parsed
+  // Try batch characters
+  const batchResult = batchService.import(jsonString, { validate: false })
+
+  if (batchResult.success) {
+    return {
+      success: true,
+      data: {
+        characters: batchResult.data.characters,
+        exportType: 'batch',
+        metadata: batchResult.metadata
+      },
+      errors: [],
+      warnings: batchResult.warnings
+    }
+  }
+
+  // Legacy format fallback
   try {
-    parsed = JSON.parse(jsonString)
+    const parsed = JSON.parse(jsonString)
+    if (parsed.name && parsed.species) {
+      return {
+        success: true,
+        data: {
+          characters: [parsed],
+          exportType: 'legacy',
+          metadata: {}
+        },
+        errors: [],
+        warnings: ['Legacy format detected, may require additional validation']
+      }
+    }
   } catch (error) {
-    return {
-      success: false,
-      errors: [`Invalid JSON syntax: ${error.message}`]
-    }
-  }
-
-  // Check if it's a valid export format
-  if (!parsed) {
-    return {
-      success: false,
-      errors: ['Parsed data is empty']
-    }
-  }
-
-  // Determine export type
-  let characters = []
-  let exportType = 'unknown'
-
-  if (parsed._type === 'warhammer-character' && parsed.character) {
-    // Single character export
-    characters = [parsed.character]
-    exportType = 'single'
-  } else if (parsed._type === 'warhammer-characters-batch' && Array.isArray(parsed.characters)) {
-    // Multiple characters export
-    characters = parsed.characters
-    exportType = 'batch'
-  } else if (parsed.name && parsed.species) {
-    // Legacy or compact format (assume it's a character)
-    characters = [parsed]
-    exportType = 'legacy'
-    warnings.push('Legacy format detected, may require additional validation')
-  } else {
-    return {
-      success: false,
-      errors: ['Unrecognized export format']
-    }
-  }
-
-  // Check version compatibility
-  if (parsed._version && parsed._version !== '1.0') {
-    warnings.push(`Export version ${parsed._version} may not be fully compatible`)
+    // Ignore parse errors, will be handled below
   }
 
   return {
-    success: true,
-    data: {
-      characters,
-      exportType,
-      metadata: {
-        exported: parsed._exported,
-        version: parsed._version,
-        type: parsed._type
-      }
-    },
-    errors,
-    warnings
+    success: false,
+    errors: [singleResult.errors[0] || 'Unrecognized export format']
   }
 }
 
@@ -107,112 +94,18 @@ export function parseCharacterJSON(jsonString) {
  * @returns {Object} Validation result
  */
 export function validateImportedCharacter(character, options = {}) {
-  const errors = []
-  const warnings = []
+  const { existingCharacters = [], mergedData = null } = options
 
-  const {
-    existingCharacters = [],
-    mergedData = null
-  } = options
-
-  // Check required fields
-  if (!character.name || character.name.trim().length === 0) {
-    errors.push('Character name is required')
-  }
-
-  if (!character.species || !character.species.id) {
-    errors.push('Character must have a species')
-  }
-
-  if (!character.career || !character.career.id) {
-    errors.push('Character must have a career')
-  }
-
-  if (!character.characteristics) {
-    errors.push('Character must have characteristics')
-  }
-
-  // Check data types
-  if (character.skills && !Array.isArray(character.skills)) {
-    errors.push('Skills must be an array')
-  }
-
-  if (character.talents && !Array.isArray(character.talents)) {
-    errors.push('Talents must be an array')
-  }
-
-  if (character.spells && !Array.isArray(character.spells)) {
-    errors.push('Spells must be an array')
-  }
-
-  if (character.trappings && !Array.isArray(character.trappings)) {
-    errors.push('Trappings must be an array')
-  }
-
-  // Check for ID conflicts
-  if (character.id && existingCharacters.length > 0) {
-    const conflict = existingCharacters.find(c => c.id === character.id)
-    if (conflict) {
-      warnings.push(`Character ID ${character.id} already exists: "${conflict.name}"`)
+  // Use service validator
+  const result = characterService.validator(
+    { character },
+    {
+      mode: 'import',
+      context: { existingCharacters, mergedData }
     }
-  }
+  )
 
-  // Validate species exists in game data
-  if (mergedData && character.species && character.species.id) {
-    const speciesExists = mergedData.species?.find(s => s.id === character.species.id)
-    if (!speciesExists) {
-      warnings.push(`Species "${character.species.name}" (ID: ${character.species.id}) not found in game data`)
-    }
-  }
-
-  // Validate career exists in game data
-  if (mergedData && character.career && character.career.id) {
-    const careerExists = mergedData.careers?.find(c => c.id === character.career.id)
-    if (!careerExists) {
-      warnings.push(`Career "${character.career.name}" (ID: ${character.career.id}) not found in game data`)
-    }
-  }
-
-  // Validate skills exist
-  if (mergedData && character.skills && character.skills.length > 0) {
-    for (const skill of character.skills) {
-      if (skill.id) {
-        const skillExists = mergedData.skills?.find(s => s.id === skill.id)
-        if (!skillExists) {
-          warnings.push(`Skill "${skill.name}" (ID: ${skill.id}) not found in game data`)
-        }
-      }
-    }
-  }
-
-  // Validate talents exist
-  if (mergedData && character.talents && character.talents.length > 0) {
-    for (const talent of character.talents) {
-      if (talent.id) {
-        const talentExists = mergedData.talents?.find(t => t.id === talent.id)
-        if (!talentExists) {
-          warnings.push(`Talent "${talent.name}" (ID: ${talent.id}) not found in game data`)
-        }
-      }
-    }
-  }
-
-  // Use comprehensive validation if available
-  if (errors.length === 0) {
-    const validation = validateCompleteCharacter(character, {
-      existingCharacters,
-      career: mergedData?.careers?.find(c => c.id === character.career?.id)
-    })
-
-    errors.push(...validation.errors)
-    warnings.push(...validation.warnings)
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    warnings
-  }
+  return result
 }
 
 /**
@@ -221,42 +114,8 @@ export function validateImportedCharacter(character, options = {}) {
  * @returns {Object} Sanitized character
  */
 export function sanitizeCharacter(character) {
-  const sanitized = {}
-
-  // Sanitize string fields
-  const stringFields = ['name', 'notes']
-  for (const field of stringFields) {
-    if (character[field]) {
-      sanitized[field] = sanitizeString(character[field])
-    } else {
-      sanitized[field] = character[field]
-    }
-  }
-
-  // Sanitize nested objects
-  sanitized.species = sanitizeObject(character.species, ['name'])
-  sanitized.career = sanitizeObject(character.career, ['name'])
-  sanitized.appearance = sanitizeObject(character.appearance, ['eyes', 'hair', 'distinguishing'])
-
-  // Copy numeric/structured data directly (already validated)
-  sanitized.characteristics = { ...character.characteristics }
-  sanitized.experience = { ...character.experience }
-  sanitized.wounds = { ...character.wounds }
-  sanitized.fate = { ...character.fate }
-  sanitized.resilience = { ...character.resilience }
-
-  // Sanitize arrays
-  sanitized.skills = sanitizeArray(character.skills, ['name'])
-  sanitized.talents = sanitizeArray(character.talents, ['name', 'description'])
-  sanitized.spells = sanitizeArray(character.spells, ['name', 'range', 'lore'])
-  sanitized.trappings = sanitizeArray(character.trappings, ['name'])
-
-  // Preserve timestamps
-  sanitized.created = character.created
-  sanitized.updated = character.updated
-  sanitized.isDraft = character.isDraft
-
-  return sanitized
+  const sanitized = characterService.sanitizer({ character })
+  return sanitized.character
 }
 
 
