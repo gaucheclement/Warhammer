@@ -1,15 +1,15 @@
 # Statut d'Avancement de l'Audit
 
-Dernière mise à jour : 2025-11-08
+Dernière mise à jour : 2025-11-09
 
 ## Dashboard
 
 ### Tickets par Statut
 
-- **TODO**: 0
+- **TODO**: 18 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
 - **DONE**: 259
-- **TOTAL**: 259
+- **TOTAL**: 277
 
 ### Tickets par Domaine
 
@@ -19,8 +19,11 @@ Dernière mise à jour : 2025-11-08
 ### Progression Globale
 
 ```
-[████████████████████] 259/259 (100%) ✅ COMPLET
+[███████████████████░] 259/277 (93%) - Phase 9 en cours
 ```
+
+**Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
+**Phase 9 (Consolidation)** : 0/18 (0%) - TODO
 
 ## Répartition des Tickets
 
@@ -997,3 +1000,98 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 - ✅ Cross-référence books.md ajoutée
 - ✅ Exemples concrets (LDB, ADE1, VDLM, SOC, Middenheim, Lustria)
 - ✅ Aucun "Future Work"
+
+---
+
+## Phase 9 - Consolidation KB (18 tickets) - TODO
+
+### #259: Analyse consolidation KB (1 ticket) - P0, Phase 8 ✅ **DONE**
+
+**Objectif** : Analyser exhaustivement la KB pour identifier redondances, code technique, opportunités de fusion
+
+**Rapport créé** : `audit/meta/consolidation-report.md` (2,146 lignes)
+
+**Findings** :
+- 21 groupes de redondance identifiés (R1-R21)
+- 165 fichiers consolidables (33% de la KB, 53% des lignes)
+- Réduction potentielle : -72% fichiers (165 → 47), -51% lignes (-14,081 lignes)
+- 3 violations critiques détectées (code JS, pattern orphelin, 52% duplication foundry-*)
+- Cross-duplication equipment/*/validation.md + magic/*/validation.md (200 lignes identiques)
+
+### #260-262: Tickets CRITIQUES (3 tickets) - P0, Phase 9 - TODO
+
+**#260 - Correction code technique preview.md**
+- Supprimer JavaScript lignes 50-63
+- Réécrire description fonctionnelle
+- Effort : 30 min
+
+**#261 - Fusion pattern-tiret.md orphelin**
+- 0 références dans toute la KB
+- Intégrer contenu dans pattern-validation-valeurs.md
+- Effort : 45 min
+
+**#262 - Fusion import-export/foundry-* (CRITIQUE)**
+- **52% duplication structurelle** (taux le plus élevé de la KB)
+- 35 lignes "Contexte" IDENTIQUES répétées 7×
+- 315 lignes "Exemples Concrets" pattern identique
+- 14 fichiers → 3 fichiers, -1,340 lignes (-55%)
+- Effort : 6-8h
+
+### #263-270: Fusions wizard/* (8 tickets) - P1, Phase 9 - TODO
+
+**R1-R8** : Élimination duplication massive dans wizard/*
+
+- **#263 - characteristics-*** : 7 → 1 fichier, -860 lignes (-74%), 3h
+- **#264 - detail-*** : 6 → 1 fichier, -740 lignes (-68%), 3h
+- **#265 - skills-*** : 8 → 1 fichier, -1,082 lignes (-73%), 3h
+- **#266 - talents-*** : 7 → 1 fichier, -855 lignes (-70%), 3h
+- **#267 - trappings-*** : 6 → 1 fichier, -751 lignes (-68%), 3h
+- **#268 - experience-*** : 7 → 1 fichier, -820 lignes (-68%), 3h
+- **#269 - career-*** : 6 → 1 fichier, -710 lignes (-68%), 3h
+- **#270 - species-*** : 5 → 1 fichier, -600 lignes (-67%), 3h
+
+**Total wizard/*** : 52 fichiers → 8 fichiers (-85%), -6,415 lignes (-68%), 24h effort
+
+### #271-277: Fusions autres features (7 tickets) - P1, Phase 9 - TODO
+
+**R9-R19** : Consolidation features et business-rules
+
+- **#271 - character-edit/*** : 9 → 1 fichier, -1,100 lignes (-69%), 3h
+- **#272 - character-model/*** : 15 → 6 fichiers, -1,000 lignes (-42%), 4h
+- **#273 - character-sheet/*** : 6 → 1 fichier, -555 lignes (-59%), 2.5h
+- **#274 - save-load/*** : 5 → 1 fichier, -460 lignes (-59%), 2.5h
+- **#275 - equipment/* + magic/* + pattern** : 27 → 4 fichiers, -2,450 lignes (-53%), 12h
+  - Création pattern-validation-display.md (cross-duplication)
+  - equipment.md (~950 lignes)
+  - magic-system.md (~600 lignes)
+  - magic-usage.md (~480 lignes)
+- **#276 - admin/* + advancement/*** : 30 → 12 fichiers, -1,800 lignes (-40%), 8h
+- **#277 - business-rules/validation** : 2 → 1 fichier, -222 lignes (-53%), 2h
+  - Résout F1, F2 (fichiers dépassant 200 lignes)
+
+**Total autres features** : 94 fichiers → 26 fichiers (-72%), -7,587 lignes (-55%), 34h effort
+
+### Impact global consolidation (Phase 9)
+
+**Avant** :
+- 504 fichiers
+- 51,717 lignes
+- 165 fichiers consolidables identifiés
+
+**Après** (si tous tickets exécutés) :
+- 386 fichiers (-118 fichiers, -23%)
+- 37,636 lignes (-14,081 lignes, -27%)
+- Contenu métier préservé à 100%
+
+**Effort total estimé** :
+- CRITIQUES : 7.5-9h (3 tickets)
+- IMPORTANTES : 58h (15 tickets)
+- **TOTAL : ~66h (8.5 jours)** pour consolidation complète
+
+**Bénéfices** :
+- Maintenance simplifiée : 1 fichier au lieu de 8 pour modifications structure
+- Lecture facilitée : info métier directement accessible sans navigation
+- Cohérence garantie : plus de risque désynchronisation entre fichiers parallèles
+- Respect limite 200 lignes : tous fichiers fusionnés < 200 lignes (sauf exceptions justifiées)
+- Élimination violations DRY : 35 lignes "Contexte" identiques, 560 lignes pure duplication detail-*
+
