@@ -6,20 +6,20 @@ Dernière mise à jour : 2025-11-08
 
 ### Tickets par Statut
 
-- **TODO**: 0
+- **TODO**: 7
 - **IN_PROGRESS**: 0
-- **DONE**: 250
-- **TOTAL**: 250
+- **DONE**: 251
+- **TOTAL**: 258
 
 ### Tickets par Domaine
 
 - **database**: 85/85 complétés (100% ✅ - Species, Careers, CareerLevels, Talents, Skills, Spells, Trappings, Lores, Creatures, Trees, Gods, Traits, Stars, Magicks, Details, Qualities, Etats, Characteristics, Psychologies, Books, Classes, Eyes/Hairs)
-- **features**: 165/165 (wizard-species: 5/5 ✅, wizard-careers: 6/6 ✅, wizard-characteristics: 7/7 ✅, wizard-stars: 2/2 ✅, wizard-talents: 7/7 ✅, wizard-skills: 8/8 ✅, wizard-trappings: 6/6 ✅, wizard-details: 6/6 ✅, wizard-experience: 7/7 ✅, wizard-resume: 5/5 ✅, character-model: 15/15 ✅, save-load: 5/5 ✅, character-sheet: 6/6 ✅, character-edit: 9/9 ✅, advancement: 15/15 ✅, magic: 13/13 ✅, equipment: 14/14 ✅, admin: 15/15 ✅, import/export: 14/14 ✅)
+- **features**: 166/173 (wizard-species: 5/5 ✅, wizard-careers: 6/6 ✅, wizard-characteristics: 7/7 ✅, wizard-stars: 2/2 ✅, wizard-talents: 7/7 ✅, wizard-skills: 8/8 ✅, wizard-trappings: 6/6 ✅, wizard-details: 6/6 ✅, wizard-experience: 7/7 ✅, wizard-resume: 5/5 ✅, character-model: 15/15 ✅, save-load: 5/5 ✅, character-sheet: 6/6 ✅, character-edit: 9/9 ✅, advancement: 15/15 ✅, magic: 13/13 ✅, equipment: 14/14 ✅, admin: 15/15 ✅, import/export: 14/14 ✅, help-system: 0/5 ⏳, navigation: 0/2 ⏳, settings: 1/1 ✅)
 
 ### Progression Globale
 
 ```
-[████████████████████] 250/250 (100%) 🎉
+[███████████████████░] 251/258 (97.3%) ⏳
 ```
 
 ## Répartition des Tickets
@@ -136,6 +136,12 @@ Dernière mise à jour : 2025-11-08
 - #208-#221: Equipment (14 tickets) - P1, Phase 5 ✅ **DONE**
 - #222-#236: Administration (15 tickets) - P3, Phase 6 ✅ **DONE**
 - #237-#250: Import/Export (14 tickets) - P2, Phase 6 ✅ **DONE**
+
+### SYSTÈMES TRANSVERSES (8 tickets)
+
+- #251-#255: Help System (5 tickets) - P2, Phase 7 ⏳ **TODO**
+- #256-#257: Navigation (2 tickets) - P3, Phase 7 ⏳ **TODO**
+- #258: Settings (1 ticket) - P2, Phase 7 ✅ **DONE**
 
 ## Tickets Prioritaires (HIGH - Phase 1)
 
@@ -799,7 +805,9 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 33. ✅ **Tickets #140-#144 COMPLÉTÉS** : Wizard Resume (5/5 tickets - 100% terminée)
 34. ✅ **Tickets #113-#120 COMPLÉTÉS** : Wizard Skills (8/8 tickets - 100% terminée)
 35. ✅ **Tickets #133-#139 COMPLÉTÉS** : Wizard Experience (7/7 tickets - 100% terminée)
-36. → **Prochaine cible** : Phase 2 - Wizard Careers #091-#096 (6 tickets)
+36. ✅ **🎉 TOUTES LES FONCTIONNALITÉS CORE TERMINÉES** : 250/250 tickets complétés (100%)
+37. ✅ **8 NOUVEAUX TICKETS CRÉÉS** : Help System, Navigation, Settings (#251-#258)
+38. → **Prochaine cible** : Phase 7 - Help System #251-#255 (5 tickets)
 
 ### Wizard Experience (#133-#139) - ✅ 100% DONE
 
@@ -923,9 +931,65 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 
 ## Notes
 
-- **250 tickets** créés au total
+- **258 tickets** créés au total
   - 85 tickets tables de données (#001-#085)
   - 165 tickets features/wizard/systems (#086-#250)
+  - 8 tickets systèmes transverses (#251-#258)
 - Tous les tickets basés sur analyse réelle du code V1
 - Aucun ticket générique ou placeholder
 - Durée estimée totale : 3-6 mois (équipe 3 devs)
+
+## Nouveaux Tickets Transverses (#251-#258)
+
+### Help System (#251-#255) - ⏳ TODO
+
+**Fichiers KB à créer** :
+1. `audit/features/help-system/inverse-relations.md` - Relations "Utilisé par"
+2. `audit/features/help-system/rich-descriptions.md` - Descriptions enrichies avec liens
+3. `audit/features/help-system/book-references.md` - Références pages livres
+4. `audit/features/help-system/bidirectional-navigation.md` - Navigation aller-retour
+5. `audit/features/help-system/global-index.md` - Structure CharGen.match
+
+**Fonctionnalité métier** : Navigation bidirectionnelle dans données Warhammer
+- Ex: Talent "Affable" → Voir quelles carrières/espèces le donnent
+- Ex: Sort → Voir quels domaines de magie le contiennent
+
+**Source** : DescriptionHelper.html (209 lignes)
+
+### Navigation (#256-#257) - ⏳ TODO
+
+**Fichiers KB à créer** :
+1. `audit/features/navigation/compendium.md` - Module consultation globale
+2. `audit/features/navigation/tree-navigation.md` - Arborescence dynamique
+
+**Fonctionnalité métier** : Référence rapide règles pendant parties
+- Consultation données hors création personnage
+- Navigation par arbre hiérarchique (Trees)
+
+**Source** : Glossaire.html (76 lignes)
+
+### Settings (#258) - ✅ DONE
+
+**Fichier KB créé** :
+1. `audit/features/settings/user-preferences.md` (183 lignes)
+   - Règles métier sélection livres (LDB obligatoire, autres optionnels)
+   - Catégories livres (Règles, Campagnes, Scénarios)
+   - Impact filtrage contenu (espèces, carrières, talents, équipement)
+   - Persistance LocalStorage (clé "whrpg", format JSON)
+   - Scénarios usage (Campagne Empire, Lustria, Minimaliste)
+   - Interactions avec Wizard et Compendium
+   - Limitations (pas de sync multi-device, conservation données inactives)
+
+**Fonctionnalité métier** : Filtrage global contenu par livres sources
+- Sélection livres actifs (LDB obligatoire, autres optionnels)
+- Filtrage cascadé sur wizard et compendium
+- Exemples concrets Warhammer (Empire, Lustria)
+
+**Source** : Option.html, MainMenu.html, Helper.html
+
+**Respect des contraintes** :
+- ✅ Fichier < 200 lignes (183)
+- ✅ Zéro code technique (vérifié par grep)
+- ✅ Cross-référence books.md ajoutée
+- ✅ Exemples concrets (LDB, ADE1, VDLM, SOC, Middenheim, Lustria)
+- ✅ Aucun "Future Work"
