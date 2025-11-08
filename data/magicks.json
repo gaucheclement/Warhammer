@@ -1,0 +1,162 @@
+[
+  {
+    "index": 0,
+    "label": "Bête",
+    "suffix": "Domaine de la",
+    "abr": "Ghur",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine de la Bête est lié à Ghur, le Vent d'Ambre, une froide force primale associée aux régions sauvages et aux bêtes qui y vivent. Pour ceux qui possèdent la Seconde vue, Ghur semble souffler faiblement dans les zones où la nature a été apprivoisée et des colonies construites. Cela peut expliquer pourquoi les Chamanes de l'Ordre d'Ambre choisissent souvent une existence hermétique et évitent leurs semblables. <br><br>Les Sorts du Domaine de la Bête permettent à un Chamane de communiquer avec les animaux, demandant leur aide et les invoquant même en bataille. La Magie change-forme peut aussi être utilisée par le Sorcier pour adopter une forme animale. <br><br>Le Vent ambre, Ghur, reflète une férocité primitive et glaciale, qui trouble autant les bêtes que les créatures conscientes. Chaque fois que vous lancez avec succès un Sort du Domaine de la Bête, vous pouvez aussi gagner le Trait de créature Peur 1 (voir page 341) pour les 1d10 prochains Rounds. <br><br><b>Composants:</b> les Chamanes utilisent de la fourrure animale, de la peau et des os, enroulés à l'aide de tendons et barbouillés de runes de sang pour concentrer le Vent ambre. Ils utilisent aussi souvent des griffes sculptées, des organes desséchés et des plumes trempées dans des humeurs rares. Il est assez courant que des excréments, de l'urine, et autres sécrétions, soient également utilisés. <br><br>",
+    "book": "LDB",
+    "page": "230, 245"
+  },
+  {
+    "index": 1,
+    "label": "Cieux",
+    "suffix": "Domaine des",
+    "abr": "Azyr",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine des Cieux est lié à Azyr, le Vent bleu. Il cascade à travers le ciel du Vieux Monde, crépitant au firmament comme un gros nuage chargé. Les Astromanciens de l'Ordre Céleste, réputés pour eurs attitudes calmes et contemplatives, utilisent le vent pour prédire l'avenir, la lentille d'Azyr influençant ce qu'ils peuvent voir dans les étoiles. <br><br>Les Sorts du Domaine des Cieux impliquent la manipulation du destin, la création de barrières de protection ou la malédiction d'un ennemi avec série de malchances contre nature. Sur le champ de bataille, les Astromanciens contrôlent aussi les forces élémentaires, frappant leurs ennemis avec des éclairs, ou faisant même tomber des étoiles filantes du ciel. <br><br>Les Sorts d'Arcane issus du Domaine des Cieux s'accompagnent du craquement de la foudre et d'une odeur d'ozone. Les Sorts infligeant des Dégâts ignorent les PA des armures en métal, et se dirigent vers toutes les autres cibles dans les 2 mètres, à l'exception de ceux possédant le Talent Magie des Arcanes (Cieux), infligeant un nombre de Dégâts égal à votre Bonus de Force Mentale, traités comme un Projectile magique. <br><br><b>Composants:</b> les instruments, cartes, lentilles et symboles astronomiques prédominent dans la magie des Cieux, de même que les composants associés à l'augure, telles que les viscères des animaux, les miroirs, les boules de cristal et les langues d'oiseau. Certains Sorts basés sur le vent utilisent des ailes et des plumes, et ceux impliquant l'électricité préfèrent des éclats de métal sculpté. <br><br>",
+    "book": "LDB",
+    "page": "230, 246"
+  },
+  {
+    "index": 2,
+    "label": "Feu",
+    "suffix": "Domaine du",
+    "abr": "Aqshy",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine du Feu est lié à Aqshy, le Vent rouge. Aqshy est un vent brûlant et sec associé à la fougue, au courage et à la ferveur et attiré par la chaleur empirique. Les Pyromanciens de l'Ordre Flamboyant sont braves et colériques, ce qui en fait des Magisters de bataille incroyablement destructeurs. <br><br>Beaucoup des Sorts du Domaine du Feu sont offensifs de nature, permettant au lanceur de conjurer de grandes boules de feu, ou d'enflammer les lames de leurs alliés. Même leurs Sorts non offensifs, comme les grossières magies de guérison, sont toujours destructeurs par nature. Les Sorciers Flambloyants sont également capables d'inspirer leurs alliés, rassemblant leur courage et inspirant bravoure et loyauté aux troupes qu'ils servent. <br><br>Le Domaine du Feu, et le Vent flamboyant d'Aqshy, est tout sauf subtil. Ses Sorts sont hurlés avec ferveur et se manifestent de façon grandiloquente, avec des flammes vives et une chaleur intense. Vous pouvez infliger +1 État En flammes à quiconque ciblé par des Sorts du Domaine du Feu, à moins qu'il ne possède également le Talent Magie des Arcanes (Feu). Chaque État En flammes situé à une distance en mètres égale à votre Bonus de Force Mentale ajoute +10 aux tentatives de Focalisation ou d'Incantation avec Aqshy. <br><br><b>Composants:</b> les Pyromanciens utilisent une large sélection de matériaux inflammables comme composants, souvent immolés au moment où le Sort est lancé, notamment le charbon, les huiles, les graisses et les bois rouges. Les Possessions immunisées au feu sont aussi courantes, telles que les clefs en fer, les parties sculptées des grilles de foyers et de petits fours de pierre. <br><br>",
+    "book": "LDB",
+    "page": "231, 247"
+  },
+  {
+    "index": 3,
+    "label": "Lumière",
+    "suffix": "Domaine de la",
+    "abr": "Hysh",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine de Lumière est en lien avec Hysh, le Vent blanc. Hysh est considéré comme le Vent le plus difficile à percevoir et à manipuler. Il paraît confus même pour ceux qui possèdent la Seconde Vue. Ce qui le rend difficile à dompter même s'il est moins imprévisible que les autres. On associe Hysh à la patience, l'intelligence et la pureté. Les Hiérophantes de l'Ordre Lumineux sont reconnus pour leur discipline, leurs connaissances et leur dévotion à la lutte contre le Chaos. <br><br>Les Sorts du Domaine de la Lumière sont parmi les plus puissants, et on trouve, entre autres, des cônes de lumière aveuglante ainsi que les Sorts permettant de bannir les démons et les morts-vivants du plan des mortels. Hysh permet également de soigner ses compagnons ou de remettre de l'ordre dans les pensées. <br><br>Les Sorts d'Arcane issus du Domaine de la Lumière ont tendance à émettre des rayons éclatants d'une lumière blanche aveuglante, ou à entourer le lanceur de Sorts de vagues chatoyantes de radieuse pureté. Vous pouvez infliger un État Aveuglé aux cibles des Sorts du Domaine de la Lumière, à moins qu'ils ne possèdent le Talent Magie des Arcanes (Lumière). <br><br>Si une cible possède les Traits de créature Démoniaque ou Mort-vivant, les Sorts infligent une frappe supplémentaire avec un nombre de Dégâts égal à votre Bonus d'Intelligence qui ignore le Bonus d'Endurance et les PA. <br><br><b>Composants:</b> les Hiérophantes du Domaine de la Lumière utilisent de nombreux artefacts associés à la sainteté et aux lieux sacrés, complétés par des cristaux, du verre, des pyramidions et de petites statues, tous sculptés de symboles sacrés, de serpents se contorsionnant et de contes moraux. Les bougies blanches, l'argent ouvragé et le papier blanchi sont également courants. <br><br>",
+    "book": "LDB",
+    "page": "231, 248"
+  },
+  {
+    "index": 4,
+    "label": "Métal",
+    "suffix": "Domaine du",
+    "abr": "Chamon",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine du Métal est associé à Chamon, le Vent doré. Pour ceux qui ont la Seconde vue, Chamon apparaît comme un Vent fort et dense, s'enfonçant dans la terre avant de se fondre avec des métaux denses, comme le plomb et l'or. Les Alchimistes de l'Ordre Doré ont la réputation d'être étrangement prosaïques, ce qui est rare parmi les Sorciers, et ils sont nombreux à désirer approfondir leurs connaissances en physique et en chimie tout en travaillant à leur magie. <br><br>Les Sorts du Domaine du Métal impliquent bien souvent la transmutation ou la modification des métaux. Lorsqu'ils se retrouvent sur les champs de bataille, on sait que les Alchimistes ont la capacité d'éroder les armes et les armures, d'alourdir subitement leurs adversaires en jouant sur la densité de leurs protections ou encore d'enchanter les armes de leurs alliés grâce à leur mystérieux pouvoir. <br><br>Le vent de Chamon est très dense, et s'attache rapidement aux substances métalliques. Les Sorts issus de ce Domaine s'accompagnent de lumière dorée et de chaleur, et sont particulièrement efficaces contre les ennemis suffisamment insensés pour s'envelopper dans du métal. Les Sorts infligeant des Dégâts ignorent les PA des armures métalliques, et infligent un bonus de Dégâts égal au nombre de PA de l'armure métallique portée à n'importe quelle Localisation frappée. Donc, si votre Sort frappe un Bras protégé par 2 PA d'une armure métallique, il inflige +2 Dégâts supplémentaires et ignore les PA. <br><br><b>Composants:</b> les métaux épais et lourds de tous types, incrustés ou sculptés, constituent la majorité des composants Dorés, bien que beaucoup de Sorts utilisent aussi des possessions associées à la forge, y compris des sections de soufflets marqués de formules mathématiques, des morceaux gravés d'une enclume ou des fragments de fourneaux. <br><br>",
+    "book": "LDB",
+    "page": "231, 249"
+  },
+  {
+    "index": 5,
+    "label": "Mort",
+    "suffix": "Domaine de la",
+    "abr": "Shyish",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine de la Mort est relié à Shyish, le Vent violet. Il est attiré par les endroits funestes, tels que les champs de bataille, les Jardins de Morr et les sites d'exécutions. Comme on dit que le vent souffle plus fort pendant les périodes de transition, les Sorciers de l'Ordre d'Améthyste ont donc tendance à effectuer leurs plus grands rites au crépuscule, ou juste avant l'aube. Bien que Shyish soit relié au temps et à la mortalité, il se distingue de la Nécromancie, la pratique illégale consistant à relever et contraindre les morts, qui utilise la Magie noire de Dhar au lieu de Shyish. En effet, l'Ordre d'Améthyste, tout comme le Culte de Morr, œuvre inlassablement à combattre la menace de la Nécromancie. <br><br>Néanmoins, les Sorts du Domaine de la Mort ressemblent à ceux de la Nécromancie pour un œil non averti. Ils peuvent drainer la force de vie de leurs cibles, répandre la peur parmi leurs ennemis et contacter les esprits des défunts. <br><br>Le Vent améthyste de Shyish transporte la poussière et le bruissement incessant du sable glissant dans le sablier du Temps. Les cibles affectées par des Sorts du Domaine de la Mort sont drainées de leur force vitale, et demeurent affaiblies et léthargiques. Vous pouvez assigner +1 État Exténué à chaque cible vivante affectée par un Sort de ce Domaine. Une cible peut n'avoir qu'un seul État Exténué gagné de cette façon à la fois. <br><br><b>Composants:</b> les os des créatures conscientes sont très répandus dans la magie d'Améthyste, ainsi que les symboles de mort, y compris le bois ou les clous provenant d'un cercueil, les fluides d'embaumement, les sabliers, les pièces en argent et la poussière de cimetière, le tout soigneusement présenté ou gravé. Les pierres précieuses, matériaux et fleurs de couleur violette (en particulier les roses) sont aussi fréquents. <br><br>",
+    "book": "LDB",
+    "page": "232, 250"
+  },
+  {
+    "index": 6,
+    "label": "Ombres",
+    "suffix": "Domaine des",
+    "abr": "Ulgu",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine des Ombres est relié à Ulgu, le Vent gris. Pour la Seconde vue, il apparaît comme un brouillard épais, se rassemblant en zones où intrigues et tromperies sont pratiquées, se changeant en tornades et tempêtes lorsqu'un conflit éclate. Les Magisters de l'Ordre Gris, connus sous le nom de Gardiens gris, ont des manières mystérieuses et des loyautés incertaines. Malgré cela, l'Ordre Gris, réputé pour sa sagesse et son habileté dans les négociations, est souvent appelé pour des missions diplomatiques. <br><br>Les Sorts du Domaine des Ombres peuvent être utilisés pour masquer ou obscurcir, déconcerter ou désorienter les ennemis. En combat, les tentacules sombres et intangibles d'Ulgu peuvent transpercer le cœur de leurs ennemis, éviscérant les troupes les mieux protégées, tout en laissant des armures étrangement intactes. <br><br>Les Sorts lancés depuis le Domaine des Ombres le sont de manière furtive, tout comme sont prononcés les mots du lingua praestantia, en toute discrétion. N'importe lequel des Sorts de protection que vous lancerez vous enveloppera dans les ombres et dans des volutes de fumée, vous rendant immatériel, permettant même parfois que les lames vous traversent sans vous blesser. De plus, les Sorts lancés depuis le Domaine des Ombres ignorent tous les PA non magiques. <br><br><b>Composants:</b> tout objet utilisé pour se cacher ou se dissimuler peut être un composant gris ; cela comprend entre autres le maquillage, les parfums, les foulards, les lunettes, les miroirs et les perruques. Les objets utilisés par des professions versées dans les intrigues, comme les artefacts diplomatiques, les symboles de rang et, l'expression ultime du pouvoir – l'épée – sont utilisés très fréquemment. <br><br>",
+    "book": "LDB",
+    "page": "232, 251"
+  },
+  {
+    "index": 7,
+    "label": "Vie",
+    "suffix": "Domaine de la",
+    "abr": "Ghyran",
+    "folder": "Magie des couleurs",
+    "desc": "Le Domaine de la Vie est lié à Ghyran, le Vent vert. Ghyran est associé à la croissance, à la fertilité et à la nourriture. Pour ceux qui possèdent la Seconde vue, Ghyran ressemble beaucoup à une pluie légère, tombant sur le sol et se regroupant en rapides tourbillons. Il s'enfonce dans le sol pour y être aspiré par les racines des plantes et nourrir tous les êtres vivants. Les Druides de l'Ordre de Jade préfèrent souvent une vie éloignée des cités, en accord avec les saisons et la nature. <br><br>Les Sorts du Domaine de la Vie impliquent souvent la guérison et le rajeunissement, allant du soin des blessures à l'éclosion de la vie dans un désert stérile. Ils peuvent également avoir des applications défensives. Les ennemis d'un Druide peuvent se retrouver soudain enchevêtrés dans des ronces et des plantes grimpantes acérées. <br><br>Les Sorts lancés avec Ghyran, le Vent de Jade, sont imprégnés de vie et se manifestent généralement sous forme de lumière verte, s'accompagnent souvent de phénomènes naturels dotés de qualités surnaturelles. Les vignes grimpantes, les sous-bois, les arbres et les rivières se plient tous à la volonté des Druides. <br><br>Recevez un bonus de +10 aux lancers pour Incanter ou Focaliser dans un environnement rural ou sauvage. Les créatures vivantes – par exemple, les créatures ne possédant pas les Traits Démoniaque ou Mort-vivant – ciblées par des Sorts d'Arcane issus du Domaine de la Vie se voient retirer tout État Exténué et État Hémorragique, après que tous les autres effets ont été appliqués, alors que des flots magiques de vie les traversent. Les créatures avec le Trait de créature Mort-vivant, à l'inverse, subissent un nombre de Dégâts supplémentaires égal à votre Bonus de Force Mentale, ignorant le Bonus d'Endurance et les PA, si elles sont affectées par un Sort issu du Domaine de la Vie. <br><br><b>Composants:</b> les Druides utilisent une large variété de composants naturels, allant de graines rares et de noix, d'humeurs recueillies sur des créatures conscientes en bonne santé, de sèves d'arbres rares, du limon fertile, des eaux de source et une variété de composants vivants, y compris des plantes et des petits animaux. <br><br>",
+    "book": "LDB",
+    "page": "232, 253"
+  },
+  {
+    "index": 8,
+    "label": "Magie naturelle",
+    "suffix": "Domaine de la",
+    "abr": "",
+    "folder": "Autres domaines",
+    "desc": "Les pratiquants de la Magie naturelle mènent généralement des vies discrètes, en marge des plus petites colonies humaines, au service des communautés locales. Tout comme ils vivent entre la civilisation et la nature sauvage, une grande partie de leur Magie concerne l'espace se trouvant entre le monde matériel et le royaume des esprits. Elle a tendance à se concentrer sur le folklore, les esprits et le monde naturel, ainsi que sur les moyens d'aider les communautés rurales qui le peuplent. Jadis communément répandue dans l'empire, plus de deux siècles de persécution suite à la fondation des Collèges de Magie l'ont pratiquement éradiquée.<br><br>Les sorciers de village sont convaincus que leur Domaine est un don des dieux, et font référence à ceux qui le pratiquent comme étant les Élus. À cause de leurs anciennes traditions et leurs croyances fermement enracinées, leurs Sorts ne peuvent pas être lancés sans composants, partie intégrante du processus d'incantation. <br><br>Par chance, ceux qu'ils utilisent se trouvent facilement en bordure des villages et ne sont, la plupart du temps, que des herbes et des plantes. Vous récupérez DR+1 composants lorsque vous recherchez de la nourriture en utilisant Savoir (Herboristerie), comme décrit sous Trouver de la nourriture et des herbes à la page 131, ou vous pouvez encore les acheter pour 5 sous de cuivre chacun. <br><br><b>Composants:</b> les villageois utilisent des composants préparés avec des matériaux locaux en suivant des standards exigeants et des outils bien spécifiques. Ainsi, les composants peuvent inclure des choses aussi précises que les ailes d'une libellule tuée avec une pointe en argent, des baguettes de bouleaux polies avec du miel d'abeille lors du Sonnstill, ou des os enterrés sous une haie pendant un mois d'hiver complet. ",
+    "book": "LDB",
+    "page": "233, 254"
+  },
+  {
+    "index": 9,
+    "label": "Sorcellerie",
+    "suffix": "Domaine de la",
+    "abr": "",
+    "folder": "Autres domaines",
+    "desc": "Bien que le Domaine de la Sorcellerie ne soit pas réellement malveillant, ou inféodé aux dieux du Chaos, il a une réputation méritée de lien avec le mal et les désagréments. Souvent autodidactes et utilisant plusieurs Vents, ceux qui pratiquent le Domaine de la Sorcellerie manquent de la discipline et du savoir des Collèges de Magie, et courent un risque considérable de corruption. Les effets corrosifs de Dhar et le rejet des personnes bien-pensantes de l'Empire font souvent d'eux des âmes amères et malveillantes, au cœur dur et au regard sinistre. <br><br>Les Sorts de Sorcellerie se nourrissent de tous les Vents disponibles, sans se soucier des mélanges et d'éventuels résultats catastrophiques. À chaque fois qu'un pratiquant de la Sorcellerie fait un jet sur le Tableau des Incantations Imparfaites, il gagne 1 Point de Corruption. De plus, vous pouvez infliger un État Hémorragique à toute cible d'un Sort du Domaine de la Sorcellerie. Enfin, le fait de focaliser ou lancer des Sorts de ce Domaine nécessite systématiquement un lancer sur le Tableau des Incantations Imparfaites Mineures à moins d'être lancé avec un ingrédient, ou bien ce composant ne servira à rien si un jet sur le Tableau des Incantations Imparfaites doit malgré tout être effectué. Par chance, les ingrédients du Domaine de la Sorcellerie sont bon marché et facilement disponibles : la plupart du temps, ce sont des morceaux d'animaux de petite taille. Les composants coûtent le NI du Sort en sous de cuivre, à la place des pistoles d'argent habituelles. Sinon, un Sorcier dissident peut chercher les différents composants lui- même, en utilisant la Compétence Survie en extérieur : un jet réussi permet de recevoir 1+ DR composants, comme décrit sous Trouver de la nourriture et des herbes, page 131. <br><br><b>Composants:</b> les Sorciers dissidents utilisent un horrible mélange de morceaux, qu'ils récupèrent le plus souvent alors que l'animal est encore vivant. Il n'est pas rare de les apercevoir en train d'écraser des yeux de lézards, ou des pattes de chien, des estomacs de baudet, ou bien pire encore, pendant qu'ils marmonnent leurs horribles Sorts. <br><br>",
+    "book": "LDB",
+    "page": "233, 255"
+  },
+  {
+    "index": 10,
+    "label": "Démonologie",
+    "suffix": "Domaine de la",
+    "abr": "",
+    "folder": "Magie noire",
+    "desc": "Le Domaine de Démonologie, dont l'usage est proscrit, s'intéresse à l'invocation, au lien et au contrôle des démons, et ce dans le but de rendre plus puissant le lanceur du Sort. Son utilisation est extrêmement dangereuse, entraînant le plus souvent la soumission de l'âme du démonologue aux Puissances de la Ruine, donnant ainsi naissance à un nouveau Sorcier du Chaos. ",
+    "book": "LDB",
+    "page": 256
+  },
+  {
+    "index": 11,
+    "label": "Nécromancie",
+    "suffix": "Domaine de la",
+    "abr": "",
+    "folder": "Magie noire",
+    "desc": "La Nécromancie est un antique art magique qui cherche à maîtriser la mort et à obtenir la vie éternelle, en utilisant le plus souvent des corps en décomposition. Considérée comme la forme la plus infecte de la Magie, une pure hérésie, l'étude de ses secrets n'est jamais prise à la légère, car l'horreur que représentent la mort et les morts-vivants ne doit jamais être sous-estimée. ",
+    "book": "LDB",
+    "page": 256
+  },
+  {
+    "index": 12,
+    "label": "Nurgle",
+    "suffix": "Domaine de",
+    "abr": "",
+    "folder": "Magie du Chaos",
+    "desc": "Le Domaine de Nurgle répand d'horribles maladies et immondices, mélangeant les excès boursouflés du Vent de Jade avec toute la corruption disponible, avant de les recracher dans tous les endroits possibles. ",
+    "book": "LDB",
+    "page": 257
+  },
+  {
+    "index": 13,
+    "label": "Slaanesh",
+    "suffix": "Domaine de",
+    "abr": "",
+    "folder": "Magie du Chaos",
+    "desc": "Le Domaine de Slaanesh n'est que tortures et excès, destinés à être exhibés devant le Prince du Plaisir et de la Souffrance pour son éternel amusement. Il est en général composé du mélange perverti des vents d'Améthyste, d'Or et de Jade, aussi tordu qu'original. ",
+    "book": "LDB",
+    "page": 257
+  },
+  {
+    "index": 14,
+    "label": "Tzeentch",
+    "suffix": "Domaine de",
+    "abr": "",
+    "folder": "Magie du Chaos",
+    "desc": "Tzeentch est le Changeur de Voies, le Grand Architecte et le Tisseur de destins. Symbole d’espoir et de transformation pour ses fidèles, il représente la maîtrise du sort et de la destinée, ainsi que la capacité à modifier les voies préétablies. Patron de nombreux révolutionnaires et agitateurs inconscients, Tzeentch est secrètement vénéré partout où les âmes aspirent à un changement du statu quo, ou là où les idées et les esprits se rassemblent pour réfléchir à la nature de l’existence. En tant que dieu de la Magie, Tzeentch favorise les sorciers, en particulier ceux qui se sentent frustrés par les limites que leur imposent les autorités mortelles. <br><br>Tzeentch est le Maître de la Magie, de la traîtrise et du mensonge. Le Domaine de Tzeentch en est l'incarnation, composé en grande partie de Sorts se concentrant sur le changement, ces derniers s'appuyant sur les Vents Gris, Améthyste et Blanc. <br><br><h3>Attribut de Domaine</h3>Les Cibles des Sorts issus du Domaine de Tzeentch sont déchirées par la Magie transformatrice du Chaos. Celles affectées par un Sort du Domaine de Tzeentch doivent réussir un Test de Résistance Intermédiaire (+0), ou gagner +1 Point de Corruption. Si elles réussissent leur Test, elles gagnent +1 Point de Chance, qu’elles peuvent utiliser normalement. Tels sont les caprices de Tzeentch. ",
+    "book": "LDB",
+    "page": 257
+  },
+  {
+    "index": 15,
+    "label": "Gueule",
+    "suffix": "Domaine de la",
+    "abr": "",
+    "folder": "Magie Ogre",
+    "desc": "Parfois appelé Gastromancie ou simplement Magie des Entrailles, le Domaine de la Gueule n’est disponible que pour les ogres (voir la Carrière Boucher Ogre). Cette magie met en avant une faim intense, des festins sanglants et une énergie effrénée. Chaque fois qu’un boucher ogre réussit à lancer un sort du Domaine de la Gueule, l’offrande qu’il consomme peut lui permettre de restaurer sa propre santé. Lancez 1d10. Si le résultat est un 10, ou s’il est égal ou supérieur au NI du sort lancé, sans modification de Focalisation et sans utiliser un Grimoire, le Boucher récupère un nombre de Blessures égal au NI non modifié du sort. <br><br> <b>Composants :</b> les ogres se servent de restes ensanglantés pour alimenter leur magie. Elles sont généralement issues d’animaux et plus elles sont fraîches, mieux la magie opère. Il peut s’agir de morceaux de viande saignants, de bile provenant de l’estomac de créatures étranges, de la moelle de bêtes imposantes ou de la graisse séchée d’animaux domestiques, comme des cochons ou des vaches. La magie des ogres n’est pas une chose agréable à regarder pour le commun des mortels. Toutefois, pour de nombreux ogres, voir un boucher à l’œuvre est tout à fait appétissant.",
+    "book": "ADE2",
+    "page": 32
+  }
+]

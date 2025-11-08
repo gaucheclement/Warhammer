@@ -1,0 +1,132 @@
+[
+  {
+    "index": 0,
+    "rand": 2,
+    "label": {
+      "Humain": "Au choix",
+      "Halfling": "Gris clair",
+      "Nain": "Houille",
+      "Haut Elfe": "Jais",
+      "Elfe Sylvain": "Ivoire",
+      "Gnome": "Bleu pâle",
+      "Ogre": "Gris"
+    }
+  },
+  {
+    "index": 1,
+    "rand": 3,
+    "label": {
+      "Humain": "Vert",
+      "Halfling": "Gris",
+      "Nain": "Plomb",
+      "Haut Elfe": "Améthyste",
+      "Elfe Sylvain": "Anthraciste",
+      "Gnome": "Bleu",
+      "Ogre": "Vert"
+    }
+  },
+  {
+    "index": 2,
+    "rand": 4,
+    "label": {
+      "Humain": "Bleu pâle",
+      "Halfling": "Bleu pâle",
+      "Nain": "Acier",
+      "Haut Elfe": "Aigue-marine",
+      "Elfe Sylvain": "Vert lierre",
+      "Gnome": "Bleu profond",
+      "Ogre": "Ambre"
+    }
+  },
+  {
+    "index": 3,
+    "rand": 7,
+    "label": {
+      "Humain": "Bleu",
+      "Halfling": "Bleu",
+      "Nain": "Bleu",
+      "Haut Elfe": "Saphir",
+      "Elfe Sylvain": "Vert mousse",
+      "Gnome": "Turquoise",
+      "Ogre": "Noisette"
+    }
+  },
+  {
+    "index": 4,
+    "rand": 11,
+    "label": {
+      "Humain": "Gris pâle",
+      "Halfling": "Vert",
+      "Nain": "Brun terre",
+      "Haut Elfe": "Turquoise",
+      "Elfe Sylvain": "Châtaigne",
+      "Gnome": "Vert pâle",
+      "Ogre": "Marron"
+    }
+  },
+  {
+    "index": 5,
+    "rand": 14,
+    "label": {
+      "Humain": "Gris",
+      "Halfling": "Noisette",
+      "Nain": "Marron foncé",
+      "Haut Elfe": "Emeraude",
+      "Elfe Sylvain": "Châtaigne",
+      "Gnome": "Noisette",
+      "Ogre": "Marron foncé"
+    }
+  },
+  {
+    "index": 6,
+    "rand": 17,
+    "label": {
+      "Humain": "Marron",
+      "Halfling": "Marron",
+      "Nain": "Noisette",
+      "Haut Elfe": "Ambre",
+      "Elfe Sylvain": "Marron foncé",
+      "Gnome": "Brun pâle",
+      "Ogre": "Ocre"
+    }
+  },
+  {
+    "index": 7,
+    "rand": 18,
+    "label": {
+      "Humain": "Noisette",
+      "Halfling": "Cuivre",
+      "Nain": "Vert",
+      "Haut Elfe": "Cuivre",
+      "Elfe Sylvain": "Ocre",
+      "Gnome": "Brun",
+      "Ogre": "Noir"
+    }
+  },
+  {
+    "index": 8,
+    "rand": 19,
+    "label": {
+      "Humain": "Marron foncé",
+      "Halfling": "Marron foncé",
+      "Nain": "Cuivre",
+      "Haut Elfe": "Citrine",
+      "Elfe Sylvain": "Châtain clair",
+      "Gnome": "Brun foncé",
+      "Ogre": "Mauve"
+    }
+  },
+  {
+    "index": 9,
+    "rand": 20,
+    "label": {
+      "Humain": "Noir",
+      "Halfling": "Marron foncé",
+      "Nain": "Or",
+      "Haut Elfe": "Or",
+      "Elfe Sylvain": "Violet",
+      "Gnome": "Violet",
+      "Ogre": "Bleu nuit"
+    }
+  }
+]

@@ -1,0 +1,972 @@
+[
+  {
+    "index": 0,
+    "label": "Racine",
+    "folder": "",
+    "desc": "",
+    "type": "tree",
+    "subType": "root",
+    "book": "LDB",
+    "page": ""
+  },
+  {
+    "index": 1,
+    "label": "Personnage",
+    "folder": "tree|Racine",
+    "desc": "Les Joueurs explorent le Vieux Monde grâce à leurs Personnages. Ce chapitre explique comment créer le vôtre. La plupart débutent la partie en tant que résidents lambda de l’Empire, peut-être promis à un glorieux destin. Ce que personne ne soupçonne, mais cela ne veut pas dire que vous ne pouvez pas vous soustraire à vos humbles origines, juste qu’un long voyage vous attend, et que vous aurez certainement besoin d’une meilleure paire de bottes.<br>Toutes les informations qui décrivent votre Personnage et ses capacités sont inscrites ici.",
+    "type": "tree",
+    "subType": "",
+    "book": "LDB",
+    "page": 24
+  },
+  {
+    "index": 2,
+    "label": "Races",
+    "folder": "tree|Personnage",
+    "desc": "Votre Personnage sera un humain, un nain, un halfling, un haut elfe ou un elfe sylvain. Elles sont décrites ci-dessous.",
+    "type": "specie",
+    "subType": "root",
+    "book": "LDB",
+    "page": 24
+  },
+  {
+    "index": 3,
+    "label": "Humain",
+    "folder": "specie|Races",
+    "desc": "Les humains constituent la race civilisée la plus répandue du Vieux Monde. Depuis les plaines des Royaumes estaliens aux provinces gelées de Kislev, les humains occupent chaque région du continent, et ils y prospèrent. Le plus grand et le plus puissant royaume humain est l'Empire, une mosaïque de provinces puissantes couvertes de forêts apparemment sans fin.",
+    "type": "specie",
+    "subType": "",
+    "book": "LDB",
+    "page": 25
+  },
+  {
+    "index": 4,
+    "label": "Halfling",
+    "folder": "specie|Races",
+    "desc": "Les halflings sont des créatures sociables que l’on peut voir dans tout le Reikland. Ils ont su se faire une place dans les villages, villes et cités de l’Empire, et se sont bien intégrés avec leurs voisins humains, qu’ils appellent souvent « les grands ». Les halflings apprécient énormément la compagnie, et ont peu de notions d’espace personnel ou de propriété. C’est pourquoi ils vivent les uns sur les autres, partageant souvent un lit avec plusieurs de leurs amis et des membres de leur famille, blottis tous ensemble d’une façon aussi rassurante pour eux qu’effroyable pour la plupart des habitants sigmarites du Reikland. <br><br> Les halflings vivent partout dans le Reikland. La concentration la plus importante d’halflings se trouve dans le secteur Haffenstadt d’Altdorf, où des milliers d’entre eux vivent ensemble dans les quartiers est de la capitale. La grande majorité de ces halflings appartient à l’une des quelques familles, que l’on appelle des « clans », ayant migré dans la région depuis le Mootland. Partout où ils vivent, les halflings ont une appréciation et un talent naturels pour la préparation, la présentation et la consommation de toutes sortes d’aliments. De fait, ils jouissent d’une réputation d’excellents cuisiniers, et sont recherchés pour des positions de chefs dans les demeures nobles, les auberges et même les armées de l’Empire. Même Lupin Croupe, le plus célèbre tacticien et soldat halfling, recevait de nombreuses demandes pour préparer des repas, ce qui agaçait particulièrement le petit commandant, même s’il était capable de cuisiner un ragout de sanglier si délicieux qu’on raconte qu’un bol aurait suffi à éviter une petite guerre. <br><br> Au vu de leur nature affectueuse innée, et de la proximité de tant de partenaires potentiels, il n’est pas surprenant que le taux de natalité des halflings soit aussi élevé. Les halflings préfèrent la filiation matrilinéaire et suivent leurs origines de leur côté maternel (« Y’a pas trente-six moyens d’être sûrs ! »). Cela signifie que lorsque les parents d’un enfant halfling proviennent chacun d’un clan différent, le bébé est considéré comme appartenant à la famille de la mère. Les halflings tiennent fièrement leur arbre généalogique, et la plupart des halflings du Reikland peuvent remonter leur lignée à l’une des grandes familles du Mootland. Le Haffenlyver, le grand registre généalogique des clans halflings, est tenu par le Doyen du Mootland, qui fait également office de juge final lors de litiges concernant les origines. <br><br> Pour cette raison, les clans sont la structure sociale prédominante de la société halfling. Les halflings ne sont pas d’accord avec le proverbe du Reikland « Il faut tout un village pour élever un enfant ». Pour eux, un clan entier est nécessaire. Même si les halflings savent presque systématiquement qui est leur mère, ils n’ont pas tous le désir, ou la compétence, d’être des parents. Dans ces situations, la responsabilité d’élever l’enfant revient au clan dans son ensemble, plutôt qu’à un seul individu. Leur garde et leur éducation sont réalisées en communauté : les anciens prennent le rôle des parents et dispensent à mesure égale sagesse et discipline. Cette éducation sociale inculque les valeurs et les traditions du clan chez les plus jeunes, ce qui signifie que chaque clan halfling a sa propre personnalité, et que bon nombre d’entre eux sont prédisposés à certains rôles et professions. <br><br> La nature polygame désinvolte des halflings et leur utilisation approximative de termes tels que « mère », « père » et « cousin » sont relativement incomprises par les humains du Reikland. Même si de telles relations vont à l’encontre de la morale sigmarite, la majorité des enfants halflings ont une enfance heureuse, stable et pleine d’affection. <br><br> Cependant, la nature peu conventionnelle des groupes familiaux des halflings, ainsi que leur attitude souple vis-à-vis de la notion de propriété personnelle, leur vaut un manque de confiance des humains dans tout l’Empire. Heureusement, ce genre de préjugés est moins présent dans le Reikland « éclairé » que dans les grandes provinces à proximité du Mootland.",
+    "type": "specie",
+    "subType": "",
+    "book": "LDB",
+    "page": 26
+  },
+  {
+    "index": 5,
+    "label": "Nain",
+    "folder": "specie|Races",
+    "desc": "Les nains, ou Dawi, le nom qu'ils se donnent – sont légendairement bourrus et têtus. Bien que la majorité vive dans de vastes constructions à flanc de montagne, connues sous le nom de « forteresses », la plupart des grandes villes et la capitale du Reikland abritent également des populations naines. Compte tenu de leur nature clanique, les nains ont tendance à se regrouper, formant des enclaves ou des quartiers partout où ils s'installent.",
+    "type": "specie",
+    "subType": "",
+    "book": "LDB",
+    "page": 25
+  },
+  {
+    "index": 6,
+    "label": "Classes et Carrières",
+    "folder": "tree|Personnage",
+    "desc": "Votre Personnage sera un humain, un nain, un halfling, un haut elfe ou un elfe sylvain. Elles sont décrites ci-dessous.",
+    "type": "class",
+    "subType": "root",
+    "book": "LDB",
+    "page": 46
+  },
+  {
+    "index": 7,
+    "label": "Attributs",
+    "folder": "tree|Personnage",
+    "desc": "Les Attributs décrivent les capacités innées de votre Personnage : à quel point vous êtes rapide ou fort, combien de Dégâts vous pouvez encaisser, ou comment vous réagissez face à des situations stressantes. Les Attributs incluent le Mouvement, dix Caractéristiques, les Blessures, le Destin et la Résilience.",
+    "type": "characteristic",
+    "subType": "root",
+    "book": "LDB",
+    "page": 33
+  },
+  {
+    "index": 8,
+    "label": "Signes astrologiques",
+    "folder": "tree|Personnage",
+    "desc": "Les 20 signes et leurs caractéristiques, ainsi que leur signification culturelle générale au sein du système astrologique du Vieux Monde, sont détaillés ci-dessous. Sous chaque signe astrologique est indiqué son nom original en Classique, la période de l’année où il est ascendant, et le dieu qui lui est associé (notez qu’il peut s’agir parfois d’une divinité locale obscure et peu connue dans le reste du Vieux Monde).",
+    "type": "star",
+    "subType": "root",
+    "book": "ADE2",
+    "page": 39
+  },
+  {
+    "index": 9,
+    "label": "Compétences",
+    "folder": "tree|Personnage",
+    "desc": "Là où les Caractéristiques représentent le potentiel brut de votre corps et de votre esprit, les Compétences représentent des domaines spécifiques d’entraînement, de connaissances et d’expériences. Chaque Augmentation que vous prenez dans une Compétence augmente les chances de réussir dans les tâches appropriées. Les Personnages très entraînés ou très expérimentés peuvent prendre le dessus sur des adversaires naturellement plus doués.",
+    "type": "skill",
+    "subType": "root",
+    "book": "LDB",
+    "page": 117
+  },
+  {
+    "index": 10,
+    "label": "Talents",
+    "folder": "tree|Personnage",
+    "desc": "Alors que les Caractéristiques représentent votre potentiel brut, et les Compétences votre entraînement et votre expérience, les Talents regroupent toutes les astuces, particularités et capacités spéciales apprises au cours de votre vie.",
+    "type": "talent",
+    "subType": "root",
+    "book": "LDB",
+    "page": 132
+  },
+  {
+    "index": 11,
+    "label": "Possessions",
+    "folder": "tree|Personnage",
+    "desc": "Les Possessions que vous recevez grâce à votre Classe et votre Carrière (voir Chapitre 2 : Personnages) sont suffisantes pour vous lancer, mais vous pouvez désirer plus d’équipement. Pendant la création de Personnage, des objets supplémentaires peuvent être achetés sans restriction dans les listes de ce chapitre. Cependant, une fois que vous commencez à jouer, la disponibilité de certaines Possessions est limitée, alors assurez- vous d’acheter tout ce dont vous avez besoin et que vous pouvez vous permettre avant le début de la partie.",
+    "type": "trapping",
+    "subType": "root",
+    "book": "LDB",
+    "page": 288
+  },
+  {
+    "index": 12,
+    "label": "Les armes",
+    "folder": "trapping|Possessions",
+    "desc": "Les armes utilisées à travers l’Empire varient en fonction des préférences provinciales, des obligations religieuses, de l’inclination individuelle, et des vieilles traditions. Vous trouverez ici une sélection des armes de Corps à corps et à distance les plus couramment utilisées, présentées en utilisant le schéma suivant. <ul> <li> <b>Groupe d’armes :</b> chaque Arme est classée par son Groupe d’armes. Si une arme est à deux mains, elle est indiquée (2M). <li> <b>Prix :</b> le prix pour un modèle standard de l’arme. <li> <b>Enc :</b> l’Encombrement de l’arme. <li> <b>Disponibilité :</b> la Disponibilité de l’arme. <li> <b>Allonge/Portée :</b> la longueur de l’Arme ou la portée de l’Arme en mètres. <li> <b>Dégâts :</b> les Dégâts de l’Arme, ajoutés à votre DR pour toucher. <li> <b>Atouts et Défauts :</b> tous ses Atouts ou Défauts d’arme. </ul> Le Bonus de Force est abrégé en BF dans les Tableaux des armes.",
+    "type": "weapon",
+    "subType": "root",
+    "book": "LDB",
+    "page": 293
+  },
+  {
+    "index": 13,
+    "label": "Armes de corps à corps",
+    "folder": "weapon|Les armes",
+    "desc": "Toutes les Armes de Corps à corps sont assignées à un Groupe d’armes. Chaque Groupe d’armes nécessite des Compétences distinctes pour en maîtriser l’utilisation. Donc, Corps à corps (Fléau) vous permet d’utiliser des Fléaux et c’est une Compétence distincte de Corps à corps (Arme d’hast),qui vous permet d’utiliser des Armes d’hast. Si vous utilisez une arme issue d’un Groupe pour lequel vous n’avez pas d’Augmentation, vous effectuez un Test de Corps à Corps pour toucher avec cette arme. Bien que vous subissiez tous les Défauts de l’arme, vous ne pouvez utiliser aucun de ses Atouts. Certains Groupes d’armes de Corps à corps possèdent aussi des règles spéciales.",
+    "type": "melee",
+    "subType": "root",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 14,
+    "label": "Armes d'hast",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 15,
+    "label": "Bagarre",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 16,
+    "label": "Base",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 17,
+    "label": "Cavalerie",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "On considère que les armes de Cavalerie doivent être utilisées lors d’un combat monté. Quand elles ne sont pas utilisées ainsi, toutes les armes à deux mains issues du Groupe d’armes de Cavalerie sont aussi considérées comme des armes à Deux Mains. Les armes de Cavalerie à une Main ne sont, en principe, pas utilisées à pied.",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 18,
+    "label": "Deux-mains",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 19,
+    "label": "Escrime",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 20,
+    "label": "Fléau",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "Les Personnages sans compétence ajoutent le Défaut d’Arme Dangereuse à leurs Fléaux, et les autres Atouts ne sont pas utilisés.",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 21,
+    "label": "Parade",
+    "folder": "melee|Armes de corps à corps",
+    "desc": "N’importe quelle Arme à une Main avec l’Atout Défensive peut être utilisée avec Corps à corps (Parade). Quand vous utilisez Corps à corps (Parade), une arme peut être utilisée pour opposer une attaque sans la pénalité de main gauche normale de -20 (voir page 161).",
+    "type": "melee",
+    "subType": "",
+    "book": "LDB",
+    "page": 294
+  },
+  {
+    "index": 22,
+    "label": "Armes à distance",
+    "folder": "weapon|Les armes",
+    "desc": "Les Armes à distance sont difficiles à maîtriser. Vous ne pouvez pas tenter de Test de Projectiles pour une arme pour laquelle vous ne possédez pas la spécialisation correcte. Donc, si vous avez Projectiles (Poudre noire), vous ne pouvez pas tenter un Test de Projectiles (Arc). Il y a cependant quelques exceptions.",
+    "type": "ranged",
+    "subType": "root",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 23,
+    "label": "Arbalète",
+    "folder": "ranged|Armes à distance",
+    "desc": "Les Arbalètes et les armes de Lancer sont relativement simples à utiliser. Vous pouvez tenter un Test de Projectiles (Arbalète) ou Projectiles (Lancer) en utilisant votre Compétence de Tir, mais l’arme perd tous ses Atouts tout en gardant ses Défauts.",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 24,
+    "label": "Arc",
+    "folder": "ranged|Armes à distance",
+    "desc": "",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 25,
+    "label": "Entraves",
+    "folder": "ranged|Armes à distance",
+    "desc": "Les armes immobilisantes ne possèdent pas de fourchette de portée, juste la portée listée.",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 26,
+    "label": "Explosifs",
+    "folder": "ranged|Armes à distance",
+    "desc": "Ceux qui possèdent Projectiles (Ingénierie) peuvent utiliser des Armes à Poudre noire et des Explosifs sans pénalité.",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 27,
+    "label": "Fronde",
+    "folder": "ranged|Armes à distance",
+    "desc": "",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 28,
+    "label": "Lancer",
+    "folder": "ranged|Armes à distance",
+    "desc": "Les Arbalètes et les armes de Lancer sont relativement simples à utiliser. Vous pouvez tenter un Test de Projectiles (Arbalète) ou Projectiles (Lancer) en utilisant votre Compétence de Tir, mais l’arme perd tous ses Atouts tout en gardant ses Défauts.",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 29,
+    "label": "Ingénierie",
+    "folder": "ranged|Armes à distance",
+    "desc": "Toutes les armes d’Ingénierie peuvent être utilisées par des Personnages possédant Projectiles (Poudre noire), mais les armes perdent tous leurs Atouts en gardant leurs Défauts. <br><br>Toutes les Armes à Poudre noire et d’Ingénierie possèdent les Atouts Poudre noire et Dévastatrice.",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 30,
+    "label": "Poudre noire",
+    "folder": "ranged|Armes à distance",
+    "desc": "Ceux qui possèdent Projectiles (Ingénierie) peuvent utiliser des Armes à Poudre noire et des Explosifs sans pénalité. <br><br>Toutes les Armes à Poudre noire et d’Ingénierie possèdent les Atouts Poudre noire et Dévastatrice.",
+    "type": "ranged",
+    "subType": "",
+    "book": "LDB",
+    "page": 295
+  },
+  {
+    "index": 31,
+    "label": "Munitions",
+    "folder": "weapon|Les armes",
+    "desc": "",
+    "type": "ammunition",
+    "subType": "root",
+    "book": "LDB",
+    "page": 296
+  },
+  {
+    "index": 32,
+    "label": "Arbalète",
+    "folder": "ammunition|Munitions",
+    "desc": "",
+    "type": "ammunition",
+    "subType": "",
+    "book": "LDB",
+    "page": 296
+  },
+  {
+    "index": 33,
+    "label": "Arc",
+    "folder": "ammunition|Munitions",
+    "desc": "",
+    "type": "ammunition",
+    "subType": "",
+    "book": "LDB",
+    "page": 296
+  },
+  {
+    "index": 34,
+    "label": "Fronde",
+    "folder": "ammunition|Munitions",
+    "desc": "",
+    "type": "ammunition",
+    "subType": "",
+    "book": "LDB",
+    "page": 296
+  },
+  {
+    "index": 35,
+    "label": "Poudre noire et ingénierie",
+    "folder": "ammunition|Munitions",
+    "desc": "Les Tromblons sont les seules armes listées qui utilisent de Petites munitions ou des Munitions improvisées. Toutes les autres armes à Poudre noire et d’Ingénierie utilisent des balles.",
+    "type": "ammunition",
+    "subType": "",
+    "book": "LDB",
+    "page": 296
+  },
+  {
+    "index": 36,
+    "label": "Atouts d'arme",
+    "folder": "weapon|Les armes",
+    "desc": "Certaines armes présentent des avantages spécifiques par rapport à d'autres, qui sont décrits avec les Atouts d'arme.",
+    "type": "quality",
+    "subType": "",
+    "book": "LDB",
+    "page": 297
+  },
+  {
+    "index": 37,
+    "label": "Défauts d'arme",
+    "folder": "weapon|Les armes",
+    "desc": "Certaines armes sont juste plus difficiles à utiliser, ou simplement dangereuses, comme décrit dans les Défauts d'arme.",
+    "type": "quality",
+    "subType": "",
+    "book": "LDB",
+    "page": 299
+  },
+  {
+    "index": 38,
+    "label": "Armures",
+    "folder": "trapping|Possessions",
+    "desc": "Les Armures sont décrites en suivant ce schéma : <ul> <li> <b>Type d’armure :</b> chaque armure est répertoriée par le matériau dans lequel elle est faite, en fonction de son efficacité de protection. <li> <b>Prix :</b> le prix pour acheter une pièce moyenne de l’armure. <li> <b>Enc :</b> l’Encombrement de l’armure. <li> <b>Pénalité :</b> toute pénalité subie par le port de cette pièce d’Armure spécifique en plus de l’Encombrement (page 293). Remarque : certaines armures entraînent une pénalité si vous la portez, par exemple, porter une cotte de mailles entraîne une pénalité de -10 en Discrétion. <li> <b>Emplacement : </b>la Localisation que l’Armure protège. <li> <b>PA :</b> le nombre de PA que l’armure confère à la Localisation. <li> <b>Atouts et Défauts :</b> tous les Atouts et Défauts que l’armure peut posséder. </ul>",
+    "type": "armor",
+    "subType": "root",
+    "book": "LDB",
+    "page": 299
+  },
+  {
+    "index": 39,
+    "label": "Cuir souple",
+    "folder": "armor|Armures",
+    "desc": "Le cuir souple peut être porté sans pénalité sous n’importe quelle autre Armure.",
+    "type": "armor",
+    "subType": "",
+    "book": "LDB",
+    "page": 300
+  },
+  {
+    "index": 40,
+    "label": "Cuir bouilli",
+    "folder": "armor|Armures",
+    "desc": "",
+    "type": "armor",
+    "subType": "",
+    "book": "LDB",
+    "page": 300
+  },
+  {
+    "index": 41,
+    "label": "Mailles",
+    "folder": "armor|Armures",
+    "desc": "Porter n’importe quelle maille ou plate confère chaque fois une pénalité de -10 en Discrétion.",
+    "type": "armor",
+    "subType": "",
+    "book": "LDB",
+    "page": 300
+  },
+  {
+    "index": 42,
+    "label": "Plate",
+    "folder": "armor|Armures",
+    "desc": "",
+    "type": "armor",
+    "subType": "",
+    "book": "LDB",
+    "page": 300
+  },
+  {
+    "index": 43,
+    "label": "Atouts d'armure",
+    "folder": "armor|Armures",
+    "desc": "Les Armures peuvent posséder les Atouts d'armure",
+    "type": "quality",
+    "subType": "",
+    "book": "LDB",
+    "page": 300
+  },
+  {
+    "index": 44,
+    "label": "Défauts d'armure",
+    "folder": "armor|Armures",
+    "desc": "Certaines armures possèdent des points faibles, tels que décrits par les Défauts d'armure.",
+    "type": "quality",
+    "subType": "",
+    "book": "LDB",
+    "page": 300
+  },
+  {
+    "index": 45,
+    "label": "Sacs et Contenants",
+    "folder": "trapping|Possessions",
+    "desc": "Les Possessions peuvent être rassemblées dans des sacs à dos, des sacs et des bourses, pour les rendre plus faciles à transporter. Le Tableau ci-après indique la valeur d’Encombrement pour un sac ou un autre contenant (Enc) et l’Encombrement que le contenant peut détenir (Contenu). Vous ne considérez que l’Enc pour déterminer le nombre de Points d’Encombrement transportés. Le bon sens dicte quels objets peuvent être transportés dans le contenant (par exemple, les hallebardes ne peuvent pas être transportées dans des sacs à dos).",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 301
+  },
+  {
+    "index": 46,
+    "label": "Vêtements et Accessoires",
+    "folder": "trapping|Possessions",
+    "desc": "Les styles de vêtements varient beaucoup dans l’Empire. En règle générale, les petites gens portent des tuniques simples avec des braies ou des blouses. Les citoyens de classe moyenne préfèrent les manches bouffantes et les crevés, accompagnés de chapeaux, de bas et de robes. Les élites affichent des capes, des fourrures et des chapeaux tape-à-l’œil, surmontés d’énormes plumes extravagantes – ce n’est jamais trop !",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 302
+  },
+  {
+    "index": 47,
+    "label": "Nourriture, Boisson et Hébergement",
+    "folder": "trapping|Possessions",
+    "desc": "Les chambres et les repas de piètre qualité coûtent la moitié des prix listés, et ceux de grande qualité coûtent le double des prix listés. Consommer des aliments et des boissons de piètre qualité comporte un risque de 10 % d’exposition à la Courante galopante (voir page 186).",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 302
+  },
+  {
+    "index": 48,
+    "label": "Outils et nécessaires",
+    "folder": "trapping|Possessions",
+    "desc": "La majorité des outils sont considérés comme des armes Improvisées quand ils sont utilisés durant un combat. Cependant les MJ peuvent décider que des outils lourds ou tranchants (par exemple les pieds-de-biche et les faucilles) comptent comme des Armes de poing. Beaucoup d’outils individuels listés ici sont inclus dans les ensembles d’Outils de profession et les Ateliers, et ne nécessitent pas un achat séparé.",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 303
+  },
+  {
+    "index": 49,
+    "label": "Livres et documents",
+    "folder": "trapping|Possessions",
+    "desc": "La presse à imprimer est une invention récente de l’Empire, donc la plupart des livres sont toujours manuscrits, certains avec des pages ornées de splendides enluminures, alors que d’autres ne sont guère que quelques notes griffonnées. Dans les plus grandes agglomérations, les documents officiels, les bulletins d’informations et les tracts sont généralement imprimés, tout comme beaucoup de poèmes, de romans d’amour et d’importants textes académiques. Tous les prix sont des suggestions assez approximatives, car les contenus et la qualité varient de façon importante.",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 304
+  },
+  {
+    "index": 50,
+    "label": "Outils professionnels et ateliers",
+    "folder": "trapping|Possessions",
+    "desc": "Les Outils professionnels sont nécessaires si vous souhaitez utiliser un Test de Métier pour fabriquer ou réparer quelque chose, et les exemples ci-dessous représentent un aperçu des nombreuses options disponibles. Les Ateliers sont nécessaires pour des projets de plus grande ampleur, comme créer de nouvelles Possessions.",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 305
+  },
+  {
+    "index": 51,
+    "label": "Animaux et véhicules",
+    "folder": "trapping|Possessions",
+    "desc": "Les animaux sont utilisés à tous les niveaux de la société dans l’Empire. Voir le Chapitre 12 : Bestiaire pour des exemples de profils d’animaux. Comme pour les Sacs et contenants (voir page 301), tous les véhicules indiquent le nombre de Points d’Encombrement qu’ils peuvent transporter (Contenu).",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 306
+  },
+  {
+    "index": 52,
+    "label": "Drogues et poisons",
+    "folder": "trapping|Possessions",
+    "desc": "Les drogues récréatives, bien qu’elles ne soient pas illégales dans la majeure partie de l’Empire, sont fréquemment associées aux rituels douteux et au Culte de Sigmar. Les mœurs sont plus libres dans les grandes cités où l’on peut trouver des repaires offrant de la bave, de la mystracine ou du Délice de Ranald. Le poison n’est pas illégal non plus, mais en posséder soulève inévitablement des questions sur l’utilisation prévue.",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 306
+  },
+  {
+    "index": 53,
+    "label": "Herbes et potions",
+    "folder": "trapping|Possessions",
+    "desc": "Les herbes médicinales peuvent être achetées ou cueillies dans la nature (voir Trouver de la nourriture et des herbes page 131). Une préparation avec des Outils de profession (Herboriste) est en général nécessaire pour extraire les principes médicinaux des plantes et concocter des cataplasmes. Les potions peuvent être brassées en utilisant la Compétence Métier (Apothicaire).",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 307
+  },
+  {
+    "index": 54,
+    "label": "Prothèses",
+    "folder": "trapping|Possessions",
+    "desc": "Que ce soit à cause d’une maladie, de la guerre ou de la malchance, il est assez courant dans l’Empire de perdre une partie de son corps. Pour ces malheureux, toute une variété d’alternatives est proposée. Toutes les prothèses ont un Encombrement de 0 quand elles sont portées.",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 308
+  },
+  {
+    "index": 55,
+    "label": "Possessions diverses",
+    "folder": "trapping|Possessions",
+    "desc": "Si les Joueurs souhaitent acheter quelque chose qui n’est pas inclus dans cette liste, le MJ peut se référer à des objets similaires pour les indications de prix et de disponibilité.",
+    "type": "trapping",
+    "subType": "",
+    "book": "LDB",
+    "page": 308
+  },
+  {
+    "index": 56,
+    "label": "Embarcations",
+    "folder": "trapping|Possessions",
+    "desc": "",
+    "type": "riverboat",
+    "subType": "root",
+    "book": "MSRC",
+    "page": 33
+  },
+  {
+    "index": 57,
+    "label": "Véhicules",
+    "folder": "trapping|Possessions",
+    "desc": "L'Empire fait usage d’une grande variété de moyens de transport, de l’humble charrette à bras au plus luxueux des carrosses, pour transporter les marchandises et les passagers.",
+    "type": "vehicle",
+    "subType": "root",
+    "book": "EDOC",
+    "page": 27
+  },
+  {
+    "index": 58,
+    "label": "Machines de guerre",
+    "folder": "trapping|Possessions",
+    "desc": "",
+    "type": "machine",
+    "subType": "root",
+    "book": "ADE2",
+    "page": 88
+  },
+  {
+    "index": 59,
+    "label": "Régles",
+    "folder": "tree|Racine",
+    "desc": "",
+    "type": "tree",
+    "subType": "",
+    "book": "LDB",
+    "page": 149
+  },
+  {
+    "index": 60,
+    "label": "États",
+    "folder": "tree|Régles",
+    "desc": "Les États représentent l'effet des événements qui se produisent au cours de vos aventures. Ces différents États peuvent être notés sur votre feuille de Personnage, mais rien ne vous empêche d'utiliser des pions pour les symboliser. La description de chaque État indique la durée normale des effets qu'il génère ; cependant, il est possible que certaines causes – comme un Sort ou une Blessure critique, changent cet état de fait. <br><br><b>Note:</b> Si vous subissez un État quel qu'il soit, vous perdez immédiatement tout Avantage (voir p. 164). <br><br>Un État peut être annulé en utilisant des Points de Détermination. Si la plupart sont fortement invalidants, vous parviendrez à les gérer assez facilement si vous êtes prudent (voir page 171). <br><br><h3>États multiples</h3><br><br>Vous pouvez être la victime du même État à plusieurs reprises ; de plus, il arrivera quelquefois que vous obteniez plusieurs fois le même État au cours d'une seule occasion. Si cela se produit, les pénalités obtenues s'accumulent. Ainsi, si vous avez 3 États Hémorragique, vous perdez 3 Points de Blessure par Round ; de même, si vous avez 3 États Exténué, vous subissez une pénalité de -30 à tous vos Tests. <br><br>Vous pouvez également être sous l'emprise d'États différents simultanément. Lorsque cela se produit, les effets ne se cumulent pas ; vous choisissez la pénalité la plus importante et vous l'appliquez. Donc, si vous êtes sous l'emprise des États Exténué et À Terre, vous ne subirez qu'une pénalité de -20 à vos Test, et non de -30. <br><br><b>Liste complète des États</b><br><br>État Assourdi, État À Terre, État Aveuglé, État Brisé, État Empêtré, État Empoisonné, État En flammes, État Exténué, État Hémorragique, État Inconscient, État Sonné, État Surpris",
+    "type": "etat",
+    "subType": "root",
+    "book": "LDB",
+    "page": 167
+  },
+  {
+    "index": 61,
+    "label": "Traumatisme",
+    "folder": "tree|Régles",
+    "desc": "La plupart des Personnages vont, au cours de la partie, subir des traumatismes. Les règles de Traumatisme qui suivent indiquent la façon de les gérer et de les soigner lorsque c’est possible.",
+    "type": "",
+    "subType": "root",
+    "book": "LDB",
+    "page": 172
+  },
+  {
+    "index": 62,
+    "label": "Corruption",
+    "folder": "tree|Régles",
+    "desc": "Chaque Festag, les prêtres de Sigmar, perchés sur leurs chaires urélevées, enchaînent les sermons sur les risques que représentent es Puissances de la Ruine et comment les fidèles doivent éviter oute tentation chuchotée par les démons dans les ombres. Ils clament que chaque âme est en danger, à quelques pas de basculer dans la corruption et la mutation. Il se peut qu’ils aient raison. <br><br> Les Points de Corruption sont utilisés pour représenter la lente dérive de votre âme vers les Dieux Sombres du Chaos. Chaque ois que vous êtes exposé à une potentielle source de Corruption, vous risquez d’accumuler des Points. Plus ce total est important, plus vous vous rapprochez du Chaos et plus votre âme s’assombrit, usqu’à ce qu’éventuellement, vous changiez...",
+    "type": "",
+    "subType": "root",
+    "book": "LDB",
+    "page": 182
+  },
+  {
+    "index": 63,
+    "label": "Maladies et infections",
+    "folder": "tree|Régles",
+    "desc": "Les épidémies et les fléaux, domaines de prédilection de Nurgle, le dieu du Chaos de la Maladie et du Désespoir, font partie de la vie quotidienne de ceux du Vieux Monde. Tous les ans, des épidémies affectent toutes les classes sociales de la société, même si bien souvent ce sont les petites gens qui en souffrent le plus. Afin de se prévaloir des ces terribles infections, la plupart se tournent vers Shallya, l’ennemie juré de Nurgle, déesse de la Guérison et de la Compassion, mais les malades vont chercher à trouver un remède, garantissant aux prophétesses, aux herboristes et aux doktors itinérants de tout poil du travail en conséquence, même si ces derniers fournissent le plus souvent des remèdes de charlatan plus que de véritables soins.",
+    "type": "",
+    "subType": "root",
+    "book": "LDB",
+    "page": 186
+  },
+  {
+    "index": 64,
+    "label": "Trait Psychologique",
+    "folder": "tree|Régles",
+    "desc": "Nos instincts et nos émotions ont une très forte influence sur la façon dont nous réagissons en fonction des circonstances. Ces règles apportent un côté théâtral à vos parties et contribuent à rendre encore plus vivants les habitants du Vieux Monde. <br><br><h3>Test de Psychologie</h3><br><br>Si vous vous retrouvez exposé à l'un des Traits Psychologiques suivants, vous pouvez tenter de résister à leurs effets en réussissant un Test de Calme au début du Round, Test dont la Difficulté est déterminée par le MJ. Sur un succès, les effets sont annulés jusqu'à la fin de la rencontre, même si d'autres Tests peuvent être nécessaires si les circonstances changent. <br><br><b>Exemple:</b> Brokk possède Animosité (elfes). Lorsque le nain tombe sur un groupe d'elfes hautains dans une taverne, en train de descendre des pichets de vin et de rire à gorges déployées, il effectue un Test de Calme pour ne pas s'énerver. Il le réussit et n'est donc pas sujet à Hostilité, même s'il ne manque pas de cracher au sol alors qu'il passe devant les créatures narquoises. Un peu plus tard, un elfe le bouscule au niveau du bras, et il renverse une partie de sa choppe de bière. Le MJ lui demande d'effectuer un nouveau Test. Cette fois, c'est un échec. Il pose donc sa choppe et se lève afin « de causer » avec l'elfe incriminé, et lâche, sans être capable de se retenir, une tirade qui exprime clairement le fond de sa pensée quant à sa soi-disant maladresse !",
+    "type": "psychologie",
+    "subType": "root",
+    "book": "LDB",
+    "page": 190
+  },
+  {
+    "index": 65,
+    "label": "Entre deux aventures",
+    "folder": "tree|Racine",
+    "desc": "Cela peut prendre plusieurs séances de jeu, mais finalement toutes les aventures s'achèvent. Vous pouvez alors passer plusieurs semaines durant lesquelles votre Personnage n'a plus rien à faire avant le début de la prochaine aventure. Ce chapitre fournit des outils pour détailler rapidement ce qui se produit pendant ce temps d'arrêt. <br><br> Pour commencer, vous allez déterminer un Événement aléatoirement. Vous dépenserez ensuite tout l'argent que vous avez gagné lors de votre dernière escapade, et participerez à diverses occupations appelées Activités, allant de tâches courantes – telles qu'exercer une profession ou gérer vos affaires – aux entreprises les plus spécialisées – telles que consulter un sage ou tenter d'apprendre une nouvelle compétence. Une fois cela terminé, vous résoudrez toutes les conséquences découlant de vos choix et vous serez alors prêt à débuter votre prochaine aventure.",
+    "type": "root",
+    "subType": "root",
+    "book": "LDB",
+    "page": 192
+  },
+  {
+    "index": 66,
+    "label": "Religions et croyances",
+    "folder": "tree|Racine",
+    "desc": "Des monuments religieux se retrouvent partout à travers le Vieux Monde, qu’il s’agisse des magnifiques temples des grandes cités, d’humbles sanctuaires situés le long des routes ou encore d’autels domestiques. Les habitants du Vieux Monde font de leur mieux pour rester dans les bonnes grâces de leurs dieux.<br><br> Les religieux de hauts rang sont riches et puissants, exerçant autant d’influence et de prestige que les plus grands nobles. À l’autre bout de l’échelle, les prêtres de village répondent aux besoins spirituels des communautés rurales, prêchant les préceptes de leur foi et plaidant auprès de leurs divinités protectrices au nom de leurs ouailles. Plusieurs religions soutiennent aussi les ordres templiers : ces armées privées composées de prêtres soldats sont sous les ordres du dirigeant de leur religion plutôt que sous ceux des nobles et des élus, ce qui peut provoquer des frictions politiques importantes.",
+    "type": "tree",
+    "subType": "",
+    "book": "LDB",
+    "page": 202
+  },
+  {
+    "index": 67,
+    "label": "Les Dieux",
+    "folder": "tree|Religions et croyances",
+    "desc": "Le peuple du Vieux Monde reconnait de nombreuses divinités. Certaines sont vénérées à travers tout le Vieux Monde ; certaines sont restreintes à une nation ou une région ; et d’autres sont les saints patrons d’une seule ville ou d’une profession.",
+    "type": "god",
+    "subType": "root",
+    "book": "LDB",
+    "page": 202
+  },
+  {
+    "index": 68,
+    "label": "Bénédictions",
+    "folder": "tree|Religions et croyances",
+    "desc": "Les Bénédictions sont les manifestations mineures d’une volonté divine ; un Personnage avec le Talent Béni reçoit les six Bénédictions de son culte listées dans Bénédictions par culte.",
+    "type": "god",
+    "subType": "beni",
+    "book": "LDB",
+    "page": 220
+  },
+  {
+    "index": 69,
+    "label": "Magie",
+    "folder": "tree|Racine",
+    "desc": "Au sein de l’Empire, les aptitudes magiques suscitent autant l’admiration que la crainte. Avant la création des Collèges de Magie à Altdorf, ceux qui maîtrisaient la magie étaient considérés comme des hors-la-loi. Aujourd’hui, il n’y a rien d’illégal à être un Sorcier, mais on ne peut utiliser la magie sans en avoir le droit. Les lanceurs de Sorts de l’Empire doivent étudier dans un Collège de Magie, ou éviter de lancer des Sorts, ou encore espérer que personne ne remarquera cet usage illégal de la magie. Même lorsqu’il dispose de toutes les autorisations, un Magister reste un Personnage craint que l’on évite – le statut légal n’a en rien arrangé la crainte superstitieuse des gens du peuple. <br><br> La magie est perçue comme contre nature, tristement célèbre pour ses côtés les plus sombres : les sortilèges dévastateurs, la réanimation des morts et l’invocation d’entités démoniaques. Même lorsqu’elle est pratiquée en suivant l’enseignement des Collèges, la magie peut entraîner bien des problèmes. La source même de la magie est instable, et même le plus expérimenté des lanceurs de Sorts peut perdre sa concentration, avec à la clé des accidents extrêmement graves et des effets secondaires totalement inattendus.",
+    "type": "magick",
+    "subType": "root",
+    "book": "LDB",
+    "page": 229
+  },
+  {
+    "index": 70,
+    "label": "Le Magick",
+    "folder": "magick|Magie",
+    "desc": "Même si les Vents de la Magie soufflent en permanence sur toute chose, ils sont relativement inoffensifs tant qu'ils ne sont pas maîtrisés par le Magick. Pour une raison encore obscure, lorsque certaines paroles sont prononcées par des personnes sensibles à la magie, les Vents répondent. Les Collèges de Magie enseignent une langue complexe appelée lingua praestantia qui va former la base de leurs Sorts et qui a été, à l'origine, enseignée aux humains par les elfes. Même si elle est extraordinairement difficile à prononcer correctement, elle est un dérivé largement simplifié d'Anoqeyån, la langue elfique servant à façonner leurs puissantes magies. Les Magisters des Collèges et les elfes ne sont pas les seuls à maîtriser le Magick. Ses formes complexes sont également utilisées par de nombreuses créatures magiques un peu partout dans le Vieux Monde, dont les esprits et les démons. De nombreux Sorciers dissidents semblent également comprendre cette langue de manière instinctive, un peu comme si elle s'était insinuée en eux, les implorant de s'en servir pour être transformée en Sort. <br><br>",
+    "type": "magick",
+    "subType": "",
+    "book": "LDB",
+    "page": 230
+  },
+  {
+    "index": 71,
+    "label": "Les Sorts mineurs",
+    "folder": "magick|Magie",
+    "desc": "Pour les rares humains bénis – ou maudits, selon votre point de vue – l’étincelle de la magie se manifeste généralement autour de la puberté, et presque toujours avant vingt-cinq ans. Les premiers signes sont souvent de petits effets, des dons, des tours de magie, ou similaires, indiquant que le Sorcier en herbe devrait probablement être entraîné pour le bien de tous. <br><br> Pour les elfes, cela ne représente qu’une étape de leur croissance, et ceux qui s’intéressent à la magie sont scolarisés pour développer au mieux leurs talents. Pour les humains, en supposant qu’ils aient réussi à éviter d’être lynchés, cela signifie probablement des années d’entraînement comme apprenti d’un Magister de l’un des Huit Collèges de Magie. Après quoi, ils ne devraient plus utiliser les petits tours qu’ils ont pratiqués étant jeunes. Mais la plupart persistent à le faire. <br><br> Comme les Sorts mineurs ne sont pas formellement codifiés, ils portent beaucoup de noms différents. Les Joueurs sont encouragés à en imaginer d’autres, plus personnels donnant corps à votre Personnage.",
+    "type": "spell",
+    "subType": "magie mineure",
+    "book": "LDB",
+    "page": 240
+  },
+  {
+    "index": 72,
+    "label": "Sorts d'Arcane",
+    "folder": "magick|Magie",
+    "desc": "Les Sorts d'Arcane représentent des formulations courantes de la lingua praestantia. La façon dont ces Sorts se manifestent en pratique dépend de votre Talent Magie des Arcanes. Par exemple, un lanceur de Sorts possédant le Talent Magie des Arcanes (Feu) incantant Chute peut provoquer la surchauffe de l'objet, alors qu'un lanceur utilisant Magie des Arcanes (Ombre) peut le rendre légèrement immatériel, faisant littéralement glisser l'objet des doigts de la cible. <br><br>Traitez les Sorts d'Arcane comme des options supplémentaires pour tous les Domaines de Magie, y compris les Domaines de la Sorcellerie, de la Magie naturelle, du Chaos et la Magie noire. Ils sont en tous points de vue considérés comme des Sorts de Domaine, ce qui signifie qu'ils bénéficient de tous les avantages des Sorts de Domaine, et qu'ils ne peuvent être appris et enseignés qu'entre ceux partageant le même Talent Magie des Arcanes. <br><br><b>Remarque :</b> tous les Sorts marqués d'un « + » à la fin de leur Durée gagnent le texte supplémentaire suivant : lorsque le Sort doit prendre fin, vous pouvez effectuer un Test de Force Mentale pour prolonger la Durée pour +1 Round.",
+    "type": "spell",
+    "subType": "magie des arcanes",
+    "book": "LDB",
+    "page": 242
+  },
+  {
+    "index": 73,
+    "label": "Magie des couleurs",
+    "folder": "magick|Magie",
+    "desc": "Chacun des huit Vents de Magie bénéficie d'un domaine qui lui est associé, sous la forme d'un ensemble de Sorts et de connaissances utilisé par ses adeptes. Chacun des huit Collèges de Magie n'étudie qu'un seul domaine, et leurs bâtiments sont construits en fonction de cet unique Vent de sorte que son instruction soit la moins dangereuse possible. <br><br>",
+    "type": "magick",
+    "subType": "",
+    "book": "LDB",
+    "page": 230
+  },
+  {
+    "index": 74,
+    "label": "Autres domaines",
+    "folder": "magick|Magie",
+    "desc": "Dans les coins les plus reculés de l'Empire, dans les communautés rurales éloignées de l'influence des Collèges de Magie, des formes de magie anciennes sont toujours pratiquées, bien qu'elles soient illégales et passibles de la peine de mort. Il en existe un nombre incalculable, mais deux des Domaines les plus courants toujours pratiqués par les humains sont la Magie naturelle et la Sorcellerie. <br><br>",
+    "type": "magick",
+    "subType": "",
+    "book": "LDB",
+    "page": 233
+  },
+  {
+    "index": 75,
+    "label": "Magie noire",
+    "folder": "magick|Magie",
+    "desc": "Bien que difficile à maîtriser, Qhaysh est la combinaison sûre de plusieurs Vents de Magie. Dhar, connu généralement sous le nom de Magie noire, est une méthode bien plus dangereuse pour lancer des Sorts en utilisant plusieurs Vents. Elle n'est généralement pratiquée que par les enchanteurs maléfiques, les nécromanciens, et par de puissantes sorcières, car elle offre une source séduisante de puissance brute, mais souillée de terribles effets secondaires. Bien peu parviennent à focaliser longtemps Dhar sans succomber à l'influence corruptrice du vent malveillant, car il déforme leurs corps et leurs esprits d'une manière surnaturelle. <br><br>Dhar est semblable à un bourbier stagnant pour ceux qui possèdent la Seconde vue, se terrant dans les endroits saturés de mal ou de corruption : les pierres des hordes d'hommes-bêtes, les idoles sombres des adorateurs du Chaos, et là où plusieurs des Vents de Magie agissent. Dhar est si dense et puissant qu'il peut fusionner et se cristalliser de manière autonome en une matière physique, la substance largement redoutée appelée malepierre. <br><br>",
+    "type": "magick",
+    "subType": "",
+    "book": "LDB",
+    "page": 233
+  },
+  {
+    "index": 76,
+    "label": "Magie Ogre",
+    "folder": "magick|Magie",
+    "desc": "Bien que de nature arcanique, la magie des ogres est inextricablement liée à leur croyance. Certains ogres, appelés Ventres-Feu, rendent hommage à un grand dieu du feu volcanique connu sous le nom de la Bouche de Feu. À travers de terribles épreuves, ils parviennent à focaliser l’Aqshy, le Vent rouge du Feu, dans leurs entrailles. Si vous souhaitez incarner un Ventre-Feu, il vous suffit de modifier la Carrière Sorcier et de choisir le Talent Magie des Arcanes (Feu), moyennant quelques modifications. <br><br> La forme la plus courante de magie est de loin celle pratiquée par les bouchers, dévots de la Gueule, la divinité vorace qui anime l’appétit insatiable de chaque ogre. Étant donné leur amour de la chair, l’acte de boucherie revêt une grande importance dans la société ogre, notamment parce qu’il exige une certaine retenue pour préparer correctement la viande au lieu de se contenter de dévorer une carcasse fraîchement abattue. <br><br> Cependant, les bouchers ogres ne font pas que préparer les festins. Ce sont également des émissaires de la Gueule, que la plupart des ogres considèrent avec crainte. Lorsqu’ils abattent et préparent de la viande selon un rituel bien précis, ils canalisent une parcelle de l’appétit débordant de la Gueule et par là même, une partie de son pouvoir. Les érudits ayant un intérêt (et un bon estomac) pour l’étude de la magie des ogres ont remarqué qu’elle se distinguait des miracles qui se manifestent parfois autour des dévots de Sigmar, Ulric, Taal et d’autres dieux. Malgré ses prétendues origines divines, les pouvoirs exercés par les bouchers ogres sont certainement dérivés des mêmes Vents de Magie que ceux exploités par les sorciers des Collèges de l’Empire. Ces mêmes spécialistes soulignent le fait que certains bouchers ont des pouvoirs similaires à ceux que l’on trouve dans les Domaines de la Mort, de la Bête et des Cieux. Le rôle que joue la Gueule dans tout cela n’est pas évident pour les érudits, mais il est limpide pour la plupart des ogres : la Gueule est affamée et récompense ceux qui sacrifient des êtres vivants en son nom. <br><br> <h3>Lanceurs de sorts ogres </h3> Les ogres ne pratiquent pas la magie de la même manière que les autres Races. Bien qu’ils canalisent les mêmes Vents de Magie qui alimentent tous les sorts, ils le font d’une manière très particulière. Les ogres peuvent uniquement apprendre les Domaines de la Gueule, des Cieux, de la Mort et de la Bête. La Gueule comprend ces aspects de la nature et les accorde à ses adeptes les plus dévoués. La seule exception concerne les Ventres-Feu, qui tirent leurs pouvoirs de la Bouche de Feu, une autre divinité ogre. Les ogres peuvent lancer les sorts d’Arcane qui figurent à la page 242 de WFJDR, comme n’importe quel autre Sorcier. <br><br> Les sorts des ogres impliquent toujours de la viande : soit il faut découper une tranche spécifique d’un cuissot soigneusement préparé, soit il faut mâcher un morceau de graisse, soit il faut sucer la moelle d’un os. Ce morceau de viande peut être inclus dans le coût de la vie de l’ogre, car la Gueule ne prend qu’une partie de ce qui est consommé. Les ogres qui n’ont pas accès à de telles ressources peuvent tout de même lancer des sorts, mais ils deviennent de plus en plus voraces à mesure que la Gueule tire sa force des entrailles de l’ogre lui-même. La Gueule finira par avoir son repas, d’une manière ou d’une autre. <br><br> Attention : ces ingrédients ne sont pas pris en compte dans la réduction du risque d’Incantation Imparfaite (WFJDR p. 236). Pour obtenir ces avantages, le lanceur de sorts doit utiliser un morceau de viande plus exotique. Les sorts peuvent faire appel à des ingrédients, comme la bile de troll ou la moelle de rhinox. L’ogre doit les acquérir lui-même ou les acheter pour le coût de 1 pistole par NI du sort en question. Si un lanceur de sorts ogre n’a pas d’ingrédient approprié à portée de main, il perd 1 Blessure pour chaque NI du sort qu’il lance. <br><br> Enfin, les ogres peuvent apprendre la Compétence Langue (Magick) si elle est disponible pour leur Carrière. Ils peuvent l’utiliser pour les Tests d’Incantation, comme tout autre lanceur de sorts. Cependant, la magie des ogres est bien plus instinctive qu’intellectuelle (après tout, ils font appel à leurs entrailles même dans ces moments-là). Les lanceurs de sorts ogres utilisent l’Endurance au lieu de l’Intelligence pour leur Compétence Langue (Magick).",
+    "type": "magick",
+    "subType": "",
+    "book": "ADE2",
+    "page": 32
+  },
+  {
+    "index": 77,
+    "label": "Magie du Chaos",
+    "folder": "magick|Magie",
+    "desc": "Trois des quatre Grandes Puissances du Chaos possèdent un Domaine de Magie unique — seul Khorne, le dieu du Sang, qui exècre la Magie et tout ce qui s'y rapporte, ne possède pas de Domaine. Vous trouverez ici un Sort pour chacun de ces Domaines du Chaos, afin de pouvoir apporter de la consistance à vos cultistes du Chaos et les ajouter aux Sorts d'Arcane et du Domaine de Démonologie. ",
+    "type": "magick",
+    "subType": "",
+    "book": "LDB",
+    "page": 257
+  },
+  {
+    "index": 78,
+    "label": "Sorts d'Arcanes du Chaos",
+    "folder": "magick|Magie du Chaos",
+    "desc": "Les Sorts d'Arcanes du Chaos sont disponibles pour tous les sorciers du Chaos. Ils se manifestent selon le Domaine spécifique du Chaos. Par exemple, si un lanceur de sorts possède Magie du Chaos (Nurgle) et lance Aspect sublimé, la Cible s'épanouit dans une vie anormalement saine, alors que si le lanceur de sorts utilise Magie du Chaos (Slaanesh), la Cible apparaîtra si attirante que personne ne relèvera le moindre défaut. <br><br><b>Remarque :</b> tous les Sorts marqués d'un « + » à la fin de leur Durée gagnent le texte supplémentaire suivant : lorsque le Sort doit prendre fin, vous pouvez effectuer un Test de Force Mentale pour prolonger la Durée pour +1 Round.",
+    "type": "spell",
+    "subType": "magie du chaos",
+    "book": "EDO",
+    "page": 79
+  },
+  {
+    "index": 79,
+    "label": "Glorieux Reikland",
+    "folder": "tree|Racine",
+    "desc": "",
+    "type": "lore",
+    "subType": "root",
+    "book": "LDB",
+    "page": 266
+  },
+  {
+    "index": 80,
+    "label": "Bestiaire",
+    "folder": "tree|Racine",
+    "desc": "Les créatures présentées dans le Bestiaire sont des exemples génériques représentatifs de leur espèce. Nous vous invitons à les personnaliser, en utilisant les caractéristiques que vous trouverez dans ce chapitre, en ajoutant des Compétences et des Talents que vous jugez nécessaires, et peut-être même en utilisant le système complet de Carrière pour créer de terrifiants adversaires. La façon la plus simple de le faire est d’utiliser les Traits de créature ; toutes les créatures possèdent un ou plusieurs Traits de créature standard, mais d’autres peuvent être ajoutés si besoin est, et peuvent être mêlés à des Compétences et des Talent, à votre convenance. <br><br> Les Traits Facultatifs listés à côté de chaque créature représentent certains des Traits les plus courants de l’espèce. Cependant, vous pouvez choisir d’appliquer n’importe quel Trait à n’importe quelle créature si cela correspond à ce que vous voulez utiliser dans votre partie. <br><br> Pour plus d’informations sur les règles des Traits de créature, voir page 338.",
+    "type": "creature",
+    "subType": "root",
+    "book": "LDB",
+    "page": 310
+  },
+  {
+    "index": 81,
+    "label": "Les peuples du Reikland",
+    "folder": "creature|Bestiaire",
+    "desc": "Le Chapitre Personnage présente les principales populations du Reikland. Cette section explique comment créer rapidement des PNJ équivalents, et introduit également les ogres. <br><br> Pour les personnages importants de votre campagne, vous pouvez utiliser les règles complètes de création de Personnages. Cependant, vous avez parfois juste besoin rapidement d’un PNJ. Pour cela, utilisez l’un des profils standard suivants et ajoutez les Traits de créature selon les besoins. Les traits listés dans les Traits standard de créature sont les meilleurs choix de départ.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 310
+  },
+  {
+    "index": 82,
+    "label": "Les bêtes du Reikland",
+    "folder": "creature|Bestiaire",
+    "desc": "Voici quelques animaux communs, sauvages ou domestiqués, que l’on rencontre dans le Reikland.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 314
+  },
+  {
+    "index": 83,
+    "label": "Les bêtes monstrueuses du Reikland",
+    "folder": "creature|Bestiaire",
+    "desc": "Dans tout le Reikland, toutes sortes de grands monstres dangereux chassent, s’attaquant aux imprudents et aux naïfs, les ramenant dans leur antre tapissé d’os pour les consommer plus tard.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 317
+  },
+  {
+    "index": 84,
+    "label": "Les hordes de peaux-vertes",
+    "folder": "creature|Bestiaire",
+    "desc": "Les orcs et les gobelins constituent le fléau de la civilisation. Ils déferlent sans cesse depuis leurs grossières enceintes fortifiées, le plus souvent pour se faire la guerre entre eux, abattant les faibles et vénérant les forts. Un seigneur de guerre peau-verte se lèvera, inévitablement, de ces escarmouches intestines et ralliera les tribus voisines sous une même bannière. Puis les tambours de guerre retentiront à nouveau, et la marée verte montera une fois de plus, prête à raser chaque village et ville sur son passage, ne laissant rien d’autre que du sang et des ruines dans son sillage.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 325
+  },
+  {
+    "index": 85,
+    "label": "Les morts sans repos",
+    "folder": "creature|Bestiaire",
+    "desc": "Ni vivants ni vraiment morts, les morts-vivants sont des cadavres animés d’êtres autrefois vivants, qui se sont vus accorder une parodie de vie impie par le biais de la cruelle et obscure discipline de la nécromancie. <br><br> Les hordes titubantes de morts sans repos se présentent sous de nombreuses formes, des cadavres réanimés de zombies et de squelettes, en passant par les fantômes spectraux et par les banshees, jusqu’au fléau manifeste des Seigneurs vampires.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 327
+  },
+  {
+    "index": 86,
+    "label": "Esclaves des Ténèbres",
+    "folder": "creature|Bestiaire",
+    "desc": "Chaos. Ce seul mot suffit pour faire se hâter les petites gens superstitieuses vers un temple de Sigmar, faisant le signe du marteau en fuyant. Mais, alors que tous les bons citoyens de l’Empire craignent l’invasion du Chaos ou les attaques des hommes-bêtes, le véritable danger se trouve à l’intérieur des frontières de l’Empire : les cultistes se cachent dans les sous-sols, les nobles corrompus traitent avec les démons, et les villageois ignares font offrande de leur progéniture mutante au lieu de la tuer rapidement, augmentant ainsi involontairement les armées de damnés. <br><br> Pour plus d’informations sur les dieux du Chaos, voir le Chapitre Religions et croyances.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 331
+  },
+  {
+    "index": 87,
+    "label": "Hommes-bêtes, les enfants du Chaos",
+    "folder": "creature|Esclaves des Ténèbres",
+    "desc": "Les hommes-bêtes sont des hybrides grotesques d’animal et d’humain. Ils se considèrent comme les véritables enfants du Chaos, bénis par les Dieux Sombres devant toutes les autres races. Leurs hordes sauvages parcourent les forêts, se réunissant en nombre et vénérant des autels profanes de pierre barbouillés d’excréments.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 331
+  },
+  {
+    "index": 88,
+    "label": "Cultistes, les égarés et les damnés",
+    "folder": "creature|Esclaves des Ténèbres",
+    "desc": "Comme une poutre pourrie dissimulée derrière un mur blanchi à la chaux, un terrible ennemi se cache au cœur de l’Empire. Dans chaque province, dans chaque ville, des hommes et des femmes se laissent dévoyer par les leurres subtils du Chaos, attirés par la promesse du pouvoir, de la connaissance, de la force ou de la liberté.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 333
+  },
+  {
+    "index": 89,
+    "label": "Démons, les armées baragouinantes",
+    "folder": "creature|Esclaves des Ténèbres",
+    "desc": "Les démons sont des horreurs blasphématoires issues des Royaumes du Chaos, la volonté impie incarnée de leurs dieux. Dans le Reikland, les démons n’apparaissent que s’ils sont convoqués par les cultistes des Puissances de la Ruine. Même si leur présence demeure éphémère, tant le royaume matériel abhorre leur existence, les ravages qu’ils causent sont si profonds qu’aucun de ceux qui rencontrent des démons n’oublient jamais le traumatisme engendré par cette expérience. <br><br> Bien que la plupart des démons vouent allégeance à l’un des quatre dieux du Chaos, certains sont de simples créatures de l’Aethyr, ne possédant aucune volonté propre, se déversant sur le Vieux Monde dans une frénésie destructrice aveugle chaque fois qu’ils le peuvent. Seuls quatre exemples de démons sont décrits ici – deux démons Inférieurs et deux Princes démons –, d’autres ouvrages leur consacrant beaucoup plus d’importance.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 335
+  },
+  {
+    "index": 90,
+    "label": "Princes démons",
+    "folder": "creature|Esclaves des Ténèbres",
+    "desc": "Le but ultime de tous les champions du Chaos est l’apothéose : accéder au rang de Prince démon à part entière et servir leur maître pour l’éternité dans les Royaumes du Chaos. Personnalités imposantes et de grande puissance, les Princes démons sont de terribles ennemis que même les plus grands héros de l’Empire rechignent à affronter.",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 336
+  },
+  {
+    "index": 91,
+    "label": "Les ignobles hommes-rats",
+    "folder": "creature|Esclaves des Ténèbres",
+    "desc": "",
+    "type": "creature",
+    "subType": "",
+    "book": "LDB",
+    "page": 336
+  },
+  {
+    "index": 92,
+    "label": "Traits de créature",
+    "folder": "creature|Bestiaire",
+    "desc": "Voici les Traits de créature. Utilisez-les pour créer des PNJ personnalisés.",
+    "type": "trait",
+    "subType": "root",
+    "book": "LDB",
+    "page": 338
+  },
+  {
+    "index": 93,
+    "label": "Livres",
+    "folder": "tree|Racine",
+    "desc": "",
+    "type": "book",
+    "subType": "root",
+    "book": "LDB",
+    "page": ""
+  },
+  {
+    "index": 94,
+    "label": "Livre de Règle",
+    "folder": "book|Livres",
+    "desc": "",
+    "type": "book",
+    "subType": "",
+    "book": "LDB",
+    "page": ""
+  },
+  {
+    "index": 95,
+    "label": "Cadre de campagne",
+    "folder": "book|Livres",
+    "desc": "",
+    "type": "book",
+    "subType": "",
+    "book": "LDB",
+    "page": ""
+  },
+  {
+    "index": 96,
+    "label": "Scénario",
+    "folder": "book|Livres",
+    "desc": "",
+    "type": "book",
+    "subType": "",
+    "book": "LDB",
+    "page": ""
+  }
+]

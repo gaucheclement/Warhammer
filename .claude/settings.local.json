@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "List(**)",
+      "WebFetch",
+      "WebSearch",
+      "SlashCommand",
+      "Read",
+      "Bash",
+      "Skill"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "sandbox": {
+    "autoAllowBashIfSandboxed": true
+  }
+}
