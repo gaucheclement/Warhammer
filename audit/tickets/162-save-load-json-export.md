@@ -1,6 +1,6 @@
 ---
 id: 162
-status: TODO
+status: DONE
 priority: MEDIUM
 domain: features
 dependencies: [145]
@@ -25,20 +25,20 @@ Créer `audit/features/save-load/json-export.md` documentant l'export complet du
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers autres fichiers KB
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets Warhammer inclus
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (127 lignes)
+- [x] Cross-refs OK vers autres fichiers KB
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets Warhammer inclus (Franz Gruber, export Foundry)
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\Code.js
 
 ## Livrables
-`audit/features/save-load/json-export.md`
+`audit/features/save-load/json-export.md` (127 lignes)
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

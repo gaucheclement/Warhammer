@@ -1,6 +1,6 @@
 ---
 id: 110
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [004, 106]
@@ -25,20 +25,20 @@ Créer `audit/features/wizard/talents-ranks.md` documentant la gestion des talen
 - Code effets cumulatifs
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers talents.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples de talents à rangs
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (168 lignes ✅)
+- [x] Cross-refs OK vers talents.md, business-rules
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples de talents à rangs (Ambidextre, Artiste, Chanceux)
+- [x] Relations documentées (4 phases workflow, doublons)
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html (non disponible, basé KB)
 
 ## Livrables
-`audit/features/wizard/talents-ranks.md`
+`audit/features/wizard/talents-ranks.md` ✅ CRÉÉ
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

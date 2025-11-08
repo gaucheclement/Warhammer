@@ -1,6 +1,6 @@
 ---
 id: 088
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [001, 086]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/species-random.md` documentant la génération al�
 - Code générateur aléatoire
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers species.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples de tables de probabilité
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (192 lignes)
+- [x] Cross-refs OK vers species.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples de tables de probabilité
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepSpecies.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/species-random.md` documentant la génération al�
 `audit/features/wizard/species-random.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

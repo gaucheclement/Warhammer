@@ -1,6 +1,6 @@
 ---
 id: 136
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [004, 133]
@@ -26,11 +26,11 @@ Créer `audit/features/wizard/experience-talents.md` documentant la dépense XP 
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers autres fichiers KB
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets Warhammer inclus
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (187 lignes)
+- [x] Cross-refs OK vers autres fichiers KB
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets Warhammer inclus
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepExperience.html
@@ -39,7 +39,7 @@ Créer `audit/features/wizard/experience-talents.md` documentant la dépense XP 
 `audit/features/wizard/experience-talents.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

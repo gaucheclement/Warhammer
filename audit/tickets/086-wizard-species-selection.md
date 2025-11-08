@@ -1,6 +1,6 @@
 ---
 id: 086
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [001]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/species-selection.md` documentant la sélection d'
 - Code de rendu des composants
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers species.md et wizard-overview.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets pour chaque espèce
-- [ ] Relations documentées (table species)
+- [x] Fichier créé < 200 lignes (175 lignes)
+- [x] Cross-refs OK vers species.md et wizard-overview.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets pour chaque espèce
+- [x] Relations documentées (table species)
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepSpecies.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/species-selection.md` documentant la sélection d'
 `audit/features/wizard/species-selection.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

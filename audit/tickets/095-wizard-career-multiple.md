@@ -1,6 +1,6 @@
 ---
 id: 095
-status: TODO
+status: DONE
 priority: MEDIUM
 domain: features
 dependencies: [002, 091]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/career-multiple.md` documentant la gestion du chan
 - Code gestion historique
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers careers.md et advancement.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples de parcours multi-carrières
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (191 lignes)
+- [x] Cross-refs OK vers careers.md et advancement.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples de parcours multi-carrières
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepCareers.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/career-multiple.md` documentant la gestion du chan
 `audit/features/wizard/career-multiple.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

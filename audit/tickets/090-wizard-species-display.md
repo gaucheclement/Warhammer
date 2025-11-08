@@ -1,6 +1,6 @@
 ---
 id: 090
-status: TODO
+status: DONE
 priority: MEDIUM
 domain: features
 dependencies: [001, 086]
@@ -26,11 +26,11 @@ Créer `audit/features/wizard/species-display.md` documentant l'affichage des d�
 - Code de rendu
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers species.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples d'affichage par espèce
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (174 lignes)
+- [x] Cross-refs OK vers species.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples d'affichage par espèce
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepSpecies.html
@@ -39,7 +39,7 @@ Créer `audit/features/wizard/species-display.md` documentant l'affichage des d�
 `audit/features/wizard/species-display.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

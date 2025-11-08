@@ -1,6 +1,6 @@
 ---
 id: 104
-status: TODO
+status: DONE
 priority: MEDIUM
 domain: features
 dependencies: [012]
@@ -26,11 +26,11 @@ Créer `audit/features/wizard/star-selection.md` documentant la sélection du si
 - Code application effets
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers stars.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par signe
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (190 lignes)
+- [x] Cross-refs OK vers stars.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par signe
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepStars.html
@@ -39,7 +39,7 @@ Créer `audit/features/wizard/star-selection.md` documentant la sélection du si
 `audit/features/wizard/star-selection.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

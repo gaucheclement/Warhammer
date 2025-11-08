@@ -1,6 +1,6 @@
 ---
 id: 106
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [004, 086, 091]
@@ -26,20 +26,20 @@ Créer `audit/features/wizard/talents-display.md` documentant l'affichage des ta
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers talents.md, species.md, career-levels.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par source
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (170 lignes ✅)
+- [x] Cross-refs OK vers talents.md, species.md, careerLevels.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par source (Nains, Humains, espèce/signe/carrière)
+- [x] Relations documentées (3 sources + workflow)
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html (non disponible, basé sur KB existante)
 
 ## Livrables
-`audit/features/wizard/talents-display.md`
+`audit/features/wizard/talents-display.md` ✅ CRÉÉ
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

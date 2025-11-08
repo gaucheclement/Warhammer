@@ -1,6 +1,6 @@
 ---
 id: 092
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [002, 091]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/career-class-filter.md` documentant le filtrage de
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers careers.md et classes.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par classe
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (186 lignes)
+- [x] Cross-refs OK vers careers.md et classes.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par classe
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepCareers.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/career-class-filter.md` documentant le filtrage de
 `audit/features/wizard/career-class-filter.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

@@ -1,6 +1,6 @@
 ---
 id: 094
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [003, 091]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/career-level-initial.md` documentant la sélection
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers career-levels.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par niveau
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (160 lignes)
+- [x] Cross-refs OK vers career-levels.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par niveau
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepCareers.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/career-level-initial.md` documentant la sélection
 `audit/features/wizard/career-level-initial.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

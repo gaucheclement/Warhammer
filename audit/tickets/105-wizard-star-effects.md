@@ -1,6 +1,6 @@
 ---
 id: 105
-status: TODO
+status: DONE
 priority: MEDIUM
 domain: features
 dependencies: [012, 104]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/star-effects.md` documentant l'application des eff
 - Code effets
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers stars.md et talents.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples d'effets par signe
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (147 lignes)
+- [x] Cross-refs OK vers stars.md et talents.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples d'effets par signe
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepStars.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/star-effects.md` documentant l'application des eff
 `audit/features/wizard/star-effects.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

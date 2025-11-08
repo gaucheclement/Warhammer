@@ -1,6 +1,6 @@
 ---
 id: 115
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [005, 113]
@@ -25,20 +25,20 @@ Créer `audit/features/wizard/skills-specialization.md` documentant la gestion d
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers autres fichiers KB
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets Warhammer inclus
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (189 lignes)
+- [x] Cross-refs OK vers autres fichiers KB
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets Warhammer inclus
+- [x] Relations documentées
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepSkills.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\StepSkills.html
 
 ## Livrables
 `audit/features/wizard/skills-specialization.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

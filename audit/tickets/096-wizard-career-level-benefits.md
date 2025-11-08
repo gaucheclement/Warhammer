@@ -1,6 +1,6 @@
 ---
 id: 096
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [003, 094]
@@ -26,11 +26,11 @@ Créer `audit/features/wizard/career-level-benefits.md` documentant l'applicatio
 - Code calculs
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers career-levels.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par type d'avantage
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (167 lignes)
+- [x] Cross-refs OK vers career-levels.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par type d'avantage
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepCareers.html
@@ -39,7 +39,7 @@ Créer `audit/features/wizard/career-level-benefits.md` documentant l'applicatio
 `audit/features/wizard/career-level-benefits.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

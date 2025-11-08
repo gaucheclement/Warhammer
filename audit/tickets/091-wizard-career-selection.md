@@ -1,6 +1,6 @@
 ---
 id: 091
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [002, 086]
@@ -25,11 +25,11 @@ Créer `audit/features/wizard/career-selection.md` documentant la sélection de 
 - Code de filtrage
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers careers.md et species.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par type de carrière
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (197 lignes)
+- [x] Cross-refs OK vers careers.md et species.md
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par type de carrière
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepCareers.html
@@ -38,7 +38,7 @@ Créer `audit/features/wizard/career-selection.md` documentant la sélection de 
 `audit/features/wizard/career-selection.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

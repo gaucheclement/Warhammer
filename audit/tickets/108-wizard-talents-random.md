@@ -1,6 +1,6 @@
 ---
 id: 108
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [004, 106]
@@ -26,20 +26,20 @@ Créer `audit/features/wizard/talents-random.md` documentant la sélection des t
 - Code parsing
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers talents.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples de génération
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (156 lignes ✅)
+- [x] Cross-refs OK vers talents.md, patterns
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples de génération (Humain 3 aléatoires, Nain 1)
+- [x] Relations documentées (5 phases workflow)
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html (non disponible, basé KB)
 
 ## Livrables
-`audit/features/wizard/talents-random.md`
+`audit/features/wizard/talents-random.md` ✅ CRÉÉ
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

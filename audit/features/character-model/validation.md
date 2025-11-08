@@ -1,0 +1,185 @@
+# Character Model - Validation
+
+## Objectif
+
+Documenter les règles de validation de la cohérence du personnage: pré-requis, limites, contraintes métier.
+
+## Contexte
+
+Le personnage doit respecter des règles de cohérence:
+- **Métier Warhammer**: Règles du jeu
+- **Logique**: Données cohérentes
+- **Complétude**: Toutes propriétés requises présentes
+
+La validation peut être:
+- **Bloquante**: Empêche progression/sauvegarde
+- **Avertissement**: Signale anomalie mais permet continuation
+
+## Méthode validate()
+
+**Rôle**: Vérifier la cohérence globale du personnage.
+
+**Retour**: {valid: boolean, errors: [...], warnings: [...]}
+
+**Usage**: Avant finalisation wizard, avant sauvegarde, à la demande.
+
+## Validations structurelles
+
+### Mode et stepIndex
+
+**Règles**:
+- mode ∈ ['guidé', 'libre']
+- stepIndex: null (non démarré), 0-N (en cours), -1 (terminé)
+- Si mode='guidé' ET stepIndex=-1: wizard terminé
+
+### Espèce (specie)
+
+**Règles**:
+- Obligatoire si stepIndex > 0
+- specie.id doit exister dans CharGen.allSpecies
+- getSpecie() retourne objet valide
+
+### Carrière (careerLevel)
+
+**Règles**:
+- Obligatoire si stepIndex > 2
+- careerLevel.id format 'career-slug|level'
+- level ∈ [1,2,3,4]
+- careerLevel.id existe dans CharGen.allCareersLevels
+
+### Caractéristiques (characteristics)
+
+**Règles**:
+- Tableau exactement 15 éléments (10 principales + 5 dérivées)
+- Chaque id unique et valide
+- getTotal() >= 0 pour toutes
+- Origins valides (ids existants)
+
+**IDs requis**: cc, ct, f, e, i, ag, dex, int, fm, soc, m, pb, chance, determination, corruption
+
+## Validations métier
+
+### Compétences (skills)
+
+**Règles**:
+- Si specs défini (Au choix): spec doit être choisi
+- advance >= 0
+- origins non vide
+- Si origin='talent': talent correspondant actif (getTotal() > 0)
+- Pas de doublons (même id + spec)
+
+**Exemple erreur**: Langue (Au choix) avec spec='' → invalide, choisir langue
+
+### Talents (talents)
+
+**Règles**:
+- Si specs défini: spec doit être choisi
+- advance >= 0
+- advance <= getMax() (si max défini)
+- Si origin='talent': talent parent actif
+- Pas de doublons (même id + spec sauf rangs multiples)
+
+**Exemples erreurs**:
+- Résistant rang 5 mais getMax()=4 (BE=4) → invalide
+- Béni (Au choix) sans spec → invalide, choisir dieu
+
+### Sorts (spells)
+
+**Règles**:
+- Chaque sort correspond à talent de magie actif
+- sort.data.type matche talent.data.addMagic
+- Si Magie Arcanes: sort.spec matche talent.spec
+- Pas de doublons (même id + spec)
+
+**Exemple erreur**: Sort "Boule de feu" (Feu) mais pas de talent Magie Arcanes (Feu) → invalide
+
+### Expérience (xp)
+
+**Règles**:
+- xp.max >= 0
+- xp.used >= 0
+- xp.tmp_used >= 0
+- xp.used + xp.tmp_used <= xp.max (pas d'XP négatif)
+- log cohérent: sum(log positifs) = xp.max, sum(log négatifs) = xp.used
+
+**Exemple erreur**: used=150, max=100 → invalide, XP négatif
+
+## Validations dérivées
+
+### Points de Blessures
+
+**Règles**:
+- PB.getTotal() >= 1 (minimum absolu)
+- Formule cohérente avec espèce
+
+### Encombrement
+
+**Règles**:
+- total >= 0
+- qty >= 0 pour chaque trapping
+- enc >= 0 pour chaque trapping
+
+**Avertissement**: Si total > limite → personnage encombré (malus)
+
+### Mouvement
+
+**Règles**:
+- M >= 0
+- Cohérent avec espèce + talents
+
+## Validations wizard
+
+**Étapes wizard**: 0=espèce, 1=signe, 2=carrière, 3=carac, 4=talents, 5=skills, 6=sorts, 7=équip, 8=détails, 9=XP, 10=résumé. Chaque étape valide avant passage suivante.
+
+## Règles Warhammer spécifiques
+
+**Pré-requis talents**: Combat Instinctif (I>=30), Maîtrise (skill>=30), Magie Arcanes (talent Magicien)
+**Limites**: Rangs talents <= getMax(), caractéristiques dans limites raciales
+**Cohérence**: Skills/talents carrière avec origins valides
+
+## Gestion erreurs
+
+### Erreurs bloquantes
+
+Empêchent finalisation:
+- Propriété obligatoire manquante
+- XP négatif
+- Doublons invalides
+- Pré-requis non satisfaits
+
+### Avertissements
+
+Signalent anomalie mais permettent continuation:
+- Encombrement excessif
+- XP non dépensé
+- Compétence jamais améliorée
+
+## Exemples validations
+
+**Valide**: mode='guidé', stepIndex=-1, 15 carac, specs choisis, Résistant rang2<=max, xp valide → valid:true
+
+**Invalide**: Langue spec='', Béni spec='', xp used>max → errors
+
+**Avertissement**: Enc>limite → warnings
+
+## Validation continue
+
+**Moments de validation**:
+- Changement d'étape wizard: validation partielle
+- Finalisation wizard: validation complète
+- saveAdvance(): validation XP
+- save(): validation globale
+- À la demande utilisateur
+
+**Feedback**: Messages clairs indiquant:
+- Propriété en erreur
+- Règle violée
+- Action corrective suggérée
+
+## Voir aussi
+
+- [structure.md](./structure.md) - Structure complète
+- [xp.md](./xp.md) - Validation XP
+- [skills-methods.md](./skills-methods.md) - Validation skills
+- [talents-methods.md](./talents-methods.md) - Validation talents
+- [spells.md](./spells.md) - Validation sorts

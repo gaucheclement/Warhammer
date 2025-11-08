@@ -1,6 +1,6 @@
 ---
 id: 250
-status: TODO
+status: DONE
 priority: LOW
 domain: features
 dependencies: [247, 248]
@@ -25,20 +25,20 @@ Créer `audit/features/import-export/tests.md` documentant les tests d'import/ex
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers autres fichiers KB
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets Warhammer inclus
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes
+- [x] Cross-refs OK vers autres fichiers KB
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets Warhammer inclus
+- [x] Relations documentées
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\Code.js
+- C:\Users\gauch\PhpstormProjects\Warhammer\Code.js
 
 ## Livrables
 `audit/features/import-export/tests.md`
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

@@ -1,6 +1,6 @@
 ---
 id: 107
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [004, 106]
@@ -25,20 +25,20 @@ Créer `audit/features/wizard/talents-choice.md` documentant la sélection des t
 - Code UI sélection
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers talents.md et career-levels.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples de choix
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (196 lignes ✅)
+- [x] Cross-refs OK vers talents.md, careerLevels.md, patterns
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples de choix (Humain, Nain, interactions)
+- [x] Relations documentées (workflow 4 phases)
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html (non disponible, basé sur KB)
 
 ## Livrables
-`audit/features/wizard/talents-choice.md`
+`audit/features/wizard/talents-choice.md` ✅ CRÉÉ
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

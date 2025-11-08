@@ -1,6 +1,6 @@
 ---
 id: 160
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [145]
@@ -25,20 +25,22 @@ Créer `audit/features/save-load/sheets-save.md` documentant la sauvegarde d'un 
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers autres fichiers KB
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets Warhammer inclus
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (133 lignes)
+- [x] Cross-refs OK vers autres fichiers KB
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets Warhammer inclus (Agitateur Humain, Franz Gruber)
+- [x] Relations documentées
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\Code.js
+- C:\Users\gauch\PhpstormProjects\Warhammer\Code.js
+- C:\Users\gauch\PhpstormProjects\Warhammer\Character.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\CharacterGenerator.html
 
 ## Livrables
-`audit/features/save-load/sheets-save.md`
+`audit/features/save-load/sheets-save.md` (133 lignes)
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

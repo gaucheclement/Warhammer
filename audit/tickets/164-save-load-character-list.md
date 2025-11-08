@@ -1,6 +1,6 @@
 ---
 id: 164
-status: TODO
+status: DONE
 priority: MEDIUM
 domain: features
 dependencies: [160]
@@ -25,20 +25,20 @@ Créer `audit/features/save-load/character-list.md` documentant la gestion d'une
 - Code UI
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers autres fichiers KB
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples concrets Warhammer inclus
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (167 lignes)
+- [x] Cross-refs OK vers autres fichiers KB
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples concrets Warhammer inclus (Franz Gruber, Thorin, liste 5 personnages)
+- [x] Relations documentées
 
 ## Fichiers à analyser
 - C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\Code.js
 
 ## Livrables
-`audit/features/save-load/character-list.md`
+`audit/features/save-load/character-list.md` (167 lignes)
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome

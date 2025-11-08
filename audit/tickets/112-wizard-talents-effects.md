@@ -1,6 +1,6 @@
 ---
 id: 112
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [004, 106]
@@ -26,20 +26,20 @@ Créer `audit/features/wizard/talents-effects.md` documentant l'application auto
 - Code règles métier
 
 ## Critères d'acceptance
-- [ ] Fichier créé < 200 lignes
-- [ ] Cross-refs OK vers talents.md
-- [ ] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
-- [ ] Exemples par type d'effet
-- [ ] Relations documentées
+- [x] Fichier créé < 200 lignes (186 lignes ✅)
+- [x] Cross-refs OK vers talents.md, business-rules complets
+- [x] Aucune info technique (QUOI/POURQUOI, pas COMMENT)
+- [x] Exemples par type d'effet (Affable, Artiste, Béni)
+- [x] Relations documentées (4 types effets, ordre application)
 
 ## Fichiers à analyser
-- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html
+- C:\Users\gauch\PhpstormProjects\Warhammer\warhammer-v1\src\StepTalents.html (non disponible, basé KB)
 
 ## Livrables
-`audit/features/wizard/talents-effects.md`
+`audit/features/wizard/talents-effects.md` ✅ CRÉÉ
 
 ## Validation finale
-- [ ] Tous critères cochés
-- [ ] Format template respecté
-- [ ] Pas de Future Work
-- [ ] Fichier autonome
+- [x] Tous critères cochés
+- [x] Format template respecté
+- [x] Pas de Future Work
+- [x] Fichier autonome
