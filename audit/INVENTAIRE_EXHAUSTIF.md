@@ -335,6 +335,36 @@
 - Tests/debug (3-4)
 - UI framework (jQuery, styles) (2-3)
 
+### 13. SYSTÈMES TRANSVERSES (8 tickets) ✅ **CRÉÉS**
+
+**Phase 7 ajoutée après complétion Phase 1-6**
+
+#### Help System (5 tickets)
+- Relations inverses "Utilisé par" (1)
+- Descriptions enrichies avec liens (1)
+- Références pages livres (1)
+- Navigation bidirectionnelle (1)
+- Index global CharGen.match (1)
+
+**Fonctionnalité** : Navigation bidirectionnelle dans données Warhammer
+- Ex: Talent "Affable" → Voir quelles carrières/espèces le donnent
+- Ex: Sort → Voir quels domaines de magie le contiennent
+
+**Source** : DescriptionHelper.html (209 lignes)
+
+#### Navigation globale (2 tickets)
+- Module Compendium consultation (1)
+- Arborescence dynamique (1)
+
+**Fonctionnalité** : Référence rapide règles pendant parties
+**Source** : Glossaire.html (76 lignes)
+
+#### Configuration utilisateur (1 ticket)
+- Sélection livres sources actifs (1)
+
+**Fonctionnalité** : Filtrage global contenu par livres
+**Source** : Option.html (108 lignes)
+
 ---
 
 ## PLAN DE MIGRATION RECOMMANDÉ
@@ -367,26 +397,30 @@
 2. Magie (13)
 3. Équipement (12)
 
-### PHASE 6: Admin & Export (35 tickets, 2-3 semaines)
+### PHASE 6: Admin & Export (29 tickets, 2-3 semaines) ✅ **COMPLÉTÉE**
 1. Administration (15)
 2. Import/Export Foundry (14)
-3. Recherche/Descriptions (6)
 
-### PHASE 7: Règles & Utilitaires (60 tickets, 4 semaines)
-1. Règles métier transverses (40)
-2. Utilitaires (20)
+### PHASE 7: Systèmes Transverses (8 tickets, 1 semaine) ✅ **TICKETS CRÉÉS**
+1. Help System (5)
+2. Navigation globale (2)
+3. Configuration utilisateur (1)
 
-### PHASE 8: Infrastructure & Polish (35 tickets, 2 semaines)
-1. Infrastructure GAS (20)
-2. Tables simples restantes (5)
-3. Tests finaux (5)
-4. Debug/optimisation (5)
+**Note** : Les anciennes estimations "Règles & Utilitaires" et "Infrastructure" ont été réévaluées :
+- Règles métier transverses : Déjà documentées dans `audit/business-rules` (9 fichiers) et `audit/patterns` (16 patterns)
+- Utilitaires : Code technique (Helper.html, DataHelper.html) - Hors scope documentation métier
+- Infrastructure GAS : Code technique (Code.js) - Hors scope documentation métier
 
 ---
 
 ## ESTIMATION FINALE
 
-### Total Tickets: 280-350
+### Total Tickets: 258 (réel)
+
+**Répartition finale** :
+- Tables de données : 85 tickets
+- Wizard & Features : 165 tickets
+- Systèmes transverses : 8 tickets (Help System, Navigation, Settings)
 
 ### Durée Estimée:
 - **1 développeur senior**: 7-10 mois
@@ -411,7 +445,21 @@
 
 ## CONCLUSION
 
-**L'audit initial de 15 tickets représente ~5% du travail réel.**
+**L'audit final : 258 tickets créés (vs estimation initiale 280-350)**
+
+### Répartition finale
+- ✅ **85 tickets** : Tables de données (Phase 1-3) - **100% DONE**
+- ✅ **165 tickets** : Features/Wizard/Systems (Phase 2-6) - **100% DONE**
+- ⏳ **8 tickets** : Systèmes transverses (Phase 7) - **TODO**
+
+### Ce qui n'est PAS dans le scope
+- **Code technique** : Helper.html, DataHelper.html, DataFunctions.html (~2000 lignes)
+- **Infrastructure** : Code.js (Google Apps Script ~1900 lignes)
+- **Utilitaires UI** : jQuery, styles, animations
+
+**Raison** : L'audit documente les **règles métier et fonctionnalités utilisateur**, pas l'implémentation technique.
+
+### État du projet
 
 Cette migration est un **projet majeur** équivalent à:
 - Reconstruire une application complète
@@ -419,12 +467,10 @@ Cette migration est un **projet majeur** équivalent à:
 - Implémenter toutes les règles WFRP 4e édition
 - Maintenir compatibilité Foundry VTT
 
-**Prochaines étapes**:
-1. Valider cette estimation
-2. Créer structure tickets détaillée
-3. Prioriser Phase 1
-4. Démarrer avec TDD
-5. Sprints 2 semaines
+**État actuel** :
+- ✅ Phase 1-6 : **250/250 tickets complétés (100%)**
+- ⏳ Phase 7 : **8 tickets restants** (Help System, Navigation, Settings)
+- 📊 Progression globale : **96.9%**
 
 EOF
 cat "C:\Users\gauch\PhpstormProjects\Warhammer\audit\INVENTAIRE_EXHAUSTIF.md" | wc -l
