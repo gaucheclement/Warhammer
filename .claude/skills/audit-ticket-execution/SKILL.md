@@ -97,6 +97,18 @@ Use this skill when:
 
 **If not done:** Keep ticket IN_PROGRESS or add new ticket for missing work.
 
+### Rule 6: Check Patterns Before Creating
+
+**Requirement:** Verify content doesn't duplicate existing `audit/patterns/`.
+
+**Process:** Read `_index.md` → Grep for similar → If exists: reference it (`Voir [pattern-name.md](../patterns/pattern-name.md)`) → If new: create it.
+
+### Rule 7: Consolidate Duplicates Into Patterns
+
+**Requirement:** If `features/` or `business-rules/` contains reusable content (≥2 uses OR atomic behavior):
+
+**Process:** Extract → create `patterns/pattern-[name].md` → Update `_index.md` → Replace original with reference → Verify.
+
 ## Execution Process
 
 ### Before Starting
@@ -118,67 +130,62 @@ Use this skill when:
 
 1. Run `wc -l` on output file → Must be < 200
 2. Grep for technical code → Must find none
-3. Read EACH acceptance criterion
-4. Verify EACH is met (explicitly, not assuming)
-5. If ANY criterion fails → Fix OR keep IN_PROGRESS
-6. Only if ALL pass → Update frontmatter to DONE
+3. Check patterns (Rule 6): Read `_index.md`, search for duplicates
+4. Check consolidation (Rule 7): Grep features/business-rules for extractable content
+5. Read EACH acceptance criterion
+6. Verify EACH is met (explicitly, not assuming)
+7. If ANY criterion fails → Fix OR keep IN_PROGRESS
+8. Only if ALL pass → Update frontmatter to DONE
+
+### After Marking DONE
+
+1. Update `audit/tickets/_status.md`:
+   - Increment DONE count, decrement TODO/IN_PROGRESS
+   - Update domain progress stats
+   - Update global progress bar
+2. Commit and push:
+   - `git add` ticket + created files + _status.md
+   - Commit message: "Audit: [ticket title]"
+   - `git push` to remote
 
 ## Rationalization Table
 
 | Excuse | Reality |
 |--------|---------|
-| "Légèrement" or "slightly" over 200 lines | Still a violation. Reduce to < 200. |
-| "Complete and structured justifies overage" | Both quality AND limits required. Not either/or. |
-| "Doc is useful, that's what matters" | Useful AND compliant both required. |
-| "Criteria are obviously met" | Obvious ≠ verified. Check explicitly. |
-| "I can mark DONE, criteria implied" | DONE requires explicit verification, not implication. |
-| "Good enough for now" | "Good enough" = IN_PROGRESS. DONE = criteria met. |
-| "Too much important content to cut" | Content prioritization IS the task. Cut or split. |
-| "This violates the spirit not letter" | Violating letter IS violating spirit. |
+| "Légèrement/slightly" over 200 lines OR "Complete justifies overage" | Still a violation. Quality AND limits both required. |
+| "Doc is useful, that's what matters" OR "Criteria obviously met" | Useful+compliant both required. Obvious ≠ verified. |
+| "Good enough" OR "I can mark DONE, criteria implied" | "Good enough" = IN_PROGRESS. DONE = explicit verification. |
+| "Too much content to cut" OR "Violates spirit not letter" | Prioritization IS the task. Violating letter = violating spirit. |
 
 ## Red Flags - STOP and Fix
 
-If you're thinking ANY of these, you're about to violate:
-- "Just X lines over, barely matters"
-- "Content quality beats arbitrary limits"
-- "I'll mark DONE, it's essentially complete"
-- "Checking each criterion is tedious"
-- "This is good enough to move forward"
-- Adding "TODO" or "Future Work" sections
-- Including code snippets "for reference"
+If thinking ANY of these, you're about to violate:
+- "Just X lines over" / "Quality beats limits" / "Essentially complete"
+- "Checking criteria is tedious" / "Good enough to move forward"
+- Adding "TODO/Future Work" / Including code snippets "for reference"
 
-**All of these mean: STOP. Re-read Core Rules. Fix violations BEFORE marking DONE.**
+**STOP. Re-read Core Rules. Fix violations BEFORE marking DONE.**
 
 ## Common Mistakes
 
-### Mistake 1: Confusing "work done" with "criteria met"
+**Confusing "work done" with "criteria met":**
+- ❌ "I documented the table, ticket is done."
+- ✅ "Does it meet ALL criteria? Let me verify each one."
 
-**Wrong:** "I documented the table, ticket is done."
-**Right:** "I documented the table. Does it meet ALL criteria? Let me verify each one."
+**Minimizing violations:**
+- ❌ "264 lines is only slightly over" OR "200 is a guideline"
+- ✅ "264 > 200. Reduce or split." 200 is a hard requirement.
 
-### Mistake 2: Minimizing overages
-
-**Wrong:** "264 lines is only slightly more than 200."
-**Right:** "264 > 200. I need to reduce by 64+ lines or split into multiple files."
-
-### Mistake 3: Skipping formal verification
-
-**Wrong:** (Updates frontmatter to DONE without reviewing criteria)
-**Right:** (Reads each criterion, verifies, THEN updates frontmatter)
-
-### Mistake 4: Treating limits as guidelines
-
-**Wrong:** "200 lines is a guideline, quality matters more."
-**Right:** "200 lines is a hard requirement. Quality within that constraint."
+**Skipping verification:**
+- ❌ Updates frontmatter to DONE without reviewing criteria
+- ✅ Reads each criterion, verifies, THEN updates frontmatter
 
 ## Success Criteria
 
-Ticket properly DONE when:
-- ✅ Output file < 200 lines (verified with `wc -l`)
-- ✅ No technical code (verified with grep)
-- ✅ ALL "Fichiers à analyser" were read
-- ✅ ALL "Critères d'acceptance" verified individually
-- ✅ Zero "TODO" or "Future Work" sections
-- ✅ Frontmatter status = DONE
+Ticket properly DONE when ALL true:
+- ✅ Output < 200 lines (`wc -l`) + No technical code (grep)
+- ✅ ALL "Fichiers à analyser" read + ALL criteria verified
+- ✅ No "TODO/Future Work" + Patterns checked (Rule 6+7)
+- ✅ Frontmatter DONE + _status updated + Committed/pushed
 
-If ANY of these fails: Ticket is NOT done. Keep IN_PROGRESS.
+If ANY fails: Keep IN_PROGRESS.
