@@ -6,20 +6,20 @@ Dernière mise à jour : 2025-11-08
 
 ### Tickets par Statut
 
-- **TODO**: 7
+- **TODO**: 5
 - **IN_PROGRESS**: 0
-- **DONE**: 251
+- **DONE**: 253
 - **TOTAL**: 258
 
 ### Tickets par Domaine
 
 - **database**: 85/85 complétés (100% ✅ - Species, Careers, CareerLevels, Talents, Skills, Spells, Trappings, Lores, Creatures, Trees, Gods, Traits, Stars, Magicks, Details, Qualities, Etats, Characteristics, Psychologies, Books, Classes, Eyes/Hairs)
-- **features**: 166/173 (wizard-species: 5/5 ✅, wizard-careers: 6/6 ✅, wizard-characteristics: 7/7 ✅, wizard-stars: 2/2 ✅, wizard-talents: 7/7 ✅, wizard-skills: 8/8 ✅, wizard-trappings: 6/6 ✅, wizard-details: 6/6 ✅, wizard-experience: 7/7 ✅, wizard-resume: 5/5 ✅, character-model: 15/15 ✅, save-load: 5/5 ✅, character-sheet: 6/6 ✅, character-edit: 9/9 ✅, advancement: 15/15 ✅, magic: 13/13 ✅, equipment: 14/14 ✅, admin: 15/15 ✅, import/export: 14/14 ✅, help-system: 0/5 ⏳, navigation: 0/2 ⏳, settings: 1/1 ✅)
+- **features**: 168/173 (wizard-species: 5/5 ✅, wizard-careers: 6/6 ✅, wizard-characteristics: 7/7 ✅, wizard-stars: 2/2 ✅, wizard-talents: 7/7 ✅, wizard-skills: 8/8 ✅, wizard-trappings: 6/6 ✅, wizard-details: 6/6 ✅, wizard-experience: 7/7 ✅, wizard-resume: 5/5 ✅, character-model: 15/15 ✅, save-load: 5/5 ✅, character-sheet: 6/6 ✅, character-edit: 9/9 ✅, advancement: 15/15 ✅, magic: 13/13 ✅, equipment: 14/14 ✅, admin: 15/15 ✅, import/export: 14/14 ✅, help-system: 0/5 ⏳, navigation: 2/2 ✅, settings: 1/1 ✅)
 
 ### Progression Globale
 
 ```
-[███████████████████░] 251/258 (97.3%) ⏳
+[███████████████████░] 253/258 (98.1%) ⏳
 ```
 
 ## Répartition des Tickets
