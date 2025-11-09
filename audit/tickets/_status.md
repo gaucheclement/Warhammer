@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 3 (Phase 9 - Consolidation KB)
+- **TODO**: 2 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 274
+- **DONE**: 275
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 274/277 (98.9%) - Phase 9 en cours
+[███████████████████░] 275/277 (99.3%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 15/18 (83.3%) - EN COURS
+**Phase 9 (Consolidation)** : 16/18 (88.9%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1064,11 +1064,14 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 - **#272 - character-model/*** : 15 → 6 fichiers, -1,833 lignes (-68%), 3h ✅ **DONE**
 - **#273 - character-sheet/*** : 6 → 1 fichier, -825 lignes (-88%), 2.5h ✅ **DONE**
 - **#274 - save-load/*** : 5 → 1 fichier, -613 lignes (-74%), 2.5h ✅ **DONE**
-- **#275 - equipment/* + magic/* + pattern** : 27 → 4 fichiers, -2,450 lignes (-53%), 12h
-  - Création pattern-validation-display.md (cross-duplication)
-  - equipment.md (~950 lignes)
-  - magic-system.md (~600 lignes)
-  - magic-usage.md (~480 lignes)
+- **#275 - equipment/* + magic/* + pattern** : 27 → 4 fichiers, -2,913 lignes (-63%), 12h ✅ **DONE**
+  - Création pattern-validation-display.md (171 lignes, cross-duplication éliminée)
+  - equipment.md (429 lignes, fusion 14 fichiers)
+  - magic-system.md (555 lignes, fusion 8 fichiers magic)
+  - magic-usage.md (562 lignes, fusion 5 fichiers magic)
+  - Total: 1,717 lignes vs 4,630 avant (-63% réduction)
+  - 27 anciens fichiers supprimés
+  - patterns/_index.md mis à jour (16 patterns)
 - **#276 - admin/* + advancement/*** : 30 → 12 fichiers, -1,800 lignes (-40%), 8h
 - **#277 - business-rules/validation** : 2 → 1 fichier, -222 lignes (-53%), 2h
   - Résout F1, F2 (fichiers dépassant 200 lignes)

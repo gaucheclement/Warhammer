@@ -48,7 +48,7 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ---
 
-## Validation (3)
+## Validation (4)
 
 - [pattern-validation-metadonnees.md](./pattern-validation-metadonnees.md) - Index et labels
 
@@ -59,6 +59,8 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 **Fusionne :** validation-enum, validation-range
 
 - [pattern-validation-references.md](./pattern-validation-references.md) - Références inter-tables
+
+- [pattern-validation-display.md](./pattern-validation-display.md) - Validation et affichage collections
 
 ---
 
@@ -79,8 +81,8 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ## Statistiques
 
-**Nombre total de patterns :** 15 (vs 29 avant fusion)
-**Réduction :** 48%
+**Nombre total de patterns :** 16 (vs 29 avant fusion)
+**Réduction :** 45%
 
 **Répartition :**
 - Métadonnées : 3
@@ -88,7 +90,7 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 - Génération aléatoire : 3
 - Spécialisations : 1 (fusion de 2)
 - HTML : 1 (fusion de 3)
-- Validation : 3 (fusion de 5)
+- Validation : 4 (fusion de 5 + nouveau pattern validation-display)
 - Relations/Types : 2
 - Modificateurs : 1 (fusion de 2)
 
