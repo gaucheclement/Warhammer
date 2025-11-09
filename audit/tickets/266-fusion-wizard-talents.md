@@ -1,6 +1,6 @@
 ---
 id: 266
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [259]
@@ -43,6 +43,6 @@ Fusionner 7 fichiers wizard/talents-* en 1 fichier talents.md (~360 lignes)
 3 heures
 
 ## Critères d'acceptance
-- [ ] 7 fichiers → 1 fichier talents.md (~360 lignes)
-- [ ] Anciens fichiers supprimés
-- [ ] Aucune perte contenu métier
+- [x] 7 fichiers → 1 fichier talents.md (~360 lignes)
+- [x] Anciens fichiers supprimés
+- [x] Aucune perte contenu métier
