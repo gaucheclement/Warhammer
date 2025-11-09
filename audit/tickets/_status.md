@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 18 (Phase 9 - Consolidation KB)
+- **TODO**: 17 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 259
+- **DONE**: 260
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 259/277 (93%) - Phase 9 en cours
+[███████████████████░] 260/277 (94%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 0/18 (0%) - TODO
+**Phase 9 (Consolidation)** : 1/18 (6%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1018,12 +1018,13 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 - 3 violations critiques détectées (code JS, pattern orphelin, 52% duplication foundry-*)
 - Cross-duplication equipment/*/validation.md + magic/*/validation.md (200 lignes identiques)
 
-### #260-262: Tickets CRITIQUES (3 tickets) - P0, Phase 9 - TODO
+### #260-262: Tickets CRITIQUES (3 tickets) - P0, Phase 9
 
-**#260 - Correction code technique preview.md**
-- Supprimer JavaScript lignes 50-63
-- Réécrire description fonctionnelle
-- Effort : 30 min
+**#260 - Correction code technique preview.md** ✅ **DONE**
+- Code JavaScript supprimé (lignes 50-63)
+- Description fonctionnelle rédigée
+- Fichier 98 lignes (< 200)
+- Aucun code technique (vérifié par grep)
 
 **#261 - Fusion pattern-tiret.md orphelin**
 - 0 références dans toute la KB

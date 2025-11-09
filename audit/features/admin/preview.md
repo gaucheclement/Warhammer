@@ -46,23 +46,23 @@ Prévisualisation des modifications admin avant sauvegarde pour validation visue
 
 ## Activation Prévisualisation
 
-**Code existant** (commenté):
-```
-oThat.otherAction = function (el) {
-    el.html('Prévisualiser');
-    el.off('click').on('click', function () {
-        if ($('.right_panel').find('[name="Description"]:visible').val()) {
-            const regex = /(\n)+/gmi;
-            Helper.showPopin($('.right_panel').find('[name="Description"]').val().trim()
-                .replace(new RegExp("[\n]+$", 'gmi'), "")
-                .replace(regex, "<br><br>")
-                .replace(''', "'"), CharGen);
-        }
-    });
-};
-```
+**Comportement du bouton "Prévisualiser"**:
 
-**Pour activer**: Décommenter bloc otherAction
+Lorsque le bouton est activé, il permet d'afficher le contenu du champ Description dans une popup modale.
+
+**Conditions d'affichage**:
+- Le champ Description visible doit contenir du texte
+- Si vide, aucune popup ne s'affiche
+
+**Traitement du texte**:
+1. Suppression des espaces en début/fin
+2. Suppression des retours à la ligne multiples en fin de texte
+3. Conversion des séquences de sauts de ligne en doubles sauts HTML (`<br><br>`)
+4. Normalisation des apostrophes typographiques en apostrophes simples
+
+**Affichage**: Popup modale affichant le texte formaté pour validation visuelle
+
+**Pour activer**: Décommenter le code d'activation du bouton dans Admin.html
 
 ## Exemples Concrets Warhammer
 
