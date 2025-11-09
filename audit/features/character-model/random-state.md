@@ -140,23 +140,11 @@ imposedTalents: ['resistant', 'vivacite', 'tireur-de-precision']
 
 ## Reproductibilité
 
-### Même personnage = même state
+### Reproductibilité et modification
 
-Si on sauvegarde randomState et le rejoue:
-- Même espèce tirée
-- Même carrière tirée
-- Mêmes rolls caractéristiques
-- Mêmes talents aléatoires
+Même randomState → même personnage (espèce, carrière, rolls, talents). Permet "figer" tirage chanceux.
 
-**Usage**: Permet de "figer" un tirage chanceux.
-
-### Modifier pour re-roller
-
-Si on change un seed:
-- specie: 42 → 43: espèce différente
-- characteristic: 100 → 101: rolls différents
-
-**Usage**: Permet de re-tirer sans tout recommencer.
+Changer seed → résultat différent (specie: 42→43 espèce différente, characteristic: 100→101 rolls différents). Permet re-tirer sans recommencer.
 
 ## Sauvegarde et restauration
 
@@ -176,11 +164,7 @@ Restaure l'état complet, permettant:
 
 ## Exemples concrets
 
-**Création Humain**: imposedSpecie=['humain'], star:42→Wymund, career:17→Soldat, characteristic:100→rolls fixes, imposedTalents=[3 tirés]
-
-**Reproduction**: Même randomState → même personnage exactement
-
-**Re-roll carac**: characteristic:100→200 → nouveaux rolls, garde espèce/carrière
+**Création Humain**: imposedSpecie=['humain'], star:42→Wymund, career:17→Soldat, characteristic:100→rolls fixes, imposedTalents=[3 tirés]. **Reproduction**: Même randomState → même personnage. **Re-roll carac**: characteristic:100→200 → nouveaux rolls, garde espèce/carrière
 
 ## Validation
 

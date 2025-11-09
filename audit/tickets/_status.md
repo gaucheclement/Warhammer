@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 6 (Phase 9 - Consolidation KB)
+- **TODO**: 5 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 271
+- **DONE**: 272
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 271/277 (98%) - Phase 9 en cours
+[███████████████████░] 272/277 (98%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 12/18 (67%) - EN COURS
+**Phase 9 (Consolidation)** : 13/18 (72%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1061,7 +1061,7 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 **R9-R19** : Consolidation features et business-rules
 
 - **#271 - character-edit/*** : 9 → 1 fichier, -1,100 lignes (-69%), 3h ✅ **DONE**
-- **#272 - character-model/*** : 15 → 6 fichiers, -1,000 lignes (-42%), 4h
+- **#272 - character-model/*** : 15 → 6 fichiers, -1,833 lignes (-68%), 3h ✅ **DONE**
 - **#273 - character-sheet/*** : 6 → 1 fichier, -555 lignes (-59%), 2.5h
 - **#274 - save-load/*** : 5 → 1 fichier, -460 lignes (-59%), 2.5h
 - **#275 - equipment/* + magic/* + pattern** : 27 → 4 fichiers, -2,450 lignes (-53%), 12h
