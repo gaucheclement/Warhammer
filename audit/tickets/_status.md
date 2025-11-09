@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 17 (Phase 9 - Consolidation KB)
+- **TODO**: 16 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 260
+- **DONE**: 261
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 260/277 (94%) - Phase 9 en cours
+[███████████████████░] 261/277 (94%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 1/18 (6%) - EN COURS
+**Phase 9 (Consolidation)** : 2/18 (11%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1026,10 +1026,11 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 - Fichier 98 lignes (< 200)
 - Aucun code technique (vérifié par grep)
 
-**#261 - Fusion pattern-tiret.md orphelin**
-- 0 références dans toute la KB
-- Intégrer contenu dans pattern-validation-valeurs.md
-- Effort : 45 min
+**#261 - Fusion pattern-tiret.md orphelin** ✅ **DONE**
+- Contenu intégré dans pattern-validation-valeurs.md (section "Valeur '–' (non applicable)")
+- pattern-tiret.md supprimé
+- patterns/_index.md mis à jour (15 patterns au lieu de 16, réduction 48%)
+- pattern-validation-valeurs.md: 167 lignes (< 200)
 
 **#262 - Fusion import-export/foundry-* (CRITIQUE)**
 - **52% duplication structurelle** (taux le plus élevé de la KB)

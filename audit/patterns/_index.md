@@ -62,11 +62,10 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ---
 
-## Relations et Types (3)
+## Relations et Types (2)
 
 - [pattern-relation-textuelle.md](./pattern-relation-textuelle.md) - Relations string → entity
 - [pattern-type-subtype.md](./pattern-type-subtype.md) - Hiérarchie type/subType
-- [pattern-tiret.md](./pattern-tiret.md) - Valeur "–" (non applicable)
 
 ---
 
@@ -80,8 +79,8 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ## Statistiques
 
-**Nombre total de patterns :** 16 (vs 29 avant fusion)
-**Réduction :** 45%
+**Nombre total de patterns :** 15 (vs 29 avant fusion)
+**Réduction :** 48%
 
 **Répartition :**
 - Métadonnées : 3
@@ -89,8 +88,8 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 - Génération aléatoire : 3
 - Spécialisations : 1 (fusion de 2)
 - HTML : 1 (fusion de 3)
-- Validation : 3 (fusion de 4)
-- Relations/Types : 3
+- Validation : 3 (fusion de 5)
+- Relations/Types : 2
 - Modificateurs : 1 (fusion de 2)
 
 ---

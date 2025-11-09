@@ -96,6 +96,31 @@ Gérer les valeurs spéciales (vide, null, "–").
 ### Validation avec valeurs spéciales
 Accepter certaines valeurs non numériques comme valides (ex: "–" pour les créatures).
 
+#### Valeur "–" (non applicable)
+**Format :** "–" (tiret demi-cadratin U+2013, PAS tiret simple "-" U+002D)
+
+**Contexte :** Indique qu'une caractéristique n'existe pas ou n'est pas applicable, principalement pour les créatures.
+
+**Exemples :**
+- `CT: "–"` → Pas d'attaque à distance
+- `Int/FM/Soc: "–"` → Créature non intelligente (trait Fabriqué)
+- `Dex: "–"` → Pas de manipulation fine
+
+**Règles métier associées :**
+- Trait "Bestial" → Soc = "–"
+- Trait "Fabriqué" → Int, FM, Soc = "–"
+- Si CT = "–", aucune arme à distance possible
+
+**Gestion dans calculs :**
+- Ignorer "–" dans les totaux et moyennes
+- Pour certains calculs (ex: initiative), traiter "–" comme 0
+
+**Normalisation Unicode :**
+Standardiser sur U+2013 (tiret demi-cadratin). Convertir "-" (U+002D) ou "—" (U+2014) vers "–" lors de la validation.
+
+**Validation cohérence avec traits :**
+Vérifier que les caractéristiques "–" correspondent aux traits de la créature (Bestial, Fabriqué).
+
 ### Validation contextuelle
 La plage peut dépendre d'autres champs de l'entité.
 
@@ -138,6 +163,5 @@ Toutes les tables avec champs énumérés ou valeurs numériques.
 
 ## Voir aussi
 
-- [pattern-tiret.md](./pattern-tiret.md) - Valeur "–" non applicable
 - [pattern-type-subtype.md](./pattern-type-subtype.md) - Hiérarchie type/subType
 - [pattern-validation-references.md](./pattern-validation-references.md) - Validation références
