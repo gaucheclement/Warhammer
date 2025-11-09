@@ -1,6 +1,6 @@
 ---
 id: 274
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [259]
@@ -40,5 +40,5 @@ Fusionner 5 fichiers save-load/* en 1 fichier save-load.md (~320 lignes)
 2.5 heures
 
 ## Critères d'acceptance
-- [ ] 5 fichiers → 1 fichier save-load.md (~320 lignes)
-- [ ] Anciens fichiers supprimés
+- [x] 5 fichiers → 1 fichier save-load.md (~320 lignes)
+- [x] Anciens fichiers supprimés
