@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 14 (Phase 9 - Consolidation KB)
+- **TODO**: 13 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 263
+- **DONE**: 264
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 263/277 (95%) - Phase 9 en cours
+[███████████████████░] 264/277 (95%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 4/18 (22%) - EN COURS
+**Phase 9 (Consolidation)** : 5/18 (28%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1046,7 +1046,7 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 **R1-R8** : Élimination duplication massive dans wizard/*
 
 - **#263 - characteristics-*** : 7 → 1 fichier, -860 lignes (-74%), 3h ✅ **DONE**
-- **#264 - detail-*** : 6 → 1 fichier, -740 lignes (-68%), 3h
+- **#264 - detail-*** : 6 → 1 fichier, -740 lignes (-68%), 3h ✅ **DONE**
 - **#265 - skills-*** : 8 → 1 fichier, -1,082 lignes (-73%), 3h
 - **#266 - talents-*** : 7 → 1 fichier, -855 lignes (-70%), 3h
 - **#267 - trappings-*** : 6 → 1 fichier, -751 lignes (-68%), 3h

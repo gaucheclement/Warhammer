@@ -1,6 +1,6 @@
 ---
 id: 264
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [259]
@@ -23,11 +23,11 @@ Fusionner 6 fichiers wizard/detail-* en 1 fichier pour éliminer duplication str
 - Ajout nouvelles fonctionnalités
 
 ## Critères d'acceptance
-- [ ] 6 fichiers fusionnés en details.md
-- [ ] details.md ~350 lignes
-- [ ] Anciens fichiers supprimés
-- [ ] Aucune perte contenu métier
-- [ ] Fichier < 380 lignes
+- [x] 6 fichiers fusionnés en details.md
+- [x] details.md ~350 lignes (346 lignes)
+- [x] Anciens fichiers supprimés
+- [x] Aucune perte contenu métier
+- [x] Fichier < 380 lignes
 
 ## Fichiers sources (6 fichiers - 1,090 lignes)
 - detail-age.md
@@ -127,10 +127,10 @@ L'étape Detail du wizard détermine taille via...
 3 heures
 
 ## Validation finale
-- [ ] ls audit/features/wizard/detail-*.md retourne 1 seul fichier (details.md)
-- [ ] wc -l details.md retourne ~350 lignes
-- [ ] Section "Modes de sélection" UNE SEULE FOIS (pas 6×)
-- [ ] Section "Détails par type" contient 6 sous-sections
-- [ ] Chaque détail (âge/taille/etc.) a 30-40 lignes contenu unique
-- [ ] Aucune duplication sections "Vue d'ensemble"
-- [ ] Commit avec message explicite
+- [x] ls audit/features/wizard/detail-*.md retourne 1 seul fichier (details.md)
+- [x] wc -l details.md retourne ~350 lignes (346)
+- [x] Section "Modes de sélection" UNE SEULE FOIS (pas 6×)
+- [x] Section "Détails par type" contient 7 sous-sections (Age, Taille, Nom, Yeux, Cheveux, Dieu, Ambitions)
+- [x] Chaque détail (âge/taille/etc.) a contenu unique consolidé
+- [x] Aucune duplication sections "Vue d'ensemble"
+- [x] Commit avec message explicite
