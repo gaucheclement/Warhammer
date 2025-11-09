@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 11 (Phase 9 - Consolidation KB)
+- **TODO**: 10 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 266
+- **DONE**: 267
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 266/277 (96%) - Phase 9 en cours
+[███████████████████░] 267/277 (96%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 7/18 (39%) - EN COURS
+**Phase 9 (Consolidation)** : 8/18 (44%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1049,12 +1049,12 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 - **#264 - detail-*** : 6 → 1 fichier, -740 lignes (-68%), 3h ✅ **DONE**
 - **#265 - skills-*** : 8 → 1 fichier, -1,043 lignes (-70%), 3h ✅ **DONE**
 - **#266 - talents-*** : 7 → 1 fichier, -1,086 lignes (-89%), 3h ✅ **DONE**
-- **#267 - trappings-*** : 6 → 1 fichier, -751 lignes (-68%), 3h
+- **#267 - trappings-*** : 6 → 1 fichier, -923 lignes (-84%), 3h ✅ **DONE**
 - **#268 - experience-*** : 7 → 1 fichier, -820 lignes (-68%), 3h
 - **#269 - career-*** : 6 → 1 fichier, -710 lignes (-68%), 3h
 - **#270 - species-*** : 5 → 1 fichier, -600 lignes (-67%), 3h
 
-**Total wizard/*** : 52 fichiers → 8 fichiers (-85%), -6,415 lignes (-68%), 24h effort
+**Total wizard/*** : 52 fichiers → 8 fichiers (-85%), -6,587 lignes (-69%), 24h effort
 
 ### #271-277: Fusions autres features (7 tickets) - P1, Phase 9 - TODO
 
