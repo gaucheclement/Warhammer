@@ -6,9 +6,9 @@ Dernière mise à jour : 2025-11-09
 
 ### Tickets par Statut
 
-- **TODO**: 16 (Phase 9 - Consolidation KB)
+- **TODO**: 15 (Phase 9 - Consolidation KB)
 - **IN_PROGRESS**: 0
-- **DONE**: 261
+- **DONE**: 262
 - **TOTAL**: 277
 
 ### Tickets par Domaine
@@ -19,11 +19,11 @@ Dernière mise à jour : 2025-11-09
 ### Progression Globale
 
 ```
-[███████████████████░] 261/277 (94%) - Phase 9 en cours
+[███████████████████░] 262/277 (95%) - Phase 9 en cours
 ```
 
 **Phase 8 (Audit initial)** : 259/259 (100%) ✅ COMPLET
-**Phase 9 (Consolidation)** : 2/18 (11%) - EN COURS
+**Phase 9 (Consolidation)** : 3/18 (17%) - EN COURS
 
 ## Répartition des Tickets
 
@@ -1032,12 +1032,14 @@ Exécuter les tickets #001-#032 pour documenter les 4 tables les plus complexes 
 - patterns/_index.md mis à jour (15 patterns au lieu de 16, réduction 48%)
 - pattern-validation-valeurs.md: 167 lignes (< 200)
 
-**#262 - Fusion import-export/foundry-* (CRITIQUE)**
-- **52% duplication structurelle** (taux le plus élevé de la KB)
-- 35 lignes "Contexte" IDENTIQUES répétées 7×
-- 315 lignes "Exemples Concrets" pattern identique
-- 14 fichiers → 3 fichiers, -1,340 lignes (-55%)
-- Effort : 6-8h
+**#262 - Fusion import-export/foundry-* (CRITIQUE)** ✅ **DONE**
+- 14 fichiers fusionnés en 3 fichiers
+- foundry-export.md créé (407 lignes)
+- json-serialization.md créé (239 lignes)
+- import-export-tests.md créé (131 lignes)
+- Total: 777 lignes (vs 2,450 avant) = -68% réduction
+- Anciens fichiers supprimés
+- Aucun code technique (vérifié par grep)
 
 ### #263-270: Fusions wizard/* (8 tickets) - P1, Phase 9 - TODO
 
