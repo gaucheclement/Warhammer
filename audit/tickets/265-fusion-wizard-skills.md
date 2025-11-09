@@ -1,6 +1,6 @@
 ---
 id: 265
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [259]
@@ -46,6 +46,6 @@ Fusionner 8 fichiers wizard/skills-* en 1 fichier skills.md (~400 lignes)
 3 heures
 
 ## Critères d'acceptance
-- [ ] 8 fichiers → 1 fichier skills.md (~400 lignes)
-- [ ] Anciens fichiers supprimés
-- [ ] Aucune perte contenu métier
+- [x] 8 fichiers → 1 fichier skills.md (~400 lignes) - 439 lignes
+- [x] Anciens fichiers supprimés
+- [x] Aucune perte contenu métier
