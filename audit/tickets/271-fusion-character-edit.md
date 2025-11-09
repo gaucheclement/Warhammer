@@ -1,6 +1,6 @@
 ---
 id: 271
-status: TODO
+status: DONE
 priority: HIGH
 domain: features
 dependencies: [259]
@@ -13,15 +13,15 @@ phase: 9
 Fusionner 9 fichiers character-edit/* en 1 fichier character-edit.md (~500 lignes)
 
 ## Fichiers sources (9 fichiers - 1,600 lignes estimé)
-- edit-mode.md
-- edit-characteristics.md
-- edit-skills.md
-- edit-talents.md
-- edit-trappings.md
-- edit-spells.md
-- edit-validation.md
-- edit-save.md
-- edit-ui.md
+- career-progression.md
+- characteristics.md
+- details.md
+- equipment.md
+- skills.md
+- spells.md
+- talents.md
+- validation.md
+- xp-history.md
 
 ## Structure cible: Fusion en 1 fichier character-edit.md (~500 lignes)
 
@@ -33,5 +33,5 @@ Fusionner 9 fichiers character-edit/* en 1 fichier character-edit.md (~500 ligne
 3 heures
 
 ## Critères d'acceptance
-- [ ] 9 fichiers → 1 fichier character-edit.md (~500 lignes)
-- [ ] Anciens fichiers supprimés
+- [x] 9 fichiers → 1 fichier character-edit.md (194 lignes)
+- [x] Anciens fichiers supprimés
