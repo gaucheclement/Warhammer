@@ -26,7 +26,7 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 **Exemple annulation progressive**: Charme +3 coût 10+10+10 = 30 XP, Clic [-] → Charme +2 remboursement 10 XP, Clic [-] → Charme +1 remboursement 10 XP, Clic [-] → Charme +0 remboursement 10 XP retour état initial
 
-**Annulation complète bouton Annuler**: Bouton global [Annuler] permet (Réinitialiser tous avances temporaires à 0, Rembourser tout XP dépensé, Retourner état initial personnage), confirmation popup confirmation recommandée V2
+**Annulation complète bouton Annuler**: Bouton global [Annuler] permet (Réinitialiser tous avances temporaires à 0, Rembourser tout XP dépensé, Retourner état initial personnage)
 
 ## Calcul XP Dépensé
 
@@ -38,7 +38,7 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 **Règle 100% remboursement intégral**: Pas pénalité (Annuler avance 25 XP → +25 XP disponibles, Annuler talent 100 XP → +100 XP disponibles), justification mode création = phase test pas pénalité
 
-**Différence création vs post-création**: Création wizard (Remboursement intégral, Annulation libre, Pas validation MJ), post-création V2 recommandé (Remboursement intégral OU avec pénalité option MJ, Annulation possible OU blocage après validation session option MJ, Validation MJ possible)
+**Différence création vs post-création**: Création wizard (Remboursement intégral, Annulation libre, Pas validation MJ), post-création (Remboursement intégral, Annulation selon règles MJ)
 
 ## Persistance
 
@@ -60,7 +60,7 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 ## Limites et Contraintes
 
-**Pas historique détaillé V1**: Pas log horodaté chaque action +/- avec timestamp
+**Pas historique détaillé**: Pas log horodaté chaque action +/- avec timestamp
 
 **Pas export historique**: Pas génération rapport dépenses séquentielles
 

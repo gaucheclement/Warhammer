@@ -48,25 +48,12 @@ Système suit budget XP disponible pour permettre joueurs dépenser points expé
 
 **Affichage format**: Caractéristiques: 150 XP (3 améliorées), Compétences: 85 XP (5 acquises/améliorées), Talents: 200 XP (2 acquis), Sorts: 100 XP (3 appris), séparateur, Total dépensé: 535 XP, XP restant: 65 XP
 
-**Statistiques dépenses par élément V1**: Pas breakdown détaillé par élément individuel
-
-**Statistiques V2 recommandé**: Liste détaillée avec coût par élément, tri par coût éléments plus chers en premier, filtrage par catégorie, exemple (Sociabilité +6: 155 XP, Affable rang 1: 100 XP, Charme +5: 50 XP, Intelligence +3: 75 XP, Éloquent rang 1: 100 XP)
-
-**Statistiques par type dans/hors carrière**: XP dépensé dans carrière XXX XP, XP dépensé hors carrière ×2 XXX XP, ratio optimisation X%, utilité identifier dépenses sous-optimales trop hors carrière
-
-**Graphiques V2**: Camembert catégories (Répartition XP par catégorie Caractéristiques 28%/Compétences 16%/Talents 37%/Sorts 19%, visuel graphique camembert pie chart ou barres), courbe progression (Évolution XP dans temps Axe X Sessions/Temps Axe Y XP total, courbes XP gagné/XP dépensé/XP disponible, visuel graphique ligne temporelle)
-
-**Export rapport**: Formats export (TXT/MD rapport texte détails dépenses par catégorie, CSV tableau analyse Type/Nom/Avances/Coût/Dans Carrière, PDF V2 rapport formaté avec graphiques archivage/partage MJ)
-
-**Organisation visuelle V1**: Affichage inline dans step Experience pas panneau dédié
-
-**Organisation V2 recommandé**: Panneaux (Panneau gauche budget et contrôles, Panneau central listes achat, Panneau droit récapitulatif temps réel), avantage vision permanente répartition XP pendant achats, alternative onglet récapitulatif (Onglet dédié "Récapitulatif XP" comme wizard Resume, contenu statistiques complètes/graphiques/export/historique gains XP sources)
+**Organisation visuelle**: Affichage inline dans step Experience pas panneau dédié
 
 ## Optimisation Joueur
 
 **Comparaison coûts**: Récapitulatif aide comparer coûts pour optimiser dépenses, scénario (Soc +1 dans carrière 25 XP, End +1 hors carrière 50 XP, Talent Dur à cuire hors carrière 200 XP), analyse privilégier Soc +1 meilleur ratio efficacité/coût
 
-**Recommandations V2**: Alertes dépenses hors carrière 40% ×2, suggestions progression niveau
 
 **Sources XP historique**: Liste gains espèce/carrière/étoile/aventures avec totaux
 
@@ -78,7 +65,7 @@ Système suit budget XP disponible pour permettre joueurs dépenser points expé
 
 **Messages erreur**: "Budget XP insuffisant (25 XP nécessaires, 10 XP disponibles)", "Validation bloquée: XP disponible négatif (-15 XP)", "Dette XP: -50 XP (à rembourser avec prochains gains)"
 
-**Validation cohérence**: Vérifications (Somme catégories = Total dépensé, Total dépensé = xp.XP temporaire ou xp.used, XP restant = xp.max - total dépensé, Aucun élément négatif), messages incohérence V2 ("Incohérence détectée: Somme catégories ≠ Total (recalcul en cours)")
+**Validation cohérence**: Vérifications (Somme catégories = Total dépensé, Total dépensé = xp.XP temporaire ou xp.used, XP restant = xp.max - total dépensé, Aucun élément négatif)
 
 ## Exemples Concrets
 
@@ -94,11 +81,11 @@ Système suit budget XP disponible pour permettre joueurs dépenser points expé
 
 ## Limites et Contraintes
 
-**Pas breakdown détaillé V1**: Pas liste coût par élément individuel
+**Pas breakdown détaillé**: Pas liste coût par élément individuel
 
-**Pas graphiques V1**: Pas visualisation répartition
+**Pas graphiques**: Pas visualisation répartition
 
-**Pas export rapport V1**: Pas génération fichiers analyse
+**Pas export rapport**: Pas génération fichiers analyse
 
 **Pas détection optimisation**: Pas alertes dépenses sous-optimales hors carrière
 
