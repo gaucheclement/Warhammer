@@ -67,31 +67,19 @@ Au moins **8 compétences** de la carrière (cumul rangs 1 à N) à **5×N avanc
 
 ### Passage de rang (même carrière)
 
-**Coût** : 100 XP
-
 **Condition** : Rang actuel VALIDÉ (obligatoire)
 
 **Si rang NON validé** : IMPOSSIBLE de passer au rang supérieur (blocage système)
 
+**Coût XP** : Voir [calculs-xp-progression.md](./calculs-xp-progression.md)
+
 ### Changement de carrière
 
-**Coût si rang validé** : 100 XP base
+**Impact validation** :
+- Rang validé : Coût réduit
+- Rang NON validé : Coût majoré (+100 XP pénalité)
 
-**Coût si rang NON validé** : 200 XP base (+100 XP pénalité)
-
-**Coût total changement carrière** :
-- Rang validé, même classe : 100 XP
-- Rang validé, autre classe : 200 XP (100 + 100)
-- Rang non validé, même classe : 200 XP (200 + 0)
-- Rang non validé, autre classe : 300 XP (200 + 100)
-
----
-
-## Validation partielle
-
-**Règle V1** : Pas de validation partielle. Le rang est soit validé (100% critères), soit non validé.
-
-**Options MJ** : Le MJ peut accepter validation partielle (ex: 2/3 critères) selon son style de jeu, mais pas implémenté V1.
+**Coûts XP** : Voir [calculs-xp-progression.md](./calculs-xp-progression.md)
 
 ---
 
@@ -125,12 +113,3 @@ Au moins **8 compétences** de la carrière (cumul rangs 1 à N) à **5×N avanc
 - [xp-career.md](../features/xp-career.md) - Gestion carrière et progression
 - [xp-validation.md](../features/xp-validation.md) - Validation dépenses XP
 
----
-
-## Notes implémentation V1
-
-**Calcul automatique** : Système calcule automatiquement si rang validé selon critères.
-
-**Pas de contournement** : Impossible passer rang supérieur si validation échoue.
-
-**Options MJ désactivées** : Tests compétences, mentor, validation partielle non implémentés V1.

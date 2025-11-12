@@ -18,7 +18,7 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 ## Conditions Passage Niveau Supérieur
 
-**Règle V1** : Pour passer du rang N au rang N+1, le rang N doit être VALIDÉ.
+**Règle** : Pour passer du rang N au rang N+1, le rang N doit être VALIDÉ.
 
 **Critères validation** : Voir [validation-rang-carriere.md](../../business-rules/validation-rang-carriere.md) pour critères complets et exemples détaillés.
 
@@ -67,9 +67,9 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 ## Changement Carrière
 
-**Conditions changement recommandations WFRP**: Complétion carrière actuelle atteindre niveau 4 Gold carrière actuelle avant changement, justification narrative raison RP valide événement/opportunité/quête, validation MJ accord MJ requis (Note règles optionnelles gérées par MJ pas implémentation V1)
+**Recommandations WFRP**: Complétion carrière actuelle (niveau 4), justification narrative, validation MJ (règles optionnelles)
 
-**V1 actuel**: Aucune restriction technique joueur peut changer carrière à tout moment via bouton "Carrière" mode post-création
+**Système**: Aucune restriction technique, joueur peut changer carrière à tout moment via bouton "Carrière" mode post-création
 
 **Mécanisme changement**: Clic bouton [Carrière] mode advancement → Affichage interface sélection carrière identique création → Choix nouvelle carrière toutes accessibles si compatibles espèce → Confirmation changement → Mise à jour carrière actuelle careerLevel passe niveau 1 nouvelle carrière (Important changement vers niveau 1 nouvelle carrière pas niveau 4 ancienne)
 
@@ -85,28 +85,19 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 **Progression nouvelle carrière**: Après changement personnage peut progresser normalement nouvelle carrière (Niveau 1 → 2 → 3 → 4, Accumulation avantages nouveaux niveaux, Complétion carrière avant nouveau changement optionnel MJ)
 
-**Coûts XP changement** : V1 coût 100-300 XP selon situation.
-- **Base si rang validé** : 100 XP
-- **Base si rang NON validé** : 200 XP
-- **+100 XP** si classe différente (Citadins → Guerriers par exemple)
+**Coûts XP changement** : 100-300 XP selon validation rang et classe. Voir [calculs-xp-progression.md](../../business-rules/calculs-xp-progression.md)
 
-**Coûts totaux** :
-- Rang validé, même classe : **100 XP**
-- Rang validé, autre classe : **200 XP** (100 + 100)
-- Rang non validé, même classe : **200 XP**
-- Rang non validé, autre classe : **300 XP** (200 + 100)
+**Validation rang** : Voir [validation-rang-carriere.md](../../business-rules/validation-rang-carriere.md)
 
-Voir [workflow-changement-carriere.md](./workflows/workflow-changement-carriere.md)
+**Workflow complet** : Voir [workflow-changement-carriere.md](./workflows/workflow-changement-carriere.md)
 
 **Restrictions espèce**: Certaines carrières réservées certaines espèces (Tueur Trolls → Nains uniquement, Mage Bataille → Hauts Elfes uniquement, Halfling → Carrières Halflings uniquement), validation système filtre carrières incompatibles, changement impossible Humain ne peut PAS devenir Tueur Trolls carrière Nain exclusive
 
-## Status Social et Salaire
+## Status Social
 
-**Évolution status**: Niveau 1 Bronze Status Bronze ex B3, Niveau 2 Silver Status Silver ex S2, Niveau 3 Gold Status Gold ex G1, Niveau 4 Gold+ Status Gold supérieur ex G2
+**Évolution status**: Niveau 1 Bronze, Niveau 2 Silver, Niveau 3 Gold, Niveau 4 Gold+
 
 **Impact status**: Interactions sociales, revenus, respect NPC
-
-**Salaire évolution**: Bronze 1-5 schillings/semaine, Silver 10-20 schillings/semaine, Gold 1-2 couronnes or/semaine (V1 pas implémentation salaire automatique géré par MJ)
 
 ## Relations
 

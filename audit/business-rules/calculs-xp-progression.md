@@ -146,7 +146,7 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 
 ## Passage de rang (même carrière)
 
-### Coût V1
+### Coût
 
 **Coût** : 100 XP
 
@@ -160,7 +160,7 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 
 ## Changement de carrière
 
-### Coût V1
+### Coût
 
 **Base si rang validé** : 100 XP
 **Base si rang NON validé** : 200 XP
