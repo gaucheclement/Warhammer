@@ -194,6 +194,6 @@ Le personnage peut changer de carrière à n'importe quel moment, ce qui réinit
 
 **Coûts XP:** Voir `calculs-xp-progression.md` pour les formules de coût par niveau et hors carrière.
 
-**Parsing:** Voir `parsing-avances-caracteristiques.md` et `parsing-skills-talents.md` pour le format des données.
+**Parsing:** Voir `parsing-wizard-data.md` pour le format des données.
 
 **Validation:** Voir `audit/database/careerLevels.md` (sections tests et validation) pour les contraintes.

@@ -1,105 +1,85 @@
-# Index des Règles Métier Transverses
+# Index des Règles Métier
 
-Règles métier complexes impliquant **plusieurs tables** ou **systèmes globaux**.
+Règles métier complexes impliquant plusieurs tables ou systèmes globaux.
 
-**Principe**: Si règle concerne UNE seule table → [database/](../database/)
-Si comportement technique réutilisable → [patterns/](../patterns/)
-
----
-
-## Calculs Cross-Table
-
-### Détails Physiques
-[calculs-details-physiques.md](./calculs-details-physiques.md)
-
-**Tables**: Species → Details (eyes, hairs, height, weight, age)
-
-Calcul taille, poids, âge selon espèce et dés.
-
-### Expérience et Progression
-[calculs-xp-progression.md](./calculs-xp-progression.md)
-
-**Tables**: Character → Skills, Talents, Characteristics
-
-Formules de coût XP, plafonds, historique.
-
-### Encombrement
-[calcul-encombrement.md](./calcul-encombrement.md)
-
-**Tables**: Trappings → Character
-
-Calcul poids total, limites Force, pénalités.
+**Principe**: Règle concernant une seule table → [database/](../database/)
+Comportement technique réutilisable → [patterns/](../patterns/)
 
 ---
 
-## Systèmes de Progression
+## Système de Progression
 
-### Compétences - Avances
-[skills-avances-progression.md](./skills-avances-progression.md)
-
-**Tables**: Skills, CareerLevels, Character
-
-Système d'avances, coûts XP, plafonds +20/+10.
-
-### Talents - Rangs Multiples
-[talents-rangs-multiples.md](./talents-rangs-multiples.md)
-
-**Tables**: Talents, Character
-
-Talents prenables plusieurs fois, coûts par rang.
+- [accumulation-avantages-careerlevels.md](./accumulation-avantages-careerlevels.md) - Cumul des avantages par niveaux de carrière
+- [progression-careerlevels.md](./progression-careerlevels.md) - Système de progression niveau 1-4
+- [calculs-xp-progression.md](./calculs-xp-progression.md) - Coûts XP pour skills/characteristics/talents
+- [skills-avances-progression.md](./skills-avances-progression.md) - Système d'avances des compétences
 
 ---
 
-## Interactions Talents
+## Talents et Effets
 
-### Ajout Compétences Magiques
-[talents-ajout-skills-magie.md](./talents-ajout-skills-magie.md)
-
-**Tables**: Talents → Skills, Spells
-
-Talents déverrouillant compétences (Magie des Arcanes, etc.).
-
-### Déblocage Talents
-[talents-deblocage-talents.md](./talents-deblocage-talents.md)
-
-**Tables**: Talents → Talents
-
-Chaînes de prérequis (`addTalent`), détection cycles.
-
-### Modification Caractéristiques
-[talents-modification-caracteristiques.md](./talents-modification-caracteristiques.md)
-
-**Tables**: Talents → Characteristics
-
-Talents augmentant caractéristiques (+SL).
-
-### Application Effets
-[application-effets-talents.md](./application-effets-talents.md)
-
-**Tables**: Talents → Character (global)
-
-Orchestration application de tous effets talents.
+- [talents-effets-mecanismes.md](./talents-effets-mecanismes.md) - Mécanismes talents (addCharacteristic, addSkill, addMagic, addTalent)
+- [application-effets-talents.md](./application-effets-talents.md) - Orchestration application effets
+- [specialisations-skills-talents.md](./specialisations-skills-talents.md) - Gestion spécialisations
 
 ---
 
-## Ce qui N'EST PAS ici
+## Carrières
 
-### Dans database/
-- Règles spécifiques à UNE table
-- Structure des données d'une table
-- Relations simples d'une table
-
-### Dans patterns/
-- Comportements techniques unitaires (parsing, validation)
-- Patterns réutilisables indépendants du métier
+- [relation-careers-careerlevels.md](./relation-careers-careerlevels.md) - Relations carrières/niveaux
+- [filtrage-careers-espece.md](./filtrage-careers-espece.md) - Filtrage carrières selon espèce
+- [filtrage-careers-region.md](./filtrage-careers-region.md) - Filtrage carrières selon région
+- [careers-validation.md](./careers-validation.md) - Validation des carrières
+- [ponderation-aleatoire-careers.md](./ponderation-aleatoire-careers.md) - Pondération pour tirages aléatoires
 
 ---
 
-## Statistiques
+## Équipement
 
-**Nombre de règles métier**: 9
+- [categorisation-trappings.md](./categorisation-trappings.md) - Types et catégories équipement
+- [prix-disponibilite-trappings.md](./prix-disponibilite-trappings.md) - Système monétaire et rareté
+- [calcul-encombrement.md](./calcul-encombrement.md) - Calcul poids et limites
+
+---
+
+## Magie
+
+- [filtrage-spells-lore.md](./filtrage-spells-lore.md) - Filtrage sorts par domaine magique
+
+---
+
+## Parsing et Données
+
+- [parsing-wizard-data.md](./parsing-wizard-data.md) - Parsing données wizard (characteristics, skills, talents)
+- [filtrage-rand-system.md](./filtrage-rand-system.md) - Système de filtrage aléatoire
+
+---
+
+## Autres Calculs
+
+- [calculs-details-physiques.md](./calculs-details-physiques.md) - Calcul âge, taille, yeux/cheveux
+
+---
+
+## Validation et Migration
+
+- [validation-globale.md](./validation-globale.md) - Validation cross-table
+- [gestion-erreurs-cas-limites.md](./gestion-erreurs-cas-limites.md) - Gestion erreurs
+- [migration-descriptions-html.md](./migration-descriptions-html.md) - Migration descriptions HTML
+- [conventions-et-regles-implicites.md](./conventions-et-regles-implicites.md) - Conventions métier implicites
+
+---
+
+## Organisation
+
+**Total**: 23 fichiers
 
 **Par catégorie**:
-- Calculs: 3
-- Progression: 2
-- Talents: 4
+- Progression: 4
+- Talents: 3
+- Carrières: 5
+- Équipement: 3
+- Magie: 1
+- Parsing: 2
+- Calculs: 1
+- Validation: 4

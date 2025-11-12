@@ -99,7 +99,7 @@ Format : `"Qualité (Indice)"`
 
 **Structure :** `tree.allByType[type][subTypeId]`
 **Niveaux :** Type → SubType
-**Calcul :** `Helper.toId(subType)`
+**Calcul :** Conversion du subType en identifiant
 **Usage :** Organisation UI, filtres
 
 ## Exemples détaillés

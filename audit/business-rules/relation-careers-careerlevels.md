@@ -81,7 +81,7 @@ Chaque niveau : `careerLevel` = 1, 2, 3, 4
 ## Contenu par niveau
 
 ### Skills
-Chaque niveau ajoute nouvelles compétences. Format : Liste textuelle (voir [parsing-skills-talents.md](./parsing-skills-talents.md)).
+Chaque niveau ajoute nouvelles compétences. Format : Liste textuelle (voir [parsing-wizard-data.md](./parsing-wizard-data.md)).
 
 **Règle** : Compétences s'accumulent. Niveau 2 possède skills niveau 1 + niveau 2.
 
@@ -94,7 +94,7 @@ Chaque niveau fournit équipement.
 **Évolution** : Niveau 1 = base, Niveau 4 = prestige (atelier, guilde, mécène).
 
 ### Characteristics
-Chaque niveau permet d'améliorer caractéristiques (voir [parsing-avances-caracteristiques.md](./parsing-avances-caracteristiques.md)).
+Chaque niveau permet d'améliorer caractéristiques (voir [parsing-wizard-data.md](./parsing-wizard-data.md)).
 
 ## Progression obligatoire
 
@@ -165,5 +165,4 @@ Interface affiche 4 niveaux de carrière actuelle → Joueur voit compétences/t
 
 - [careers.md](../database/careers.md) - Table carrières
 - [careerLevels.md](../database/careerLevels.md) - Table niveaux
-- [parsing-skills-talents.md](./parsing-skills-talents.md) - Parsing skills/talents
-- [parsing-avances-caracteristiques.md](./parsing-avances-caracteristiques.md) - Parsing characteristics
+- [parsing-wizard-data.md](./parsing-wizard-data.md) - Parsing skills/talents/characteristics

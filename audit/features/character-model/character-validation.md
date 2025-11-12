@@ -12,25 +12,25 @@ Vérifie cohérence globale. Retourne {valid: boolean, errors: [...], warnings: 
 
 **Mode et stepIndex**: mode ∈ ['guidé','libre'], stepIndex: null (non démarré), 0-N (en cours), -1 (terminé). Si mode='guidé' ET stepIndex=-1: wizard terminé
 
-**Espèce (specie)**: Obligatoire si stepIndex>0, specie.id existe dans CharGen.allSpecies, getSpecie() retourne objet valide
+**Espèce (specie)**: Obligatoire si stepIndex>0, specie.id existe dans allSpecies, getSpecie() retourne objet valide
 
-**Carrière (careerLevel)**: Obligatoire si stepIndex>2, format 'career-slug|level', level ∈ [1,2,3,4], existe dans CharGen.allCareersLevels
+**Carrière (careerLevel)**: Obligatoire si stepIndex>2, format 'career-slug|level', level ∈ [1,2,3,4], existe dans allCareersLevels
 
-**Caractéristiques**: Exactement 15 éléments (10 principales + 5 dérivées), Chaque id unique et valide, getTotal() >= 0 pour toutes, Origins valides (ids existants). IDs requis: cc, ct, f, e, i, ag, dex, int, fm, soc, m, pb, chance, determination, corruption
+**Caractéristiques**: Exactement 15 éléments (10 principales + 5 dérivées), Chaque id unique et valide, total >= 0 pour toutes, Origins valides (ids existants). IDs requis: cc, ct, f, e, i, ag, dex, int, fm, soc, m, pb, chance, determination, corruption
 
 ## Validations métier
 
-**Compétences (skills)**: Si specs défini (Au choix) → spec doit être choisi, advance >= 0, origins non vide, Si origin='talent' → talent correspondant actif (getTotal()>0), Pas doublons (même id+spec). Exemple erreur: Langue (Au choix) avec spec='' → invalide, choisir langue
+**Compétences (skills)**: Si specs défini (Au choix) → spec doit être choisi, advance >= 0, origins non vide, Si origin='talent' → talent correspondant actif (total>0), Pas doublons (même id+spec). Exemple erreur: Langue (Au choix) avec spec='' → invalide, choisir langue
 
-**Talents (talents)**: Si specs défini → spec choisi, advance >= 0, advance <= getMax() (si max défini), Si origin='talent' → talent parent actif, Pas doublons (même id+spec sauf rangs multiples). Exemples erreurs: Résistant rang5 mais getMax()=4 (BE=4) → invalide, Béni (Au choix) sans spec → invalide choisir dieu
+**Talents (talents)**: Si specs défini → spec choisi, advance >= 0, advance <= maximum (si max défini), Si origin='talent' → talent parent actif, Pas doublons (même id+spec sauf rangs multiples). Exemples erreurs: Résistant rang5 mais maximum=4 (BE=4) → invalide, Béni (Au choix) sans spec → invalide choisir dieu
 
-**Sorts (spells)**: Chaque sort correspond talent magie actif, sort.data.type matche talent.data.addMagic, Si Magie Arcanes: sort.spec matche talent.spec, Pas doublons (même id+spec). Exemple erreur: Sort "Boule de feu" (Feu) mais pas talent Magie Arcanes (Feu) → invalide
+**Sorts (spells)**: Chaque sort correspond talent magie actif, sorttype matche talentaddMagic, Si Magie Arcanes: sort.spec matche talent.spec, Pas doublons (même id+spec). Exemple erreur: Sort "Boule de feu" (Feu) mais pas talent Magie Arcanes (Feu) → invalide
 
-**Expérience (xp)**: xp.max >= 0, xp.used >= 0, xp.tmp_used >= 0, xp.used + xp.tmp_used <= xp.max (pas XP négatif), log cohérent: sum(log positifs)=xp.max, sum(log négatifs)=xp.used. Exemple erreur: used=150, max=100 → invalide XP négatif
+**Expérience (xp)**: xp.max >= 0, xp.used >= 0, xp.XP temporaire >= 0, xp.used + xp.XP temporaire <= xp.max (pas XP négatif), log cohérent: sum(log positifs)=xp.max, sum(log négatifs)=xp.used. Exemple erreur: used=150, max=100 → invalide XP négatif
 
 ## Validations dérivées
 
-**Points de Blessures**: PB.getTotal() >= 1 (minimum absolu), Formule cohérente avec espèce
+**Points de Blessures**: PB.total >= 1 (minimum absolu), Formule cohérente avec espèce
 
 **Encombrement**: total >= 0, qty >= 0 pour chaque trapping, enc >= 0 pour chaque trapping. Avertissement: Si total > limite → personnage encombré (malus)
 
@@ -43,7 +43,7 @@ Vérifie cohérence globale. Retourne {valid: boolean, errors: [...], warnings: 
 ## Règles Warhammer spécifiques
 
 **Pré-requis talents**: Combat Instinctif (I>=30), Maîtrise (skill>=30), Magie Arcanes (talent Magicien)
-**Limites**: Rangs talents <= getMax(), caractéristiques dans limites raciales
+**Limites**: Rangs talents <= maximum, caractéristiques dans limites raciales
 **Cohérence**: Skills/talents carrière avec origins valides
 
 ## Gestion erreurs

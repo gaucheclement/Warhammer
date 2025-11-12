@@ -9,13 +9,13 @@ L'édition de personnage permet de modifier tous les aspects après création : 
 ### Calculs
 
 Valeur base = espèce + jet + bonus talent + bonus étoile
-Avances totales = advance + career + tmpadvance
+Avances totales = advance + career + avances temporaires
 Valeur finale = base + avances totales
 Bonus = floor(valeur finale / 10)
 
 ### Modification
 
-Édition inline (jet, advance, tmpadvance). Autres valeurs calculées automatiquement. Recalcul auto : bonus caractéristique, valeurs dérivées (PdB, Corruption, Chance, Détermination), compétences liées.
+Édition inline (jet, advance, avances temporaires). Autres valeurs calculées automatiquement. Recalcul auto : bonus caractéristique, valeurs dérivées (PdB, Corruption, Chance, Détermination), compétences liées.
 
 ### Valeurs dérivées
 
@@ -29,7 +29,7 @@ Détermination : Valeur totale Résilience
 ### Calculs
 
 Valeur base = caractéristique associée totale
-Avances totales = specie + career + advance + tmpadvance
+Avances totales = specie + career + advance + avances temporaires
 Valeur finale = base + avances totales
 
 ### Gestion
@@ -43,14 +43,14 @@ Coût XP : Dépend niveau actuel/cible et carrière (x1 en carrière, x2 hors). 
 ### Calculs
 
 Base = 0
-Avances totales = advance + roll + tmpadvance
+Avances totales = advance + roll + avances temporaires
 Total = avances totales
 
 ### Gestion
 
 `searchTalent()` déduplique (ID + spec). Specs = instances séparées. Talents auto via `addTalent`. `deleteEmpty()` supprime sans avances.
 
-Maximum : numérique (2, 3, 4), "Aucun" (illimité), "Bonus de X" (limité bonus caractéristique). `getMax()` calcule limite.
+Maximum : numérique (2, 3, 4), "Aucun" (illimité), "Bonus de X" (limité bonus caractéristique). `maximum` calcule limite.
 
 ### Effets talents
 
@@ -73,7 +73,7 @@ Pas d'avances/rangs. Connaissance binaire. Label : "Nom (Spec)" pour Magie Arcan
 
 Pré-requis : Talent magique. `searchSpell()` déduplique. Filtre par lore. `applyTalent()` retire sorts sans talent actif.
 
-Cas spécial : "Béni (Dieu)" ajoute auto toutes bénédictions via `CharGen.allGods[Helper.toId(spec)].getSpells()`. Retrait si talent perdu.
+Cas spécial : "Béni (Dieu)" ajoute auto toutes bénédictions via `allGods[toId(spec)].getSpells()`. Retrait si talent perdu.
 
 ## Équipement
 
@@ -114,11 +114,11 @@ Objet `careerLevel` : id, data, méthodes (getLabel, getCareer, getCharacteristi
 
 ### Passage niveau supérieur
 
-Conditions : avances min, conditions narratives. Processus : récupérer niveau suivant → `setCareerLevel()` → application auto avantages (carac/talents/compétences avec origins enrichies).
+Conditions : avances min, conditions narratives. Processus : récupérer niveau suivant → `sélection niveau()` → application auto avantages (carac/talents/compétences avec origins enrichies).
 
 ### Changement carrière
 
-Sélection nouvelle → niveau entrée → `setCareerLevel()` → application avantages. Avances conservées, coût XP change (x1 en, x2 hors carrière).
+Sélection nouvelle → niveau entrée → `sélection niveau()` → application avantages. Avances conservées, coût XP change (x1 en, x2 hors carrière).
 
 Pré-requis carrières avancées : niveau min, carac min, talent/compétence requis. Blocage strict ou avertissement.
 
@@ -133,12 +133,12 @@ Cohérence : Carac dérivées, compétences/sorts liés talents, origines valide
 ### Validation XP
 
 XP disponible = xp.max - xp.used
-XP après modifs = disponible - tmp_used
+XP après modifs = disponible - XP temporaire
 Si < 0 → Erreur + blocage.
 
 ### Limites talents
 
-talent.getTotal() ≤ talent.getMax(). Si dépassé → Erreur + blocage. Limite dynamique "Bonus de X" récupère bonus carac.
+talent.total ≤ talent.maximum. Si dépassé → Erreur + blocage. Limite dynamique "Bonus de X" récupère bonus carac.
 
 ### Erreurs
 
@@ -153,10 +153,10 @@ Recalculs auto : `applyTalent()` (sync talents/sorts/compétences/bonus), `delet
 
 ### Structure
 
-Objet `xp` : max (total gagné), used (total dépensé), tmp_used (modifs temporaires), log (historique).
+Objet `xp` : max (total gagné), used (total dépensé), XP temporaire (modifs temporaires), log (historique).
 
 XP disponible = max - used
-XP restant après validation = max - (used + tmp_used)
+XP restant après validation = max - (used + XP temporaire)
 
 ### Log
 
@@ -175,10 +175,10 @@ Statistiques : Totaux (gagné/dépensé/disponible), répartition (par type, par
 
 ## Workflow modifications temporaires
 
-1. Modif avances → tmpadvance
-2. Calcul coût → tmp_used
+1. Modif avances → avances temporaires
+2. Calcul coût → XP temporaire
 3. Affichage : "Coûtera X XP"
-4. Validation `saveAdvance()` : calcul coût (`Helper.getXPCost() × multiplicateur`), ajout log, transfert (advance += tmpadvance), réinit (tmpadvance = 0, tmp_used = 0)
+4. Validation `saveAdvance()` : calcul coût (`getXPCost() × multiplicateur`), ajout log, transfert (advance += avances temporaires), réinit (avances temporaires = 0, XP temporaire = 0)
 
 ## Origines et traçabilité
 

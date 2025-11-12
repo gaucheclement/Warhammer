@@ -12,9 +12,8 @@ Le système de filtrage régional détermine la prévalence des carrières selon
 
 ## Régions disponibles
 
-Voir [pattern-generation-aleatoire.md](../patterns/pattern-generation-aleatoire.md) pour structure complète objet `rand`.
-
 ### Provinces impériales couvertes
+
 L'objet `rand` contient trois clés régionales :
 
 **Middenheim** : Cité-État d'Ulric - Culture martiale, influence ulricaine, rivalité avec Altdorf
@@ -24,16 +23,20 @@ L'objet `rand` contient trois clés régionales :
 **Nordland** : Province côtière - Économie maritime, pêche, commerce naval, climat rigoureux
 
 ### Régions absentes
+
 **Reikland** (Altdorf), **Talabecland**, **Stirland**, **Averland** : Non représentées.
 
 **Pourquoi** : Clés ciblent provinces avec spécificités marquées. Reikland = référence par défaut.
 
 ## Principe de fonctionnement
 
-### Mécanisme
-Identique au filtrage espèce (voir [filtrage-careers-espece.md](./filtrage-careers-espece.md)), avec clés régionales.
+### Mécanisme de correspondance
 
-**Règles** :
+Voir [filtrage-rand-system.md](./filtrage-rand-system.md) pour description complète du système de filtrage par clé-valeur.
+
+**Application aux régions** : Utilise le même mécanisme que le filtrage par espèce, avec des clés régionales à la place des clés d'espèces.
+
+**Règles d'accessibilité** :
 - `carrière.rand[région]` = nombre → PRÉSENTE
 - `carrière.rand[région]` = "" → ABSENTE
 - Clé absente → ABSENTE

@@ -109,7 +109,7 @@ Permet l'édition centralisée des tables de référence (species, careers, skil
 
 ## Sauvegarde et Restauration
 
-**Process**: Collecte formulaire (EditHelper.prepareData) → Nettoyage (trim, ' → ') → Backup automatique Google Sheets → Écriture ligne index → Rechargement partiel → Restauration interface (position scroll, filtre, sélection)
+**Process**: Collecte formulaire (EditprepareData) → Nettoyage (trim, ' → ') → Backup automatique Google Sheets → Écriture ligne index → Rechargement partiel → Restauration interface (position scroll, filtre, sélection)
 
 **Feedback**: Loader pendant sauvegarde (<2s), retour automatique élément = confirmation implicite, pas message explicite succès
 

@@ -128,53 +128,18 @@ Voir [species.md](../../database/species.md), [characteristics.md](../../databas
 
 ## Exemples Warhammer
 
-**Agitateur Humain de base :**
-- Mvt 4, Marche 8, Course 16
-- PB : 30 + 2×3 + 3 = 39
-- Destin 2 + 1 (signe) = 3, Chance 3/3
-- Résilience 2, Détermination 2/2
-- Enc 5 (limite 30, Normal)
-- Corruption 0
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Répurgateur Nain niveau 2 optimisé :**
-- Mvt 3, Marche 6, Course 12
-- PB : 40 + 2×4 + 4 + Endurci rang 2 (4×2=8) = 60
-- Destin 3 + 1 (Chanceux) = 4, Chance 4/4
-- Résilience 4 + 1 (Imperturbable) = 5, Détermination 5/5
-- Enc 35 (limite 40, Normal)
-- Corruption 0
+**Focus calculs dérivés :**
 
-**Sorcier Elfe Azyr :**
-- Mvt 5 + 1 (Véloce) = 6, Marche 12, Course 24
-- PB : 30 + 2×3 + 4 = 40
-- Destin 1 + 2 (Chanceux rang 2) = 3, Chance 3/3
-- Résilience 2, Détermination 2/2
-- Enc 8 (limite 20, Normal)
-- Corruption 0 (Arcanes n'ajoutent pas Corruption)
+**Agitateur Humain :** Mvt 4 (Marche 8, Course 16) → PB 39 (E 30 + 2×BE 3 + BF 3) → Destin 3 (base 2 + signe 1), Chance 3/3 → Résilience 2, Détermination 2/2 → Enc 5 (limite BF×10 = 30, Normal).
 
-**Halfling Surchargé :**
-- F 25 (Bonus 2), limite 20 enc
-- Enc 25 (Sac 15 + Arme 2 + Armure 8)
-- Statut Surchargé (25 > 20) : Mvt 3→1, Ag -10
-- Résumé affiche 25 enc total (calcul pénalités interne)
+**Répurgateur Nain niveau 2 :** PB 54 (E 42 + 2×BE 4 + BF 3) avec talent Endurci potentiel → Destin 2, Résilience 4 (base Nain robuste) → Mvt 3 (Marche 6, Course 12).
 
-**Ogre Guerrier :**
-- Mvt 6, Marche 12, Course 24
-- PB : 2×50 + 4×5 + 6 = 126 (formule Ogre)
-- Destin 0 (espèce), Chance 0/0
-- Résilience 4, Détermination 4/4
-- Enc 80, F 50 (Bonus 5), limite 50 : Surchargé (Mvt 6→3, Ag -10)
-- Corruption 0
+**Sorcier Elfe Azyr :** Mvt 5 (base Elfe) potentiellement +1 avec talent Véloce → PB 40 (formule Elfe E 30 + 2×BE 3 + BFM 4) → Destin 1, Résilience 2 (base Elfe faible).
 
-**Prêtre Humain béni :**
-- Mvt 4, Marche 8, Course 16
-- PB : 35 + 2×3 + 3 = 44
-- Destin 3 (espèce) + 1 (Né sous bonne étoile) = 4, Chance 4/4
-- Résilience 2 + 2 (Imperturbable rang 2) = 4, Détermination 4/4
-- Enc 12 (limite 30, Normal)
-- Corruption 0
+**Halfling Bourgeois :** PB 26 (formule Halfling 2×BE 2 + BFM 2, pas BF) → Fragile mais Destin 2, Résilience 3 compensent → Mvt 3 → Enc faible (F 10 → limite 10).
 
-**Cultiste Chaos (narratif post-création) :**
-- Corruption 5 (Modérée) via 5 sorts Chaos lancés
-- Pas calculable en création wizard (source externe)
-- Affiché comme 0 en résumé création
+**Surchargé :** Enc > Bonus F × 10 → Pénalités Mvt ÷2, Ag -10 → Résumé affiche enc total, calcul pénalités interne feuille personnage.
+
+**Corruption :** Toujours 0 en création wizard (sources externes uniquement post-création).

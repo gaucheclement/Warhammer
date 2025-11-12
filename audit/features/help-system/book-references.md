@@ -6,7 +6,7 @@ Le système de références bibliographiques permet d'afficher pour chaque élé
 
 ## Indexation des références
 
-Chaque entité avec `book` et `page` est indexée dans `CharGen.match['book'][nomLivre][typeEntite][labelEntite]`
+Chaque entité avec `book` et `page` est indexée dans `match['book'][nomLivre][typeEntite][labelEntite]`
 
 Métadonnées stockées: ID, texte "page X", statut actif/inactif
 
@@ -92,4 +92,4 @@ Sélection livre → filtre entités ayant référence vers ce livre
 
 - [inverse-relations.md](./inverse-relations.md) - Relations inverses "Utilisé par"
 - [rich-descriptions.md](./rich-descriptions.md) - Liens vers références bibliographiques dans les descriptions
-- [global-index.md](./global-index.md) - Structure de CharGen.match incluant l'index livres
+- [global-index.md](./global-index.md) - Structure de match incluant l'index livres

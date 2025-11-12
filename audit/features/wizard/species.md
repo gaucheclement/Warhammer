@@ -8,9 +8,9 @@ Première étape wizard : choix espèce et variante régionale. Détermine carac
 
 ### Modes sélection
 
-**Choisir** : Active liste complète, `randomState.specie = -1`, pas bonus XP
+**Choisir** : Active liste complète, `specie = -1`, pas bonus XP
 
-**Lancer** : Tirage 1-100, sélection algorithmique, +20 XP si accepté, `randomState.specie = 1`, animation ~1.5s
+**Lancer** : Tirage 1-100, sélection algorithmique, +20 XP si accepté, `specie = 1`, animation ~1.5s
 
 **Mode Free** : `isFreeMode() = true`, boutons masqués, sélection directe sans bonus
 
@@ -20,7 +20,7 @@ Liste 2 niveaux : Niveau 1 = groupement `refDetail` + range probabilité. Niveau
 
 Ex: Humain 1-90 > Reiklander, Middenheim | Nain 91-97 > Standard, Altdorfer
 
-### États randomState.specie
+### États specie
 
 | État | Signification | Liste |
 |------|--------------|-------|
@@ -31,7 +31,7 @@ Ex: Humain 1-90 > Reiklander, Middenheim | Nain 91-97 > Standard, Altdorfer
 
 ### Règles présélection
 
-Tirage : 1 variante → sélection auto, plusieurs → joueur choisit. Restauration : présélection si `character.specie` existe. Mode Free : boutons masqués.
+Tirage : 1 variante → sélection auto, plusieurs → joueur choisit. Restauration : présélection si `specie` existe. Mode Free : boutons masqués.
 
 ## Génération aléatoire
 
@@ -45,7 +45,7 @@ Variantes : Humains 13, Nains 5, Hauts Elfes 1, Elfes Sylvains 2, Halflings 12, 
 
 ### Variantes multiples
 
-Plusieurs species même `rand` → collecte IDs dans `imposedSpecie[]`. Si 1 : auto, si plusieurs : choix. Ex tirage 50 : 50 <= 90 → 13 variantes Humains
+Plusieurs species même `rand` → collecte IDs dans `espèces proposées`. Si 1 : auto, si plusieurs : choix. Ex tirage 50 : 50 <= 90 → 13 variantes Humains
 
 ### Bonus XP
 
@@ -53,7 +53,7 @@ Condition : acceptation premier résultat sans relance/choix manuel. Workflow : 
 
 ### Animation
 
-Tirage (Helper.dice ~1s) : range jaune, compteur 0→résultat. Résultat : species activée(s), fond orange→noir (500+300+500ms), retour normal 1.5s.
+Tirage (dice ~1s) : range jaune, compteur 0→résultat. Résultat : species activée(s), fond orange→noir (500+300+500ms), retour normal 1.5s.
 
 ## Sélection région (Humains)
 
@@ -73,7 +73,7 @@ Région modifie `career.rand[région]`. Numérique = accessible, "", null, absen
 
 Ex: Soldat (Humain 25, Middenheim 30), Contrebandier (Humain 85, Nordland 80, Middenheim exclu), Prêtre Ulric (Middenheim 20, Middenland 50)
 
-Déclenchement après variante Humain. Optionnel (omis = seuils standard). Stockage `character.region`
+Déclenchement après variante Humain. Optionnel (omis = seuils standard). Stockage `region`
 
 ## Application caractéristiques
 
@@ -112,7 +112,7 @@ Points forts : Nains E30/FM40, Elfes I40/mentales30, Halflings CT30/Dex30, Ogres
 
 ### Modificateurs talents
 
-Appliqués APRÈS carac base, lors attribution talents. Ex: Costaud +5 E. Voir [talents-modification-caracteristiques.md](../../business-rules/talents-modification-caracteristiques.md)
+Appliqués APRÈS carac base, lors attribution talents. Ex: Costaud +5 E. Voir [talents-effets-mecanismes.md](../../business-rules/talents-effets-mecanismes.md)
 
 ## Affichage détails
 
@@ -121,9 +121,7 @@ Appliqués APRÈS carac base, lors attribution talents. Ex: Costaud +5 E. Voir [
 **Description** : `species.desc` (HTML), contexte culturel, apparence, règles
 
 **Compétences** : `species.skills` (parsing), liste virgules, spéc parenthèses, "(Au choix)" souligné, 8-10. Ex Nains : "Calme, Corps à corps (Base), Métier (Au choix)...". Voir [pattern-parsing.md](../../patterns/pattern-parsing.md), [pattern-specialisations.md](../../patterns/pattern-specialisations.md)
-
 **Talents** : `species.talents` (parsing), liste virgules, " ou ", "X Talent aléatoire", 4-6. Ex Nains : "Costaud, Déterminé ou Obstiné, Résistance magie...". Voir [pattern-talent-aleatoire.md](../../patterns/pattern-talent-aleatoire.md)
-
 **Carrières** : Via `refCareer`, indicatif. Voir [filtrage-careers-espece.md](../../business-rules/filtrage-careers-espece.md)
 
 ### Modificateurs affichés
@@ -131,7 +129,6 @@ Appliqués APRÈS carac base, lors attribution talents. Ex: Costaud +5 E. Voir [
 **Carac** : Tableau couleurs. 30+ vert (élevée), 20 neutre, ≤10 rouge (faible). Ex Nain : E30/FM40 verts, Ag10/Soc10 rouges
 
 **B/M/Destin/Résilience** : Formules + valeurs
-
 **Badges** : Vision nocturne (Nains/Elfes/Gnomes), Résistance magie (Nains), Résistance Chaos (Halflings), Costaud (Nains), Petit (Halflings/Gnomes)
 
 ### Détails physiques
@@ -139,7 +136,6 @@ Appliqués APRÈS carac base, lors attribution talents. Ex: Costaud +5 E. Voir [
 **Taille/Âge** : `details.rand[species.refDetail]`, "Base+Roll" range. Ex Humain 160+2d10 cm (160-180), 16+2d10 ans (16-36). Voir [calculs-details-physiques.md](../../business-rules/calculs-details-physiques.md)
 
 **Yeux/Cheveux** : Tables eyes/hairs (2d10)
-
 ### Organisation
 
 Sections : Titre+Desc, Carac tableau, Modif B/M/Destin/Rés, Compétences, Talents+badges, Détails physiques. Colonnes : Gauche=Desc/Comp/Talents, Droite=Carac/Modif/Capacités
@@ -164,15 +160,15 @@ Sections : Titre+Desc, Carac tableau, Modif B/M/Destin/Rés, Compétences, Talen
 
 ### Vérifications
 
-**Espèce** : `character.specie` ≠ null, `randomState.specie = -2` après save, +20 XP si aléatoire
+**Espèce** : `specie` ≠ null, `specie = -2` après save, +20 XP si aléatoire
 
-**Région** : Si variante régionale, sélectionnée ou omise, cohérence `species.refCareer` ↔ région, `character.region` persisté
+**Région** : Si variante régionale, sélectionnée ou omise, cohérence `species.refCareer` ↔ région, `region` persisté
 
 **Carac** : `species.refChar` valide, 10 principales + B + M + Destin + Résilience, valeurs 22-60, formules B correctes
 
 ### Données persistées
 
-`character.specie`, `character.randomState.specie`, `character.randomState.imposedSpecie`, `character.region`
+`specie`, `specie`, `imposedSpecie`, `region`
 
 ### Bouton Validate
 
@@ -195,6 +191,6 @@ Initial désactivé. Activation dès sélection (clic niveau 2). Action : save p
 
 **Database** : [species.md](../../database/species.md), [characteristics.md](../../database/characteristics.md), [careers.md](../../database/careers.md)
 
-**Business Rules** : [filtrage-careers-espece.md](../../business-rules/filtrage-careers-espece.md), [filtrage-careers-region.md](../../business-rules/filtrage-careers-region.md), [talents-modification-caracteristiques.md](../../business-rules/talents-modification-caracteristiques.md), [calculs-details-physiques.md](../../business-rules/calculs-details-physiques.md)
+**Business Rules** : [filtrage-careers-espece.md](../../business-rules/filtrage-careers-espece.md), [filtrage-careers-region.md](../../business-rules/filtrage-careers-region.md), [talents-effets-mecanismes.md](../../business-rules/talents-effets-mecanismes.md), [calculs-details-physiques.md](../../business-rules/calculs-details-physiques.md)
 
 **Patterns** : [pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoire.md), [pattern-parsing.md](../../patterns/pattern-parsing.md), [pattern-specialisations.md](../../patterns/pattern-specialisations.md), [pattern-talent-aleatoire.md](../../patterns/pattern-talent-aleatoire.md)

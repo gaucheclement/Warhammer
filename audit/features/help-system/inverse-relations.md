@@ -8,7 +8,7 @@ Le système de relations inverses permet d'afficher automatiquement quelles enti
 
 ### Indexation au chargement
 
-Lors du chargement des données JSON, le système parcourt toutes les entités et enregistre les relations dans l'index global CharGen.match. Pour chaque relation texte-vers-entité détectée dans une description ou liste:
+Lors du chargement des données JSON, le système parcourt toutes les entités et enregistre les relations dans l'index global match. Pour chaque relation texte-vers-entité détectée dans une description ou liste:
 
 1. L'entité source (ex: Carrière "Agitateur") référence une entité cible (ex: Talent "Éloquence")
 2. La relation est enregistrée dans l'index sous l'entité cible
@@ -156,7 +156,7 @@ Lors de l'affichage:
 ### Complétude de l'index
 
 **Contrôles:**
-- Chaque entité référencée dans une description a une entrée dans CharGen.match
+- Chaque entité référencée dans une description a une entrée dans match
 - Pas d'entités orphelines (sans relations entrantes ni sortantes)
 - Relations bidirectionnelles cohérentes
 
@@ -178,5 +178,5 @@ Lors de l'affichage:
 
 - [rich-descriptions.md](./rich-descriptions.md) - Transformation texte en liens cliquables
 - [bidirectional-navigation.md](./bidirectional-navigation.md) - Navigation entre entités liées
-- [global-index.md](./global-index.md) - Structure complète de CharGen.match
+- [global-index.md](./global-index.md) - Structure complète de match
 - [book-references.md](./book-references.md) - Relations vers livres sources

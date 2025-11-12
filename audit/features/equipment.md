@@ -326,7 +326,7 @@ Chaque possession (trapping) contient:
 
 ### Gestion liste
 
-Objets ajoutés `character.trappings[]` (tableau). Sources: dotation carrière (CareerLevel trappings), achat (sélection base données), butin (ajout libre).
+Objets ajoutés `trappings[]` (tableau). Sources: dotation carrière (CareerLevel trappings), achat (sélection base données), butin (ajout libre).
 
 **Quantités:** Même objet plusieurs exemplaires dupliqué (plusieurs entrées) ou géré propriété quantité niveau personnage (implémentation variable).
 

@@ -39,12 +39,12 @@ getSkills().filter(s => s.getCharacteristic().id === 'ag') → Compétences Agil
 
 ### Talents par rang
 
-getTalents().filter(t => t.getTotal() > 0) → Talents actifs
-getTalents().filter(t => t.getTotal() === t.getMax()) → Talents au maximum
+getTalents().filter(t => t.total > 0) → Talents actifs
+getTalents().filter(t => t.total === t.maximum) → Talents au maximum
 
 ### Sorts par type/domaine
 
-**Par type**: getSpells().filter(s => s.data.type === 'Bénédictions') → Sorts divins
+**Par type**: getSpells().filter(s => stype === 'Bénédictions') → Sorts divins
 **Par domaine**: getSpells().filter(s => s.spec === 'Feu') → Sorts Feu uniquement
 
 ## Méthodes trappings
@@ -101,13 +101,13 @@ Gérés par career.getTalents() et applyTalent().
 
 ## Exemples concrets
 
-**Recherche Athlétisme Humain Éclaireur**: searchSkill('athletisme') → {id:'athletisme', advance:8, origins:['humain','eclaireur|1'], getCharacteristic()→Ag=35, getTotal()→43}
+**Recherche Athlétisme Humain Éclaireur**: searchSkill('athletisme') → {id:'athletisme', advance:8, origins:['humain','eclaireur|1'], getCharacteristic()→Ag=35, total→43}
 
 **Recherche Corps-à-corps Base Soldat|2**: searchSkill('corps-a-corps','Base') → {id:'corps-a-corps', spec:'Base', advance:10, origins:['soldat|1','soldat|2'], hasOrigin('soldat|2')→true}
 
 **Sorts Feu Sorcier**: getSpells().filter(s => s.spec==='Feu') → [Dard de feu, Boule de feu]
 
-**Talents actifs**: getTalents().filter(t => t.getTotal()>0) → [Résistant rang2, Vision nocturne rang1, ...]
+**Talents actifs**: getTalents().filter(t => t.total>0) → [Résistant rang2, Vision nocturne rang1, ...]
 
 ## Validation
 
@@ -115,7 +115,7 @@ Contraintes recherche:
 - Si specs défini (Au choix): spec doit être choisi avant finalisation
 - advance >= 0
 - origins non vide
-- Si origin='talent': talent correspondant doit avoir getTotal() > 0
+- Si origin='talent': talent correspondant doit avoir total > 0
 
 Voir [character-validation.md](./character-validation.md)
 

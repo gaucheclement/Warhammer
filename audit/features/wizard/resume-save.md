@@ -9,17 +9,17 @@ L'écran de résumé propose sauvegarde du personnage créé. Cette sauvegarde e
 ### Bouton "Sauvegarder" (otherAction)
 
 Comportement conditionnel :
-- Si CharGen.saveName existe (déjà sauvegardé) : Bouton caché (visibility: hidden)
+- Si saveName existe (déjà sauvegardé) : Bouton caché (visibility: hidden)
 - Sinon : Bouton affiché label "Sauvegarder"
 
 ### Processus
 
 Clic "Sauvegarder" déclenche :
-1. Appel CharGen.saveDatabaseCharacter(callback)
+1. Appel saveDatabaseCharacter(callback)
 2. Sauvegarde personnage en base
 3. Callback reçoit code sauvegarde (data) ou null si échec
-4. Si succès et nouveau code (data !== CharGen.saveName) :
-   - Stocke code dans CharGen.saveName
+4. Si succès et nouveau code (data !== saveName) :
+   - Stocke code dans saveName
    - Affiche dialogue confirmation avec code
    - Masque bouton (visibility: hidden)
 5. Si succès et code existant : Alert "Personnage sauvegardé" (mise à jour)
@@ -65,7 +65,7 @@ Personnage sauvegardé (saveName existe) → Bouton caché → Modifications via
 
 ### Sauvegarde en base
 
-CharGen.saveDatabaseCharacter() effectue :
+saveDatabaseCharacter() effectue :
 - Sérialisation character (JSON probable)
 - Envoi backend ou LocalStorage/IndexedDB
 - Génération code unique
@@ -74,7 +74,7 @@ CharGen.saveDatabaseCharacter() effectue :
 ### Récupération
 
 Code permet :
-- Chargement via CharGen.loadDatabaseCharacter(code)
+- Chargement via loadDatabaseCharacter(code)
 - Restauration état complet (caractéristiques, compétences, talents, trappings, etc.)
 - Modification via feuille personnage (pas wizard)
 - Export/partage via code
@@ -93,7 +93,7 @@ Sécurité : Codes uniques évitent collisions.
 
 Après sauvegarde, "Retour" permet :
 - Label "Retour" (vs "Annuler")
-- Retour menu principal (CharGen.showMenu())
+- Retour menu principal (showMenu())
 - Restaure classes CSS panels
 
 ### Réutilisation
@@ -114,7 +114,7 @@ Personnage sauvegardé accessible via :
 
 ### Fichiers impliqués
 
-CharGen.saveDatabaseCharacter() et CharGen.loadDatabaseCharacter() gèrent persistance (fichier central CharGen ou Helper).
+saveDatabaseCharacter() et loadDatabaseCharacter() gèrent persistance (fichier central CharGen ou Helper).
 
 ## Règles métier
 
@@ -139,48 +139,16 @@ Codes peuvent avoir durée de vie limitée (ex: 30 jours inactivité). Recommand
 
 ## Exemples Warhammer
 
-**Agitateur Humain sauvegarde réussie :**
-- Clic "Sauvegarder" → Dialogue "Code : A7F3-K9L2-M4X8"
-- Copie code → Bouton masqué → Clic "Valider"
-- Personnage récupérable via A7F3-K9L2-M4X8
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Répurgateur Nain échec sauvegarde :**
-- Clic "Sauvegarder" → Alert "Echec de la sauvegarde." (serveur ou LocalStorage plein)
-- Bouton reste visible → Réessayer ou valider sans sauvegarder
-- Recommandation : Export JSON manuel backup
+**Focus mécanisme sauvegarde :**
 
-**Sorcier Elfe brouillon :**
-- Talents incomplets → Clic "Sauvegarder" → Code B3G7-H1J5-N9P2
-- Retour Talents → Ajout talents → Retour résumé
-- Bouton caché (saveName existe) → Sauvegarde = version incomplète
-- Clic "Valider" termine (version complète non sauvegardée)
+**Sauvegarde réussie (Agitateur Humain) :** Clic "Sauvegarder" → Dialogue affiche code unique "A7F3-K9L2-M4X8" → Copie code → Bouton masqué → Clic "Valider" finalise → Personnage récupérable via code.
 
-**Halfling mise à jour :**
-- Déjà sauvegardé (saveName "C5E8-F2G6-H4J9") → Bouton caché
-- stepIndex -1 → Modifier impossible wizard
-- Mise à jour : Charger feuille personnage → Modifier → Sauvegarder
-- Nouveau code ou écrase ancien selon implémentation
+**Échec sauvegarde (Répurgateur Nain) :** Clic "Sauvegarder" → Alert "Echec de la sauvegarde." (serveur/LocalStorage plein) → Bouton reste visible pour réessayer → Alternative : valider sans sauvegarder ou export JSON manuel.
 
-**Prêtre perte données :**
-- Oubli sauvegarde → Clic "Valider" direct
-- Wizard terminé, personnage mémoire → Fermeture navigateur
-- PERTE TOTALE (pas récupération)
-- Recommandation UI : Avertissement si validation sans sauvegarde
+**Brouillon incomplet (Sorcier Elfe) :** Talents incomplets → Sauvegarde génère code → Retour Talents pour compléter → Bouton caché (saveName existe) → Sauvegarde conserve version incomplète → Validation ultérieure termine mais version complète non sauvegardée.
 
-**Guerrier Nain double sécurité :**
-- Clic "Sauvegarder" → Code D6F9-G3H7-J2K5 copié fichier texte
-- Export JSON (si disponible) → Backup local
-- Double sécurité : Code + fichier JSON
-- Récupération même si serveur perd données
+**Risque perte données :** Validation sans sauvegarde → Personnage en mémoire uniquement → Fermeture navigateur = perte totale → Recommandation UI : avertissement avant validation si pas sauvegardé.
 
-**Halfling partage personnage :**
-- Sauvegarde → Code E8F1-G4H7-J3K6
-- Partage code avec ami → Ami charge via code
-- Clone personnage dans son compte
-- Chacun modifie version indépendamment
-
-**Nain versions multiples :**
-- Sauvegarde niveau 1 → Code F2G5-H8J1-K4L7
-- Progression niveau 2, sauvegarde → Code M3N6-P9Q2-R5S8
-- Deux codes = deux versions personnage
-- Permet tester builds différents ou rollback
+**Versions multiples (Nain) :** Sauvegarde niveau 1 → Code 1 généré → Progression niveau 2 → Nouvelle sauvegarde → Code 2 généré → Deux versions distinctes conservées.

@@ -12,10 +12,10 @@
 
 | Champ | Type | Description | Pattern |
 |-------|------|-------------|---------|
-| `index` | number | ID unique 0-150+ | [pattern-index.md](../patterns/pattern-index.md) |
-| `label` | string | Nom du talent | [pattern-label.md](../patterns/pattern-label.md) |
-| `book` | string | Référence source | [pattern-book-page.md](../patterns/pattern-book-page.md) |
-| `page` | number | Page source | [pattern-book-page.md](../patterns/pattern-book-page.md) |
+| `index` | number | ID unique 0-150+ | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `label` | string | Nom du talent | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `book` | string | Référence source | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `page` | number | Page source | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
 
 ### Champs de règles
 
@@ -170,12 +170,8 @@
 **Note**: Les règles métier ne sont PAS dans ce fichier.
 
 Voir:
-- [talents-rangs-multiples.md](../business-rules/talents-rangs-multiples.md)
-- [talents-specialisations.md](../business-rules/talents-specialisations.md)
-- [talents-deblocage-talents.md](../business-rules/talents-deblocage-talents.md)
-- [talents-modification-caracteristiques.md](../business-rules/talents-modification-caracteristiques.md)
-- [talents-ajout-skills-magie.md](../business-rules/talents-ajout-skills-magie.md)
-- [application-effets-talents.md](../business-rules/application-effets-talents.md)
+- [talents-effets-mecanismes.md](../business-rules/talents-effets-mecanismes.md) - 4 mécanismes, rangs, spécialisations
+- [application-effets-talents.md](../business-rules/application-effets-talents.md) - Orchestration globale
 
 ---
 

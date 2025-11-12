@@ -65,7 +65,7 @@ Chaque domaine contient une liste de sorts filtrés automatiquement :
 - **Magie des Couleurs** → `type="Magie des Arcanes"` ET `subType=label du domaine`
 - **Magie du Chaos** → `type="Magie du Chaos"` ET `subType=nom du dieu`
 
-**Logique** : Le code parcourt `CharGen.data.spell.allByTypeAndSpec[spellType][el.label]` pour récupérer les sorts associés.
+**Logique** : Le système récupère les sorts via index type et spécialisation.
 
 **Référence** : [Sorts - Types et Domaines](spells.md#types-de-sorts)
 

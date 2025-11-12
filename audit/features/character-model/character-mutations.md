@@ -71,23 +71,23 @@ Exemples: addXP('Quête',100,true) → max+=100, addXP('Athlétisme 0→5',-25,f
 
 ### spendXP(amount, category)
 
-Dépense temporaire avant validation: this.xp.tmp_used += amount
+Dépense temporaire avant validation: this.xp.XP temporaire += amount
 
 Utilisé pendant session amélioration, avant saveAdvance().
 
 ### saveAdvance()
 
 Valide avances temporaires et consomme XP:
-1. Parcourt skills/characteristics/talents avec tmpadvance>0
-2. Calcule coût: Helper.getXPCost(elem, from, to) × (de carrière ? 1 : 2)
+1. Parcourt skills/characteristics/talents avec avances temporaires>0
+2. Calcule coût: getXPCost(elem, from, to) × (de carrière ? 1 : 2)
 3. Ajoute transaction: addXP(description, -coût)
-4. Transfère: elem.advance += elem.tmpadvance, elem.tmpadvance = 0
-5. Décrémente tmp_used
-6. Si tmp_used restant: addXP('Modification', -tmp_used)
+4. Transfère: elem.advance += elem.avances temporaires, elem.avances temporaires = 0
+5. Décrémente XP temporaire
+6. Si XP temporaire restant: addXP('Modification', -XP temporaire)
 7. Nettoyage: deleteEmpty()
-8. Sauvegarde: CharGen.saveCharacter(this)
+8. Sauvegarde: saveCharacter(this)
 
-Workflow avances temporaires: Augmente tmpadvance+tmp_used → Teste → Valide saveAdvance() (advance+=tmpadvance, tmpadvance=0) OU Annule (tmpadvance=0, tmp_used=0, XP récupéré)
+Workflow avances temporaires: Augmente avances temporaires+XP temporaire → Teste → Valide saveAdvance() (advance+=avances temporaires, avances temporaires=0) OU Annule (avances temporaires=0, XP temporaire=0, XP récupéré)
 
 ## Sauvegarde et chargement
 
@@ -106,18 +106,18 @@ Raison suppression data: Rechargées depuis DB au load(), économise espace. Ré
 
 Restaure personnage depuis données sauvegardées:
 1. Propriétés simples: stepIndex, mode, trappings, details, xp, randomState
-2. Rechargement specie: CharGen.allSpecies[data.specie.id] → setSpecie(specie)
-3. Rechargement careerLevel: CharGen.allCareersLevels[data.careerLevel.id] → setCareerLevel(careerLevel)
-4. Rechargement characteristics: Pour chaque → Clone CharGen.allCharacteristics[el.id] → setCharacteristic(elem, index) → Merge valeurs (roll, advance, origins) via Helper.merge()
-5. Rechargement skills: Pour chaque → Clone CharGen.allSkills[el.id] → Restaure specs/spec → setSkill(elem, index) → Merge valeurs
-6. Rechargement talents: Pour chaque → Clone CharGen.allTalents[el.id] → Restaure specs/spec → setTalent(elem, index) → Merge valeurs
-7. Rechargement spells: Pour chaque → CharGen.allSpells[el.id] → setSpell(spell, index) → Merge valeurs
+2. Rechargement specie: allSpecies[data.specie.id] → setSpecie(specie)
+3. Rechargement careerLevel: allCareersLevels[data.careerLevel.id] → sélection niveau(careerLevel)
+4. Rechargement characteristics: Pour chaque → Clone allCharacteristics[el.id] → setCharacteristic(elem, index) → Merge valeurs (roll, advance, origins) via merge()
+5. Rechargement skills: Pour chaque → Clone allSkills[el.id] → Restaure specs/spec → setSkill(elem, index) → Merge valeurs
+6. Rechargement talents: Pour chaque → Clone allTalents[el.id] → Restaure specs/spec → setTalent(elem, index) → Merge valeurs
+7. Rechargement spells: Pour chaque → allSpells[el.id] → setSpell(spell, index) → Merge valeurs
 8. Retour: this (personnage restauré)
 
 ### clone()
 
 Crée copie complète:
-1. Helper.clone(this) - copie profonde
+1. clone(this) - copie profonde
 2. refresh(clone) - recrée méthodes
 
 Utilisé par save() et pour dupliquer personnage.
@@ -127,7 +127,7 @@ Utilisé par save() et pour dupliquer personnage.
 Re-crée toutes méthodes (perdues lors clonage):
 1. Si specie: setSpecie(specie.data)
 2. Si star: setStar(star.data)
-3. Si careerLevel: setCareerLevel(careerLevel.data)
+3. Si careerLevel: sélection niveau(careerLevel.data)
 4. Pour chaque characteristic: setCharacteristic(el, index)
 5. Pour chaque skill: setSkill(el, index)
 6. Pour chaque talent: setTalent(el, index)
@@ -136,7 +136,7 @@ Raison: Méthodes (getLabel, getTotal) sont fonctions, pas sérialisables, il fa
 
 ## Gestion erreurs
 
-**Cas d'erreur possibles**: ID inexistant DB (CharGen.allX[id] → undefined), Data corrompue (JSON invalide), Version incompatible (structure changée)
+**Cas d'erreur possibles**: ID inexistant DB (allX[id] → undefined), Data corrompue (JSON invalide), Version incompatible (structure changée)
 
 **Recommandations**: Valider IDs avant accès, Gérer undefined gracieusement, Versionner format sauvegarde
 
@@ -144,7 +144,7 @@ Raison: Méthodes (getLabel, getTotal) sont fonctions, pas sérialisables, il fa
 
 **Sauvegarde Humain Soldat**: Avant save() specie={id, data, getLabel}, après specie={id}. Avant characteristics[0]={id, roll:8, data, getTotal}, après {id, roll:8, advance:5, origins}
 
-**Chargement localStorage**: data = JSON.parse(localStorage.getItem('character_123')) → character.load(data) → specie rechargé avec data depuis CharGen.allSpecies['humain'], Méthodes recréées getLabel()/getSkills(), characteristics avec data depuis CharGen.allCharacteristics, Valeurs (roll, advance) restaurées
+**Chargement localStorage**: data = JSON.parse(localStorage.getItem('character_123')) → load(data) → specie rechargé avec data depuis allSpecies['humain'], Méthodes recréées getLabel()/getSkills(), characteristics avec data depuis allCharacteristics, Valeurs (roll, advance) restaurées
 
 **Progression wizard avec save**: Étape 3 terminée → save(1) stepIndex passe 3→4 → Sauvegarde localStorage → Revient plus tard → load(data) reprend stepIndex=4
 
@@ -154,7 +154,7 @@ Raison: Méthodes (getLabel, getTotal) sont fonctions, pas sérialisables, il fa
 
 ## Validation
 
-Contraintes load(): Tous IDs doivent exister CharGen.allX, stepIndex valide (-1 ou 0-N), Structure data conforme
+Contraintes load(): Tous IDs doivent exister allX, stepIndex valide (-1 ou 0-N), Structure data conforme
 
 Après deleteEmpty(): Tous skills ont getAdvance()>0, Tous talents ont getAdvance()>0, Effets talents restants appliqués
 

@@ -58,7 +58,7 @@ Interface d'administration permet modifier données de référence jeu (species,
 
 ## Sauvegarde
 
-**Processus**: Collecte données formulaire EditHelper.prepareData → Conversion structures imbriquées en format texte → Nettoyage valeurs (trim, remplacement caractères spéciaux ' → ') → Envoi serveur Google Apps Script google.script.run.saveData → Mise à jour données base Google Sheets → Rechargement partiel données modifiées → Restauration état interface (position, sélection, recherche)
+**Processus**: Collecte données formulaire EditprepareData → Conversion structures imbriquées en format texte → Nettoyage valeurs (trim, remplacement caractères spéciaux ' → ') → Envoi serveur Google Apps Script google.script.run.saveData → Mise à jour données base Google Sheets → Rechargement partiel données modifiées → Restauration état interface (position, sélection, recherche)
 
 **Feedback utilisateur**: Loader affiché pendant sauvegarde (~2s), retour automatique élément modifié après sauvegarde, conservation position scroll et filtre recherche
 

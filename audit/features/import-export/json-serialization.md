@@ -31,7 +31,7 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 
 **Racine** : Objet wrapper avec metadata.
 
-**character** : Objet complet serialise via `character.save(null)`.
+**character** : Objet complet serialise via `save(null)`.
 
 ### Options Export
 
@@ -43,11 +43,11 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 
 ### Process Export
 
-1. Serialisation `character.save(null)` (null = pas incrementation stepIndex)
+1. Serialisation `save(null)` (null = pas incrementation stepIndex)
 2. Wrapper creation objet racine avec metadata
 3. Formatage `JSON.stringify(data, null, 2)` (pretty-print indentation 2 espaces)
 4. Blob `new Blob([json], {type: "application/json"})`
-5. Telechargement creation lien `<a download="character.json">` + click()
+5. Telechargement creation lien `<a download="json">` + click()
 
 ### Nom Fichier
 
@@ -94,7 +94,7 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 3. Parsing `JSON.parse(text)`
 4. Validation verification structure minimale
 5. Extraction `data.character || data` (support wrapper ou direct)
-6. Chargement `character.load(characterData)`
+6. Chargement `load(characterData)`
 7. Affichage redirection wizard ecran approprie (stepIndex)
 
 ### Formats Supportes
@@ -103,7 +103,7 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 
 **Export JSON direct** : `{stepIndex, specie, career, ...}` (character seul)
 
-**Sheets Save** : Compatible (meme format character.save())
+**Sheets Save** : Compatible (meme format save())
 
 ### Validation Import
 
@@ -117,7 +117,7 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 
 **Donnees completes** (avec champ `data`) : Si champ `data` present dans entites utilisation directe (pas lookup tables), Reimport identique export, Independant tables reference actuelles.
 
-**Donnees legeres** (sans champ `data`) : Si seulement IDs lookup tables reference CharGen.data, Merge donnees personnage, Identique process sheets-load.
+**Donnees legeres** (sans champ `data`) : Si seulement IDs lookup tables reference data, Merge donnees personnage, Identique process sheets-load.
 
 ### Gestion Erreurs
 
@@ -175,7 +175,7 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 
 **Process migration** : Detection lecture champ version JSON import. Comparaison version < versionActuelle migration requise. Transformation application migrations sequentielles (1.0→1.1→1.2→2.0). Validation verification coherence post-migration. Chargement import donnees migrees.
 
-**Migrations possibles 1.0 vers 1.1** : Ajout champ character.background (default ""), Ajout champ talents.tier (default 1).
+**Migrations possibles 1.0 vers 1.1** : Ajout champ background (default ""), Ajout champ talents.tier (default 1).
 
 **Migrations possibles 1.0 vers 2.0** (hypothetique) : Refonte IDs string vers numeric, Separation skills base vs advanced, Nouveau format spells lore vers school.
 
@@ -185,7 +185,7 @@ Systeme import/export format JSON interne application. Sauvegarde locale, backup
 
 **Strategie** : Champs nouveaux marques optionnels, Anciennes versions ignorent champs inconnus, Fonctionnalites core preservees.
 
-**Exemple** : Export V1.2 inclut character.motivation (nouveau). Import V1.0 ignore motivation charge reste normalement. Resultat personnage fonctionnel V1.0 (sans motivation).
+**Exemple** : Export V1.2 inclut motivation (nouveau). Import V1.0 ignore motivation charge reste normalement. Resultat personnage fonctionnel V1.0 (sans motivation).
 
 ### Compatibilite Descendante
 

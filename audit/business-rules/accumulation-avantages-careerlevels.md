@@ -12,61 +12,59 @@ En progressant dans une carrière (niveaux 1 → 2 → 3 → 4), le personnage a
 
 ### Characteristics (Cumulatif)
 
-**Règle:** Les avances de caractéristiques s'additionnent niveau par niveau.
+**Règle:** Les avances de caractéristiques s'accumulent niveau par niveau via dépense XP.
 
 **Fonctionnement:**
-- Niveau 1: Personnage reçoit +5 aux 3 caractéristiques listées
-- Niveau 2: Personnage conserve le +5×3 ET reçoit +5 à la 1 nouvelle caractéristique
-- Niveau 3: Personnage conserve tout ET reçoit +5 à la 1 nouvelle caractéristique
-- Niveau 4: Personnage conserve tout ET reçoit +5 à la 1 nouvelle caractéristique
+- Niveau 1: 3 caractéristiques listées accessibles en carrière
+- Niveau 2: + 1 caractéristique accessible en carrière
+- Niveau 3: + 1 caractéristique accessible en carrière
+- Niveau 4: + 1 caractéristique accessible en carrière
 
-**Exemple Artisan:**
-- Niveau 1: Force +5, Endurance +5, Dextérité +5 = Total 15 points
-- Niveau 2: + Sociabilité +5 = Total 20 points cumulés
-- Niveau 3: + Force Mentale +5 = Total 25 points cumulés
-- Niveau 4: + Intelligence +5 = Total 30 points cumulés
+**En carrière** : Coût XP normal
+**Hors carrière** : Coût XP ×2
 
-**Au niveau 4:** 6 caractéristiques améliorées, 30 points distribués
+**Exemple Artisan N4:**
+Si achat +5 dans chaque carac listée N1-N4 (6 carac):
+- 6 caractéristiques améliorées
+- Coût total selon paliers XP (voir calculs-xp-progression.md)
 
-### Skills (Cumulatif)
+### Skills (Accessibilité Cumulative)
 
-**Règle:** Les compétences s'accumulent niveau par niveau. Le personnage garde toutes les compétences acquises.
-
-**Fonctionnement:**
-- Niveau 1: Personnage reçoit 8-10 skills
-- Niveau 2: Personnage conserve les 8-10 skills ET reçoit 6 nouveaux skills
-- Niveau 3: Personnage conserve les 14-16 skills ET reçoit 4 nouveaux skills
-- Niveau 4: Personnage conserve les 18-20 skills ET reçoit 2 nouveaux skills
-
-**Exemple Artisan:**
-- Niveau 1: 8 skills
-- Niveau 2: 8 + 6 = 14 skills cumulés
-- Niveau 3: 14 + 4 = 18 skills cumulés
-- Niveau 4: 18 + 2 = 20 skills cumulés
-
-**Au niveau 4:** 20 compétences totales
-
-**Note:** Si une même skill (avec même spécialisation) apparaît à plusieurs niveaux, elle n'est comptée qu'une fois.
-
-### Talents (Cumulatif)
-
-**Règle:** Les talents s'accumulent niveau par niveau. Le personnage garde tous les talents acquis.
+**Règle:** Chaque niveau débloque de nouvelles compétences achetables en carrière.
 
 **Fonctionnement:**
-- Niveau 1: Personnage reçoit 4 talents
-- Niveau 2: Personnage conserve les 4 talents ET reçoit 4 nouveaux talents
-- Niveau 3: Personnage conserve les 8 talents ET reçoit 4 nouveaux talents
-- Niveau 4: Personnage conserve les 12 talents ET reçoit 4 nouveaux talents
+- Niveau 1: 8-10 skills accessibles en carrière
+- Niveau 2: + 6 skills accessibles en carrière
+- Niveau 3: + 4 skills accessibles en carrière
+- Niveau 4: + 2 skills accessibles en carrière
 
-**Exemple Artisan:**
-- Niveau 1: 4 talents
-- Niveau 2: 4 + 4 = 8 talents cumulés
-- Niveau 3: 8 + 4 = 12 talents cumulés
-- Niveau 4: 12 + 4 = 16 talents cumulés
+**Acquisition:** Achat avec XP (coût normal si en carrière, ×2 sinon)
 
-**Au niveau 4:** 16 talents totaux
+**Exemple Artisan N4:**
+- 20 skills différentes accessibles en carrière (8+6+4+2)
+- Personnage achète celles voulues avec XP
+- Skills niveau inférieur restent achetables (N2 peut acheter skills N1)
 
-**Note talents multiples:** Certains talents peuvent être acquis plusieurs fois (rangs multiples). Si le même talent apparaît à plusieurs niveaux, il est compté autant de fois.
+**Note:** Même skill apparaissant à plusieurs niveaux = débloquée au premier niveau.
+
+### Talents (Accessibilité NON Rétroactive)
+
+**Règle:** Chaque niveau débloque de nouveaux talents achetables en carrière. **IMPORTANT:** Talents niveau inférieur deviennent inaccessibles.
+
+**Fonctionnement:**
+- Niveau 1: 4 talents accessibles en carrière
+- Niveau 2: 4 nouveaux talents accessibles, **talents N1 bloqués**
+- Niveau 3: 4 nouveaux talents accessibles, **talents N1-N2 bloqués**
+- Niveau 4: 4 nouveaux talents accessibles, **talents N1-N3 bloqués**
+
+**Acquisition:** Achat avec XP (coût normal si en carrière, ×2 sinon)
+
+**Exemple Artisan N2:**
+- 4 talents N2 achetables en carrière
+- 4 talents N1 **NON achetables** (niveau dépassé)
+- Si talent N1 non acheté avant N2 → perdu
+
+**Exception:** Talents rangs multiples peuvent progresser si déjà acquis au rang 1.
 
 ### Trappings (Non cumulatif)
 
@@ -88,64 +86,65 @@ En progressant dans une carrière (niveaux 1 → 2 → 3 → 4), le personnage a
 
 **Raison métier:** Les trappings représentent l'équipement approprié au statut actuel, pas un cumul d'objets.
 
-## Calcul des totaux à un niveau donné
+## Accessibilité par niveau
 
 ### Niveau 1
 
-**Characteristics:** 3 améliorées, 15 points (3×5)
-**Skills:** 8-10 compétences
-**Talents:** 4 talents
-**Trappings:** Trappings classe + trappings niveau 1
+**Characteristics:** 3 accessibles en carrière
+**Skills:** 8-10 accessibles en carrière
+**Talents:** 4 accessibles en carrière
+**Trappings:** Classe + niveau 1
 
 ### Niveau 2
 
-**Characteristics:** 4 améliorées, 20 points (3×5 + 1×5)
-**Skills:** 14-16 compétences (8-10 + 6)
-**Talents:** 8 talents (4 + 4)
-**Trappings:** Trappings niveau 2 uniquement
+**Characteristics:** 4 accessibles (3 N1 + 1 N2)
+**Skills:** 14-16 accessibles (8-10 N1 + 6 N2)
+**Talents:** 4 accessibles N2 (N1 bloqués)
+**Trappings:** Niveau 2 uniquement
 
 ### Niveau 3
 
-**Characteristics:** 5 améliorées, 25 points (3×5 + 1×5 + 1×5)
-**Skills:** 18-20 compétences (8-10 + 6 + 4)
-**Talents:** 12 talents (4 + 4 + 4)
-**Trappings:** Trappings niveau 3 uniquement
+**Characteristics:** 5 accessibles (3 N1 + 1 N2 + 1 N3)
+**Skills:** 18-20 accessibles (8-10 N1 + 6 N2 + 4 N3)
+**Talents:** 4 accessibles N3 (N1-N2 bloqués)
+**Trappings:** Niveau 3 uniquement
 
 ### Niveau 4
 
-**Characteristics:** 6 améliorées, 30 points (3×5 + 1×5 + 1×5 + 1×5)
-**Skills:** 20-22 compétences (8-10 + 6 + 4 + 2)
-**Talents:** 16 talents (4 + 4 + 4 + 4)
-**Trappings:** Trappings niveau 4 uniquement
+**Characteristics:** 6 accessibles (3 N1 + 1 N2 + 1 N3 + 1 N4)
+**Skills:** 20-22 accessibles (8-10 N1 + 6 N2 + 4 N3 + 2 N4)
+**Talents:** 4 accessibles N4 (N1-N3 bloqués)
+**Trappings:** Niveau 4 uniquement
 
 ## Changement de carrière
 
 ### Conservation des acquis
 
-Quand un personnage change de carrière, il conserve TOUS les avantages acquis dans l'ancienne carrière.
+Quand un personnage change de carrière (coût 100 XP), il conserve TOUS avantages achetés.
 
 **Conservation:**
-- ✅ Characteristics: Tous les bonus sont conservés
-- ✅ Skills: Toutes les compétences sont conservées
-- ✅ Talents: Tous les talents sont conservés
-- ❌ Trappings: Équipement actuel conservé (pas lié à la carrière)
+- ✅ Characteristics: Toutes avances conservées
+- ✅ Skills: Toutes compétences conservées
+- ✅ Talents: Tous talents conservés
+- ✅ Trappings: Équipement conservé
 
-**Nouvelle carrière:** Le personnage commence au niveau 1 de la nouvelle carrière et peut acquérir de nouveaux avantages.
+**Nouvelle carrière:** Niveau 1, statut nouveau métier. Éléments accessibles en carrière changent.
+
+**Gain automatique:** SEULEMENT le nouveau statut
 
 ### Exemple
 
 **Agitateur niveau 3 change pour Artisan:**
 
 **Avant changement:**
-- Characteristics: 5 améliorées (15 points du niveau 1-3 d'Agitateur)
-- Skills: 18 skills d'Agitateur
-- Talents: 12 talents d'Agitateur
+- XP dépensé pour acheter avances Agitateur N1-N3
+- Statut: Agitateur N3
 
-**Après changement (Artisan niveau 1):**
-- Characteristics: 5 d'Agitateur + 3 d'Artisan niveau 1 = 8 améliorées, 40 points
-- Skills: 18 d'Agitateur + 8 d'Artisan niveau 1 = 26 skills
-- Talents: 12 d'Agitateur + 4 d'Artisan niveau 1 = 16 talents
-- Trappings: Trappings classe Artisan + trappings Artisan niveau 1
+**Après changement (coût 100 XP):**
+- Conservation: TOUTES avances achetées
+- Nouveau statut: Artisan N1
+- Nouveaux éléments en carrière: Artisan N1 (skills/talents/carac)
+- Anciens éléments Agitateur: deviennent hors carrière (coût ×2)
 
 ## Progression non-linéaire
 
@@ -170,5 +169,5 @@ Un personnage peut changer de carrière puis y revenir ultérieurement.
 
 **Règles métier:**
 - `progression-careerlevels.md` - Système de progression
-- `parsing-avances-caracteristiques.md` - Format des avances
+- `parsing-wizard-data.md` - Format des avances
 - `calculs-xp-progression.md` - Coûts XP pour progresser

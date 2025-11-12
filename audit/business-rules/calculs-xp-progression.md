@@ -30,6 +30,9 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 | 56-60 | 270 XP |
 | 61-65 | 320 XP |
 | 66-70 | 380 XP |
+| 71+ | 380 XP (par palier de 5) |
+
+**Pas de limite:** Au-delà de 70, le coût reste 380 XP par palier de 5 points.
 
 **Exemple:** Améliorer une skill de 0 à 10
 - 0 → 1-5: 5 × 10 = 50 XP
@@ -59,6 +62,9 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 | 56-60 | 330 XP |
 | 61-65 | 390 XP |
 | 66-70 | 450 XP |
+| 71+ | 450 XP (par palier de 5) |
+
+**Pas de limite:** Au-delà de 70, le coût reste 450 XP par palier de 5 points.
 
 **Exemple:** Améliorer Force de 0 à 10
 - 0 → 1-5: 5 × 25 = 125 XP
@@ -86,7 +92,7 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 - Acquérir "Costaud" rang 3: 300 XP (supplémentaires)
 - **Total pour rang 3:** 600 XP
 
-**Exception Magie du Chaos:** Coût fixe 100 XP quel que soit le rang.
+**Exception Talent Magie du Chaos:** Coût fixe 100 XP quel que soit le rang.
 
 ## En carrière vs Hors carrière
 

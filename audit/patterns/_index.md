@@ -5,11 +5,9 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ---
 
-## Métadonnées (3)
+## Métadonnées (1)
 
-- [pattern-index.md](./pattern-index.md) - Index séquentiel unique
-- [pattern-label.md](./pattern-label.md) - Label unique
-- [pattern-book-page.md](./pattern-book-page.md) - Références bibliographiques
+- [pattern-metadonnees-base.md](./pattern-metadonnees-base.md) - Index, label et références bibliographiques (book-page)
 
 ---
 
@@ -21,13 +19,12 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ---
 
-## Génération Aléatoire (3)
+## Génération Aléatoire (2)
 
 - [pattern-generation-aleatoire.md](./pattern-generation-aleatoire.md) - Système rand 1-100 et algorithme de tirage
 
 **Fusionne :** rand, tirage-aleatoire
 
-- [pattern-subrand.md](./pattern-subrand.md) - Sous-catégories (non implémenté)
 - [pattern-talent-aleatoire.md](./pattern-talent-aleatoire.md) - "X Talent aléatoire"
 
 ---
@@ -81,13 +78,13 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ## Statistiques
 
-**Nombre total de patterns :** 16 (vs 29 avant fusion)
-**Réduction :** 45%
+**Nombre total de patterns :** 13 (vs 29 avant fusion)
+**Réduction :** 55%
 
 **Répartition :**
-- Métadonnées : 3
+- Métadonnées : 1 (fusion de 3)
 - Parsing : 1 (fusion de 7)
-- Génération aléatoire : 3
+- Génération aléatoire : 2
 - Spécialisations : 1 (fusion de 2)
 - HTML : 1 (fusion de 3)
 - Validation : 4 (fusion de 5 + nouveau pattern validation-display)

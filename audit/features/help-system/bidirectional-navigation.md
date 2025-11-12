@@ -165,4 +165,4 @@ Pas de risque de boucle car:
 
 - [inverse-relations.md](./inverse-relations.md) - Construction section "Utilisé par"
 - [rich-descriptions.md](./rich-descriptions.md) - Génération liens cliquables
-- [global-index.md](./global-index.md) - Index CharGen.match permettant résolution rapide
+- [global-index.md](./global-index.md) - Index match permettant résolution rapide

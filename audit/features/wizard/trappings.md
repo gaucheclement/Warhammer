@@ -52,7 +52,7 @@ Armure légère (Armure de cuir ou Armure de cuir souple avec Gilet de mailles o
 
 ### Résolution des objets
 
-**Matching :** `Helper.searchTrapping(label, CharGen)` recherche par label exact dans table Trappings. Si trouvé : type, enc, prix, desc. Sinon : objet générique sans aide.
+**Matching :** `searchTrapping(label, CharGen)` recherche par label exact dans table Trappings. Si trouvé : type, enc, prix, desc. Sinon : objet générique sans aide.
 
 **Objets spéciaux :**
 - Argent (CO/PA/SB) : Converti en monnaie (1 CO = 20 PA = 240 SB)
@@ -79,17 +79,17 @@ Aucun trapping spécifique fourni par l'espèce. Les espèces définissent capac
 
 **Panneau gauche :** Titre "X Possessions à choisir", liste cliquable options, icône aide si objet existe. Traitement séquentiel : un choix à la fois, passage automatique au suivant.
 **Panneau droit :** Description générale + liste équipement confirmé. Objets automatiques grisés (pas suppression), choix faits normaux (avec suppression).
-**Aide contextuelle :** Clic icône → popup `Helper.getHelpFormat(trapp, CharGen)` : nom, type, caractéristiques, description.
+**Aide contextuelle :** Clic icône → popup `getHelpFormat(trapp, CharGen)` : nom, type, caractéristiques, description.
 
 ### Logique de sélection
 
-**Algorithme itératif :** Pour chaque position dans `character.trappings[]` : si null ET contient " ou " → afficher titre + options + attendre sélection → stocker dans `character.trappings[position]` → appel récursif suivant. Sinon automatique → affecter valeur. Sinon → continuer.
-**Stockage :** `character.trappings[index]` = label texte option (string).
-**Annulation :** Bouton suppression → `character.trappings[index] = null` → redémarrage `showTrappings(0)` pour correction.
+**Algorithme itératif :** Pour chaque position dans `trappings[]` : si null ET contient " ou " → afficher titre + options + attendre sélection → stocker dans `trappings[position]` → appel récursif suivant. Sinon automatique → affecter valeur. Sinon → continuer.
+**Stockage :** `trappings[index]` = label texte option (string).
+**Annulation :** Bouton suppression → `trappings[index] = null` → redémarrage `showTrappings(0)` pour correction.
 
 ### Validation nombre de choix
 
-**Compteur restants :** Positions avec " ou " ET `character.trappings[index] === null`. Affichage "X Possessions à choisir". Si 0 : panneau vide + bouton "Valider" activé.
+**Compteur restants :** Positions avec " ou " ET `trappings[index] === null`. Affichage "X Possessions à choisir". Si 0 : panneau vide + bouton "Valider" activé.
 **Blocage validation :** `remaining !== 0` → bouton désactivé. Empêche progression si choix incomplets.
 
 ## Monnaie initiale
@@ -130,13 +130,13 @@ Voir [pattern-type-subtype.md](../../patterns/pattern-type-subtype.md).
 
 ### Prérequis validation
 
-**Choix obligatoires complets :** Tous objets " ou " résolus. Vérification : pour chaque position dans `allTrappingsToChoose[]`, si contient " ou " ET `character.trappings[position] === null` → validation bloquée. Compteur "X Possessions à choisir" dans panneau gauche. Bouton "Valider" désactivé tant que `remaining !== 0`. Panneau vide = choix faits, bouton activé.
+**Choix obligatoires complets :** Tous objets " ou " résolus. Vérification : pour chaque position dans `allTrappingsToChoose[]`, si contient " ou " ET `trappings[position] === null` → validation bloquée. Compteur "X Possessions à choisir" dans panneau gauche. Bouton "Valider" désactivé tant que `remaining !== 0`. Panneau vide = choix faits, bouton activé.
 
 ### Validation encombrement
 
 **Calcul limite :** Bonus Force × 10. Exemples : Force 25 → BF 2 → Limite 20 | Force 35 → BF 3 → Limite 30 | Force 42 → BF 4 → Limite 40. Voir [calcul-encombrement.md](../../business-rules/calcul-encombrement.md).
 
-**Calcul encombrement total :** Σ (quantité × enc) pour tous trappings. Parcours `character.trappings[]` : résolution objets via `Helper.searchTrapping()` → récupération champ `enc` → multiplication par quantité → sommation totale.
+**Calcul encombrement total :** Σ (quantité × enc) pour tous trappings. Parcours `trappings[]` : résolution objets via `searchTrapping()` → récupération champ `enc` → multiplication par quantité → sommation totale.
 
 **Seuils pénalités :**
 

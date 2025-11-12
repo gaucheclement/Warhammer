@@ -14,7 +14,7 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 
 **Affinités par espèce** : Humains (polyvalents, toutes carrières), Nains (Artisan 8, Guerrier, Ingénieur, interdit Sorcier), Halflings (Artisan 7, Bourgeois 10, Marchand 16, interdit Chevalier), Elfes (Artiste 14, Mage, Éclaireur, interdit Mendiant/Ratier/Égoutier), Gnomes (métiers techniques), Ogres (métiers physiques).
 
-**Mode libre** : `character.isFreeMode()` active toutes carrières sans filtrage ni bonus XP. Permet concepts narratifs (Nain Sorcier, Elfe Mendiant).
+**Mode libre** : `isFreeMode()` active toutes carrières sans filtrage ni bonus XP. Permet concepts narratifs (Nain Sorcier, Elfe Mendiant).
 
 ### Classes de carrières
 
@@ -22,7 +22,7 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 
 **Structure affichage** : Niveau 1 (Classes en-têtes `listchild1` non sélectionnables), Niveau 2 (Carrières `listchild2` sélectionnables avec seuil "Artisan 2-3"), Niveau 3 (Levels masqués `hide()` en création).
 
-**Construction liste** : Parcours `CharGen.data.career.all` → Vérification `rand[espèce]` numérique → Ajout header classe si nouvelle → Ajout carrière sous classe → Calcul seuils affichés.
+**Construction liste** : Parcours `data.career.all` → Vérification `rand[espèce]` numérique → Ajout header classe si nouvelle → Ajout carrière sous classe → Calcul seuils affichés.
 
 **Regroupement dynamique** : Seules classes avec au moins une carrière accessible affichées. Nain : Citadins (Artisan 2-8, Bourgeois 9-14), Guerriers (Soldat 25-30, Tueur de Trolls 95-100), Lettrés (Ingénieur 40-45). Elfe : Guerriers (Éclaireur 10-15), Lettrés (Mage 80-90), Courtisans (Artiste 5-14).
 
@@ -46,7 +46,7 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 
 **Tirage 3 (0 XP)** : "Choisir" déverrouille toutes carrières accessibles. Choix libre, aucun bonus.
 
-**Gestion doublons** : `imposedCareers[]` stocke IDs proposées. Re-tirage automatique jusqu'à carrière unique. Cas particulier même seuil : propose première non déjà proposée.
+**Gestion doublons** : `carrières proposées` stocke IDs proposées. Re-tirage automatique jusqu'à carrière unique. Cas particulier même seuil : propose première non déjà proposée.
 
 ### Influence espèce et région
 
@@ -56,53 +56,51 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 
 **Distributions variables** : Nains (Artisan 8, Guerrier 30 forte probabilité artisanale/technique), Elfes (peu carrières → probabilités individuelles élevées), Humains (maximum carrières → distribution étale).
 
-**Animation** : `Helper.dice` seuils jaunes, dés roulent, carrière clignote orange, scroll automatique vers classe générée.
+**Animation** : Seuils jaunes, dés roulent, carrière clignote orange, scroll automatique vers classe générée.
 
-**État randomState.career** : `0` (aucun tirage, "Lancer" actif clignotant), `1` (tirage 1, 1 carrière proposée), `2` (tirage 2, 3 carrières proposées, "Lancer" désactivé), `-1` ("Choisir" cliqué, toutes déverrouillées), `-2` (sélection validée, terminé). Persistance : état restauré si retour arrière.
+**États tirage** : Aucun tirage (bouton "Lancer" actif), tirage 1 (1 carrière proposée), tirage 2 (3 carrières proposées, bouton désactivé), manuel (toutes carrières déverrouillées), validé (sélection terminée). Persistance : état restauré si retour arrière.
 
 ## Niveau initial
 
 ### Niveau 1 (Bronze) obligatoire
 
-**Règle** : Mode création sélectionne TOUJOURS niveau 1. Code `character.setCareerLevel(CharGen.data.careerLevel.allByCareer[el.id][1])`. Paramètre [1] = niveau 1 Bronze, [0] invalide, [2-4] niveaux supérieurs.
+**Règle** : Mode création sélectionne TOUJOURS niveau 1.
 
 **Pourquoi** : Règles Warhammer (débutent Bronze, progressent Argent/Or via XP), équilibrage (personnages comparables), narratif (novices).
 
-**Processus** : Joueur clique carrière → `setCareerLevel(...[1])` → Niveau 1 sélectionné automatiquement → Avantages appliqués. Pas de choix niveau 2-4 en création (masqués).
+**Processus** : Joueur clique carrière → Niveau 1 sélectionné automatiquement → Avantages appliqués. Pas de choix niveau 2-4 en création (masqués).
 
-**Niveaux 2-4** : `listchild3` masqué via `hide()`. Mode avancement (`!characterOnCreation()`), niveaux 2-4 visibles/sélectionnables, progression via dépense XP.
+**Niveaux 2-4** : Masqués en création. Mode avancement, niveaux 2-4 visibles/sélectionnables, progression via dépense XP.
 
-**Relation tables** : `CharGen.data.careerLevel.allByCareer[career.id]` tableau 4 éléments (I-IV). Index [0] invalide, [1] Bronze, [2] Bronze, [3] Argent, [4] Or. Champs `characteristics`, `skills`, `talents`, `trappings` CSV nécessitant parsing/résolution.
+**Structure niveaux** : Chaque carrière possède 4 niveaux. Statuts sociaux variables selon carrière (ex: Artisan niveau 1=Bronze 2, niveau 2=Argent 1, niveau 4=Or 1; Agitateur niveau 1=Bronze 1, niveau 2=Bronze 2).
 
 ## Application avantages niveau 1
 
 ### Avantages appliqués
 
-**1. Caractéristiques** : Exactement 3, +5 points chacune. Format CSV "Nom1, Nom2, Nom3". Cumul avec bonus raciaux (Nain Artisan : +5 F espèce + +5 F carrière = +10 F). Exemples : Agitateur N1 (CT, Int, Soc → +5 CT/Int/Soc), Artisan N1 (CC, Ag, F → +5 CC/Ag/F), Soldat N1 (CC, CT, F → +5 CC/CT/F).
+**1. Caractéristiques** : Liste 3 caractéristiques carrière niveau 1. Distribution 5 points à l'étape Characteristics. Exemples : Agitateur N1 (CT, Int, Soc), Artisan N1 (Dex, F, Soc), Soldat N1 (CC, CT, F).
 
-**2. Skills** : 8-10 skills. Types : simples, spécialisation fixe, choix "(Au choix)", choix exclusif "ou". Application : +5 avance initiale, cumul si déjà possédée.
+**2. Skills** : Liste 8-10 skills carrière niveau 1. Format parsing voir [pattern-parsing.md](../../patterns/pattern-parsing.md), spécialisations voir [pattern-specialisations.md](../../patterns/pattern-specialisations.md). Répartition avances à l'étape Skills.
 
-**3. Talents** : Exactement 4. Types : fixes, choix exclusif "ou", spécialisation "(Au choix)". Application effets (modificateurs, ajout skills/magie).
+**3. Talents** : Liste 4 talents carrière niveau 1. Format parsing voir [pattern-parsing.md](../../patterns/pattern-parsing.md). Sélection et application effets à l'étape Talents.
 
-**4. Trappings** : Sources doubles (classe sociale + niveau 1). Parsing extraction quantités "(3)", "(1d10)", implicite (1). Calcul encombrement total.
+**4. Trappings** : Sources doubles (classe sociale + niveau 1). Format parsing voir [pattern-parsing.md](../../patterns/pattern-parsing.md). Calcul encombrement voir [calcul-encombrement.md](../../business-rules/calcul-encombrement.md).
 
 ### Ordre d'application
 
-**Phase 1 (Sélection)** : Joueur clique carrière, `setCareerLevel(niveau1)`, objet chargé.
+**Phase 1 (Sélection)** : Joueur clique carrière, niveau 1 chargé.
 
-**Phase 2 (Caractéristiques)** : Parsing, résolution noms, ajout +5 à `character.characteristics[nom].advance`.
+**Phase 2 (Caractéristiques)** : Résolution noms, liste 3 caractéristiques disponibles pour distribution 5 points.
 
-**Phase 3 (Skills)** : Parsing, résolution + spécialisations, détection choix, ajout +5 avance.
+**Phase 3 (Skills)** : Parsing format voir [pattern-parsing.md](../../patterns/pattern-parsing.md), liste skills disponibles pour répartition avances.
 
-**Phase 4 (Talents)** : Parsing, résolution, détection choix, ajout, application effets (peut modifier caractéristiques/ajouter skills).
+**Phase 4 (Talents)** : Parsing format voir [pattern-parsing.md](../../patterns/pattern-parsing.md), application effets voir [talents-effets-mecanismes.md](../../business-rules/talents-effets-mecanismes.md).
 
-**Phase 5 (Trappings)** : Parsing classe + niveau 1, résolution, ajout équipements, calcul encombrement.
+**Phase 5 (Trappings)** : Parsing format voir [pattern-parsing.md](../../patterns/pattern-parsing.md), calcul encombrement voir [calcul-encombrement.md](../../business-rules/calcul-encombrement.md).
 
 **Ordre important** : Talents APRÈS caractéristiques mais AVANT finalisation (certains modifient caractéristiques comme Affable +5 Soc).
 
-**Gestion choix** : Choix exclusifs "ou" (détection → options présentées → joueur choisit UNE → application). Spécialisations "(Au choix)" (détection → liste specs → sélection → application avec spécialisation).
-
-**Validation** : Parsing réussi sans erreur, références valides vers tables existantes, quantités correctes (3 caractéristiques, 8-10 skills, 4 talents), niveau 1 existe (`allByCareer[career.id][1]` non `undefined`). Messages erreur : "Erreur parsing skills : Nom skill 'XXX' introuvable", "Erreur talents : Quantité incorrecte (attendu 4, reçu X)", "Erreur système : Niveau 1 introuvable pour cette carrière."
+**Validation** : Références valides vers tables existantes, listes cohérentes (3 caractéristiques listées, 8-10 skills listés, 4 talents listés), niveau 1 existe.
 
 ## Gestion carrières multiples
 
@@ -110,15 +108,15 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 
 **Une seule carrière** : Wizard permet UNE carrière uniquement en mode création. Processus : Species → Careers (UNE) → Niveau 1 appliqué → Étapes suivantes → Sauvegarde finale.
 
-**Changement vs Ajout** : Retour arrière permet CHANGER carrière (remplacer), pas ajouter seconde. Code : `character.career = null` puis `setCareerLevel(nouvelle_carrière[1])`.
+**Changement vs Ajout** : Retour arrière permet CHANGER carrière (remplacer), pas ajouter seconde.
 
-**État randomState** : Champ career (0 aucune sélection, 1 tirage 1, 2 tirage 2, -1 mode choix manuel, -2 validée). Champ imposedCareers (tableau IDs proposées, persistance conservée retour arrière).
+**État sélection** : Aucune sélection, tirage 1, tirage 2, mode choix manuel, validée. Liste carrières proposées conservée si retour arrière.
 
 **Différence modes** : Création (1 carrière niveau 1 obligatoire, niveaux 2-4 masqués). Avancement (progresser 1→2→3→4, changer carrière nouvelle niveau 1, conserver historique, niveaux 2-4 visibles).
 
-**Sauvegarde** : `saveAction()` vérifie changement carrière/niveau. Retour `true` (même qu'avant) ou `false` (changement). Attribution XP bonus si `!isFreeMode()` ET `randomState.career > 0` : state 1 → +50 XP, state 2 → +25 XP. Finalisation : bonus XP, `randomState.career = -2`, sauvegarde personnage, passage étape suivante.
+**Sauvegarde** : Vérification changement carrière/niveau. Attribution XP bonus si mode guidé ET tirage aléatoire : tirage 1 → +50 XP, tirage 2 → +25 XP. Finalisation : bonus XP appliqué, état validé, sauvegarde personnage, passage étape suivante.
 
-**Historique post-création** : `character.careers[]` tableau `{career, level, xpSpent}`. Vide ou contient uniquement carrière actuelle lors création. Règles changement : coût 100 XP, conservation acquis (skills/talents/caractéristiques), nouvelle carrière démarre toujours niveau 1. Exemple : Artisan niveau 4 (800 XP) devient Marchand niveau 1, conserve skills artisanales, débute Marchand novice.
+**Historique post-création** : Historique carrières vide ou contient uniquement carrière actuelle lors création. Règles changement : coût 100 XP, conservation acquis (skills/talents/caractéristiques), nouvelle carrière démarre toujours niveau 1. Exemple : Artisan niveau 4 (800 XP) devient Marchand niveau 1, conserve skills artisanales, débute Marchand novice.
 
 ## Affichage et interaction
 
@@ -132,21 +130,23 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 
 **Filtrage régional combiné** : Intersection filtres espèce + région. Carrières nécessitent `rand[espèce]` ET `rand[région]` numériques. Certaines classes peuvent disparaître.
 
-**Scroll automatique** : Lors génération, scroll jusqu'à header classe carrière générée via `Helper.scrollToElement($el.prevAll('.listchild1').first())`.
+**Scroll automatique** : Lors génération, scroll jusqu'à header classe carrière générée via `scrollToElement($el.prevAll('.listchild1').first())`.
 
 **Validation** : Espèce définie, carrière compatible (`rand[espèce]` numérique), niveau 1 existe. Messages erreur : "Veuillez sélectionner une espèce avant de choisir une carrière."
 
 ## Exemples concrets
 
-**Nain standard** : Species "Nain" → Careers affiche `rand.Nain` numérique → Organisation Citadins (Artisan, Bourgeois), Guerriers (Soldat), Lettrés (Ingénieur) → Masque Sorcier (interdit), Agitateur (rare) → "Lancer" génère "Artisan" (seuil 8) → Accepter +50 XP → Application Bronze 2, +5 CC/Ag/F, 8 skills, 4 talents, trappings Citadins + Outils.
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Elfe concept précis** : Species "Haut Elfe" → Careers affiche Elfes → "Choisir" (refuse hasard) → Sélection manuelle "Mage" (Lettrés) → Aucun bonus XP, contrôle total → Application niveau 1 : +5 Int/FM/Soc, skills magiques, talents Magie, équipement Lettrés.
+**Focus sélection carrière :**
 
-**Halfling flexible** : Species "Halfling" → "Lancer" tirage 15 → "Marchand" (seuil 16) → Refus → "Lancer" 2 nouvelles → "Artisan" (7), "Cuisinier" (12) → Choix "Cuisinier" +25 XP → Application Bronze 2, skills culinaires, talents.
+**Nain standard (Artisan) :** Species Nain sélectionnée → Careers affiche Citadins (Artisan seuil 8, Bourgeois), Guerriers (Soldat), Lettrés (Ingénieur) → Masque Sorcier (interdit) → "Lancer" génère "Artisan" → Accepter +50 XP → Application Bronze 1 : +5 Dex/F/Soc, 8 skills (Métier Forgeron, Évaluation, Marchandage, etc.), 4 talents (Ambidextre ou Maître artisan, Méticuleux, etc.).
 
-**Nain Middenheim** : Filtrage espèce éliminer `rand.Nain` vide → Filtrage région éliminer `rand.Middenheim` vide → Seuils privilégier `rand.Middenheim`, sinon `rand.Nain` → Tirage Soldat favorisé (seuil 30 vs 25 standard).
+**Elfe concept précis (Mage) :** Species Haut Elfe → "Choisir" (refuse hasard) → Sélection manuelle "Apprenti Sorcier" → Aucun bonus XP → Application niveau 1 : +5 Int/FM/Soc, skills magiques (Focalisation Azyr, Intuition, Langue Magick), talents Magie des Arcanes (Azyr).
 
-**Changement d'avis** : Careers "Artisan" → Validation → Characteristics → Retour arrière → Careers → Changement "Artisan" → "Milicien" → Validation caractéristiques réappliquées pour Milicien → Sauvegarde finale 1 carrière "Milicien niveau 1".
+**Halfling flexible (Bourgeois) :** Species Halfling → "Lancer" tirage 15 → "Marchand" proposé → Refus → "Lancer" 2 nouvelles → "Artisan", "Bourgeois" ajoutés (3 au total) → Choix "Bourgeois" +25 XP → Application skills sociales (Charme, Commandement, Ragots) et talents Étiquette.
+
+**Changement d'avis :** Careers "Artisan" validé → Characteristics → Retour arrière → Careers → Changement "Artisan" → "Milicien" → Validation → Caractéristiques réappliquées pour Milicien.
 
 ## Voir aussi
 
@@ -157,7 +157,7 @@ Le système utilise `species.refCareer` pour filtrer via `careers.rand` : nombre
 - [filtrage-careers-espece.md](../../business-rules/filtrage-careers-espece.md) - Règles filtrage espèce
 - [filtrage-careers-region.md](../../business-rules/filtrage-careers-region.md) - Règles filtrage région
 - [ponderation-aleatoire-careers.md](../../business-rules/ponderation-aleatoire-careers.md) - Génération aléatoire
-- [parsing-skills-talents.md](../../business-rules/parsing-skills-talents.md) - Parsing chaînes
+- [parsing-wizard-data.md](../../business-rules/parsing-wizard-data.md) - Parsing chaînes
 - [application-effets-talents.md](../../business-rules/application-effets-talents.md) - Effets talents
 - [accumulation-avantages-careerlevels.md](../../business-rules/accumulation-avantages-careerlevels.md) - Cumul niveaux
 - [progression-careerlevels.md](../../business-rules/progression-careerlevels.md) - Progression et changements

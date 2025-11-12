@@ -18,7 +18,7 @@ Application automatique des effets du signe astrologique sélectionné sur le pe
 
 **Application**:
 1. Parser chaîne pour extraire modificateurs (nom caractéristique + valeur signée)
-2. Pour chaque modificateur, trouver caractéristique correspondante dans `character.characteristics`
+2. Pour chaque modificateur, trouver caractéristique correspondante dans `characteristics`
 3. Ajouter valeur (positive ou négative) à la caractéristique actuelle
 4. Marquer source modification comme "Signe astrologique"
 
@@ -37,7 +37,7 @@ Voir [pattern-parsing.md](../../patterns/pattern-parsing.md) et [pattern-modific
 **Application**:
 1. Si `star.talent` non vide, parser nom talent
 2. Lookup talent dans `data/talents.json`
-3. Ajouter talent rang 1 à `character.talents`
+3. Ajouter talent rang 1 à `talents`
 4. Appliquer effets talent immédiatement (via `applyTalent()`)
 5. Marquer source acquisition comme "Signe astrologique" (gratuit, pas de coût XP)
 
@@ -54,10 +54,10 @@ Voir [pattern-relation-textuelle.md](../../patterns/pattern-relation-textuelle.m
 ### Séquence complète
 
 1. **Validation sélection**: Vérifier qu'un signe est sélectionné
-2. **Sauvegarde signe**: Enregistrer `character.star = signeSelectionné`
+2. **Sauvegarde signe**: Enregistrer `star = signeSelectionné`
 3. **Application caractéristiques**: Parser et appliquer modificateurs
 4. **Application talent**: Si présent, ajouter et appliquer effets
-5. **Mise à jour état**: Marquer `randomState.star = -2` (validé)
+5. **Mise à jour état**: Marquer `star = -2` (validé)
 6. **Attribution XP**: Si mode aléatoire, +25 XP
 7. **Sauvegarde personnage**: Persister modifications
 

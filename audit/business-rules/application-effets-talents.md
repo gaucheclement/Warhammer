@@ -10,7 +10,7 @@ Logique centralisée d'application effets talents sur personnage. Méthode `appl
 
 1. **Réinit**: bonus talents caractéristiques → 0
 2. **Parcours talents**: itération talents personnage
-3. **Vérification**: talent actif (getTotal() > 0)
+3. **Vérification**: talent actif (total > 0)
 4. **Application**: selon champs remplis
 5. **Nettoyage**: retrait sorts/compétences inactifs
 6. **Recalcul**: caractéristiques dérivées

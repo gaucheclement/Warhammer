@@ -128,9 +128,8 @@ Gestion complète talents wizard création: acquisition espèce/signe/carrière,
 ## Voir aussi
 
 - [species.md](../../database/species.md), [stars.md](../../database/stars.md), [careerLevels.md](../../database/careerLevels.md)
-- [talents.md](../../database/talents.md), [parsing-skills-talents.md](../../business-rules/parsing-skills-talents.md)
+- [talents.md](../../database/talents.md), [parsing-wizard-data.md](../../business-rules/parsing-wizard-data.md)
 - [pattern-parsing.md](../../patterns/pattern-parsing.md), [pattern-talent-aleatoire.md](../../patterns/pattern-talent-aleatoire.md)
 - [pattern-specialisations.md](../../patterns/pattern-specialisations.md)
-- [talents-rangs-multiples.md](../../business-rules/talents-rangs-multiples.md)
-- [talents-specialisations.md](../../business-rules/talents-specialisations.md)
+- [talents-effets-mecanismes.md](../../business-rules/talents-effets-mecanismes.md)
 - [application-effets-talents.md](../../business-rules/application-effets-talents.md)

@@ -56,7 +56,7 @@ Centralise tout l'équipement du jeu : armes de mêlée et à distance, armures,
 
 ### Avec Qualities
 - **Champ :** `qualities` (texte libre séparé par virgules)
-- **Traitement :** Parsé via `DataHelper.stringToElems` en objets Quality
+- **Traitement :** Parsé en objets Quality
 - **Usage :** Propriétés mécaniques (Défensive, Empaleuse, Assommante, Recharge N, etc.)
 - **Cumul :** Plusieurs qualités par objet possible
 
@@ -81,7 +81,7 @@ Voir : `audit/database/qualities.md`
 - 1 PA = 12 Sous de bronze (SB)
 - 1 CO = 240 SB
 
-**Stockage :** Trois champs séparés convertis via `Helper.convertPrice()`
+**Stockage :** Trois champs séparés convertis en format unifié
 
 ### Disponibilité
 

@@ -34,7 +34,7 @@ Un personnage Warhammer est défini par son espèce (Humain, Nain, Elfe, Halflin
 
 ### Gestion expérience
 
-**xp**: {max: 0, log: {}, used: 0, tmp_used: 0} - Budget XP, historique dépenses, dépensé validé, temporaire
+**xp**: {max: 0, log: {}, used: 0, XP temporaire: 0} - Budget XP, historique dépenses, dépensé validé, temporaire
 
 ### État aléatoire
 
@@ -62,7 +62,7 @@ Retourne objet specie si défini, null sinon.
 
 ## Méthodes d'initialisation carrière
 
-### setCareerLevel(career)
+### sélection niveau(career)
 
 Définit carrière+niveau du personnage:
 1. Crée wrapper {id, data, getLabel(), getCareer(), getCharacteristics(), getTalents(), getSkills()}
@@ -105,21 +105,21 @@ Les origins conservent TOUS les niveaux traversés: Soldat|1 → Soldat|2 → Se
 
 ### Characteristic
 
-Propriétés: id, specie (base), roll (tirage), talent (bonus talents), star (bonus astral), career (bonus carrière), advance (payé XP), tmpadvance (temporaire), data, origins
+Propriétés: id, specie (base), roll (tirage), talent (bonus talents), star (bonus astral), career (bonus carrière), advance (payé XP), avances temporaires (temporaire), data, origins
 
-Méthodes: getBase() = specie+roll+talent+star, getAdvance() = advance+career+tmpadvance, getTotal() = base+advance, getBonus() = floor(total/10)
+Méthodes: getBase() = specie+roll+talent+star, getAdvance() = advance+career+avances temporaires, total = base+advance, getBonus() = floor(total/10)
 
 ### Skill
 
-Propriétés: id, spec (spécialisation fixe), specs (options "Au choix"), specie/career/advance/tmpadvance, data, origins
+Propriétés: id, spec (spécialisation fixe), specs (options "Au choix"), specie/career/advance/avances temporaires, data, origins
 
-Méthodes: getCharacteristic() (liée), getBase() (valeur carac), getAdvance(), getTotal(), getBonus()
+Méthodes: getCharacteristic() (liée), getBase() (valeur carac), getAdvance(), total, getBonus()
 
 ### Talent
 
-Propriétés: id, spec, specs, advance, tmpadvance, roll (aléatoire), data, origins
+Propriétés: id, spec, specs, advance, avances temporaires, roll (aléatoire), data, origins
 
-Méthodes: getBase() (toujours 0), getAdvance(), getTotal() (rang actuel), getMax() (rang maximum), getSkill() (si addSkill), getTalent() (si addTalent)
+Méthodes: getBase() (toujours 0), getAdvance(), total (rang actuel), maximum (rang maximum), getSkill() (si addSkill), getTalent() (si addTalent)
 
 ### Spell
 
@@ -141,7 +141,7 @@ Structure simple: {label, type, qty, enc} - Pas d'id, pas de data, pas de métho
 
 ## Validation
 
-Contraintes: mode obligatoire ('guidé'|'libre'), specie obligatoire si stepIndex>0, careerLevel si stepIndex>2, characteristics exactement 15 éléments, xp.max >= xp.used + xp.tmp_used
+Contraintes: mode obligatoire ('guidé'|'libre'), specie obligatoire si stepIndex>0, careerLevel si stepIndex>2, characteristics exactement 15 éléments, xp.max >= xp.used + xp.XP temporaire
 
 Voir [character-validation.md](./character-validation.md)
 

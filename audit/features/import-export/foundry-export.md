@@ -12,7 +12,7 @@ Export d'un personnage Warhammer depuis l'application vers Foundry Virtual Table
 
 ### Etat Actuel V1
 
-Fonction `FoundryHelper.fullExport()` desactivee dans StepResume.html (lignes 57-66).
+Fonction `FoundryfullExport()` desactivee dans StepResume.html (lignes 57-66).
 
 **Raisons probables** : Incompatibilite version Foundry, mapping incomplet, tests insuffisants, simplification V1.
 
@@ -30,7 +30,7 @@ Fonction `FoundryHelper.fullExport()` desactivee dans StepResume.html (lignes 57
 
 1. Declenchement bouton "Export Foundry" Resume
 2. Validation personnage complet (stepIndex >= 8)
-3. Transformation `FoundryHelper.fullExport(CharGen, character)`
+3. Transformation `FoundryfullExport(CharGen, character)`
 4. Generation JSON schema Foundry Actor
 5. Telechargement Blob fichier `[nom].json`
 6. Import manuel glisser-deposer Foundry
@@ -61,7 +61,7 @@ Fonction `FoundryHelper.fullExport()` desactivee dans StepResume.html (lignes 57
 ```
 
 **Champs obligatoires** :
-- name : Nom personnage (character.details[0] ou "Personnage Sans Nom")
+- name : Nom personnage (details[0] ou "Personnage Sans Nom")
 - type : Toujours "character" (vs "npc", "creature")
 - data : Caracteristiques, derivees, details
 - items : Array competences, talents, sorts, equipement
@@ -129,21 +129,21 @@ data.details: {
 
 **Correspondances** : CC→WS (Weapon Skill), CT→BS (Ballistic Skill), F→S (Strength), E→T (Toughness), I→I (Initiative), Ag→Ag (Agility), Dex→Dex (Dexterity), Int→Int (Intelligence), FM→WP (Willpower), Soc→Fel (Fellowship).
 
-**Structure donnees Application** : `Character.getCharacteristics()` retourne array objets `{id, data, base, specie, career, advance, tmpadvance}`.
+**Structure donnees Application** : `Character.getCharacteristics()` retourne array objets `{id, data, base, specie, career, advance, avances temporaires}`.
 
 **Structure donnees Foundry** : `data.characteristics` objet cles abreviations `{WS: {initial, advances, modifier}, ...}`.
 
-**Calcul total Application** : total = base + specie + career + advance + tmpadvance + modificateurs talents.
+**Calcul total Application** : total = base + specie + career + advance + avances temporaires + modificateurs talents.
 
 **Calcul total Foundry** : value = initial + advances + modifier.
 
-**Transformation** : initial = base + specie (valeur initiale incluant racial), advances = career + advance + tmpadvance (progression carriere + XP), modifier = somme modificateurs talents applicables.
+**Transformation** : initial = base + specie (valeur initiale incluant racial), advances = career + advance + avances temporaires (progression carriere + XP), modifier = somme modificateurs talents applicables.
 
 **Exemple Humain Agitateur CC** : Application (base 25, specie 5, career 5, advance 0, total 35). Foundry (initial 30, advances 5, value 35).
 
 **Exemple Nain Tueur Force** : Application (base 30, specie 10 bonus nain, career 10, advance 2 XP, total 52). Foundry (initial 40, advances 12, value 52).
 
-**Modificateurs Talents** : Talent Tres Resistant +5 Endurance. Application `char.getTotal()` inclut modificateur dynamiquement. Foundry modifier 5 ajoute calcul final.
+**Modificateurs Talents** : Talent Tres Resistant +5 Endurance. Application `char.total` inclut modificateur dynamiquement. Foundry modifier 5 ajoute calcul final.
 
 **Preservation calculs** : Foundry doit pouvoir recalculer totaux independamment. Avances detaillees specie/career/XP fusionnees advances. Modificateurs talents avec effets automatises appliques separement Foundry.
 
@@ -153,7 +153,7 @@ data.details: {
 
 **Transformation** : Competences personnage vers format Foundry items type "skill". Preservation specialisations, avances, caracteristique associee.
 
-**Structure Application** : `Character.getSkills()` retourne array objets `{id, data, spec, specie, career, advance, tmpadvance}`.
+**Structure Application** : `Character.getSkills()` retourne array objets `{id, data, spec, specie, career, advance, avances temporaires}`.
 
 **Structure Foundry** : items array avec `{name, type: "skill", data: {characteristic, advances}}`.
 
@@ -163,13 +163,13 @@ data.details: {
 
 **Cas particuliers** : Langue (Reikspiel) spec preserve, Metier (X) spec entre parentheses, Competence sans spec vide.
 
-**Calcul avances** : Total advances = specie + career + advance + tmpadvance. Foundry `data.advances.value` nombre total origine non distinguee.
+**Calcul avances** : Total advances = specie + career + advance + avances temporaires. Foundry `data.advances.value` nombre total origine non distinguee.
 
-**Exemple Menuisier** : Application "Metier (Menuiserie)" (specie 0, career 10, advance 5, tmpadvance 2, total 17). Foundry "Trade (Carpentry)" (advances.value 17, characteristic "Dex").
+**Exemple Menuisier** : Application "Metier (Menuiserie)" (specie 0, career 10, advance 5, avances temporaires 2, total 17). Foundry "Trade (Carpentry)" (advances.value 17, characteristic "Dex").
 
 **Groupement** : Application liste plate toutes competences. Foundry organisees categorie (Basic, Advanced) automatiquement systeme. Export liste complete sans categorisation (Foundry reorganise).
 
-**Caracteristique associee** : Application `skill.data.characteristic` reference ID. Foundry `data.characteristic` abreviation "WS", "Dex", etc. Transformation lookup mapping characteristic extraction abreviation.
+**Caracteristique associee** : Application `skillcharacteristic` reference ID. Foundry `data.characteristic` abreviation "WS", "Dex", etc. Transformation lookup mapping characteristic extraction abreviation.
 
 **Exemple competence simple Charme** : App `{label: "Charme", specie: 5, career: 0, characteristic: "Sociabilite"}`. Foundry `{name: "Charm", type: "skill", data: {characteristic: "Fel", advances: {value: 5}}}`.
 
@@ -229,7 +229,7 @@ data.details: {
 
 **Exemple objets multiples Rations** : App "Rations (7 jours)". Foundry `{name: "Rations", type: "trapping", data: {quantity: {value: 7}}}`.
 
-**Exemple Argent** : App champ character.money (couronnes or, pistoles argent, sous bronze). Foundry `{type: "money", data: {gc: X, ss: Y, bp: Z}}` (gold crowns, silver shillings, brass pennies).
+**Exemple Argent** : App champ money (couronnes or, pistoles argent, sous bronze). Foundry `{type: "money", data: {gc: X, ss: Y, bp: Z}}` (gold crowns, silver shillings, brass pennies).
 
 ### Sorts
 
@@ -265,7 +265,7 @@ data.details: {
 
 **Exemple export Humain Agitateur** : Avant Specie "Humains (Reiklander)", Career "Agitateur|1", CC 28. Lookups 3 requetes (type=specie, type=career, type=characteristic). Apres species "Human (Reiklander)", career "Agitator (Rank 1)", WS 28.
 
-**Exemple competence specialisee** : Avant Skill "Metier (Menuiserie)", spec "Menuiserie". Lookup type=skill, label="Metier (Menuiserie)" vers "Trade (Carpentry)". Export item.name = "Trade (Carpentry)", item.data.specialisation = "Carpentry".
+**Exemple competence specialisee** : Avant Skill "Metier (Menuiserie)", spec "Menuiserie". Lookup type=skill, label="Metier (Menuiserie)" vers "Trade (Carpentry)". Export item.name = "Trade (Carpentry)", itemspecialisation = "Carpentry".
 
 **Exemple talent custom non mappe** : Avant Talent "Super Pouvoir" (ajoute admin, absent mapping). Lookup NOT FOUND. Fallback foundryName = "Super Pouvoir" (label FR). Warning Log "Talent 'Super Pouvoir' non mappe, label original utilise".
 
@@ -279,7 +279,7 @@ data.details: {
 
 **Validation personnage** : Completude personnage termine (stepIndex >= 8) ou minimum avoir specie + career + characteristics. Coherence valeurs caracteristiques dans plages valides (0-100 generalement). Donnees requises nom, espece, carriere presents.
 
-**Checks obligatoires** : Specie definie (character.getSpecie() not null), Career defini (character.getCareerLevel() not null), 10 caracteristiques presentes, Nom personnage non vide (ou fallback "Unnamed Character").
+**Checks obligatoires** : Specie definie (getSpecie() not null), Career defini (getCareerLevel() not null), 10 caracteristiques presentes, Nom personnage non vide (ou fallback "Unnamed Character").
 
 **Validation items** : Skills chaque skill a characteristic valide advances >= 0. Talents nom mappe Foundry advances >= 1. Trappings type determine (weapon/armour/trapping) nom mappe. Spells lore valide CN >= 0.
 
@@ -309,9 +309,9 @@ data.details: {
 
 **Import personnage** : Depuis JSON Foundry VTT vers application. Transformation inverse export Actor Foundry vers Character interne.
 
-**Etat V1** : Fonctionnalite commentee code MainMenu.html ligne 120 `FoundryHelper.import()` desactive. Raisons complexite mapping inverse, risques donnees incoherentes, priorisation export sur import.
+**Etat V1** : Fonctionnalite commentee code MainMenu.html ligne 120 `Foundryimport()` desactive. Raisons complexite mapping inverse, risques donnees incoherentes, priorisation export sur import.
 
-**Process import prevu** : Workflow Upload input file JSON Foundry, Parsing JSON.parse(fileContent), Validation verifier structure Actor type="character", Transformation Foundry vers format application interne, Reconstruction creation Character via CharGen.character = new Character(), Chargement character.load(transformedData), Affichage Wizard Resume (stepIndex = -1).
+**Process import prevu** : Workflow Upload input file JSON Foundry, Parsing JSON.parse(fileContent), Validation verifier structure Actor type="character", Transformation Foundry vers format application interne, Reconstruction creation Character via character = new Character(), Chargement load(transformedData), Affichage Wizard Resume (stepIndex = -1).
 
 **Transformation inverse** : Characteristics WS/BS/S/T vers CC/CT/F/E avec calculs inverses (initial+advances vers base+specie+career). Skills items type="skill" vers Character.getSkills() avec extraction specs. Talents items type="talent" vers Talents avec roll = advances. Trappings items weapon/armour/trapping vers Trappings strings ou objets. Spells items type="spell" vers Spells avec lore EN vers FR.
 
@@ -323,7 +323,7 @@ data.details: {
 
 **Gestion contenus manquants** : Entites inconnues Skill/Talent/Spell absent tables app creation entree custom (flag customContent). IDs nouveaux attribution IDs auto-incrementes pour entites non reconnues.
 
-**Exemple import Foundry standard** : JSON Actor exporte Foundry (cree manuellement VTT). Process Parse, Lookup inverse mappings, Reconstruction character. Resultat Personnage importe stepIndex -1 editable wizard.
+**Exemple import Foundry standard** : JSON Actor exporte Foundry (cree manuellement VTT). Process Parse, Lookup inverse mappings, Reconstruction  Resultat Personnage importe stepIndex -1 editable wizard.
 
 **Exemple import avec contenus custom** : JSON Actor avec talent custom "Homebrew Talent". Process Lookup echoue creation talent custom flag. Resultat Talent importe marque custom (editable admin seulement).
 
@@ -341,7 +341,7 @@ data.details: {
 
 **Declencheur** : Clic bouton "Export Foundry".
 
-**Generation** : `FoundryHelper.fullExport()` transforme Specie "Humain (Reiklander)" vers Foundry species "human", Career "Agitateur|1" vers Foundry career "Agitator", Characteristics array vers Foundry characteristics object, Skills array vers Foundry items type "skill", Talents array vers Foundry items type "talent".
+**Generation** : `FoundryfullExport()` transforme Specie "Humain (Reiklander)" vers Foundry species "human", Career "Agitateur|1" vers Foundry career "Agitator", Characteristics array vers Foundry characteristics object, Skills array vers Foundry items type "skill", Talents array vers Foundry items type "talent".
 
 **Fichier** : `Johann-Schmidt.json` (~30 KB).
 

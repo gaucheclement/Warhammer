@@ -6,9 +6,9 @@ Système suit budget XP disponible pour permettre joueurs dépenser points expé
 
 ## Structure du Budget XP
 
-**Champs character.xp**: xp.max (XP total gagné sources multiples), xp.used (XP déjà dépensé consolidé), xp.tmp_used (XP dépensé temporairement session actuelle annulable)
+**Champs xp**: xp.max (XP total gagné sources multiples), xp.used (XP déjà dépensé consolidé), xp.XP temporaire (XP dépensé temporairement session actuelle annulable)
 
-**XP disponible = xp.max - xp.used - xp.tmp_used**
+**XP disponible = xp.max - xp.used - xp.XP temporaire**
 
 ## Sources XP
 
@@ -24,21 +24,21 @@ Système suit budget XP disponible pour permettre joueurs dépenser points expé
 
 ## Gestion du Budget
 
-**Mode création wizard blocage strict**: Bouton [+] désactivé si achat ferait dépasser budget, bouton [Valider] désactivé si XP disponible < 0, impossible valider avec budget négatif, logique disabled = (xp.max - xp.tmp_used - coût_prochain_achat) < 0
+**Mode création wizard blocage strict**: Bouton [+] désactivé si achat ferait dépasser budget, bouton [Valider] désactivé si XP disponible < 0, impossible valider avec budget négatif, logique disabled = (xp.max - xp.XP temporaire - coût_prochain_achat) < 0
 
 **Mode post-création souplesse**: Bouton [+] toujours activé pas blocage, budget peut devenir négatif dette XP temporaire, MJ peut autoriser "dépenses futures", MJ gère manuellement dépassements (V2 option "dette XP autorisée")
 
 ## Calcul XP Dépensé
 
-**Algorithme recalcul dynamique tmp_used**: Pour chaque catégorie (Caractéristiques somme coûts paliers × multiplicateur carrière, Compétences somme coûts acquisition + avances × multiplicateur carrière, Talents somme coûts rangs × multiplicateur carrière), multiplicateur carrière (Élément dans carrière × 1, Élément hors carrière × 2)
+**Algorithme recalcul dynamique XP temporaire**: Pour chaque catégorie (Caractéristiques somme coûts paliers × multiplicateur carrière, Compétences somme coûts acquisition + avances × multiplicateur carrière, Talents somme coûts rangs × multiplicateur carrière), multiplicateur carrière (Élément dans carrière × 1, Élément hors carrière × 2)
 
 **Exemple calcul**: Soc +3 dans: 25+25+25 = 75 XP, End +2 hors: (25+25) × 2 = 100 XP, Charme +5 dans: 10+10+10+10+10 = 50 XP, Affable dans: 100 XP = Total 325 XP
 
 ## Ajout XP Post-Création
 
-**Méthode character.addXP**: Signature character.addXP(source, amount, permanent), paramètres (source raison attribution "Aventure terminée"/"Roleplay exceptionnel", amount montant XP positif, permanent true ajouté xp.max/false temporaire)
+**Méthode addXP**: Signature addXP(source, amount, permanent), paramètres (source raison attribution "Aventure terminée"/"Roleplay exceptionnel", amount montant XP positif, permanent true ajouté xp.max/false temporaire)
 
-**Exemple**: character.addXP("Aventure: Temple maudit", 250, true) → xp.max += 250
+**Exemple**: addXP("Aventure: Temple maudit", 250, true) → xp.max += 250
 
 **Historique gains XP**: Système peut stocker log gains traçabilité (Date gain, Source gain, Montant gain, XP max après gain), affichage onglet "Expérience" character sheet
 
@@ -78,7 +78,7 @@ Système suit budget XP disponible pour permettre joueurs dépenser points expé
 
 **Messages erreur**: "Budget XP insuffisant (25 XP nécessaires, 10 XP disponibles)", "Validation bloquée: XP disponible négatif (-15 XP)", "Dette XP: -50 XP (à rembourser avec prochains gains)"
 
-**Validation cohérence**: Vérifications (Somme catégories = Total dépensé, Total dépensé = character.xp.tmp_used ou xp.used, XP restant = xp.max - total dépensé, Aucun élément négatif), messages incohérence V2 ("Incohérence détectée: Somme catégories ≠ Total (recalcul en cours)")
+**Validation cohérence**: Vérifications (Somme catégories = Total dépensé, Total dépensé = xp.XP temporaire ou xp.used, XP restant = xp.max - total dépensé, Aucun élément négatif), messages incohérence V2 ("Incohérence détectée: Somme catégories ≠ Total (recalcul en cours)")
 
 ## Exemples Concrets
 

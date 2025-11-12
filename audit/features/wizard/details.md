@@ -6,7 +6,7 @@ L'etape Detail du wizard permet determiner caracteristiques physiques et identit
 
 **Objectif metier** : Creer diversite realiste dans ranges biologiques/culturels raciaux, donner identite narrative unique.
 
-**Champs Detail (character.details[])** : 0=Nom, 1=Age, 2=Yeux, 3=Cheveux, 4=Taille, 5=(reserve), 6=Ambition CT, 7=Ambition LT, 8=Dieu
+**Champs Detail (details[])** : 0=Nom, 1=Age, 2=Yeux, 3=Cheveux, 4=Taille, 5=(reserve), 6=Ambition CT, 7=Ambition LT, 8=Dieu
 
 ## Modes selection
 
@@ -224,7 +224,7 @@ Generation aleatoire puis modification manuelle. Equilibre rapidite/personnalisa
 ## Stockage et affichage
 
 ### Structure
-**Emplacement** : character.details[] (array indices 0-8)
+**Emplacement** : details[] (array indices 0-8)
 **Format** :
 - details[0] : String nom (requis)
 - details[1] : Number age (annees)
@@ -241,9 +241,9 @@ Generation aleatoire puis modification manuelle. Equilibre rapidite/personnalisa
 **Descriptions** : Regles speciales selon species.refDetail
 
 ### Persistance
-- **Save** : Collecte via $('.details').val(), stocke character.details[], recalcule Blessures si taille
-- **Load** : Affichage depuis character.details[]
-- **Reset** : Efface character.details[] et champs
+- **Save** : Collecte via $('.details').val(), stocke details[], recalcule Blessures si taille
+- **Load** : Affichage depuis details[]
+- **Reset** : Efface details[] et champs
 
 ## Validation
 
@@ -275,7 +275,7 @@ Generation aleatoire puis modification manuelle. Equilibre rapidite/personnalisa
 2. WizardStepDetail : Chargement details.json, eyes.json, hairs.json, gods.json
 3. Generation aleatoire ou saisie manuelle
 4. Validation (Nom requis, autres warnings)
-5. Stockage character.details[]
+5. Stockage details[]
 6. Recalcul Blessures si taille modifiee
 
 ### Actions disponibles
@@ -284,9 +284,9 @@ Generation aleatoire puis modification manuelle. Equilibre rapidite/personnalisa
 
 **Random All** : Genere simultanement age, yeux, cheveux, taille (pas nom/ambitions/dieu)
 
-**Save** : Collecte tous champs, valide Nom, stocke character.details[], sauvegarde character, recalcule Blessures
+**Save** : Collecte tous champs, valide Nom, stocke details[], sauvegarde character, recalcule Blessures
 
-**Reset** : Efface tous character.details[] et champs interface
+**Reset** : Efface tous details[] et champs interface
 
 ## Relations fichiers KB
 

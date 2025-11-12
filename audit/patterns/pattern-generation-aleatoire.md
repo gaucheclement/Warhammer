@@ -162,5 +162,4 @@ Barre de progression 0-100 avec zones colorées par entité, taille proportionne
 
 ## Voir aussi
 
-- [pattern-subrand.md](./pattern-subrand.md) - Sous-catégories (non implémenté)
 - [pattern-talent-aleatoire.md](./pattern-talent-aleatoire.md) - "X Talent aléatoire"

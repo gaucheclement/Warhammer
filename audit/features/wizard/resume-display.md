@@ -67,12 +67,12 @@ Répartition en deux colonnes (left/right) pour optimiser l'espace.
 ### Onglet "Expérience"
 
 **Résumé XP :**
-1. Expérience Actuelle : xp.max - xp.tmp_used - xp.used
-2. Expérience Dépensée : xp.tmp_used + xp.used
+1. Expérience Actuelle : xp.max - xp.XP temporaire - xp.used
+2. Expérience Dépensée : xp.XP temporaire + xp.used
 3. Expérience Totale : xp.max
 
 **Historique :**
-Liste des gains XP depuis début création (source + montant), extraite de character.xp.log.
+Liste des gains XP depuis début création (source + montant), extraite de xp.log.
 
 ## Interactions utilisateur
 
@@ -91,7 +91,7 @@ Bouton "Valider" :
 - Caché si création terminée (stepIndex === -1)
 - Activé uniquement si étapes précédentes complètes
 
-Clic valider → validation finale cohérence → stepIndex = -1 → déclenchement CharGen.defaultAction.validate.
+Clic valider → validation finale cohérence → stepIndex = -1 → déclenchement defaultAction.validate.
 
 ## Calculs affichés
 
@@ -134,26 +134,16 @@ Voir [species.md](../../database/species.md), [careers.md](../../database/career
 
 ### Clonage
 
-Personnage cloné (character.clone()) pour affichage sans modifier original, permet retour arrière.
+Personnage cloné (clone()) pour affichage sans modifier original, permet retour arrière.
 
 ## Exemples Warhammer
 
-**Agitateur Humain niveau 1 :**
-- Perso : Nom "Johann", Race "Humain", Signe "Grande Croix", Classe "Roublards", Carrière "Agitateur", Niveau "Bronze 1", Statut "Cuivre 3"
-- Caractéristiques : CC 30+5=35, CT 30, F 30, E 30+5=35, I 40, Ag 30+5=35, Dex 30, Int 30+10=40, FM 30+5=35, Soc 30+10=40
-- Compétences base : Athlétisme (AG 35), Calme (FM 35), Charme (Soc 40+5=45)
-- Talents : Orateur rang 1/1, Rompu aux armes (Armes d'hast) rang 1/1
-- Trappings : Arme à 1 main, Vêtements
-- XP : Totale 40 (base 20 + carrière 20), Dépensée 0, Actuelle 40
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Répurgateur Nain niveau 2 :**
-- Perso : Race "Nain", Carrière "Répurgateur", Niveau "Bronze 2", Statut "Argent 1"
-- Sorts Béni : Bénédiction de Courage, Bénédiction de Ténacité (via Prêtre de Grungni)
-- Domaine : Grungni affiché en en-tête
-- XP : Historique montre "+25 xp bonus carrière aléatoire", "+20 xp espèce Nain"
+**Focus affichage résumé :**
 
-**Sorcier Elfe spécialisé Azyr :**
-- Talents : Magie des Arcanes (Azyr) rang 1
-- Domaine affiché : "Domaine de Magie: Azyr"
-- Sorts Arcanes : Aethyrique Armure, Frappe du ciel, Comète de Cassandora (3 sorts NI 5-8-10)
-- Sorts répartis en deux colonnes dans section "Magie des Arcanes"
+**Agitateur Humain :** Onglet Perso montre identité complète (Johann, Humain, Agitateur Bronze 1). Attributs dérivés calculés automatiquement (Mvt 4, PB 39). Onglet Compétences/Talents affiche Charme 53 (+5 avances espèce + +10 carrière + +3 talent Orateur).
+
+**Répurgateur Nain :** Onglet Sorts affiche domaine "Grungni" en en-tête. Sorts Béni listés avec colonnes (Nom, NI, Portée, Cible, Durée, Effet). Historique XP montre détail bonus (+25 carrière, +20 espèce).
+
+**Sorcier Elfe Azyr :** Domaine "Azyr" affiché en en-tête onglet Sorts. Sorts Arcanes répartis en deux colonnes pour optimiser espace. Magie des Arcanes (Azyr) visible dans talents.

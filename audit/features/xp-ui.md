@@ -44,15 +44,15 @@ Interface dépense XP permet joueurs améliorer personnage en achetant avances. 
 
 ## Mise à Jour Personnage
 
-**Temps réel chaque clic +/-**: Mise à jour tmpadvance élément, recalcul XP dépensé refreshXP, mise à jour affichage budget, mise à jour affichage coûts prochaines avances, mise à jour état boutons +/- activés/désactivés, impact personnage temporaire en mémoire character.clone()
+**Temps réel chaque clic +/-**: Mise à jour avances temporaires élément, recalcul XP dépensé refreshXP, mise à jour affichage budget, mise à jour affichage coûts prochaines avances, mise à jour état boutons +/- activés/désactivés, impact personnage temporaire en mémoire clone()
 
-**Validation finale clic [Valider]**: Consolidation tmpadvance → avances permanentes, mise à jour character.xp.used, réinitialisation tmpadvance à 0, sauvegarde personnage, fermeture step/modal
+**Validation finale clic [Valider]**: Consolidation avances temporaires → avances permanentes, mise à jour xp.used, réinitialisation avances temporaires à 0, sauvegarde personnage, fermeture step/modal
 
-**Annulation totale**: Clic [Annuler] retour état initial character original sans tmpadvance
+**Annulation totale**: Clic [Annuler] retour état initial character original sans avances temporaires
 
 ## Aide Contextuelle
 
-**Affichage description**: Mode création (Clic ligne → Affichage description panneau droit, Format Helper.getHelpFormat(element)), Mode post-création (Clic ligne → Popup modale description complète, Helper.showPopin(description))
+**Affichage description**: Mode création (Clic ligne → Affichage description panneau droit, Format getHelpFormat(element)), Mode post-création (Clic ligne → Popup modale description complète, showPopin(description))
 
 **Contenu aide**: Nom élément, description complète HTML, effets pour talents, tests associés pour compétences
 

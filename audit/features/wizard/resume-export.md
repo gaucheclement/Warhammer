@@ -10,7 +10,7 @@ L'écran de résumé devait proposer export et impression de la feuille de perso
 
 Code contient fonction randomAction commentée (lignes 57-66 StepResume.html) pour export Foundry VTT :
 - Bouton "Export Foundry"
-- Génération JSON via FoundryHelper.fullExport(CharGen, character)
+- Génération JSON via FoundryfullExport(CharGen, character)
 - Téléchargement fichier [nom_personnage].json
 - Format compatible Foundry VTT Warhammer
 
@@ -68,12 +68,12 @@ Transformation données vers schéma Foundry :
 - Inclusion trappings avec propriétés armes/armures
 - Embedding sorts avec NI et effets
 
-**FoundryHelper.fullExport() :** Fonction commentée V1 génère objet compatible Foundry. Nécessite CharGen et character, retourne JSON selon API Foundry.
+**FoundryfullExport() :** Fonction commentée V1 génère objet compatible Foundry. Nécessite CharGen et character, retourne JSON selon API Foundry.
 
 ### Workflow
 
 1. Clic bouton "Export Foundry"
-2. Appel FoundryHelper.fullExport(CharGen, character)
+2. Appel FoundryfullExport(CharGen, character)
 3. Génération blob JSON
 4. Création lien téléchargement temporaire
 5. Déclenchement download [nom].json
@@ -119,39 +119,20 @@ Format : [Nom_Personnage]_[Date].pdf ou .json
 
 ### Sécurité
 
-Export NE DOIT PAS inclure : Données sensibles app (clés API, tokens), infos autres personnages, données système CharGen. Export limité personnage courant uniquement.
+Export NE DOIT PAS inclure : Données sensibles app (clés API, tokens), infos autres personnages, données système  Export limité personnage courant uniquement.
 
 ## Exemples Warhammer
 
-**PDF Agitateur Humain :**
-- Fichier : Johann_Agitateur_2025-01-15.pdf
-- Page 1 : Caractéristiques + Identité
-- Page 2 : Compétences + Talents
-- Page 3 : Possessions + XP
-- Format A4 portrait, N&B, marges 2cm
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**JSON Foundry Répurgateur Nain :**
-- Fichier : Thorin_Repurgateur.json, ~50 KB
-- Contenu : actor type "character", items array (talents, skills, trappings, spells), data (characteristics, details, xp)
-- Import Foundry : Glisser-déposer → Acteur créé
+**Focus formats export/impression :**
 
-**Impression navigateur Sorcier Elfe :**
-- Ctrl+P sur résumé
-- Problème : Seulement onglet actif imprimé (Perso)
-- Onglets Compétences/Talents, Possession, Sorts manquants
-- Solution : CSS @media print affiche tous onglets séquentiels
+**PDF standard (Agitateur Humain) :** Fichier Johann_Agitateur_2025-01-15.pdf → Page 1 caractéristiques + identité, Page 2 compétences + talents, Page 3 possessions + XP → Format A4 portrait N&B, marges 2cm.
 
-**PDF optimisé Halfling :**
-- Template feuille officielle Warhammer
-- Cases pré-remplies avec données
-- Graphiques (logo, bordures décoratives)
-- Résultat professionnel prêt table de jeu
+**JSON Foundry (Répurgateur Nain) :** Export JSON ~50 KB → Structure actor type "character", items array (talents, skills, trappings, spells), data (characteristics, details, xp) → Import Foundry par glisser-déposer → Acteur créé avec sorts Béni Grungni.
 
-**Export JSON multi-outils :**
-- Même JSON importable dans Roll20 (transformation schema), Fantasy Grounds (adapter format .mod), applications mobiles tierces
-- Permet portabilité personnage entre plateformes
+**Impression navigateur (Sorcier Elfe) :** Ctrl+P → Problème : seul onglet actif imprimé (Perso) → Onglets Sorts/Compétences manquants → Solution CSS @media print affiche tous onglets séquentiels.
 
-**Impression sections isolées Prêtre :**
-- Impression onglet "Sorts" seul (3 pages sorts Béni détaillés)
-- Économie papier vs impression complète
-- Utile pour référence rapide en jeu
+**PDF optimisé template :** Feuille officielle Warhammer → Cases pré-remplies → Graphiques (logo, bordures) → Résultat professionnel table de jeu.
+
+**Portabilité multi-outils :** JSON exportable vers Roll20, Fantasy Grounds, applications mobiles → Adaptation schémas nécessaire.

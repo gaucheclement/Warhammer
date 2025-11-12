@@ -31,7 +31,7 @@
 - 19 signes normaux: 5% chacun (rand: 5, 10, 15...95)
 - 4 variantes Étoile du Sorcier: 1.25% chacune (rand=100, puis subRand)
 
-Voir [pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoire.md) et [pattern-subrand.md](../../patterns/pattern-subrand.md)
+Voir [pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoire.md)
 
 ### Mode manuel
 
@@ -55,9 +55,9 @@ Voir [pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoi
 
 ## États de sélection
 
-### randomState.star
+### star
 
-Champ `character.randomState.star` trackant le statut de sélection:
+Champ `star` trackant le statut de sélection:
 
 **Valeurs possibles**:
 - `0`: Aucune sélection effectuée (état initial)
@@ -159,7 +159,7 @@ Voir [characteristics.md](../../database/characteristics.md) et [pattern-modific
 
 ### Étape optionnelle
 
-**Principe**: Système optionnel WFRP. Interface indique le caractère optionnel. Possibilité de sauter l'étape (bouton "Suivant" sans sélection → `character.star = null`).
+**Principe**: Système optionnel WFRP. Interface indique le caractère optionnel. Possibilité de sauter l'étape (bouton "Suivant" sans sélection → `star = null`).
 
 ### Bonus XP aléatoire
 
@@ -167,7 +167,7 @@ Voir [characteristics.md](../../database/characteristics.md) et [pattern-modific
 
 **Conditions d'application**:
 - Mode création (pas mode libre)
-- `randomState.star = 1` (tirage effectué)
+- `star = 1` (tirage effectué)
 - Validation sans relancer
 
 **Log XP**: Enregistré comme "Signe astrologique Aléatoire" (+25 XP, gratuit).
@@ -185,6 +185,5 @@ Voir [characteristics.md](../../database/characteristics.md) et [pattern-modific
 - [talents.md](../../database/talents.md) - Table talents
 - [characteristics.md](../../database/characteristics.md) - Table caractéristiques
 - [pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoire.md) - Système rand
-- [pattern-subrand.md](../../patterns/pattern-subrand.md) - Sous-tirages
 - [pattern-parsing.md](../../patterns/pattern-parsing.md) - Parsing chaînes
 - [pattern-modificateurs-caracteristiques.md](../../patterns/pattern-modificateurs-caracteristiques.md) - Modificateurs

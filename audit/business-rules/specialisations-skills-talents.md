@@ -1,4 +1,4 @@
-# Gestion des Spécialisations de Compétences
+# Gestion des Spécialisations (Compétences et Talents)
 
 ## Patterns techniques utilisés
 
@@ -7,18 +7,20 @@
 
 ## Vue d'ensemble
 
-Certaines compétences nécessitent une **spécialisation** : le personnage ne sait pas "Art" en général, mais "Art (Peinture)" spécifiquement. Chaque spécialisation est une compétence distincte.
+Système unifié de spécialisations appliqué aux compétences (skills) et talents : un élément de base peut nécessiter une spécialisation pour être fonctionnel. Chaque spécialisation est une entité distincte avec progression indépendante.
 
-## Compétence groupée vs non groupée
+## Spécialisations de Compétences
 
-### Non groupée
+### Compétence groupée vs non groupée
+
+#### Non groupée
 **Définition** : Compétence sans spécialisations, s'acquiert telle quelle.
 
 **Dans skills.json** : Champ `specs` est vide.
 
 **Exemples** : Athlétisme, Calme, Esquive, Perception, Résistance.
 
-### Groupée
+#### Groupée
 **Définition** : Compétence avec spécialisations, le personnage doit en choisir une.
 
 **Dans skills.json** : Champ `specs` contient liste selon [pattern-parsing.md](../patterns/pattern-parsing.md).
@@ -29,9 +31,8 @@ Certaines compétences nécessitent une **spécialisation** : le personnage ne s
 - Langue : "Bretonnien, Classique, Elthárin, Khazalid, Reikspiel, Tiléen, ..."
 - Métier : "Apothicaire, Armurier, Charpentier, Forgeron, ..." (40+ spécialisations)
 
-## Dans le personnage
+### Structure données compétences
 
-### Structure données
 Voir [pattern-parsing.md](../patterns/pattern-parsing.md) pour format stockage.
 
 **Compétence groupée spécialisée** :
@@ -43,21 +44,21 @@ Voir [pattern-parsing.md](../patterns/pattern-parsing.md) pour format stockage.
 **Compétence en attente** :
 - `spec` vide → joueur doit choisir avant utilisation
 
-## Règles de sélection
+### Règles de sélection compétences
 
-### Spécialisation imposée
+#### Spécialisation imposée
 Source (espèce/carrière) impose une spécialisation spécifique.
 
 **Exemple** : Elfe donne "Langue (Elthárin)", pas "Langue (Au choix)".
 
-### Spécialisation au choix
+#### Spécialisation au choix
 Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.md](../patterns/pattern-specialisations.md).
 
 **Exemple** : Carrière artisan donne "Métier (Au choix)".
 
 **Interface** : Popup affiche liste `specs`, joueur sélectionne.
 
-### Acquisition multiple
+#### Acquisition multiple
 **Principe** : Un personnage peut apprendre plusieurs spécialisations de la même compétence.
 
 **Exemples** :
@@ -70,7 +71,7 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 
 **Limite** : Aucune limite au nombre de spécialisations.
 
-## Cas particulier : Focalisation
+### Cas particulier : Focalisation
 
 **Unicité** : SEULE compétence à la fois groupée et non groupée.
 
@@ -84,7 +85,7 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 
 **Raison** : Reflète différence mages formés (Collèges) vs informels.
 
-## Spécialisations par catégorie
+### Spécialisations par catégorie
 
 **Arts/Artisanat** : Art (10), Métier (40+), Musicien (7)
 
@@ -100,16 +101,16 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 
 **Navigation** : Voile (5)
 
-## Relations avec autres tables
+### Relations compétences avec autres tables
 
-### Avec Species
+#### Avec Species
 **Format** : Voir [pattern-parsing.md](../patterns/pattern-parsing.md)
 
 **Exemples** :
 - Spécialisation imposée : "Langue (Elthárin)" pour Elfes
 - Spécialisation au choix : "Métier (Au choix)" ou "Métier"
 
-### Avec Careers et CareerLevels
+#### Avec Careers et CareerLevels
 **Format similaire** :
 - "Art (Au choix)" = joueur choisit
 - "Langue (Bataille)" = spécialisation imposée
@@ -117,7 +118,7 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 
 **Accumulation** : Personnage peut avoir même compétence de plusieurs sources avec spécialisations différentes.
 
-### Avec Talents
+#### Avec Talents
 **Talents ajoutant compétences** :
 - Si compétence groupée, talent spécifie généralement la spécialisation
 - Exemple : "Mage Mineur" donne "Focalisation (Vent)" et "Langue (Magick)"
@@ -126,7 +127,7 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 - Peuvent affecter une spécialisation spécifique
 - Exemple : Talent affecte "Corps à corps (Escrime)" uniquement
 
-## Validation et cohérence
+### Validation compétences
 
 **Contraintes** :
 - Compétence groupée DOIT avoir spécialisation avant utilisation
@@ -137,7 +138,7 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 - Si `spec` défini : "Label (Spec)"
 - Si `spec` vide : "Label (Au choix)" avec indicateur choix requis
 
-## Exemples concrets
+### Exemples concrets compétences
 
 **Elfe** : Reçoit "Langue (Elthárin)" et "Langue (Reikspiel)" → specs déjà définis, prêt à l'emploi.
 
@@ -147,9 +148,32 @@ Source donne la compétence mais laisse le choix. Voir [pattern-specialisations.
 
 **Érudit** : Plusieurs "Savoir (Au choix)" → choisit "Histoire", "Théologie", "Loi" → progressions indépendantes.
 
+## Spécialisations de Talents
+
+### Structure données talents
+
+**specName**: type ("Art", "Terrain", "Savoir divin"). **specs**: CSV "A, B, C" (voir [pattern-parsing.md](../patterns/pattern-parsing.md)).
+
+### Types spécialisations talents
+
+Sans spé (vide, ex: Ambidextre), obligatoire (rempli, ex: Artiste → Art), libre ("Au choix", voir [pattern-specialisations.md](../patterns/pattern-specialisations.md)).
+
+### Règles sélection talents
+
+**Sélection**: à acquisition, définitive. **Exception**: même talent × rangs × spés différentes (Artiste (Peinture) rang 1, Artiste (Sculpture) rang 2).
+
+### Validation talents
+
+Liste fermée (spé dans liste), ouverte ("Au choix" → liste OU nouvelle), spé vide (blocage si specs rempli).
+
+### Interaction addSkill
+
+addSkill "(Au choix)" → spé talent devient spé compétence (ex: Artiste (Peinture) → Art (Peinture)).
+
 ## Références croisées
 
 - [species.md](../database/species.md) - Compétences d'espèce
 - [careers.md](../database/careers.md) - Compétences de carrière
 - [skills.md](../database/skills.md) - Table compétences
-- [talents.md](../database/talents.md) - Talents modifiant compétences
+- [talents.md](../database/talents.md) - Talents avec spécialisations
+- [talents-effets-mecanismes.md](./talents-effets-mecanismes.md) - Effets talents (addSkill, addCharacteristic, etc.)

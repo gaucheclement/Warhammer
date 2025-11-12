@@ -10,7 +10,7 @@ Système valide chaque achat XP avant confirmation pour éviter erreurs et incoh
 
 **Validation post-achat confirmation**: Moment après clic [+] avant mise à jour, vérifications (Budget recalculé double-check, Valeur cohérente pas dépassement limites, Spécialisation confirmée popup si nécessaire), résultat achat confirmé ou annulé
 
-**Validation finale step**: Moment avant validation step Experience, vérifications (Budget global XP disponible ≥ 0 en création, Cohérence totale somme dépenses = tmp_used, Aucun élément invalide), résultat step validé ou bloqué
+**Validation finale step**: Moment avant validation step Experience, vérifications (Budget global XP disponible ≥ 0 en création, Cohérence totale somme dépenses = XP temporaire, Aucun élément invalide), résultat step validé ou bloqué
 
 ## Contraintes par Type
 
@@ -24,7 +24,7 @@ Système valide chaque achat XP avant confirmation pour éviter erreurs et incoh
 
 ## Validation Budget
 
-**Mode création règle stricte**: XP disponible DOIT être ≥ 0 avant validation step, blocages (Bouton [+] désactivé si achat dépasse budget, Bouton [Valider] désactivé si budget < 0, Impossible valider step avec budget négatif), calcul (XP disponible = xp.max - xp.tmp_used, Bouton [+] activé SI XP disponible - coût_prochain_achat ≥ 0, Bouton [Valider] activé SI XP disponible ≥ 0)
+**Mode création règle stricte**: XP disponible DOIT être ≥ 0 avant validation step, blocages (Bouton [+] désactivé si achat dépasse budget, Bouton [Valider] désactivé si budget < 0, Impossible valider step avec budget négatif), calcul (XP disponible = xp.max - xp.XP temporaire, Bouton [+] activé SI XP disponible - coût_prochain_achat ≥ 0, Bouton [Valider] activé SI XP disponible ≥ 0)
 
 **Mode post-création règle souple**: XP disponible peut être < 0 dette temporaire autorisée, pas blocage automatique (Bouton [+] toujours activé, Bouton [Valider] toujours activé, MJ gère manuellement dépassements)
 
@@ -38,7 +38,7 @@ Système valide chaque achat XP avant confirmation pour éviter erreurs et incoh
 
 ## Recalcul Complet
 
-**Fonction refreshXP**: Appelée après chaque modification pour recalculer (XP dépensé total tmp_used, XP disponible max - used - tmp_used, État boutons +/- activés/désactivés, Affichage coûts prochaine avance), garantit cohérence en temps réel
+**Fonction refreshXP**: Appelée après chaque modification pour recalculer (XP dépensé total XP temporaire, XP disponible max - used - XP temporaire, État boutons +/- activés/désactivés, Affichage coûts prochaine avance), garantit cohérence en temps réel
 
 **Algorithme recalcul XP dépensé**: Pour chaque catégorie (Caractéristiques somme coûts paliers × multiplicateur carrière, Compétences somme coûts acquisition + avances × multiplicateur carrière, Talents somme coûts rangs × multiplicateur carrière), multiplicateur carrière (Élément dans carrière × 1, Élément hors carrière × 2)
 

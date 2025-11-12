@@ -12,10 +12,10 @@ Définit les 4 niveaux de progression pour chaque carrière. Chaque carrière po
 
 | Champ | Type | Description | Pattern |
 |-------|------|-------------|---------|
-| `index` | number | Identifiant unique | [pattern-index.md](../patterns/pattern-index.md) |
-| `label` | string | Nom du niveau | [pattern-label.md](../patterns/pattern-label.md) |
-| `book` | string | Livre source | [pattern-book-page.md](../patterns/pattern-book-page.md) |
-| `page` | number | Page source | [pattern-book-page.md](../patterns/pattern-book-page.md) |
+| `index` | number | Identifiant unique | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `label` | string | Nom du niveau | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `book` | string | Livre source | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `page` | number | Page source | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
 
 ### Champs de relation
 
@@ -163,8 +163,7 @@ Définit les 4 niveaux de progression pour chaque carrière. Chaque carrière po
 
 Voir:
 - [progression-careerlevels.md](../business-rules/progression-careerlevels.md)
-- [parsing-avances-caracteristiques.md](../business-rules/parsing-avances-caracteristiques.md)
-- [parsing-skills-talents.md](../business-rules/parsing-skills-talents.md)
+- [parsing-wizard-data.md](../business-rules/parsing-wizard-data.md)
 - [accumulation-avantages-careerlevels.md](../business-rules/accumulation-avantages-careerlevels.md)
 - [calculs-xp-progression.md](../business-rules/calculs-xp-progression.md)
 

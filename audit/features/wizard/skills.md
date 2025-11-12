@@ -35,9 +35,9 @@ Première partie de l'étape Skills. Le joueur sélectionne quelles compétences
 
 **Spécialisations prédéfinies** : Exemple Humain "Langue (Bataille)" → spécialisation déjà définie, pas de choix à faire, affichage direct "Langue (Bataille)".
 
-**Spécialisations "Au choix"** : Exemple Humain "Art (Au choix)" → le joueur doit choisir. Popup de sélection affichée lors du clic sur la compétence. Liste des specs provient du champ `specs` de la table Skills. Affichage après choix : "Art (Peinture)".
+**Spécialisations "Au choix"** : Exemple Humain "Art (Au choix)" → le joueur doit choisir. Popup de sélection affichée lors du clic sur la compétence. Liste des specs provient du champ `specs` de la table Skills. Affichage après choix : "Art (Peinture)". Voir [pattern-specialisations.md](../../patterns/pattern-specialisations.md).
 
-**Opérateur "ou"** : Exemple Humain "Art (Au choix) ou Métier (Au choix)" → le joueur choisit l'une des deux options. Une seule des deux compétences apparaît dans la liste finale.
+**Opérateur "ou"** : Voir [pattern-parsing.md](../../patterns/pattern-parsing.md). Exemple Humain "Art (Au choix) ou Métier (Au choix)" → le joueur choisit l'une des deux options.
 
 ### Exemples espèce
 
@@ -57,7 +57,7 @@ En mode Free : toutes les compétences de la base de données disponibles (pas s
 
 Deuxième partie de l'étape Skills. Après avoir sélectionné les compétences raciales, le joueur répartit 40 points d'augmentation parmi les compétences du niveau 1 de carrière.
 
-**Source des compétences** : Champ `skills` de la table CareerLevels pour le niveau 1 (voir [careerLevels.md](../../database/careerLevels.md)), format texte nécessitant parsing. Exemples : "Athlétisme, Esquive, Intuition, Corps à corps (Base), Calme, Charme, Commandement, Ragots". Quantité : généralement 8-10 compétences pour le niveau 1.
+**Source des compétences** : Champ `skills` de la table CareerLevels pour le niveau 1 (voir [careerLevels.md](../../database/careerLevels.md), parsing voir [pattern-parsing.md](../../patterns/pattern-parsing.md)). Exemples : "Athlétisme, Esquive, Intuition, Corps à corps (Base), Calme, Charme, Commandement, Ragots". Quantité : généralement 8-10 compétences pour le niveau 1.
 
 **Type de compétences** : Basic (accessibles à tous : Athlétisme, Calme, Esquive), Advanced (spécifiques à certaines carrières : Guérison, Crochetage, Navigation).
 
@@ -152,7 +152,7 @@ Gestion des spécialisations de compétences groupées durant l'étape Skills. C
 
 ### Interface de sélection
 
-**Popup de spécialisation** : Déclenchement automatique au premier clic sur une compétence avec "(Au choix)" ou sans spécialisation définie. Fonction : `Helper.showSpecialisationPopin(character, elem, change, null, true)`.
+**Popup de spécialisation** : Déclenchement automatique au premier clic sur une compétence avec "(Au choix)" ou sans spécialisation définie. Fonction : `showSpecialisationPopin(character, elem, change, null, true)`.
 
 **Contenu** : Titre "Choisissez une spécialisation pour [Nom de la compétence]", liste des spécialisations disponibles (provenant de `skills.specs`), bouton "Valider" pour confirmer.
 
@@ -400,23 +400,27 @@ Validation de la cohérence des compétences sélectionnées lors de l'étape Sk
 
 ## Exemples concrets
 
-### Création complète Humain Agitateur
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Étape Species Skills** : Skills espèce Humain = Athlétisme, Calme, Résistance, Langue (Bataille), Art (Au choix) ou Métier (Au choix), Animaux ou Charme, Commerage ou Ragots. Choix : Art (Peinture), Charme (ignoré Animaux), Ragots (ignoré Commerage). Répartition : +5 (Art Peinture, Athlétisme, Calme), +3 (Résistance, Langue Bataille, Charme). Résultat : 6 compétences avec avances d'espèce.
+**Focus répartition compétences :**
 
-**Étape Career Skills** : Skills carrière Agitateur = Athlétisme, Esquive, Intuition, Corps à corps (Base), Calme, Charme, Commandement, Ragots. Répartition 40pts : Athlétisme +5 (déjà +5 espèce), Calme +5 (déjà +5 espèce), Charme +10 (déjà +3 espèce), Commandement +10 (nouveau), Ragots +10 (nouveau). Résultat : Athlétisme 25+10=35, Calme 32+10=42, Charme 35+13=48, Commandement 35+10=45, Ragots 35+10=45, Art (Peinture) 28+5=33, Résistance 30+3=33, Langue (Bataille) 32+3=35.
+### Humain Agitateur
 
-### Création complète Nain Artisan
+**Species Skills :** Sélection Art (Peinture), Charme, Ragots parmi options "Au choix" et "ou". Répartition +5 (Art Peinture, Athlétisme, Calme), +3 (Résistance, Langue Bataille, Charme).
 
-**Étape Species Skills** : Skills espèce Nain = Résistance, Endurance, Calme, Corps à corps (Base), Métier (Au choix), Langue (Khazalid), Connaissance (Géologie) ou Connaissance (Métallurgie). Choix : Métier (Forgeron), Connaissance (Métallurgie). Répartition : +5 (Métier Forgeron, Résistance, Endurance), +3 (Calme, Corps à corps Base, Connaissance Métallurgie). Résultat : 6 compétences avec avances d'espèce.
+**Career Skills :** 40 points sur Athlétisme, Calme, Charme, Commandement, Ragots. Cumul avec espèce : Charme atteint 53 (base 40 + espèce 3 + carrière 10).
 
-**Étape Career Skills** : Skills carrière Artisan = Calme, Résistance, Métier (Forgeron), Corps à corps (Base), Perception, Marchandage, Ragots, Évaluation. Répartition 40pts : Métier (Forgeron) +10 (déjà +5 espèce), Évaluation +10 (nouveau), Marchandage +10 (nouveau), Perception +10 (nouveau). Résultat : Métier (Forgeron) 30+15=45, Résistance 40+5=45, Endurance 40+5=45, Calme 42+3=45, Corps à corps (Base) 30+3=33, Connaissance (Métallurgie) 28+3=31, Évaluation 28+10=38, Marchandage 30+10=40, Perception 28+10=38.
+### Nain Artisan
 
-### Création complète Halfling Bourgeois
+**Species Skills :** Choix Métier (Forgeron) et Connaissance (Métallurgie). Répartition +5 (Métier Forgeron, Résistance, Endurance), +3 (Calme, Corps à corps Base, Connaissance Métallurgie).
 
-**Étape Species Skills** : Skills espèce Halfling = Calme, Charme, Esquive, Intuition, Discrétion (Rurale), Perception, Animaux ou Ragots. Choix : Ragots. Répartition : +5 (Charme, Calme, Ragots), +3 (Intuition, Perception, Esquive). Résultat : 6 compétences avec avances d'espèce.
+**Career Skills :** 40 points concentrés sur Métier (Forgeron) +10, Évaluation +10, Marchandage +10, Perception +10. Métier (Forgeron) total 48 (base 33 + espèce 5 + carrière 10).
 
-**Étape Career Skills** : Skills carrière Bourgeois = Charme, Résistance, Commandement, Ragots, Intuition, Connaissance (Reikland), Art (Au choix) ou Métier (Au choix), Langue (Au choix). Choix : Métier (Cuisine), Langue (Tiléen). Répartition 40pts : Charme +10 (déjà +5 espèce), Ragots +10 (déjà +5 espèce), Commandement +10 (nouveau), Métier (Cuisine) +5 (nouveau), Langue (Tiléen) +5 (nouveau). Résultat : Charme 30+15=45, Calme 35+5=40, Ragots 30+15=45, Intuition 30+3=33, Perception 25+3=28, Esquive 25+3=28, Commandement 30+10=40, Métier (Cuisine) 25+5=30, Langue (Tiléen) 25+5=30.
+### Halfling Bourgeois
+
+**Species Skills :** Choix Ragots parmi "Animaux ou Ragots". Répartition +5 (Charme, Calme, Ragots), +3 (Intuition, Perception, Esquive).
+
+**Career Skills :** Choix Métier (Cuisine) et Langue (Tiléen) parmi options "Au choix". 40 points : Charme +10, Ragots +10, Commandement +10, Métier (Cuisine) +5, Langue (Tiléen) +5. Charme et Ragots atteignent 49.
 
 ## Voir aussi
 

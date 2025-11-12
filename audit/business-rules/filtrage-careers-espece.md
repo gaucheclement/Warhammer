@@ -12,15 +12,15 @@ Le système de filtrage détermine quelles professions sont accessibles à chaqu
 
 ## Principes de base
 
-Voir [pattern-generation-aleatoire.md](../patterns/pattern-generation-aleatoire.md) pour mécanisme complet objet `rand`.
-
-### Clé de filtrage
-Chaque espèce possède `refCareer` servant de clé d'identification.
-
-**Exemples** : Humains = "Humain", Nains = "Nain", Halflings = "Halfling"
-
 ### Mécanisme de correspondance
-**Règles** :
+
+Voir [filtrage-rand-system.md](./filtrage-rand-system.md) pour description complète du système de filtrage par clé-valeur.
+
+**Application aux espèces** : Chaque espèce possède `refCareer` servant de clé d'identification dans l'objet `rand` des carrières.
+
+**Exemples clés** : Humains = "Humain", Nains = "Nain", Halflings = "Halfling"
+
+**Règles d'accessibilité** :
 - `carrière.rand[espèce.refCareer]` = nombre → **ACCESSIBLE**
 - `carrière.rand[espèce.refCareer]` = "" → **NON ACCESSIBLE**
 - Clé absente → **NON ACCESSIBLE**

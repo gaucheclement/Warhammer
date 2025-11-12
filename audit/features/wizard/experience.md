@@ -20,7 +20,7 @@ L'étape Progression permet de dépenser des Points d'Expérience (XP) pour amé
 
 ### Affichage
 
-**Format:** `[X] Points d'Expérience à dépenser` où X = character.xp.max - character.xp.tmp_used.
+**Format:** `[X] Points d'Expérience à dépenser` où X = xp.max - xp.XP temporaire.
 
 **Rafraîchissement:** Instantané après chaque +/-.
 
@@ -84,24 +84,24 @@ L'étape Progression permet de dépenser des Points d'Expérience (XP) pour amé
 
 ### Suivi temporaire
 
-**tmpadvance:** Avances temporaires par élément (non persisté).
+**avances temporaires:** Avances temporaires par élément (non persisté).
 
 **Comportement:**
-- "+": tmpadvance++, XP dépensé mis à jour
-- "-": tmpadvance--, remboursement intégral
-- "Annuler": tmpadvance = 0, XP restant = XP max
-- "Valider": tmpadvance → permanent
+- "+": avances temporaires++, XP dépensé mis à jour
+- "-": avances temporaires--, remboursement intégral
+- "Annuler": avances temporaires = 0, XP restant = XP max
+- "Valider": avances temporaires → permanent
 
 ### Calcul temps réel
 
 **Algorithme refreshXP():**
-1. oldValue = getAdvance() - tmpadvance
+1. oldValue = getAdvance() - avances temporaires
 2. newValue = getAdvance()
-3. cost = Helper.getXPCost(elem, oldValue, newValue)
+3. cost = getXPCost(elem, oldValue, newValue)
 4. multiplicateur = hors carrière ? 2 : 1
 5. used += cost × multiplicateur
 
-**Stockage:** character.xp.tmp_used = total.
+**Stockage:** xp.XP temporaire = total.
 
 ## Validation budget
 
@@ -131,7 +131,7 @@ L'étape Progression permet de dépenser des Points d'Expérience (XP) pour amé
 
 **Organisation:** Panneau gauche (en carrière), Panneau droit (hors carrière ×2, post-création uniquement).
 
-**Colonne Aug:** tmpadvance. **Colonne Coût:** Prochain achat (jaune), temps réel.
+**Colonne Aug:** avances temporaires. **Colonne Coût:** Prochain achat (jaune), temps réel.
 
 ## Exemples
 
@@ -159,6 +159,6 @@ L'étape Progression permet de dépenser des Points d'Expérience (XP) pour amé
 
 **Tables:** species.md, careers.md, stars.md, careerLevels.md, characteristics.md, skills.md, talents.md.
 
-**Règles:** calculs-xp-progression.md, progression-careerlevels.md, skills-specialisations.md, talents-rangs-multiples.md, talents-deblocage-talents.md.
+**Règles:** calculs-xp-progression.md, progression-careerlevels.md, specialisations-skills-talents.md, talents-effets-mecanismes.md.
 
 **Features:** wizard-species.md, star-selection.md, resume-display.md, resume-validation.md.

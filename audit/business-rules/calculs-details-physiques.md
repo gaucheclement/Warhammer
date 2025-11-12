@@ -151,7 +151,7 @@ Taille arrondie à 2 décimales pour précision réaliste sans excès.
 **Exemple** : 1,7834 m → 1,78 m
 
 ### Stockage des valeurs
-Une fois générés, les détails sont stockés dans `character.details[]` :
+Une fois générés, les détails sont stockés dans le personnage :
 - Index 0 : Nom
 - Index 1 : Âge
 - Index 2 : Couleur yeux

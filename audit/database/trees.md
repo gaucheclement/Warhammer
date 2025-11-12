@@ -60,7 +60,7 @@ L'arbre atteint 4 niveaux de profondeur maximum. Exemple: Racine → Possessions
 ### 1. Référencement croisé dans descriptions
 **Objectif** : Lier les entités entre elles dans les descriptions HTML
 **Fonctionnement** : Le champ `desc` contient du HTML avec références implicites vers autres entités
-**Exemple DataTree.html** : `DescriptionHelper.applyHelp()` applique des liens vers characteristic, trait, talent, lore, skill, god, spell, etat, psychologie, magick, quality, career, tree
+**Liens hypertexte** : Applique des liens vers characteristic, trait, talent, lore, skill, god, spell, etat, psychologie, magick, quality, career, tree
 **Usage** : Navigation contextuelle depuis la description d'une entrée vers entités liées
 
 ### 2. Relation avec toutes les tables de données

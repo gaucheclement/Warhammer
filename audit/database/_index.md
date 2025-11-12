@@ -1,14 +1,14 @@
 # Index des Tables de Base de Données
 
-Liste de toutes les tables de référence Warhammer analysées.
+Liste de toutes les tables de référence Warhammer.
 
 ## Tables Principales
 
-- [species](./species.md) - Espèces jouables (Humain, Nain, Elfe, etc.)
+- [species](./species.md) - Espèces jouables (Humain, Nain, Elfe, Halfling, Gnome, Ogre)
 - [careers](./careers.md) - Carrières disponibles par espèce
-- [careerLevels](./careerLevels.md) - Niveaux de progression de carrière
+- [careerLevels](./careerLevels.md) - Niveaux de progression de carrière (1-4)
 - [skills](./skills.md) - Compétences disponibles
-- [characteristics](./characteristics.md) - Caractéristiques de base (FM, CC, CT, etc.)
+- [characteristics](./characteristics.md) - Caractéristiques de base (CC, CT, F, E, I, Ag, Dex, Int, FM, Soc)
 - [classes](./classes.md) - Classes de carrières
 - [talents](./talents.md) - Talents et capacités
 
@@ -36,7 +36,7 @@ Liste de toutes les tables de référence Warhammer analysées.
 ## Tables Détails Physiques
 
 - [eyes-hairs](./eyes-hairs.md) - Couleurs d'yeux et cheveux
-- [details](./details.md) - Autres détails physiques
+- [details](./details.md) - Autres détails physiques (âge, taille, poids)
 
 ## Tables Équipement
 
@@ -47,34 +47,16 @@ Liste de toutes les tables de référence Warhammer analysées.
 ## Architecture de l'audit
 
 ### Patterns Techniques
-**→ Voir [patterns/_index.md](../patterns/_index.md)**
+Voir [patterns/_index.md](../patterns/_index.md)
 
-Les patterns centralisent les comportements techniques réutilisables:
-- Métadonnées (index, label, book/page)
-- Génération aléatoire (rand, tirage)
-- Spécialisations (specs, Au choix)
-- Parsing (virgule, parenthèses, quantités)
-- HTML et descriptions
-- Validation (index, labels, références)
+Patterns centralisent les comportements techniques réutilisables : métadonnées, génération aléatoire, spécialisations, parsing, HTML, validation.
 
 **Principe**: Les tables database/ référencent les patterns au lieu de dupliquer.
 
 ### Règles Métier Transverses
-**→ Voir [business-rules/_index.md](../business-rules/_index.md)**
+Voir [business-rules/_index.md](../business-rules/_index.md)
 
-Les règles métier documentent les systèmes impliquant plusieurs tables:
-- Calculs cross-table (XP, encombrement, détails physiques)
-- Systèmes de progression (skills, talents)
-- Interactions talents (effets, déblocages)
+Règles métier documentent les systèmes impliquant plusieurs tables : calculs cross-table, systèmes de progression, interactions talents.
 
-**Principe**: Si la règle concerne UNE seule table → database/
-Si la règle concerne PLUSIEURS tables → business-rules/
-
----
-
-## Notes
-
-- Fichier `all-data` est un agrégateur - voir tables individuelles pour détails
-- Chaque table contient des règles métier spécifiques au domaine Warhammer
-- Relations entre tables souvent encodées en strings (à documenter par table)
-- **Max 200 lignes par fichier** : Les détails techniques sont dans patterns/
+**Principe**: Règle concernant une seule table → database/
+Règle concernant plusieurs tables → business-rules/

@@ -12,10 +12,10 @@ Table des 117 carrières disponibles avec classification sociale et pondération
 
 | Champ | Type | Description | Pattern |
 |-------|------|-------------|---------|
-| `index` | number | Identifiant unique 0-116 | [pattern-index.md](../patterns/pattern-index.md) |
-| `label` | string | Nom de la carrière | [pattern-label.md](../patterns/pattern-label.md) |
-| `book` | string | Code du livre source | [pattern-book-page.md](../patterns/pattern-book-page.md) |
-| `page` | number | Numéro de page | [pattern-book-page.md](../patterns/pattern-book-page.md) |
+| `index` | number | Identifiant unique 0-116 | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `label` | string | Nom de la carrière | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `book` | string | Code du livre source | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
+| `page` | number | Numéro de page | [pattern-metadonnees-base.md](../patterns/pattern-metadonnees-base.md) |
 
 ### Champs de classification
 
@@ -28,7 +28,7 @@ Table des 117 carrières disponibles avec classification sociale et pondération
 | Champ | Type | Description | Pattern |
 |-------|------|-------------|---------|
 | `rand` | object | Pondérations par espèce/région | [pattern-generation-aleatoire.md](../patterns/pattern-generation-aleatoire.md) |
-| `subRand` | string | Toujours `""` (non implémenté) | [pattern-subrand.md](../patterns/pattern-subrand.md) |
+| `subRand` | string | Toujours `""` (non implémenté) | - |
 
 ### Champs descriptifs
 
@@ -173,7 +173,7 @@ Voir:
 - [relation-careers-careerlevels.md](../business-rules/relation-careers-careerlevels.md)
 - [tests-coherence-careers.md](../business-rules/tests-coherence-careers.md)
 - [validation-donnees-careers.md](../business-rules/validation-donnees-careers.md)
-- [migration-descriptions-html-careers.md](../business-rules/migration-descriptions-html-careers.md)
+- [migration-descriptions-html.md](../business-rules/migration-descriptions-html.md)
 
 ---
 

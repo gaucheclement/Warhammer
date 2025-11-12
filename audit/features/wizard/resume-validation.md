@@ -8,7 +8,7 @@ L'écran de résumé effectue une vérification de cohérence globale du personn
 
 ### Contrôle d'étape (stepIndex)
 
-Le bouton "Valider" utilise character.stepIndex :
+Le bouton "Valider" utilise stepIndex :
 - stepIndex === number (étape résumé) : Bouton activé
 - stepIndex !== number : Bouton désactivé (étapes incomplètes)
 - stepIndex === -1 : Bouton caché (création terminée)
@@ -87,8 +87,8 @@ Aucun message n'explique pourquoi bouton désactivé.
 
 Clic "Valider" déclenche :
 1. stepIndex changé à -1 (marque terminé)
-2. Appel CharGen.defaultAction.validate(oThat, number)
-3. Retour menu principal (CharGen.showMenu())
+2. Appel defaultAction.validate(oThat, number)
+3. Retour menu principal (showMenu())
 
 Action IRRÉVERSIBLE : stepIndex = -1 empêche modifications via wizard.
 
@@ -134,34 +134,16 @@ Validations appliquées dans ordre étapes wizard : Species → Characteristics 
 
 ## Exemples Warhammer
 
-**Agitateur Humain validé :**
-- Étapes : Species (Humain), Characteristics (10 avances), Careers (Agitateur Bronze 1), Detail (nom "Johann")
-- Talents : Orateur rang 1, Rompu aux armes rang 1
-- Compétences : Athlétisme, Calme, Charme (8 totales niveau 1)
-- XP : 40 totale (20+20), 0 dépensée, 40 actuelle
-- Bouton "Valider" activé → clic termine wizard
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Répurgateur Nain bloqué :**
-- Étapes complètes SAUF Detail (nom manquant)
-- stepIndex reste sur étape Detail (6)
-- Résumé affiché mais bouton "Valider" désactivé
-- Retour nécessaire étape Detail
+**Focus validation cohérence :**
 
-**Sorcier Elfe toléré :**
-- Talent "Magie des Arcanes (Azyr)" rang 1 présent
-- Aucun sort Arcanes acquis (liste vide)
-- Validation AUTORISÉE (sorts acquis ultérieurement)
-- Onglet "Sorts" affiche domaine sans liste sorts
+**Validation réussie (Agitateur Humain) :** Étapes Species, Characteristics, Careers, Detail complètes → Talents Orateur, Rompu aux armes acquis → Compétences niveau 1 présentes → XP cohérente (40 totale = 20 espèce + 20 carrière) → Bouton "Valider" activé → Clic termine wizard.
 
-**Guerrier Nain incohérent bloqué :**
-- Carrière "Tueur de Trolls" niveau 1 requiert talent "Haine (Peaux-Vertes)"
-- Talent manquant dans liste
-- stepIndex bloqué sur étape Talents
-- Bouton "Valider" désactivé jusqu'à acquisition talent
+**Blocage nom manquant (Répurgateur Nain) :** Étapes complètes sauf Detail (nom vide) → stepIndex reste sur Detail → Résumé affiché mais bouton "Valider" désactivé → Retour étape Detail nécessaire.
 
-**Halfling XP incohérent :**
-- XP totale affichée : 50 (20 espèce + 30 carrière)
-- XP dépensée : 25 (achats caractéristiques)
-- XP actuelle : 30 (devrait être 25)
-- Incohérence tolérée (calcul interne corrigé automatiquement)
-- Validation possible, valeur corrigée affichée après refresh
+**Talent magique toléré (Sorcier Elfe) :** Talent Magie des Arcanes (Azyr) rang 1 présent → Liste sorts vide → Validation autorisée (sorts acquis ultérieurement) → Onglet Sorts affiche domaine Azyr sans sorts.
+
+**Blocage talent obligatoire :** Carrière requiert talent spécifique → Talent manquant → stepIndex bloqué Talents → Bouton désactivé jusqu'à acquisition.
+
+**Incohérence XP tolérée (Halfling) :** XP totale 50, dépensée 25, actuelle affichée 30 (devrait être 25) → Calcul interne corrige automatiquement → Validation possible.

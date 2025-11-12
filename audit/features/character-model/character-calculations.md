@@ -10,7 +10,7 @@ Documenter les calculs de valeurs finales, attributs dérivés, modifications pa
 
 Retourne valeur de base selon espèce.
 
-**Cas normaux** (CC, CT, F, E, I, Ag, Dex, Int, FM, Soc): data.rand[specie.data.refChar]. Exemple Humain CC=30, Nain E=40
+**Cas normaux** (CC, CT, F, E, I, Ag, Dex, Int, FM, Soc): data.rand[specierefChar]. Exemple Humain CC=30, Nain E=40
 
 **Cas spéciaux**:
 - Points de Blessures: Formule selon espèce (Humain/Elfe: BE×2+BFM, Nain: BF+BE×2+BFM, Ogre: ×2 du total)
@@ -23,9 +23,9 @@ Retourne valeur de base selon espèce.
 
 **getStar()**: Bonus signe astral (+0 à +3), seulement pour type='roll'
 **getBase()**: specie + roll + talent + star (ex: 30+8+0+0 = 38)
-**getAdvance()**: advance + career + tmpadvance (ex: 5+0+2 = 7)
-**getTotal()**: getBase() + getAdvance() (ex: 38+7 = 45)
-**getBonus()**: Math.floor(getTotal() / 10) (ex: 45 → 4)
+**getAdvance()**: advance + career + avances temporaires (ex: 5+0+2 = 7)
+**total**: getBase() + getAdvance() (ex: 38+7 = 45)
+**getBonus()**: Math.floor(total / 10) (ex: 45 → 4)
 
 ## Calcul valeurs compétences
 
@@ -39,24 +39,24 @@ Valeur totale de la caractéristique liée. Si Ag=35, Athlétisme getBase()=35
 
 ### getAdvance()
 
-Somme advance + specie + career + tmpadvance. Note: specie et career toujours 0 dans système actuel.
+Somme advance + specie + career + avances temporaires. Note: specie et career toujours 0 dans système actuel.
 
-### getTotal() et getBonus()
+### total et getBonus()
 
 total = base + advance. bonus = floor(total/10). Exemple Athlétisme Ag=35, advance=10 → total=45, bonus=4
 
 ## Calcul valeurs talents
 
 **getBase()**: Toujours 0 (talents sans valeur de base)
-**getAdvance()**: advance + roll + tmpadvance
-**getTotal()**: Rang total actuel
-**getMax()**: Rang maximum autorisé (Résistant max=BE, Tireur précision max=BAg, Maîtrise max=illimité)
+**getAdvance()**: advance + roll + avances temporaires
+**total**: Rang total actuel
+**maximum**: Rang maximum autorisé (Résistant max=BE, Tireur précision max=BAg, Maîtrise max=illimité)
 
 ## Application effets talents
 
 ### applyTalent()
 
-Recalcule et applique effets de tous talents actifs (getTotal() > 0):
+Recalcule et applique effets de tous talents actifs (total > 0):
 
 1. **Réinitialisation**: Met characteristic.talent = 0 pour toutes
 2. **Collecte effets magiques**: Si addMagic existe, ajoute {type, spec}. Cas spécial Béni: ajoute toutes bénédictions du dieu
@@ -100,14 +100,14 @@ Exemple Humain Robuste rang1 (BE=3): Base(3×2)+2=8, Robuste+3, Total=11
 
 ### Structure
 
-{max: 0, log: {}, used: 0, tmp_used: 0} - Total disponible, historique transactions, validé, temporaire
+{max: 0, log: {}, used: 0, XP temporaire: 0} - Total disponible, historique transactions, validé, temporaire
 
 ### Méthodes
 
 **setXPMax(xp)**: Définit budget total
 **addXP(id, value, uniqueId)**: Ajoute transaction (positif=gain, négatif=dépense). Si value>0: max+=value, si value<0: used-=value
-**spendXP(amount, category)**: Dépense temporaire avant validation (tmp_used+=amount)
-**getXPAvailable()**: max - used - tmp_used
+**spendXP(amount, category)**: Dépense temporaire avant validation (XP temporaire+=amount)
+**getXPAvailable()**: max - used - XP temporaire
 
 ### Coût XP
 
@@ -122,13 +122,13 @@ Exemples: CC 0→5 carrière=125XP hors=250XP, Athlétisme 5→10=50XP, Résista
 ### saveAdvance()
 
 Valide avances temporaires:
-1. Parcourt skills/characteristics/talents avec tmpadvance > 0
-2. Calcule coût: Helper.getXPCost(elem, from, to) × (de carrière ? 1 : 2)
+1. Parcourt skills/characteristics/talents avec avances temporaires > 0
+2. Calcule coût: getXPCost(elem, from, to) × (de carrière ? 1 : 2)
 3. Ajoute transaction: addXP(description, -coût)
-4. Transfère: advance += tmpadvance, tmpadvance = 0
-5. Décrémente tmp_used
+4. Transfère: advance += avances temporaires, avances temporaires = 0
+5. Décrémente XP temporaire
 6. Nettoyage: deleteEmpty()
-7. Sauvegarde: CharGen.saveCharacter(this)
+7. Sauvegarde: saveCharacter(this)
 
 ### Historique (log)
 
@@ -136,7 +136,7 @@ Format: {'Quête':100, '0_Athlétisme':-25, '1_CC':-125}. Clés gains=id direct,
 
 ## Avances temporaires
 
-Workflow: Augmente tmpadvance+tmp_used → Teste → Valide saveAdvance() (advance+=tmpadvance, tmpadvance=0) OU Annule (tmpadvance=0, tmp_used=0, XP récupéré)
+Workflow: Augmente avances temporaires+XP temporaire → Teste → Valide saveAdvance() (advance+=avances temporaires, avances temporaires=0) OU Annule (avances temporaires=0, XP temporaire=0, XP récupéré)
 
 ## Exemples concrets
 
@@ -150,7 +150,7 @@ Workflow: Augmente tmpadvance+tmp_used → Teste → Valide saveAdvance() (advan
 
 ## Validation
 
-Contraintes: getTotal() >= 0 pour toutes characteristics, advance <= getMax() pour talents, xp.max >= xp.used + xp.tmp_used (pas XP négatif), PB >= 1 minimum absolu
+Contraintes: total >= 0 pour toutes characteristics, advance <= maximum pour talents, xp.max >= xp.used + xp.XP temporaire (pas XP négatif), PB >= 1 minimum absolu
 
 Voir [character-validation.md](./character-validation.md)
 

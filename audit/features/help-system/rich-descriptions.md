@@ -7,7 +7,7 @@ Le système de descriptions enrichies transforme automatiquement le texte brut d
 ## Transformation automatique
 
 Le système parcourt chaque description et détecte les mentions d'entités:
-- Comparaison avec l'index CharGen.allForHelp
+- Comparaison avec l'index allForHelp
 - Correspondance exacte (insensible à la casse et aux accents)
 - Labels les plus longs testés en premier
 
@@ -29,7 +29,7 @@ Attributs: class (identifie lien aide), data-type (type entité), data-id (ID un
 
 ### Popup d'aide
 
-Au clic: récupération depuis CharGen.data[type].allById[id], génération HTML, affichage popup
+Au clic: récupération depuis data[type].parID[id], génération HTML, affichage popup
 
 **Desktop:** Panel latéral `.right_panel` avec onglets possibles
 **Mobile:** Modal dialog centré avec overlay
@@ -149,4 +149,4 @@ Pas de transformation si:
 - [inverse-relations.md](./inverse-relations.md) - Relations "Utilisé par" affichées dans les popups
 - [bidirectional-navigation.md](./bidirectional-navigation.md) - Navigation entre entités via les liens
 - [book-references.md](./book-references.md) - Affichage des références de pages
-- [global-index.md](./global-index.md) - Index CharGen.allForHelp utilisé pour la détection
+- [global-index.md](./global-index.md) - Index allForHelp utilisé pour la détection

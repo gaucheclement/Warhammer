@@ -24,7 +24,7 @@ Tous optionnels (peuvent être 0 ou vides).
 
 ### Format d'affichage
 
-Conversion via `Helper.convertPrice(gold, silver, bronze)` :
+Conversion en valeur unifiée :
 
 ```
 2 CO, 0 PA, 0 SB → "2CO"

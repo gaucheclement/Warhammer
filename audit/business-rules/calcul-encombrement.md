@@ -21,7 +21,7 @@ Chaque objet possède une valeur d'encombrement (poids + volume). Le total déte
 
 **Formule : Somme de tous les `enc` des trappings possédés**
 
-Chaque objet dans `character.trappings[]` contribue sa valeur `enc` au total.
+Chaque équipement contribue sa valeur d'encombrement au total.
 
 ### Cas particuliers
 

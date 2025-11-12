@@ -85,7 +85,7 @@ L'étape Caractéristiques du wizard détermine les 10 caractéristiques de base
 - Initialise toutes caractéristiques à 4
 - Donne 100 points à répartir
 - Aucun bonus XP
-- État système : `randomState.characteristic = -1`
+- État système : `characteristic = -1`
 
 **Raison irréversibilité** : Éviter abus (générer, garder si bon, sinon passer manuel)
 
@@ -111,16 +111,14 @@ L'étape Caractéristiques du wizard détermine les 10 caractéristiques de base
 
 ### Avances de caractéristiques par carrière
 
-**Source** : Champ `careerLevels.characteristics` (string avec noms séparés par virgules)
+**Source** : Champ `careerLevels.characteristics` (voir [parsing-wizard-data.md](../../business-rules/parsing-wizard-data.md))
 
 **Exemples** :
 - Agitateur N1 : "Capacité de Tir, Intelligence, Sociabilité"
 - Artisan N1 : "Dextérité, Force, Sociabilité"
 - Bourgeois N1 : "Agilité, Dextérité, Sociabilité"
 
-**Règle implicite** : +5 points par caractéristique listée (non écrit dans données)
-
-**Nombre niveau 1** : Toujours 3 caractéristiques = 15 points potentiels
+**Nombre niveau 1** : Toujours 3 caractéristiques listées
 
 ### Répartition des 5 points
 
@@ -268,20 +266,22 @@ L'étape Caractéristiques du wizard détermine les 10 caractéristiques de base
 
 ## Exemples complets par espèce
 
-**Humain Agitateur** : Bases 20, Jets aléatoires moyens, Carrière CT+3 Int+2 Soc+0, Total CT 31 Int 32 Soc 31, M4 B12 D4 R1 (Extra 3 répartis)
+Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
 
-**Nain Artisan** : Bases E30 CC30 FM40, Manuel optimisé Dex 33 F 35, M3 B16 D0 R2 (Extra 2 en Résolution)
+**Focus génération caractéristiques :**
 
-**Haut Elfe Mage** : Bases I40 Int30 FM30 Soc30, Jets moyens +10, Carrière Int+3 FM+2, Totaux I50 Int43 FM42 Soc40, M5 B13 D0 R0
+**Humain Agitateur :** Bases 20 partout (équilibrées) → Jets 2d10 moyens → Carrière Agitateur augmente CT +3, Int +2 → Totaux CC 35, CT 33, Int 42, Soc 40 → Bonus exploités par compétences sociales.
 
-**Halfling** : Bases CT30 Dex30 F10, Faible physique, Formule Blessures sans BF, M3 B9 D0 R3 (Extra 3 répartis)
+**Nain Artisan :** Bases E 30, FM 40 (robuste) → Mode manuel pour optimiser Dex 33 (métier), F 35 → Aucun bonus XP → Attributs M3, PB 54, Résilience 2.
 
-**Ogre** : Bases F35 E35 I0 Int10, Jets F+15 E+14 I+5, Carrière F+5, Totaux F55 E49 I5 Int16, M6 B30 (×2) D0 R0
+**Haut Elfe Mage :** Bases I 40, mentales 30 → Jets 2d10 +10 moyens → Carrière Apprenti Sorcier augmente Int +3, FM +2 → I 50, Int 43, FM 42 optimaux pour magie.
+
+**Halfling Bourgeois :** Bases CT 30, Dex 30 (artisan) mais F 10 (fragile) → Formule Blessures sans BF → PB 26 faible → Carrière Bourgeois augmente Soc +4, Dex +1 → Soc 34 pour compétences sociales.
 
 ## Voir aussi
 
 - [characteristics.md](../../database/characteristics.md) - Structure complète table
 - [species.md](../../database/species.md) - Valeurs espèces
 - [career-levels.md](../../database/careerLevels.md) - Structure niveaux
-- [parsing-avances-caracteristiques.md](../../business-rules/parsing-avances-caracteristiques.md) - Parsing avances
+- [parsing-wizard-data.md](../../business-rules/parsing-wizard-data.md) - Parsing avances
 - [accumulation-avantages-careerlevels.md](../../business-rules/accumulation-avantages-careerlevels.md) - Cumul multi-niveaux

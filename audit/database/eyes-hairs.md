@@ -125,8 +125,8 @@ Le système 2d10 crée une courbe en cloche (résultats centraux plus probables)
 ### Utilisation dans le modèle personnage
 
 **Stockage** :
-- `character.eyes` : Chaîne de texte (couleur sélectionnée)
-- `character.hairs` : Chaîne de texte (couleur sélectionnée)
+- Yeux : Chaîne de texte (couleur sélectionnée)
+- Cheveux : Chaîne de texte (couleur sélectionnée)
 
 **Affichage** :
 - Fiche identité personnage (voir [features/character-sheet.md])

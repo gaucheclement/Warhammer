@@ -47,7 +47,7 @@ Un seed (graine) initialise un générateur pseudo-aléatoire déterministe:
 - Même seed → même séquence de nombres
 - Seed différent → séquence différente
 
-**Usage**: randomState.characteristic = 12345 → roll CC toujours identique
+**Usage**: characteristic = 12345 → roll CC toujours identique
 
 ### Principe imposed
 

@@ -2,9 +2,9 @@
 
 ## Vue d'ensemble
 
-L'index global CharGen.match est la structure centrale du système d'aide. Il contient toutes les relations entre entités, références bibliographiques et métadonnées nécessaires pour l'affichage des liens et la navigation.
+L'index global match est la structure centrale du système d'aide. Il contient toutes les relations entre entités, références bibliographiques et métadonnées nécessaires pour l'affichage des liens et la navigation.
 
-## Structure de CharGen.match
+## Structure de match
 
 ### Organisation hiérarchique
 
@@ -17,7 +17,7 @@ L'index est organisé en trois niveaux principaux:
 ### Exemple de structure complète
 
 ```
-CharGen.match = {
+match = {
   talent: {
     "Affable": {
       specie: {
@@ -59,11 +59,11 @@ CharGen.match = {
 
 ## Peuplement de l'index
 
-Construit au démarrage: chargement JSON → initialisation `CharGen.match = {}` → parcours entités → enregistrement relations/livres
+Construit au démarrage: chargement JSON → initialisation `match = {}` → parcours entités → enregistrement relations/livres
 
 **Par entité:** Parsing description → correspondance labels (via allForHelp) → création entrée cible → ajout relation
 
-## Index CharGen.allForHelp
+## Index allForHelp
 
 Index parallèle: `allForHelp[typeItem][label] = entité complète`
 
@@ -132,7 +132,7 @@ Seul `careerLevel` utilise cette structure à 4 niveaux.
 
 **Affichage "Utilisé par":** Accès `match[type][label]` → parcours types sources → groupement → tri alphabétique → génération liens HTML
 
-**Navigation:** Clic lien → lecture `data-type`/`data-id` → récupération `CharGen.data[type].allById[id]` → affichage fiche
+**Navigation:** Clic lien → lecture `data-type`/`data-id` → récupération `data[type].parID[id]` → affichage fiche
 
 **Filtrage livre:** Accès `match['book'][code]` → parcours types → liste avec pages → affichage groupé
 
@@ -144,7 +144,7 @@ Seul `careerLevel` utilise cette structure à 4 niveaux.
 ## Validation
 
 **Intégrité structurelle:** Tous chemins d'accès valides (pas de clés undefined)
-**Cohérence IDs:** Tous ID pointent vers entités existantes dans CharGen.data
+**Cohérence IDs:** Tous ID pointent vers entités existantes dans data
 **Complétude:** Chaque relation texte détectée est enregistrée
 
 ## Voir aussi

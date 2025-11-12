@@ -6,7 +6,7 @@ Système de persistance personnages supportant stockage cloud (Google Sheets), e
 
 ## Sérialisation personnage
 
-### Méthode character.save(step)
+### Méthode save(step)
 
 **Étapes** : `deleteEmpty()` → Clonage complet → Suppression champ `data`
 
@@ -36,7 +36,7 @@ Système de persistance personnages supportant stockage cloud (Google Sheets), e
 
 **Optimisations** : Lecture/écriture batch, recherche O(n) acceptable <100 personnages.
 
-**Appel Client** : POST vers `Helper.googleURL`, Content-Type `text/plain;charset=utf-8`, Payload `action: "save"`, `saveName`, `data`. Réponse saveName (nouveau ou inchangé).
+**Appel Client** : POST vers `googleURL`, Content-Type `text/plain;charset=utf-8`, Payload `action: "save"`, `saveName`, `data`. Réponse saveName (nouveau ou inchangé).
 
 ### Lecture (Load)
 
@@ -44,15 +44,15 @@ Système de persistance personnages supportant stockage cloud (Google Sheets), e
 
 **Appel Client** : GET, paramètres `action=load`, `saveName=_x7k2pm9q`. Réponse JSON personnage ou vide.
 
-### Reconstruction (character.load)
+### Reconstruction (load)
 
 **Principe** : Restauration complète en réhydratant références.
 
-**Ordre** : stepIndex → Specie (lookup `CharGen.allSpecies`) → CareerLevel (lookup `CharGen.allCareersLevels`) → Characteristics (merge data + personnalisation) → Skills (merge data + spec) → Talents (merge data + spec) → Spells (lookup `CharGen.allSpells`) → Copie directe trappings, details, xp, randomState, mode.
+**Ordre** : stepIndex → Specie (lookup `allSpecies`) → CareerLevel (lookup `allCareersLevels`) → Characteristics (merge data + personnalisation) → Skills (merge data + spec) → Talents (merge data + spec) → Spells (lookup `allSpells`) → Copie directe trappings, details, xp, randomState, mode.
 
-**Réhydratation** : JSON contient `id` → Lookup table + merge. Characteristics/Skills/Talents `CharGen.all*[id]` → Clone → Merge. Skills/Talents copie `specs`/`spec` avant merge.
+**Réhydratation** : JSON contient `id` → Lookup table + merge. Characteristics/Skills/Talents `all*[id]` → Clone → Merge. Skills/Talents copie `specs`/`spec` avant merge.
 
-**Spécialisations** : Lookup + Clone `Helper.clone(CharGen.allSkills[id])` → Restauration specs `elem.specs = el.specs`, `elem.spec = el.spec` → Reset specName `elem.specName = ''` → Merge.
+**Spécialisations** : Lookup + Clone `clone(allSkills[id])` → Restauration specs `elem.specs = el.specs`, `elem.spec = el.spec` → Reset specName `elem.specName = ''` → Merge.
 
 ## Stockage local
 
@@ -62,9 +62,9 @@ Système de persistance personnages supportant stockage cloud (Google Sheets), e
 
 **Format** : `{ character: {...}, version: "1.0", exportDate: "ISO8601", metadata: {...} }`.
 
-**Processus** : `character.save(null)` → Ajout `data` optionnel → Création objet racine → `JSON.stringify(exportData, null, 2)`.
+**Processus** : `save(null)` → Ajout `data` optionnel → Création objet racine → `JSON.stringify(exportData, null, 2)`.
 
-**Téléchargement** : Création Blob `new Blob([json], {type: "application/json"})` → URL `URL.createObjectURL(blob)` → Lien `<a download="character.json" href=url>` → Click `link.click()` → Nettoyage `URL.revokeObjectURL(url)`.
+**Téléchargement** : Création Blob `new Blob([json], {type: "application/json"})` → URL `URL.createObjectURL(blob)` → Lien `<a download="json" href=url>` → Click `link.click()` → Nettoyage `URL.revokeObjectURL(url)`.
 
 **Nom fichier** : `{nom}_{espece}_{carriere}.json` (ex `Franz-Gruber_Humain_Agitateur.json`), fallback `character_{timestamp}.json`.
 
@@ -72,7 +72,7 @@ Système de persistance personnages supportant stockage cloud (Google Sheets), e
 
 ### Import JSON
 
-**Processus** : Input file `<input type="file" accept=".json">` → Lecture `FileReader.readAsText(file)` → Parsing `JSON.parse(text)` → Validation structure → Chargement `character.load(data.character || data)`.
+**Processus** : Input file `<input type="file" accept=".json">` → Lecture `FileReader.readAsText(file)` → Parsing `JSON.parse(text)` → Validation structure → Chargement `load(data.character || data)`.
 
 **Formats supportés** : Export JSON complet (avec metadata), léger (character seul), Sheets Save (compatible).
 
@@ -104,7 +104,7 @@ Système de persistance personnages supportant stockage cloud (Google Sheets), e
 
 ### Actions
 
-**Charger** : Click ligne/bouton → `load(saveName)` → `character.load(data)` → Wizard stepIndex.
+**Charger** : Click ligne/bouton → `load(saveName)` → `load(data)` → Wizard stepIndex.
 
 **Supprimer** : Bouton poubelle → Confirmation dialogue nom → Suppression ligne feuille Save (shift rows). Définitif.
 

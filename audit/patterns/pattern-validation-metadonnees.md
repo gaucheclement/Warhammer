@@ -121,5 +121,4 @@ Avant validation, normaliser le label :
 
 ## Voir aussi
 
-- [pattern-index.md](./pattern-index.md) - Définition du pattern index
-- [pattern-label.md](./pattern-label.md) - Définition du pattern label
+- [pattern-metadonnees-base.md](./pattern-metadonnees-base.md) - Définition des métadonnées (index, label, book-page)

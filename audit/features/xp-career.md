@@ -68,7 +68,7 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 **Mécanisme changement**: Clic bouton [Carrière] mode advancement → Affichage interface sélection carrière identique création → Choix nouvelle carrière toutes accessibles si compatibles espèce → Confirmation changement → Mise à jour carrière actuelle careerLevel passe niveau 1 nouvelle carrière (Important changement vers niveau 1 nouvelle carrière pas niveau 4 ancienne)
 
-**Conservation acquis**: Toutes caractéristiques améliorées avances permanentes, toutes compétences acquises/améliorées, tous talents acquis/rangs, tous sorts appris, XP dépensé total character.xp.used
+**Conservation acquis**: Toutes caractéristiques améliorées avances permanentes, toutes compétences acquises/améliorées, tous talents acquis/rangs, tous sorts appris, XP dépensé total xp.used
 
 **Changements**: Carrière actuelle career + careerLevel niveau 1, liste "dans carrière" nouvelles caractéristiques/compétences/talents, coûts futurs recalculés selon nouvelle carrière, status social selon nouvelle carrière niveau 1
 

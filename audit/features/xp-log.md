@@ -6,11 +6,11 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 ## Structure de l'Historique
 
-**Champ tmpadvance**: Chaque élément améliorable (caractéristique, compétence, talent) possède champ tmpadvance qui stocke avances temporaires achetées avec XP
+**Champ avances temporaires**: Chaque élément améliorable (caractéristique, compétence, talent) possède champ avances temporaires qui stocke avances temporaires achetées avec XP
 
-**Exemple tmpadvance**: Charme avances espèce +0, Charme avances carrière +5, Charme tmpadvance +3 acheté avec XP = Total 0 + 5 + 3 = 8
+**Exemple avances temporaires**: Charme avances espèce +0, Charme avances carrière +5, Charme avances temporaires +3 acheté avec XP = Total 0 + 5 + 3 = 8
 
-**Séparation avances**: Avances permanentes (Avances espèce immutables, Avances carrière immutables après acquisition niveau, Avances talents modificateurs +5/+Bonus), avances temporaires tmpadvance (Avances achetées avec XP, Annulables bouton -, Recalculées dynamiquement)
+**Séparation avances**: Avances permanentes (Avances espèce immutables, Avances carrière immutables après acquisition niveau, Avances talents modificateurs +5/+Bonus), avances temporaires avances temporaires (Avances achetées avec XP, Annulables bouton -, Recalculées dynamiquement)
 
 ## Affichage de l'Historique
 
@@ -22,15 +22,15 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 ## Annulation Dépenses
 
-**Annulation dernière dépense bouton -**: Chaque ligne historique possède bouton [-] permettant (Réduire tmpadvance de 1, Recalculer coût XP remboursement, Mettre à jour affichage, Recalculer XP disponible), logique annulation par ordre inverse LIFO Last In First Out (Première annulation = dernière avance achetée), remboursement intégral 100% pas pénalité
+**Annulation dernière dépense bouton -**: Chaque ligne historique possède bouton [-] permettant (Réduire avances temporaires de 1, Recalculer coût XP remboursement, Mettre à jour affichage, Recalculer XP disponible), logique annulation par ordre inverse LIFO Last In First Out (Première annulation = dernière avance achetée), remboursement intégral 100% pas pénalité
 
 **Exemple annulation progressive**: Charme +3 coût 10+10+10 = 30 XP, Clic [-] → Charme +2 remboursement 10 XP, Clic [-] → Charme +1 remboursement 10 XP, Clic [-] → Charme +0 remboursement 10 XP retour état initial
 
-**Annulation complète bouton Annuler**: Bouton global [Annuler] permet (Réinitialiser tous tmpadvance à 0, Rembourser tout XP dépensé, Retourner état initial personnage), confirmation popup confirmation recommandée V2
+**Annulation complète bouton Annuler**: Bouton global [Annuler] permet (Réinitialiser tous avances temporaires à 0, Rembourser tout XP dépensé, Retourner état initial personnage), confirmation popup confirmation recommandée V2
 
 ## Calcul XP Dépensé
 
-**Algorithme refreshXP recalcule dynamiquement**: Logique (Pour chaque catégorie characteristic/skill/talent: Pour chaque élément: Calculer oldValue = avance actuelle - tmpadvance, Calculer newValue = avance actuelle, Appeler Helper.getXPCost(elem, oldValue, newValue), Multiplier par 2 si élément hors carrière type "otherXXX", Ajouter au total), Mettre à jour affichage XP disponible XP max - XP dépensé
+**Algorithme refreshXP recalcule dynamiquement**: Logique (Pour chaque catégorie characteristic/skill/talent: Pour chaque élément: Calculer oldValue = avance actuelle - avances temporaires, Calculer newValue = avance actuelle, Appeler getXPCost(elem, oldValue, newValue), Multiplier par 2 si élément hors carrière type "otherXXX", Ajouter au total), Mettre à jour affichage XP disponible XP max - XP dépensé
 
 **Temps réel**: Calcul exécuté après chaque modification clic +/clic -/changement
 
@@ -42,13 +42,13 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 ## Persistance
 
-**Sauvegarde temporaire**: tmpadvance sauvegardés objet character en mémoire pendant session wizard, annulation générale retour état sauvegardé précédent character original sans tmpadvance
+**Sauvegarde temporaire**: avances temporaires sauvegardés objet character en mémoire pendant session wizard, annulation générale retour état sauvegardé précédent character original sans avances temporaires
 
-**Sauvegarde définitive validation finale**: Lors validation finale step Experience (tmpadvance consolidés dans avances permanentes, XP dépensé ajouté character.xp.used, XP disponible mis à jour, tmpadvance réinitialisés à 0), post-consolidation avances deviennent permanentes ne peuvent plus être annulées sauf mode post-création avec règles MJ
+**Sauvegarde définitive validation finale**: Lors validation finale step Experience (avances temporaires consolidés dans avances permanentes, XP dépensé ajouté xp.used, XP disponible mis à jour, avances temporaires réinitialisés à 0), post-consolidation avances deviennent permanentes ne peuvent plus être annulées sauf mode post-création avec règles MJ
 
 ## Validation Historique
 
-**Contraintes vérification**: Cohérence XP dépensé = somme coûts individuels, budget XP dépensé ≤ XP max création ou pas limite post-création, tmpadvance ≥ 0 pas annulation au-delà 0, recalcul temps réel affichage toujours synchronisé
+**Contraintes vérification**: Cohérence XP dépensé = somme coûts individuels, budget XP dépensé ≤ XP max création ou pas limite post-création, avances temporaires ≥ 0 pas annulation au-delà 0, recalcul temps réel affichage toujours synchronisé
 
 **Messages erreur**: "Impossible d'annuler: Aucune avance achetée", "Confirmer annulation complète? (remboursement de 150 XP)"
 
@@ -68,4 +68,4 @@ Système enregistre toutes dépenses XP pour permettre annulation et suivi. Hist
 
 **Pas annulation sélective**: Annulation uniquement ordre inverse LIFO, impossible annuler avance milieu sans annuler suivantes
 
-**Pas sauvegarde multiple états**: Un seul état sauvegardé character.clone(), pas snapshots multiples
+**Pas sauvegarde multiple états**: Un seul état sauvegardé clone(), pas snapshots multiples
