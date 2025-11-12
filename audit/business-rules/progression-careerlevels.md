@@ -188,6 +188,54 @@ Le personnage peut changer de carrière à n'importe quel moment, ce qui réinit
 - Historique: Agitateur 3, Artisan 2
 - Total acquis: Skills/talents/characteristics des 3 carrières (cumul)
 
+## Relation Database Careers → CareerLevels
+
+### Pattern utilisé
+
+[pattern-relation-textuelle.md](../patterns/pattern-relation-textuelle.md) - Relation string → entity
+
+### Type de relation
+
+**One-to-Many** : Une carrière → Exactement 4 niveaux (CareerLevels)
+
+**Liaison** : `careerLevel.career` (texte) = `career.label` (texte)
+
+**Exemple** :
+- Carrière : `label = "Agitateur"`
+- Niveaux : 4 entrées dans careerLevels avec `career = "Agitateur"`
+
+### Contrainte d'intégrité
+
+Toute carrière DOIT avoir **exactement 4 niveaux** (pas 3, pas 5, exactement 4).
+
+### Navigation entre niveaux
+
+**label** : Nom spécifique du niveau ("Pamphlétaire", "Démagogue")
+
+**career** : Nom de la carrière parente ("Agitateur")
+
+**Usage** :
+- Affichage : Montrer `label` (descriptif)
+- Regroupement : Utiliser `career` pour lister 4 niveaux
+- Progression : Incrémenter `careerLevel` pour niveau suivant
+
+**Affichage hiérarchique** :
+```
+Agitateur (Carrière)
+├─ Niveau 1: Pamphlétaire (Bronze 1)
+├─ Niveau 2: Agitateur (Bronze 2)
+├─ Niveau 3: Fauteur de Troubles (Bronze 3)
+└─ Niveau 4: Démagogue (Bronze 5)
+```
+
+### Validation database
+
+**Cohérence données** :
+- Exactement 4 CareerLevels par carrière
+- `careerLevel` = 1, 2, 3, 4 (séquentiel)
+- Tous CareerLevels d'une carrière ont même `career`
+- Un seul CareerLevel par `careerLevel` (pas doublons)
+
 ## Relations avec autres règles
 
 **Accumulation:** Voir `accumulation-avantages-careerlevels.md` pour le cumul des avantages par niveau.
@@ -196,4 +244,4 @@ Le personnage peut changer de carrière à n'importe quel moment, ce qui réinit
 
 **Parsing:** Voir `parsing-wizard-data.md` pour le format des données.
 
-**Validation:** Voir `audit/database/careerLevels.md` (sections tests et validation) pour les contraintes.
+**Tables database:** Voir `audit/database/careers.md` et `audit/database/careerLevels.md` pour les schémas complets.

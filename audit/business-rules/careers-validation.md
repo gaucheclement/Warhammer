@@ -94,7 +94,7 @@ Voir [pattern-validation-references.md](../patterns/pattern-validation-reference
 **Échec** : Espèce avec <3 carrières → Génération personnage impossible
 
 ### Vers CareerLevels
-Voir [relation-careers-careerlevels.md](./relation-careers-careerlevels.md)
+Voir [progression-careerlevels.md](./progression-careerlevels.md)
 
 **Test** : Exactement 4 CareerLevels avec `career=label` et `careerLevel=1,2,3,4` (sans trou)
 
@@ -178,4 +178,4 @@ Tests automatisés avant commit. Validation frontend + serveur. Messages clairs 
 - [careers.md](../database/careers.md) - Table carrières
 - [filtrage-careers-espece.md](./filtrage-careers-espece.md) - Filtrage espèce
 - [filtrage-careers-region.md](./filtrage-careers-region.md) - Filtrage région
-- [relation-careers-careerlevels.md](./relation-careers-careerlevels.md) - Relation niveaux
+- [progression-careerlevels.md](./progression-careerlevels.md) - Système 4 niveaux + relation database

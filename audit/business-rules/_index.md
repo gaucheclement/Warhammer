@@ -27,7 +27,7 @@ Comportement technique réutilisable → [patterns/](../patterns/)
 
 ## Carrières
 
-- [relation-careers-careerlevels.md](./relation-careers-careerlevels.md) - Relations carrières/niveaux
+- [progression-careerlevels.md](./progression-careerlevels.md) - Système 4 niveaux progression + relation database
 - [filtrage-careers-espece.md](./filtrage-careers-espece.md) - Filtrage carrières selon espèce
 - [filtrage-careers-region.md](./filtrage-careers-region.md) - Filtrage carrières selon région
 - [careers-validation.md](./careers-validation.md) - Validation des carrières
