@@ -4,7 +4,7 @@
 
 L'étape Caractéristiques du wizard détermine les 10 caractéristiques de base du personnage (CC, CT, F, E, I, Ag, Dex, Int, FM, Soc), héritées de l'espèce et modifiées par jets aléatoires ou saisie manuelle, puis augmentées par bonus de carrière. Le joueur peut générer aléatoirement (avec bonus XP) ou choisir manuellement (contrôle total). Après détermination, le système calcule automatiquement les attributs dérivés (Mouvement, Points de Blessure, Destin, Résolution).
 
-**Relations** : Voir [characteristics.md](../../database/characteristics.md), [species.md](../../database/species.md), [career-levels.md](../../database/careerLevels.md)
+**Relations** : Voir [characteristics.md](../../database/characteristics.md), [species.md](../../database/species.md), [careerLevels.md](../../database/careerLevels.md)
 
 ## Valeurs de base par espèce
 
@@ -282,6 +282,6 @@ Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour arch
 
 - [characteristics.md](../../database/characteristics.md) - Structure complète table
 - [species.md](../../database/species.md) - Valeurs espèces
-- [career-levels.md](../../database/careerLevels.md) - Structure niveaux
+- [careerLevels.md](../../database/careerLevels.md) - Structure niveaux
 - [parsing-wizard-data.md](../../business-rules/parsing-wizard-data.md) - Parsing avances
 - [accumulation-avantages-careerlevels.md](../../business-rules/accumulation-avantages-careerlevels.md) - Cumul multi-niveaux

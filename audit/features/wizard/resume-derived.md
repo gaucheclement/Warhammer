@@ -119,7 +119,7 @@ En création wizard : Corruption toujours 0 (aucune source possible).
 ### Dépendances
 
 - [resume-display.md](./resume-display.md) : Affichage valeurs
-- [characteristics-initial.md](./characteristics-initial.md) : Valeurs base
+- [characteristics.md](./characteristics.md) : Valeurs base
 
 ### Tables
 

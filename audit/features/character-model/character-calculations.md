@@ -157,6 +157,6 @@ Voir [character-validation.md](./character-validation.md)
 ## Voir aussi
 
 - [character-structure.md](./character-structure.md) - Structure complète
-- [character-talents.md](./character-talents.md) - Talents et effets
-- [database/characteristics.md](../database/characteristics.md) - Liste caractéristiques
+- [talents-effets-mecanismes.md](../../business-rules/talents-effets-mecanismes.md) - Talents et effets
+- [database/characteristics.md](../../database/characteristics.md) - Liste caractéristiques
 - [pattern-modificateurs-caracteristiques.md](../../patterns/pattern-modificateurs-caracteristiques.md) - Modificateurs

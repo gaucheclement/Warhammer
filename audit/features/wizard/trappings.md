@@ -181,4 +181,4 @@ Voir [pattern-type-subtype.md](../../patterns/pattern-type-subtype.md).
 - [prix-disponibilite-trappings.md](../../business-rules/prix-disponibilite-trappings.md) : Système monétaire
 
 **Autres features wizard :**
-- [step-possessions.md](./step-possessions.md) : Intégration step
+- Intégration dans wizard : Étape trappings intégrée au flux de création

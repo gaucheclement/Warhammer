@@ -188,4 +188,6 @@ Une fois générés, les détails sont stockés dans le personnage :
 **Résultat** : Elfe de 98 ans (jeune), yeux bigarrés bleu/or, cheveux argentés (rare), 1,93 m.
 
 ## Cross-références
-[species.md] (champ refDetail détermine quelle colonne utiliser), [character-creation.md] (étape Détails dans processus création)
+
+- [species.md](../database/species.md) - Champ refDetail détermine quelle colonne utiliser
+- [details.md](../features/wizard/details.md) - Étape Détails dans processus création

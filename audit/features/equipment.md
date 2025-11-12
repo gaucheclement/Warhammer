@@ -394,7 +394,7 @@ Voir [pattern-validation-display.md](../patterns/pattern-validation-display.md) 
 
 **Qualities:** Armes/armures peuvent qualités modifiant effets combat. Voir [database/qualities.md](../database/qualities.md)
 
-**Career:** Carrières définissent dotation initiale (trappings) personnage reçoit débutant. Voir [database/career_levels.md](../database/career_levels.md)
+**Career:** Carrières définissent dotation initiale (trappings) personnage reçoit débutant. Voir [database/careerLevels.md](../database/careerLevels.md)
 
 **Characteristics:** Limite encombrement dépend Force+Endurance. Pénalités affectent Mouvement, tests caractéristiques. Voir [database/characteristics.md](../database/characteristics.md)
 
@@ -423,7 +423,7 @@ Voir [pattern-validation-display.md](../patterns/pattern-validation-display.md) 
 - [database/trappings.md](../database/trappings.md) - Base données équipement
 - [database/qualities.md](../database/qualities.md) - Qualités armes/armures
 - [database/skills.md](../database/skills.md) - Compétences armes
-- [database/career_levels.md](../database/career_levels.md) - Dotations carrières
+- [database/careerLevels.md](../database/careerLevels.md) - Dotations carrières
 - [database/characteristics.md](../database/characteristics.md) - Force/Endurance limite
 - [pattern-validation-display.md](../patterns/pattern-validation-display.md) - Pattern validation/affichage
 - [pattern-type-subtype.md](../patterns/pattern-type-subtype.md) - Hiérarchie types
