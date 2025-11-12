@@ -58,7 +58,7 @@ Clic "Valider" → Wizard terminé → Personnage en mémoire NON sauvegardé �
 **Sauvegarder sans valider (brouillon) :**
 Clic "Sauvegarder" → Code généré → Retour étapes précédentes → Modifications possibles → Personnage sauvegardé = version antérieure.
 
-**Mise à jour impossible (V1) :**
+**Mise à jour impossible :**
 Personnage sauvegardé (saveName existe) → Bouton caché → Modifications via feuille personnage uniquement.
 
 ## Persistance et récupération

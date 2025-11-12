@@ -96,7 +96,7 @@ Seuils :
 
 Exemple Humain F 30 (Bonus 3) : Normal 0-30, Surchargé 31-60, Immobilisé 61+
 
-Résumé V1 affiche total enc mais pas seuils/pénalités (gérés par feuille personnage).
+Résumé affiche total enc mais pas seuils/pénalités (gérés par feuille personnage).
 
 Voir [calcul-encombrement.md](../../business-rules/calcul-encombrement.md).
 
@@ -110,7 +110,7 @@ Tous personnages commencent à Corruption 0.
 
 Sources : Sorts Chaos (NI÷10 arrondi sup), exposition Chaos (narratif), talents Chaos, mutations.
 
-Seuils (non affichés résumé V1) : 1-3 Mineure, 4-6 Modérée, 7-9 Grave, 10+ Extrême.
+Seuils (non affichés résumé) : 1-3 Mineure, 4-6 Modérée, 7-9 Grave, 10+ Extrême.
 
 En création wizard : Corruption toujours 0 (aucune source possible).
 

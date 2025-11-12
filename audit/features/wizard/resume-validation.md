@@ -69,9 +69,9 @@ Exemple Nain Agitateur : 20 (espèce) + 20 (carrière) + 25 (bonus) = 65 totale,
 
 ## Messages et blocages
 
-### Blocages silencieux (V1)
+### Blocages silencieux
 
-La V1 ne génère pas de messages explicites. Validation repose sur :
+Le système ne génère pas de messages explicites. Validation repose sur :
 - Désactivation bouton si stepIndex incohérent
 - Clonage personnage évite corruption données
 - Vérifications implicites via calculs affichés

@@ -2,9 +2,9 @@
 
 ## Contexte
 
-L'écran de résumé devait proposer export et impression de la feuille de personnage. Dans V1, ces fonctionnalités sont partiellement implémentées ou commentées, indiquant une intention future.
+L'écran de résumé devait proposer export et impression de la feuille de personnage. Ces fonctionnalités sont partiellement implémentées ou commentées.
 
-## État actuel (V1)
+## État actuel
 
 ### Export Foundry (commenté)
 
@@ -14,7 +14,7 @@ Code contient fonction randomAction commentée (lignes 57-66 StepResume.html) po
 - Téléchargement fichier [nom_personnage].json
 - Format compatible Foundry VTT Warhammer
 
-Désactivé dans V1 pour simplification ou incompatibilité version.
+Désactivé pour simplification ou incompatibilité version.
 
 ### Impression native (non implémentée)
 
@@ -55,7 +55,7 @@ Aucune fonction impression directe. Dépend du navigateur :
 
 **Structure :** name, species, career, characteristics, skills, talents, trappings, spells, details, xp.
 
-**Cas d'usage :** Import autres outils (Roll20, Foundry, Fantasy Grounds), sauvegarde locale, partage, migration V2.
+**Cas d'usage :** Import autres outils (Roll20, Foundry, Fantasy Grounds), sauvegarde locale, partage.
 
 ## Intégration Foundry VTT
 
@@ -68,7 +68,7 @@ Transformation données vers schéma Foundry :
 - Inclusion trappings avec propriétés armes/armures
 - Embedding sorts avec NI et effets
 
-**FoundryfullExport() :** Fonction commentée V1 génère objet compatible Foundry. Nécessite CharGen et character, retourne JSON selon API Foundry.
+**FoundryfullExport() :** Fonction commentée génère objet compatible Foundry. Nécessite CharGen et character, retourne JSON selon API Foundry.
 
 ### Workflow
 
