@@ -14,25 +14,26 @@ Processus complet de changement de carrière pour un personnage existant. Ce wor
 
 ## Coût et contraintes
 
-### Coût XP fixe
+### Coût XP
 
-**Règle**: Changer de carrière coûte 100 XP (coût unique, fixe).
-- Pas de modificateur "en carrière" vs "hors carrière" (coût toujours 100 XP)
-- Pas de variation selon niveau actuel ou nouvelle carrière
-- Coût payé une seule fois lors du changement
+**Règle V1** : Changer de carrière est **GRATUIT** (aucun coût XP en soi).
+- Le coût réside dans l'achat des nouveaux éléments de la carrière
+- Pas de déduction XP lors du changement lui-même
 
-**Justification métier**: Représente effort apprentissage nouvelle profession, perte revenus/statut pendant transition, nécessité prouver compétences.
+**Option MJ (recommandation WFRP)** : Certains MJ imposent un coût fixe 100-200 XP pour refléter le temps d'apprentissage et la perte de statut.
+- Configuration : Activable dans paramètres MJ (V2)
+- Si activé : XP Actuelle diminuée du montant configuré, XP Dépensée incrémentée
+- Log historique : "2025-03-15: -100 XP (Changement carrière: Artisan → Marchand)"
 
-**Déduction**: XP Actuelle diminuée de 100, XP Dépensée incrémentée de 100.
-
-**Log historique**: "2025-03-15: -100 XP (Changement carrière: Artisan → Marchand)"
+**V1 actuel** : Gratuit, seuls les achats futurs dans la nouvelle carrière coûtent XP.
 
 ### Contraintes et restrictions
 
 **Contraintes système**:
-- XP Actuelle ≥ 100 pour autoriser changement (impossible si XP < 100)
-- Aucune limite nombre changements (peut changer 10× si suffisamment XP)
-- Aucune restriction carrières accessibles (toutes carrières disponibles, sauf Chaos en mode normal)
+- V1 actuel : Aucune contrainte XP (changement gratuit)
+- Option MJ : XP Actuelle ≥ coût configuré (ex: ≥ 100 si coût 100 XP activé)
+- Aucune limite nombre changements
+- Aucune restriction carrières accessibles (toutes carrières disponibles selon espèce, sauf Chaos en mode normal)
 
 **Contraintes narratives** (optionnelles, validation MJ):
 - Cohérence roleplay: justification narrative changement (ex: Agitateur → Soldat après enrôlement forcé)

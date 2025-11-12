@@ -458,13 +458,13 @@ Processus complet de dépense d'Points d'Expérience (XP/PX) pour améliorer un 
 
 **Objectif**: Changer carrière pour Marchand niveau 1
 
-**Coût changement carrière**: 100 XP (coût fixe)
+**Coût changement carrière** : V1 gratuit, option MJ 100-200 XP (voir [workflow-changement-carriere.md](./workflow-changement-carriere.md))
 
-**Achat**:
+**Achat** (V1 gratuit):
 1. Écran "Changer de carrière"
 2. Sélection nouvelle carrière: Marchand
-3. Confirmation: "Changer de carrière pour Marchand niveau 1? Coût: 100 XP. Vous conserverez tous acquis Agitateur + Artisan."
-4. Validation: -100 XP → XP: 100
+3. Confirmation: "Changer de carrière pour Marchand niveau 1? Vous conserverez tous acquis Agitateur + Artisan."
+4. Validation: Changement immédiat → XP: 200 (inchangé)
 
 **Conséquences**:
 - Carrière actuelle: Marchand niveau 1 (Bronze 2)

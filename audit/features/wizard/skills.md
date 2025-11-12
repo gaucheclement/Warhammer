@@ -124,11 +124,9 @@ Gestion des compétences marquées "Au choix" dans les listes de skills d'espèc
 
 ### Parsing "ou"
 
-**Identification** : Recherche de l'opérateur " ou " (espace + ou + espace) dans la chaîne skills. Séparation en tokens : "A ou B ou C" → ["A", "B", "C"].
+**Format** : Opérateur " ou " (espace + ou + espace) pour choix multiples. Voir [pattern-parsing.md](../../patterns/pattern-parsing.md).
 
-**Traitement** : Chaque token devient une compétence disponible dans la liste. Le joueur voit toutes les options affichées. Il alloue des points librement à celles qu'il souhaite.
-
-**Filtrage final** : Seules les compétences avec points > 0 sont conservées dans le personnage. Les options non sélectionnées (0 points) disparaissent.
+**Traitement étape Skills** : Chaque option devient une compétence disponible. Le joueur alloue des points librement parmi les options. Seules les compétences avec points > 0 sont conservées (pas d'exclusion stricte dans Skills, contrairement aux Talents).
 
 ## Spécialisations
 
@@ -432,7 +430,7 @@ Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour arch
 
 **Business rules** :
 - [calculs-xp-progression.md](../../business-rules/calculs-xp-progression.md) - Coûts XP paliers
-- [characteristics-derived.md](../../business-rules/characteristics-derived.md) - Caractéristiques dérivées
+- [resume-derived.md](../wizard/resume-derived.md) - Caractéristiques dérivées (PB, Mouvement)
 
 **Patterns** :
 - [pattern-parsing.md](../../patterns/pattern-parsing.md) - Parsing listes (virgule, "ou", parenthèses)
