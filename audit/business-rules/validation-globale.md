@@ -15,7 +15,7 @@
 
 | **Type de Validation** | **Création Wizard** | **Progression XP** | **Changement Carrière** | **Admin Entités** |
 |------------------------|---------------------|-------------------|------------------------|------------------|
-| **Structurelle** | stepIndex valide, 15 carac, format correct | XP ≥ 0, tmp_used cohérent, avances ≤ 70 | XP ≥ 100, historique valide | Index unique, labels uniques, types corrects |
+| **Structurelle** | stepIndex valide, 15 carac, format correct | XP ≥ 0, tmp_used cohérent, pas limite avances | XP ≥ 0 (gratuit V1), historique valide | Index unique, labels uniques, types corrects |
 | **Référentielle** | species/career existent, IDs valides | Compétence/talent existe, domaine magie valide | Carrière destination existe, compatible espèce | refChar/refCareer valides, class existe, 4 niveaux |
 | **Métier** | Specs choisis, budget XP=0, 40pts skills | Pré-requis OK, rang ≤ max, en/hors carrière | Conservation acquis, niveau=1 obligatoire | Rand croissants, couverture ≥95%, cohérence |
 | **Dérivée** | PB ≥ 1, M ≥ 0, encombrement cohérent | Bonus recalculés, effets talents appliqués | Status social mis à jour, "en carrière" redéfini | Distribution équilibrée, hiérarchies cohérentes |
@@ -112,14 +112,14 @@
 | Validation | Règle | Action si KO |
 |-----------|-------|-------------|
 | **Budget recalculé** | Double-check XP disponible après achat | Achat annulé |
-| **Valeur cohérente** | Pas dépassement limites système (70 max) | Achat annulé |
+| **Valeur cohérente** | Respect limites max talents (pas de limite skills/carac) | Achat annulé |
 | **Spécialisation confirmée** | Popup validée si affichée | Achat annulé |
 
 **Limites Système** :
 
 | Limite | Valeur | Raison |
 |--------|--------|--------|
-| **Avances max** | 70 | Système conçu pour progression jusqu'à +70 |
+| **Avances skills/carac** | Illimitées | Progression continue après 70 (coût stabilisé 380/450 XP), voir [calculs-xp-progression.md](./calculs-xp-progression.md) |
 | **Rang max talent** | Variable (1, N, Bonus carac, illimité) | Dépend talent.max |
 | **XP Totale max** | 99999 | Limite affichage UI |
 
@@ -130,14 +130,14 @@
 **Caractéristiques** :
 - Budget XP suffisant
 - Dans/Hors carrière (multiplicateur ×2 si hors)
-- Avances ≤ 70
-- Palier correct (coût augmente par tranche de 5)
+- Pas de limite max (progression continue après 70)
+- Palier correct (coût augmente par tranche de 5, stabilisé 450 XP après 70)
 
 **Compétences** :
 - Budget XP suffisant
 - Dans/Hors carrière (×2 si hors, SAUF compétences Basic toujours ×1)
 - Spécialisation si groupée (popup avant achat)
-- Avances ≤ 70
+- Pas de limite max (progression continue après 70)
 - Type Basic/Advanced respecté
 
 **Talents** :

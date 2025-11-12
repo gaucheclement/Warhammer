@@ -308,14 +308,13 @@ Processus complet de dépense d'Points d'Expérience (XP/PX) pour améliorer un 
 **Validation contraintes**:
 - XP suffisantes: impossible acheter si XP Actuelle < Coût
 - Pré-requis talents: impossible acheter si pré-requis non remplis (caractéristique insuffisante, talent manquant)
-- Max rangs: impossible dépasser max talent (unique, fixe, dynamique)
-- Niveau max: impossible dépasser 70 avances compétence/caractéristique (limite système)
+- Max rangs talents: impossible dépasser max talent (unique, fixe, dynamique)
+- Skills/Carac: pas de limite max (progression illimitée)
 
 **Messages erreur**:
 - XP insuffisantes: "XP insuffisantes. Coût: 200 XP, Disponibles: 125 XP"
 - Pré-requis KO: "Impossible acquérir [Talent]. Nécessite: [Pré-requis]"
 - Max atteint: "[Talent] a atteint son rang maximum ([Max])"
-- Niveau max: "[Compétence] a atteint le niveau maximum (70)"
 
 **Sauvegarde automatique**:
 - Chaque achat déclenche sauvegarde automatique (éviter perte données)
@@ -530,8 +529,9 @@ Processus complet de dépense d'Points d'Expérience (XP/PX) pour améliorer un 
 - Max rang talent selon type (unique 1, fixe N, dynamique Bonus, illimité 99)
 - Max XP Totale: 99999 (limite affichage, rarement atteint en campagne normale)
 
-**Campagnes longues**: Personnages niveau 50+ avec 5000+ XP peuvent atteindre limites système.
-- Exemple: Artisan niveau 4 multi-carrières avec 6000 XP dépensées → skills principales 60+, characteristics 50+
+**Campagnes longues**: Personnages avec 5000+ XP peuvent dépasser 70 avances.
+- Exemple: Artisan niveau 4 multi-carrières avec 6000 XP dépensées → skills principales 70-80+, characteristics 60-70+
+- Coûts après 70: stabilisés à 380 XP (skills) et 450 XP (characteristics) par palier de 5
 
 **Gestion fin de carrière**: Au niveau 4 (Or), progression ralentit (tous éléments acquis, peu de nouveautés).
 - Solution: changement carrière pour renouveler "en carrière"
