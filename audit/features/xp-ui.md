@@ -16,7 +16,7 @@ Interface dépense XP permet joueurs améliorer personnage en achetant avances. 
 
 **Mise à jour**: Temps réel après chaque clic +/-
 
-**Couleurs V2**: Vert XP > 0, Orange XP = 0, Rouge XP < 0 post-création uniquement
+**Couleurs**: Vert XP > 0, Orange XP = 0, Rouge XP < 0 post-création uniquement
 
 ## Sélection Amélioration
 
@@ -38,9 +38,7 @@ Interface dépense XP permet joueurs améliorer personnage en achetant avances. 
 
 ## Confirmation Achat
 
-**Immédiat V1**: Pas confirmation achat immédiat au clic [+], avantages rapidité/fluidité, inconvénients erreurs possibles clics accidentels
-
-**Avec confirmation V2 option**: Popup confirmation achats > 100 XP, message "Acheter +1 Sociabilité pour 150 XP?", boutons [Confirmer]/[Annuler]
+**Achat immédiat**: Pas confirmation au clic [+], avantages rapidité/fluidité, inconvénients erreurs possibles clics accidentels
 
 ## Mise à Jour Personnage
 
@@ -78,7 +76,7 @@ Interface dépense XP permet joueurs améliorer personnage en achetant avances. 
 
 ## Limites et Contraintes
 
-**Blocages silencieux V1**: Boutons désactivés sans message explication (voir xp-validation.md)
+**Blocages silencieux**: Boutons désactivés sans message explication (voir xp-validation.md)
 
 **Pas confirmation achats coûteux**: Pas protection contre clics accidentels talents 100-200 XP
 

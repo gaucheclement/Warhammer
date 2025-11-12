@@ -1,4 +1,4 @@
-# Glossaire Métier - Warhammer Character Generator V1
+# Glossaire Métier - Warhammer Character Generator
 
 **Version** : 1.0
 **Date** : 2025-11-11
@@ -8,7 +8,7 @@
 
 ## Introduction
 
-Ce glossaire définit de manière **canonique** tous les termes métier utilisés dans le système Warhammer Fantasy Roleplay Character Generator V1. Il clarifie les ambiguïtés, distingue les concepts similaires et documente les relations entre termes.
+Ce glossaire définit de manière **canonique** tous les termes métier utilisés dans le système Warhammer Fantasy Roleplay Character Generator. Il clarifie les ambiguïtés, distingue les concepts similaires et documente les relations entre termes.
 
 **Organisation** :
 1. Concepts Fondamentaux (Caractéristiques, Avances, Rangs, Paliers)
