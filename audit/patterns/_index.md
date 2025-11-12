@@ -19,13 +19,12 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ---
 
-## Génération Aléatoire (3)
+## Génération Aléatoire (2)
 
 - [pattern-generation-aleatoire.md](./pattern-generation-aleatoire.md) - Système rand 1-100 et algorithme de tirage
 
 **Fusionne :** rand, tirage-aleatoire
 
-- [pattern-subrand.md](./pattern-subrand.md) - Tirage secondaire pour résolution collisions rand (NON IMPLÉMENTÉ V1 - Prévu V2)
 - [pattern-talent-aleatoire.md](./pattern-talent-aleatoire.md) - "X Talent aléatoire"
 
 ---
@@ -79,13 +78,13 @@ Chaque fichier documente UN SEUL comportement (max 200 lignes).
 
 ## Statistiques
 
-**Nombre total de patterns :** 14 (vs 29 avant fusion)
-**Réduction :** 52%
+**Nombre total de patterns :** 13 (vs 29 avant fusion)
+**Réduction :** 55%
 
 **Répartition :**
 - Métadonnées : 1 (fusion de 3)
 - Parsing : 1 (fusion de 7)
-- Génération aléatoire : 3 (inclut pattern-subrand NON IMPLÉMENTÉ V1)
+- Génération aléatoire : 2
 - Spécialisations : 1 (fusion de 2)
 - HTML : 1 (fusion de 3)
 - Validation : 4 (fusion de 5 + nouveau pattern validation-display)
