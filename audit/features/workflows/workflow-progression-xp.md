@@ -63,73 +63,35 @@ Processus complet de dépense d'Points d'Expérience (XP/PX) pour améliorer un 
 
 **Formule**: Coût par palier de 5 niveaux, progressif selon niveau atteint.
 
-**Tableau complet**:
+**Table complète des coûts**: Voir [calculs-xp-progression.md](../../business-rules/calculs-xp-progression.md).
 
-| Niveau atteint | Coût XP | Coût cumulé 0→N |
-|----------------|---------|-----------------|
-| 1-5 | 10 XP | 50 XP (0→5) |
-| 6-10 | 15 XP | 125 XP (0→10) |
-| 11-15 | 20 XP | 225 XP (0→15) |
-| 16-20 | 30 XP | 375 XP (0→20) |
-| 21-25 | 40 XP | 575 XP (0→25) |
-| 26-30 | 60 XP | 875 XP (0→30) |
-| 31-35 | 80 XP | 1275 XP (0→35) |
-| 36-40 | 110 XP | 1825 XP (0→40) |
-| 41-45 | 140 XP | 2525 XP (0→45) |
-| 46-50 | 180 XP | 3425 XP (0→50) |
-| 51-55 | 220 XP | 4525 XP (0→55) |
-| 56-60 | 270 XP | 5875 XP (0→60) |
-| 61-65 | 320 XP | 7475 XP (0→65) |
-| 66-70 | 380 XP | 9375 XP (0→70) |
-
-**Calcul coût amélioration N→N+1**: Coût = palier du niveau cible.
+**Rappel**:
+- Palier 1-5: 10 XP/niveau
+- Palier 6-10: 15 XP/niveau
+- Palier 11-15: 20 XP/niveau
+- Au-delà de 70: coût reste 380 XP/palier
 
 **Exemples**:
-- Améliorer Athlétisme 0 → 1: 10 XP (palier 1-5)
-- Améliorer Athlétisme 9 → 10: 15 XP (palier 6-10)
-- Améliorer Athlétisme 10 → 11: 20 XP (palier 11-15)
-- Améliorer Athlétisme 15 → 20: 5 × 30 = 150 XP (5 achats dans palier 16-20)
-
-**Coût séquence**: Pour améliorer 0 → 10:
-- 0→5: 5 × 10 = 50 XP
-- 6→10: 5 × 15 = 75 XP
-- **Total: 125 XP**
+- Améliorer Athlétisme 0 → 5: 5 × 10 = 50 XP
+- Améliorer Athlétisme 0 → 10: 50 + (5 × 15) = 125 XP
+- Améliorer Athlétisme 15 → 20: 5 × 30 = 150 XP
 
 ### Coûts Characteristics (Caractéristiques)
 
 **Formule**: Coût par palier de 5 niveaux, plus cher que skills (caractéristiques = fondamentales).
 
-**Tableau complet**:
+**Table complète des coûts**: Voir [calculs-xp-progression.md](../../business-rules/calculs-xp-progression.md).
 
-| Niveau atteint | Coût XP | Coût cumulé 0→N |
-|----------------|---------|-----------------|
-| 1-5 | 25 XP | 125 XP (0→5) |
-| 6-10 | 30 XP | 275 XP (0→10) |
-| 11-15 | 40 XP | 475 XP (0→15) |
-| 16-20 | 50 XP | 725 XP (0→20) |
-| 21-25 | 70 XP | 1075 XP (0→25) |
-| 26-30 | 90 XP | 1525 XP (0→30) |
-| 31-35 | 120 XP | 2125 XP (0→35) |
-| 36-40 | 150 XP | 2875 XP (0→40) |
-| 41-45 | 190 XP | 3825 XP (0→45) |
-| 46-50 | 230 XP | 4975 XP (0→50) |
-| 51-55 | 280 XP | 6375 XP (0→55) |
-| 56-60 | 330 XP | 8025 XP (0→60) |
-| 61-65 | 390 XP | 9975 XP (0→65) |
-| 66-70 | 450 XP | 12225 XP (0→70) |
-
-**Calcul coût amélioration N→N+1**: Coût = palier du niveau cible.
+**Rappel**:
+- Palier 1-5: 25 XP/niveau
+- Palier 6-10: 30 XP/niveau
+- Palier 11-15: 40 XP/niveau
+- Au-delà de 70: coût reste 450 XP/palier
 
 **Exemples**:
-- Améliorer Force 0 → 1: 25 XP (palier 1-5)
-- Améliorer Force 5 → 6: 30 XP (palier 6-10)
-- Améliorer Force 10 → 11: 40 XP (palier 11-15)
+- Améliorer Force 0 → 5: 5 × 25 = 125 XP
+- Améliorer Force 0 → 10: 125 + (5 × 30) = 275 XP
 - Améliorer Force 15 → 20: 5 × 50 = 250 XP
-
-**Coût séquence**: Pour améliorer 0 → 10:
-- 0→5: 5 × 25 = 125 XP
-- 6→10: 5 × 30 = 150 XP
-- **Total: 275 XP**
 
 **Impact modificateurs**: Si caractéristique modifiée par talent (ex: Costaud +5 E), avances XP ajoutées au total modifié.
 - Exemple: Nain E 35 (30 base + 5 Costaud) → achat +1 avance XP → E 36 (30 base + 5 Costaud + 1 XP)
@@ -138,25 +100,15 @@ Processus complet de dépense d'Points d'Expérience (XP/PX) pour améliorer un 
 
 **Formule**: Rang × 100 XP (coût pour acquérir le rang N).
 
-**Tableau**:
+**Table complète des coûts**: Voir [calculs-xp-progression.md](../../business-rules/calculs-xp-progression.md).
 
-| Rang | Coût XP | Coût cumulé |
-|------|---------|-------------|
-| 1 | 100 XP | 100 XP |
-| 2 | 200 XP | 300 XP |
-| 3 | 300 XP | 600 XP |
-| 4 | 400 XP | 1000 XP |
-| 5 | 500 XP | 1500 XP |
+**Rappel**:
+- Rang 1: 100 XP
+- Rang 2: 200 XP
+- Rang 3: 300 XP
+- Coût cumulé rang 3: 100 + 200 + 300 = 600 XP
 
-**Calcul coût rang N**: Coût = N × 100 XP.
-
-**Exemples**:
-- Acquérir "Costaud" rang 1: 100 XP
-- Acquérir "Costaud" rang 2 (si déjà rang 1): 200 XP supplémentaires
-- Acquérir "Costaud" rang 3 (si déjà rang 2): 300 XP supplémentaires
-- **Total pour rang 3**: 100 + 200 + 300 = 600 XP
-
-**Exception Magie du Chaos**: Coût fixe 100 XP quel que soit le rang (règle spéciale, pas utilisée création).
+**Exception Magie du Chaos**: Coût fixe 100 XP quel que soit le rang (règle spéciale).
 
 **Rangs multiples**:
 - Talents max=1: impossible acheter rang 2 (ex: "Baratiner")

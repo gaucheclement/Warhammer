@@ -145,26 +145,18 @@ Total = Base + Avances
 
 **Dépendances** :
 
-**Points de Blessures** (formules par espèce) :
-- Humain/Elfe/Halfling : `(Bonus Endurance × 2) + Bonus Force Mentale`
-- Nain : `Bonus Force + (Bonus Endurance × 2) + Bonus Force Mentale`
-- Ogre : `((Bonus Force + (Bonus Endurance × 2) + Bonus Force Mentale) × 2)`
+**Points de Blessures** : Formules par espèce, voir [resume-derived.md](../features/wizard/resume-derived.md).
 
-**Mouvement** :
-- Base espèce (fixe: Humain 4, Nain 3, Halfling 3, Elfe 5)
-- + Modificateurs talents (ex: "Rapide" +1)
-- Dérivés : Marche = M × 2, Course = M × 4
+**Mouvement** : Base espèce (fixe: Humain 4, Nain 3, Halfling 3, Elfe 5) + modificateurs talents, voir [resume-derived.md](../features/wizard/resume-derived.md).
 
-**Encombrement** :
-- Limite = (Bonus Force + Bonus Endurance) × 10
-- Seuils : Normal (≤ limite), Surchargé (> limite, ≤ limite×2), Immobilisé (> limite×2)
+**Encombrement** : Limite = (Bonus Force + Bonus Endurance) × 10, seuils Normal/Surchargé/Immobilisé, voir [calcul-encombrement.md](./calcul-encombrement.md).
 
-**Exemple** : Nain Guerrier (Force 35, Endurance 40, Force Mentale 25)
-- Bonus : BF=3, BE=4, BFM=2
-- PB = BF + (BE × 2) + BFM = 3 + 8 + 2 = **13 Blessures**
+**Exemple** : Nain Guerrier (E 40, F 35, FM 25)
+- Bonus : BE=4, BF=3, BFM=2
+- PB = End + 2×BE + BF = 40 + 8 + 3 = **51 Blessures** (formule Nain, voir [resume-derived.md](../features/wizard/resume-derived.md))
 - Limite Enc = (BF + BE) × 10 = 7 × 10 = **70 enc**
 
-**Références** : `audit/features/character-edit.md`, `audit/database/species.md`
+**Références** : `audit/features/wizard/resume-derived.md`, `audit/business-rules/calcul-encombrement.md`, `audit/database/species.md`
 
 ---
 
