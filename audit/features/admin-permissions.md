@@ -14,9 +14,7 @@ Gère les permissions d'accès à l'interface d'administration et le contrôle d
 
 ## Niveaux d'Autorisation
 
-**Admin complet (V1 actuel)**: Accès toutes fonctionnalités (création, modification, suppression toutes tables), pas distinction granulaire permissions, un seul niveau admin = accès total
-
-**Permissions granulaires (V2 proposé)**: Admin lecture seule (consultation sans modification), admin édition (modification tables spécifiques), admin complet (toutes opérations toutes tables), admin super (gestion utilisateurs + toutes opérations)
+**Admin complet (actuellement)**: Accès toutes fonctionnalités (création, modification, suppression toutes tables), pas distinction granulaire permissions, un seul niveau admin = accès total
 
 ## Contrôle par Fonctionnalité
 
@@ -42,7 +40,7 @@ Gère les permissions d'accès à l'interface d'administration et le contrôle d
 
 **Vérification session**: Chaque requête Google Apps Script vérifie session valide, rejection automatique si non authentifié, redirection page login
 
-**Protection CSRF**: Token CSRF inclus requêtes modification (V2 recommandé), validation token côté serveur avant autorisation modification
+**Protection CSRF**: Token CSRF inclus requêtes modification, validation token côté serveur avant autorisation modification
 
 **Validation origine**: Vérification domaine origine requêtes (même domaine Google Apps), rejection requêtes cross-origin non autorisées
 
@@ -53,20 +51,6 @@ Gère les permissions d'accès à l'interface d'administration et le contrôle d
 **Rollback automatique**: Si erreur validation ou écriture Google Sheets, restauration automatique état backup, annulation modification complète (pas modification partielle)
 
 **Protection données sensibles**: Pas stockage mots de passe en clair (hachage côté serveur), pas exposition données sensibles dans logs côté client
-
-## Recommandations V2
-
-**Permissions granulaires**: Implémentation rôles (lecture, édition tables spécifiques, édition complète, super admin), configuration permissions par utilisateur ou groupe
-
-**Audit trail complet**: Log toutes actions admin (création, modification, suppression, import, export), traçabilité qui/quand/quoi/pourquoi, consultation logs interface admin
-
-**Gestion utilisateurs**: Interface création/modification comptes admin, attribution permissions granulaires, désactivation comptes (pas suppression pour préserver audit)
-
-**2FA (Two-Factor Authentication)**: Authentification deux facteurs (email + code temporaire), protection comptes admin contre compromission mot de passe
-
-**Session sécurisée**: Token session JWT (JSON Web Token), expiration automatique après inactivité, révocation manuelle possible
-
-**Protection CSRF**: Token CSRF toutes requêtes modification, validation côté serveur systématique
 
 ## Relations
 

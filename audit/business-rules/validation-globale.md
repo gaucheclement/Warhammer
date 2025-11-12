@@ -1,6 +1,6 @@
 # Validation Globale - Matrice Complète
 
-**Contexte** : Documentation exhaustive de toutes les validations du système Warhammer Character Generator V1, organisée par contexte et type de validation.
+**Contexte** : Documentation exhaustive de toutes les validations du système Warhammer Character Generator, organisée par contexte et type de validation.
 
 **Relations** :
 - Business Rules : `careers-validation.md`, `gestion-erreurs-cas-limites.md`, `conventions-et-regles-implicites.md`
@@ -502,64 +502,6 @@
 **Références** : `audit/business-rules/application-effets-talents.md`
 
 ---
-
-## 6. Problèmes V1 et Recommandations V2
-
-### 6.1 Problèmes Identifiés V1
-
-**Blocages Silencieux** :
-- V1 désactive boutons sans message explication
-- Bouton [+] grisé → Pourquoi ? Budget/Limite/Pré-requis ?
-- Bouton [Valider] grisé → Pourquoi ? Budget négatif/Élément invalide ?
-
-**Impact UX** :
-- Joueur ne comprend pas pourquoi action bloquée
-- Frustration (tentatives répétées sans succès)
-- Abandon (impossibilité progresser sans comprendre)
-
-**Validation Partielle** :
-- Validation uniquement HTML5 required côté client
-- Pas de panneau récapitulatif problèmes centralisé
-- Messages erreur techniques sans contexte utilisateur
-
-**Références** : `audit/features/xp-validation.md`, `audit/business-rules/gestion-erreurs-cas-limites.md`
-
-### 6.2 Recommandations V2
-
-**Amélioration Messages** :
-- **Tooltip Contextuel** : Message au survol bouton désactivé
-- **Panneau "Problèmes"** : Liste centralisée violations + actions correctives
-- **Indicateurs Visuels** : Icônes ⛔/⚠️ à côté éléments invalides
-- **Messages Explicites** : "{Action} impossible : {Raison} ({Détails})"
-
-**Exemple Amélioration** :
-- **V1** : Bouton [+] grisé (aucune info)
-- **V2** : Bouton [+] grisé + Tooltip "XP insuffisant : 25 nécessaires, 10 disponibles. Gagner 15 XP pour débloquer."
-
-**Validation Temps Réel** :
-- Validation incrémentale après chaque modification champ
-- Affichage temps réel indicateurs validation
-- Compteur erreurs : Badge "3 erreurs détectées"
-- Auto-correction : Suggestions corrections automatiques
-
-**Gestion États Transitoires** :
-- Modal confirmation : "Modifications non sauvegardées, continuer ?"
-- Auto-save : Sauvegarde automatique brouillon toutes les 30s
-- Historique modifications : Undo/redo
-- Indicateur modifications : Badge "Non sauvegardé" si tmpadvance ≠ 0
-
-**Récupération Références Cassées** :
-- Validation existence AVANT assignation
-- Fallback graceful : Proposer sélection manuelle
-- Migration automatique : Mapping ancien ID → nouveau ID
-- Audit intégrité : Commande admin "Vérifier intégrité personnages"
-
-**Tests Automatisés** :
-- Suite tests exhaustive couvrant tous cas limites
-- Couverture cible : 90%+ lignes code, 100% cas limites
-- Tests critiques : Divisions zéro, dépassements, références cassées, états transitoires, parsing
-
-**Références** : `audit/business-rules/gestion-erreurs-cas-limites.md`
 
 ---
 

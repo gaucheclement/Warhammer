@@ -62,9 +62,9 @@ Stockage : trappings[] = strings avec quantités entre parenthèses, lookup via 
 
 ## Export et Impression
 
-### État V1 : Non Implémenté
+### État actuel : Non Implémenté
 
-Aucun export PDF, aucune règle CSS @media print. Ctrl+P impression standard conserve navigation/onglets, tableaux coupés, format peu lisible. Code commenté : Export Foundry VTT JSON (FoundryfullExport() → Blob JSON → [nom].json), non fonctionnel V1. Alternative : copier/coller manuel ou capture écran.
+Aucun export PDF, aucune règle CSS @media print. Ctrl+P impression standard conserve navigation/onglets, tableaux coupés, format peu lisible. Code commenté : Export Foundry VTT JSON (FoundryfullExport() → Blob JSON → [nom].json), non fonctionnel. Alternative : copier/coller manuel ou capture écran.
 
 ### Fonctionnalités Prévues
 
@@ -76,7 +76,7 @@ Contenu obligatoire : Identité, Caractéristiques (10 + dérivées), Compétenc
 
 ### Principe Général
 
-Mode Wizard : Chaque step modifie character model, StepResume affiche snapshot clone() au chargement. Modifications steps ne mettent PAS à jour StepResume en temps réel (limitation V1), retour StepResume → Recharge clone → Affiche nouvelles valeurs.
+Mode Wizard : Chaque step modifie character model, StepResume affiche snapshot clone() au chargement. Modifications steps ne mettent PAS à jour StepResume en temps réel (limitation actuelle), retour StepResume → Recharge clone → Affiche nouvelles valeurs.
 
 Mode Post-Création : character = clone au chargement, modifications avances temporaires (avances temporaires) sur clone, recalculs automatiques, affichage immédiat. Validation → avances temporaires en advance permanent + refresh.
 
@@ -96,7 +96,7 @@ Modifications StepResume post-création : boutons +/- XP → avances temporaires
 
 Validation : stepIndex = -1 → Clone sauvegardé. saveAdvance() → avances temporaires en advance + Log XP + Refresh → refresh() + saveCharacter().
 
-Limitations V1 : Cross-Steps (changements steps ne mettent PAS à jour Resume ouvert, retour menu pour voir changements), pas Watchers (recalculs manuels simple mais redondant).
+Limitations actuelles : Cross-Steps (changements steps ne mettent PAS à jour Resume ouvert, retour menu pour voir changements), pas Watchers (recalculs manuels simple mais redondant).
 
 Exemples : Ag++ 35→40 (BA 3→4) → Athlétisme 40, Chanceux max 4 | +Intelligent → Int.talent+5 → Compétences Int recalculées | +Magie Arcanes (Ghur) → Sorts Ghur ajoutés spells[].
 
