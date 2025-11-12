@@ -134,11 +134,11 @@ Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour arch
 
 **Agitateur Humain :** Mvt 4 (Marche 8, Course 16) → PB 39 (E 30 + 2×BE 3 + BF 3) → Destin 3 (base 2 + signe 1), Chance 3/3 → Résilience 2, Détermination 2/2 → Enc 5 (limite BF×10 = 30, Normal).
 
-**Répurgateur Nain niveau 2 :** PB 54 (E 42 + 2×BE 4 + BF 3) avec talent Endurci potentiel → Destin 2, Résilience 4 (base Nain robuste) → Mvt 3 (Marche 6, Course 12).
+**Répurgateur Nain niveau 2 :** PB 53 (E 42 + 2×BE 4 + BF 3) avec talent Endurci potentiel (+BE/rang) → Destin 2, Résilience 4 (base Nain robuste) → Mvt 3 (Marche 6, Course 12).
 
 **Sorcier Elfe Azyr :** Mvt 5 (base Elfe) potentiellement +1 avec talent Véloce → PB 40 (formule Elfe E 30 + 2×BE 3 + BFM 4) → Destin 1, Résilience 2 (base Elfe faible).
 
-**Halfling Bourgeois :** PB 26 (formule Halfling 2×BE 2 + BFM 2, pas BF) → Fragile mais Destin 2, Résilience 3 compensent → Mvt 3 → Enc faible (F 10 → limite 10).
+**Halfling Bourgeois :** PB 26 (formule Halfling End 20 + 2×BE 2 + BF 2) → Fragile mais Destin 2, Résilience 3 compensent → Mvt 3 → Enc faible (F 10, BF 1 → limite 10).
 
 **Surchargé :** Enc > Bonus F × 10 → Pénalités Mvt ÷2, Ag -10 → Résumé affiche enc total, calcul pénalités interne feuille personnage.
 
