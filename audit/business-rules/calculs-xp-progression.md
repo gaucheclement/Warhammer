@@ -146,18 +146,37 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 
 ## Changement de carrière
 
-### Coût standard
+### Coût V1
 
-Changer de carrière n'a PAS de coût XP en soi. Le personnage commence au niveau 1 de la nouvelle carrière.
+**Base**: 100 XP (coût minimal)
 
-**Règle:** Le personnage peut progresser normalement dans la nouvelle carrière en dépensant XP pour acquérir les éléments des niveaux.
+**Coûts additionnels**:
+- **+100 XP** si changement de classe (ex: Citadins → Guerriers)
+- **+100 XP** si rang actuel non validé (pas tous éléments acquis)
 
-### Exemple
+**Total**: 100 à 300 XP selon situation
 
-**Agitateur niveau 3 change pour Artisan:**
-- Pas de coût pour le changement lui-même
-- Pour atteindre Artisan niveau 1: Acquérir les 8 skills + 4 talents + améliorer 3 characteristics
-- Éléments déjà possédés via Agitateur: Comptent déjà acquis, pas de coût supplémentaire
+### Exemples
+
+**Artisan niveau 2 (validé) → Marchand niveau 1 (même classe Citadins)**:
+- Base: 100 XP
+- Même classe: +0 XP
+- Rang validé: +0 XP
+- **Total: 100 XP**
+
+**Artisan niveau 2 (validé) → Soldat niveau 1 (classe Guerriers)**:
+- Base: 100 XP
+- Classe différente: +100 XP
+- Rang validé: +0 XP
+- **Total: 200 XP**
+
+**Artisan niveau 2 (non validé) → Soldat niveau 1**:
+- Base: 100 XP
+- Classe différente: +100 XP
+- Rang non validé: +100 XP
+- **Total: 300 XP**
+
+**Après changement**: Le personnage commence au niveau 1 de la nouvelle carrière et peut progresser normalement.
 
 ## Exemples de calculs
 

@@ -15,7 +15,7 @@
 
 | **Type de Validation** | **Création Wizard** | **Progression XP** | **Changement Carrière** | **Admin Entités** |
 |------------------------|---------------------|-------------------|------------------------|------------------|
-| **Structurelle** | stepIndex valide, 15 carac, format correct | XP ≥ 0, tmp_used cohérent, pas limite avances | XP ≥ 0 (gratuit V1), historique valide | Index unique, labels uniques, types corrects |
+| **Structurelle** | stepIndex valide, 15 carac, format correct | XP ≥ 0, tmp_used cohérent, pas limite avances | XP ≥ 100 (min), coût 100-300 XP, historique valide | Index unique, labels uniques, types corrects |
 | **Référentielle** | species/career existent, IDs valides | Compétence/talent existe, domaine magie valide | Carrière destination existe, compatible espèce | refChar/refCareer valides, class existe, 4 niveaux |
 | **Métier** | Specs choisis, budget XP=0, 40pts skills | Pré-requis OK, rang ≤ max, en/hors carrière | Conservation acquis, niveau=1 obligatoire | Rand croissants, couverture ≥95%, cohérence |
 | **Dérivée** | PB ≥ 1, M ≥ 0, encombrement cohérent | Bonus recalculés, effets talents appliqués | Status social mis à jour, "en carrière" redéfini | Distribution équilibrée, hiérarchies cohérentes |

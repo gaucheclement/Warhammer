@@ -16,23 +16,32 @@ Processus complet de changement de carrière pour un personnage existant. Ce wor
 
 ### Coût XP
 
-**Règle V1** : Changer de carrière est **GRATUIT** (aucun coût XP en soi).
-- Le coût réside dans l'achat des nouveaux éléments de la carrière
-- Pas de déduction XP lors du changement lui-même
+**Règle V1** : Coût variable selon situation (100-300 XP).
 
-**Option MJ (recommandation WFRP)** : Certains MJ imposent un coût fixe 100-200 XP pour refléter le temps d'apprentissage et la perte de statut.
-- Configuration : Activable dans paramètres MJ (V2)
-- Si activé : XP Actuelle diminuée du montant configuré, XP Dépensée incrémentée
-- Log historique : "2025-03-15: -100 XP (Changement carrière: Artisan → Marchand)"
+**Coûts cumulatifs** :
+1. **Base : 100 XP** - Coût minimal pour tout changement de carrière
+2. **+100 XP** - Si changement de classe (ex: Citadins → Guerriers)
+3. **+100 XP** - Si rang actuel non validé (pas tous éléments acquis)
 
-**V1 actuel** : Gratuit, seuls les achats futurs dans la nouvelle carrière coûtent XP.
+**Exemples** :
+- Artisan N2 (validé) → Marchand N1 (même classe Citadins) : **100 XP**
+- Artisan N2 (validé) → Soldat N1 (autre classe Guerriers) : **200 XP**
+- Artisan N2 (non validé) → Marchand N1 (même classe) : **200 XP**
+- Artisan N2 (non validé) → Soldat N1 (autre classe) : **300 XP**
+
+**Validation rang** : Rang validé = tous éléments acquis (characteristics, skills, talents).
+
+**Déduction** : XP Actuelle diminuée, XP Dépensée incrémentée.
+
+**Log** : "2025-03-15: -200 XP (Changement carrière: Artisan N2 → Soldat N1, classe différente)"
 
 ### Contraintes et restrictions
 
 **Contraintes système**:
-- V1 actuel : Aucune contrainte XP (changement gratuit)
-- Option MJ : XP Actuelle ≥ coût configuré (ex: ≥ 100 si coût 100 XP activé)
-- Aucune limite nombre changements
+- XP Actuelle ≥ coût (minimum 100 XP, jusqu'à 300 XP selon situation)
+- Vérification classe actuelle vs nouvelle (coût +100 XP si différente)
+- Vérification validation rang actuel (coût +100 XP si non validé)
+- Aucune limite nombre changements (peut changer plusieurs fois si XP suffisantes)
 - Aucune restriction carrières accessibles (toutes carrières disponibles selon espèce, sauf Chaos en mode normal)
 
 **Contraintes narratives** (optionnelles, validation MJ):

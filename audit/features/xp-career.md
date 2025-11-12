@@ -80,7 +80,11 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 **Progression nouvelle carrière**: Après changement personnage peut progresser normalement nouvelle carrière (Niveau 1 → 2 → 3 → 4, Accumulation avantages nouveaux niveaux, Complétion carrière avant nouveau changement optionnel MJ)
 
-**Coûts XP changement**: V1 actuel aucun coût XP pour changement lui-même gratuit, seuls achats futurs nouvelle carrière coûtent XP normal, recommandation WFRP certains MJ imposent coût XP fixe changer carrière (ex: 100-200 XP) refléter temps apprentissage (V2 option configurable MJ)
+**Coûts XP changement** : V1 coût 100-300 XP selon situation.
+- Base: 100 XP (tout changement)
+- +100 XP si classe différente
+- +100 XP si rang actuel non validé
+- Voir [workflow-changement-carriere.md](./workflows/workflow-changement-carriere.md)
 
 **Restrictions espèce**: Certaines carrières réservées certaines espèces (Tueur Trolls → Nains uniquement, Mage Bataille → Hauts Elfes uniquement, Halfling → Carrières Halflings uniquement), validation système filtre carrières incompatibles, changement impossible Humain ne peut PAS devenir Tueur Trolls carrière Nain exclusive
 
