@@ -144,39 +144,37 @@ Les Points d'Expérience (PX/XP) permettent d'améliorer le personnage entre les
 
 **Note:** Si le personnage possède déjà certains éléments (ex: via autre carrière), le coût est réduit.
 
+## Passage de rang (même carrière)
+
+### Coût V1
+
+**Coût** : 100 XP
+
+**Condition** : Rang actuel VALIDÉ (obligatoire)
+
+**Blocage** : IMPOSSIBLE de passer au rang supérieur si rang non validé
+
+**Validation rang** : Voir [validation-rang-carriere.md](./validation-rang-carriere.md) pour critères détaillés
+
+**Exemple** : Artisan rang 2 → rang 3 coûte 100 XP après validation rang 2
+
 ## Changement de carrière
 
 ### Coût V1
 
-**Base**: 100 XP (coût minimal)
+**Base si rang validé** : 100 XP
+**Base si rang NON validé** : 200 XP
+**+100 XP** si changement de classe (ex: Citadins → Guerriers)
 
-**Coûts additionnels**:
-- **+100 XP** si changement de classe (ex: Citadins → Guerriers)
-- **+100 XP** si rang actuel non validé (pas tous éléments acquis)
+**Coûts totaux** :
+- Rang validé, même classe : **100 XP**
+- Rang validé, autre classe : **200 XP** (100 + 100)
+- Rang non validé, même classe : **200 XP**
+- Rang non validé, autre classe : **300 XP** (200 + 100)
 
-**Total**: 100 à 300 XP selon situation
+**Validation rang** : Voir [validation-rang-carriere.md](./validation-rang-carriere.md)
 
-### Exemples
-
-**Artisan niveau 2 (validé) → Marchand niveau 1 (même classe Citadins)**:
-- Base: 100 XP
-- Même classe: +0 XP
-- Rang validé: +0 XP
-- **Total: 100 XP**
-
-**Artisan niveau 2 (validé) → Soldat niveau 1 (classe Guerriers)**:
-- Base: 100 XP
-- Classe différente: +100 XP
-- Rang validé: +0 XP
-- **Total: 200 XP**
-
-**Artisan niveau 2 (non validé) → Soldat niveau 1**:
-- Base: 100 XP
-- Classe différente: +100 XP
-- Rang non validé: +100 XP
-- **Total: 300 XP**
-
-**Après changement**: Le personnage commence au niveau 1 de la nouvelle carrière et peut progresser normalement.
+**Après changement**: Le personnage commence au niveau 1 de la nouvelle carrière.
 
 ## Exemples de calculs
 

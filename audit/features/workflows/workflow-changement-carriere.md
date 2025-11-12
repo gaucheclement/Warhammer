@@ -19,17 +19,17 @@ Processus complet de changement de carrière pour un personnage existant. Ce wor
 **Règle V1** : Coût variable selon situation (100-300 XP).
 
 **Coûts cumulatifs** :
-1. **Base : 100 XP** - Coût minimal pour tout changement de carrière
-2. **+100 XP** - Si changement de classe (ex: Citadins → Guerriers)
-3. **+100 XP** - Si rang actuel non validé (pas tous éléments acquis)
+1. **Base si rang validé : 100 XP**
+2. **Base si rang NON validé : 200 XP**
+3. **+100 XP** - Si changement de classe (ex: Citadins → Guerriers)
 
-**Exemples** :
-- Artisan N2 (validé) → Marchand N1 (même classe Citadins) : **100 XP**
-- Artisan N2 (validé) → Soldat N1 (autre classe Guerriers) : **200 XP**
-- Artisan N2 (non validé) → Marchand N1 (même classe) : **200 XP**
-- Artisan N2 (non validé) → Soldat N1 (autre classe) : **300 XP**
+**Coûts totaux** :
+- Rang validé, même classe : **100 XP**
+- Rang validé, autre classe : **200 XP** (100 + 100)
+- Rang non validé, même classe : **200 XP**
+- Rang non validé, autre classe : **300 XP** (200 + 100)
 
-**Validation rang** : Rang validé = tous éléments acquis (characteristics, skills, talents).
+**Validation rang** : Critères spécifiques (voir section Validation de rang ci-dessous).
 
 **Déduction** : XP Actuelle diminuée, XP Dépensée incrémentée.
 
@@ -50,6 +50,17 @@ Processus complet de changement de carrière pour un personnage existant. Ce wor
 - Restriction espèce: respect filtres espèce (Nain ne peut pas devenir Sorcier, sauf mode Free)
 
 **Validation**: Interface affiche liste carrières accessibles selon espèce, message si restrictions narratives (configuration MJ).
+
+### Validation de rang
+
+**Critères complets** : Voir [validation-rang-carriere.md](../../business-rules/validation-rang-carriere.md)
+
+**Impact sur coût changement carrière** :
+- Rang validé : 100 XP base
+- Rang NON validé : 200 XP base (+100 XP pénalité)
+
+**Impact sur passage de rang** :
+- IMPOSSIBLE de passer rang supérieur si rang actuel non validé
 
 ## Règles de changement
 

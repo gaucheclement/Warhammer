@@ -11,6 +11,7 @@ Comportement technique réutilisable → [patterns/](../patterns/)
 
 - [accumulation-avantages-careerlevels.md](./accumulation-avantages-careerlevels.md) - Cumul des avantages par niveaux de carrière
 - [progression-careerlevels.md](./progression-careerlevels.md) - Système de progression niveau 1-4
+- [validation-rang-carriere.md](./validation-rang-carriere.md) - Critères validation rang (passage niveau, changement carrière)
 - [calculs-xp-progression.md](./calculs-xp-progression.md) - Coûts XP pour skills/characteristics/talents
 - [skills-avances-progression.md](./skills-avances-progression.md) - Système d'avances des compétences
 

@@ -18,15 +18,18 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 ## Conditions Passage Niveau Supérieur
 
-**Complétion niveau optionnelle MJ**: Règle stricte acheter tous avantages listés avant passage niveau supérieur (Exemple Pamphlétaire 1→2: Avances caractéristiques +5 Ag/Int/Soc 75 XP minimum, Compétences 8 acquises, Talents 4 acquis 400 XP = Total minimum ~500-700 XP), règle souple passage autorisé sans complétion V1 actuel
+**Règle V1** : Pour passer du rang N au rang N+1, le rang N doit être VALIDÉ.
 
-**Validation MJ optionnelle**: Complétion partielle au moins 2/3 avantages achetés, justification narrative événement RP mentor temps écoulé, tests compétence prouver maîtrise métier (V1 pas validation passage libre si niveau existe)
+**Critères validation** : Voir [validation-rang-carriere.md](../../business-rules/validation-rang-carriere.md) pour critères complets et exemples détaillés.
 
-**Tests compétences optionnels**: Principe avant passer niveau supérieur personnage doit prouver maîtrise métier en réussissant tests compétences clés (Exemple Pamphlétaire 1→2: Test Charme Difficile convaincre foule, Test Ragot Moyen collecter informations ville, Test Commandement Difficile mener manifestation), règle 2-3 tests selon MJ au moins 1 réussite requise, difficulté ajustée selon niveau cible (1→2 Moyens, 2→3 Difficiles, 3→4 Très difficiles)
+**Résumé** :
+- Toutes caractéristiques carrière (rangs 1-N) à 5×N avances
+- Au moins 1 talent rang N acquis
+- Au moins 8 compétences carrière (rangs 1-N) à 5×N avances
 
-**Mentor et formation optionnels**: Besoin mentor (PNJ expert carrière niveau ≥ niveau cible, rôle enseigner nouvelles compétences/valider apprentissage tests/autoriser passage niveau supérieur, coût 1-10 CO par semaine selon niveau), temps formation minimum (1→2: 3-6 mois, 2→3: 6-12 mois, 3→4: 1-2 ans)
+**Coût passage rang** : 100 XP après validation
 
-**Implémentation V1**: Aucune implémentation technique tests/mentor, gestion entièrement manuelle par MJ discussions hors système, système autorise toujours passage pas blocage technique
+**Blocage système** : Impossible monter rang si validation échoue
 
 ## Mécanisme Passage Niveau
 
@@ -42,7 +45,9 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 
 **Exemple économie XP**: Avant passage niveau 1 Éloquence hors carrière acquisition 20 XP, Après passage niveau 2 Éloquence dans carrière acquisition 10 XP (nouveau niveau 2) = Économie 10 XP
 
-**Coût passage**: V1 actuel passage niveau N+1 gratuit aucun coût XP, coût réside dans achat avantages listés si complétion requise, V2 option coût fixe passage (ex: 100 XP) + achat avantages
+**Coût passage rang** : 100 XP (après validation rang actuel)
+
+**Condition passage** : Rang actuel VALIDÉ (impossible de monter si non validé)
 
 **Restrictions**: Limite niveau 4 impossible dépasser niveau 4 carrière (Options après niveau 4: Rester niveau 4 continuer acheter avances XP, Changer carrière), impossibilité retour impossible revenir niveau N-1 après passage N
 
@@ -81,10 +86,17 @@ Gère la progression 4 niveaux carrière, restrictions achats XP selon niveau ac
 **Progression nouvelle carrière**: Après changement personnage peut progresser normalement nouvelle carrière (Niveau 1 → 2 → 3 → 4, Accumulation avantages nouveaux niveaux, Complétion carrière avant nouveau changement optionnel MJ)
 
 **Coûts XP changement** : V1 coût 100-300 XP selon situation.
-- Base: 100 XP (tout changement)
-- +100 XP si classe différente
-- +100 XP si rang actuel non validé
-- Voir [workflow-changement-carriere.md](./workflows/workflow-changement-carriere.md)
+- **Base si rang validé** : 100 XP
+- **Base si rang NON validé** : 200 XP
+- **+100 XP** si classe différente (Citadins → Guerriers par exemple)
+
+**Coûts totaux** :
+- Rang validé, même classe : **100 XP**
+- Rang validé, autre classe : **200 XP** (100 + 100)
+- Rang non validé, même classe : **200 XP**
+- Rang non validé, autre classe : **300 XP** (200 + 100)
+
+Voir [workflow-changement-carriere.md](./workflows/workflow-changement-carriere.md)
 
 **Restrictions espèce**: Certaines carrières réservées certaines espèces (Tueur Trolls → Nains uniquement, Mage Bataille → Hauts Elfes uniquement, Halfling → Carrières Halflings uniquement), validation système filtre carrières incompatibles, changement impossible Humain ne peut PAS devenir Tueur Trolls carrière Nain exclusive
 
