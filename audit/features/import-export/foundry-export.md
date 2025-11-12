@@ -10,11 +10,11 @@ Export d'un personnage Warhammer depuis l'application vers Foundry Virtual Table
 
 **Export Foundry** : Format specifique API Foundry VTT, transformation mapping obligatoire, import Foundry via glisser-deposer, structure conforme schema Actor Foundry.
 
-### Etat Actuel V1
+### Etat Actuel
 
 Fonction `FoundryfullExport()` desactivee dans StepResume.html (lignes 57-66).
 
-**Raisons probables** : Incompatibilite version Foundry, mapping incomplet, tests insuffisants, simplification V1.
+**Raisons probables** : Incompatibilite version Foundry, mapping incomplet, tests insuffisants, simplification.
 
 **Traces code** : MainMenu.html ligne 120 import commente, StepResume.html ligne 61 export commente, Code.js lignes 99/149 chargement module FoundryHelper, Code.js lignes 169-189 fonction `getFoundry()` table mapping.
 
@@ -191,7 +191,7 @@ data.details: {
 
 **Specialisations talents** : Cas speciaux Artiste (Musicien), Linguiste (Elfique). Application spec string. Foundry `data.specification` string. Transformation traduction spec si presente table mapping sinon preservation.
 
-**Effets automatises** : Application talents avec modificateurs caracteristiques (Tres Resistant +5 E). Foundry `data.effects` array effets actifs automatiques. Export V1 effets NON exportes (desactivation fonctionnalite). Future mapping effets application vers Active Effects Foundry.
+**Effets automatises** : Application talents avec modificateurs caracteristiques (Tres Resistant +5 E). Foundry `data.effects` array effets actifs automatiques. Export actuel effets NON exportes (desactivation fonctionnalite).
 
 **Exemple talent simple Perspicace** : App `{label: "Perspicace", roll: 1}`. Foundry `{name: "Savvy", type: "talent", data: {advances: {value: 1}}}`.
 
@@ -199,7 +199,7 @@ data.details: {
 
 **Exemple talent specialise Artiste Musicien** : App `{label: "Artiste", spec: "Musicien"}`. Foundry `{name: "Artist", data: {specification: "Musician"}}`.
 
-**Exemple talent modificateur Tres Fort** : App `{label: "Tres fort", roll: 1, modificateur Force implicite}`. Foundry `{name: "Very Strong", effects: [] (non implemente V1)}`. Note modificateur Force applique manuellement Foundry ou via Active Effect futur.
+**Exemple talent modificateur Tres Fort** : App `{label: "Tres fort", roll: 1, modificateur Force implicite}`. Foundry `{name: "Very Strong", effects: [] (non implemente)}`. Note modificateur Force applique manuellement Foundry.
 
 **Prerequis talents** : Application relations prerequis non exportees (donnees statiques tables). Foundry systeme WFRP gere prerequis nativement (pas besoin export).
 
@@ -309,7 +309,7 @@ data.details: {
 
 **Import personnage** : Depuis JSON Foundry VTT vers application. Transformation inverse export Actor Foundry vers Character interne.
 
-**Etat V1** : Fonctionnalite commentee code MainMenu.html ligne 120 `Foundryimport()` desactive. Raisons complexite mapping inverse, risques donnees incoherentes, priorisation export sur import.
+**Etat actuel** : Fonctionnalite commentee code MainMenu.html ligne 120 `Foundryimport()` desactive. Raisons complexite mapping inverse, risques donnees incoherentes, priorisation export sur import.
 
 **Process import prevu** : Workflow Upload input file JSON Foundry, Parsing JSON.parse(fileContent), Validation verifier structure Actor type="character", Transformation Foundry vers format application interne, Reconstruction creation Character via character = new Character(), Chargement load(transformedData), Affichage Wizard Resume (stepIndex = -1).
 
@@ -381,7 +381,7 @@ Rang 3, 50+ competences, 15 talents, equipement varie, sorts, ~80 KB JSON.
 
 Multi-carrieres, talents rangs multiples, effets actifs, historique XP, ~150 KB JSON.
 
-## Limitations V1
+## Limitations
 
 **Export desactive** : Fonctionnalite commentee non accessible utilisateur.
 

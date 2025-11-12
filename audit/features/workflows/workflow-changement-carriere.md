@@ -16,7 +16,7 @@ Processus complet de changement de carrière pour un personnage existant. Ce wor
 
 ### Coût XP
 
-**Règle V1** : Coût variable selon situation (100-300 XP).
+**Règle** : Coût variable selon situation (100-300 XP).
 
 **Coûts cumulatifs** :
 1. **Base si rang validé : 100 XP**
