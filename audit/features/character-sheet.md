@@ -10,7 +10,7 @@ La feuille de personnage affiche toutes les informations du personnage dans l'é
 
 ## Section Identité
 
-15 champs panneau gauche onglet Perso, format label en gras : valeur. **Obligatoires** : Nom, Race, Classe, Carrière, Niveau Carrière, Statut. **Optionnels** : Signe Astrologique, Âge, Taille, Cheveux, Yeux, Dieu Patron, Ambitions, Motivations. Doublons V1 : Schéma de Carrière = Niveau de Carrière (dupliqué).
+15 champs panneau gauche onglet Perso, format label en gras : valeur. **Champs identité** : Nom, Race, Classe, Carrière, Niveau Carrière (rang actuel), Schéma de Carrière (historique complet), Statut, Signe Astrologique, Âge, Taille, Cheveux, Yeux, Dieu Patron, Ambitions, Motivations. Tous affichés (peuvent être vides).
 
 Chaque champ cliquable ouvre popup contextuelle. Gestion nulls : affiche chaîne vide. Exemple : Gunther von Hortmann | Humain | Wymund l'Anachorète | Citadins | Agitateur | Démagogue | Bronze 3 | 25 ans | 5 pieds 8 pouces | Blonds | Bleus | Sigmar | Renverser le système | Justice sociale
 

@@ -95,14 +95,6 @@ Validation modifications admin avant sauvegarde dans Google Sheets. Vérifie coh
 - Erreur: "spells.CN doit être numérique"
 - Action: Saisir nombre (ex: 7)
 
-## Validation Avancée (Non Implémentée V1)
-
-**Références croisées**: Vérifier refChar/refCareer/refDetail/lores/books existent (actuellement pas vérification temps réel)
-
-**Cohérence hiérarchies**: Careers parent-enfant complets (actuellement validation partielle)
-
-**Pas de corruption**: Préservation intégrité données existantes (backup automatique mais pas validation exhaustive)
-
 ## Relations
 
 **Dépendances**: audit/database/*.md - Schémas tables, pattern-validation-*.md - Patterns validation

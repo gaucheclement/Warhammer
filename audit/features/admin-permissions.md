@@ -26,19 +26,9 @@ Gère les permissions d'accès à l'interface d'administration et le contrôle d
 
 **Gestion homebrew**: Admin authentifié création/modification contenu personnalisé (même permissions que contenu officiel), MJ décision autorisation homebrew dans campagne (hors système)
 
-**Historique (non implémenté)**: Consultation logs modifications (admin complet), rollback versions précédentes (admin complet ou super uniquement)
-
-**Gestion utilisateurs (non implémenté)**: Création comptes admin (admin super uniquement), modification permissions (admin super uniquement), suppression comptes (admin super uniquement)
-
 ## Restrictions Actuelles
 
 **Pas de permissions granulaires**: Admin = accès complet, impossible restreindre tables spécifiques ou actions spécifiques
-
-**Pas de gestion utilisateurs**: Pas interface création/modification/suppression comptes admin, gestion manuelle configuration serveur
-
-**Pas de logs accès**: Pas traçabilité qui accède quand à quelles données (voir admin-ui.md section Historique)
-
-**Pas d'audit trail**: Pas enregistrement actions sensibles (suppression données, import remplacement complet)
 
 ## Gestion Joueurs vs Admins
 

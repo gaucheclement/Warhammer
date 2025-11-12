@@ -55,17 +55,11 @@ Gère les opérations batch permettant manipulation multiple données simultané
 
 **Backup automatique**: Un seul backup automatique avant chaque modification, backup écrasé chaque nouvelle sauvegarde (pas historique multiple), restauration automatique si erreur immédiate
 
-**Historique modifications (non implémenté V1)**: Log modifications (enregistrement chaque modification qui/quand/quoi), historique par entrée (liste modifications entrée spécifique, chronologie complète), comparaison versions (diff version N vs N-1, affichage champs modifiés avant → après, visuel type git diff), rollback (restauration version antérieure, annulation dernière modification, retour version spécifique date/version)
-
-**Données logger (proposition V2)**: Par modification (timestamp YYYY-MM-DD HH:MM:SS, user email/nom admin, table species/careers/talents/etc., index/label entrée, type opération CREATE/UPDATE/DELETE, valeurs avant snapshot, valeurs après snapshot), stockage table séparée Google Sheets "admin_history", rotation conserver 6 mois historique archivage au-delà, taille estimation 10-50 KB par modification ~1-5 MB/mois
-
 ## Partage Communautaire
 
 **Export sélectif homebrew**: Exporter uniquement contenu homebrew → homebrew_pack.json (filtrage par book="Homebrew"), partage communauté via forum/discord/etc.
 
 **Import partage**: Importer pack homebrew autres utilisateurs, mode fusion (ajout sans écraser officiel)
-
-**Attribution**: Champ "author" optionnel créditer créateur (non implémenté V1)
 
 **Validation communautaire**: Pas système validation intégré (validation manuelle MJ avant import)
 

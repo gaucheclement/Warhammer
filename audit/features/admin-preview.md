@@ -38,12 +38,6 @@ Prévisualisation modifications admin avant sauvegarde pour validation visuelle 
 
 **Format HTML**: Balises autorisées b/i/u/br/p/ul/ol/li, inline CSS préservé, nettoyage automatique balises invalides
 
-## Mode Avant/Après (Optionnel)
-
-**Comparaison visuelle**: État original vs modifié (non implémenté V1)
-
-**Prévisualisation dans contexte**: Voir modification dans wizard/sheet (non implémenté V1)
-
 ## Exemples Concrets
 
 **Exemple 1 - Talent**: Éditer "Strike Mighty Blow" → Modifier desc "Ce talent permet de b>frapper avec puissance/b>.br×2Bonus: +1 dégât." → Prévisualiser → Popup texte formaté gras et sauts ligne → Vérifier rendu, fermer, valider

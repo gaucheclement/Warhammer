@@ -84,12 +84,6 @@ Interface d'administration permet modifier données de référence jeu (species,
 
 **Validation import**: Vérification structure (champs obligatoires), vérification types (number, string, boolean), liste erreurs si invalide, backup automatique état actuel avant import
 
-## Historique Modifications (Non Implémenté)
-
-**Fonctionnalités attendues V2**: Log modifications (qui, quand, quoi), historique par entrée, comparaison versions (diff avant → après), rollback restauration version antérieure
-
-**Implémentation actuelle**: Backup unique automatique avant modification (écrasé chaque sauvegarde), pas log auteur/date, pas historique consultable, rollback limité (uniquement si erreur immédiate)
-
 ## Relations
 
 **Dépendances**: audit/database/[species|careers|talents|skills|spells|trappings].md - Structures données
@@ -98,7 +92,7 @@ Interface d'administration permet modifier données de référence jeu (species,
 
 ## Limites et Contraintes
 
-**Pas de gestion avancée**: Pas permissions granulaires (admin = accès complet), pas historique modifications consultable, pas vérification conflits concurrents, pas mode brouillon (modifications immédiates)
+**Pas de gestion avancée**: Pas permissions granulaires (admin = accès complet), pas vérification conflits concurrents, pas mode brouillon (modifications immédiates)
 
 **Validation basique**: Validation schéma JSON côté serveur uniquement, pas validation métier temps réel, pas détection automatique incohérences
 
