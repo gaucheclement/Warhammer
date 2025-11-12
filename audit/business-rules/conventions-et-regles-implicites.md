@@ -1,6 +1,6 @@
 # Conventions et Règles Implicites
 
-**Contexte** : Documentation exhaustive des conventions implicites, valeurs par défaut et règles d'application du système Warhammer Character Generator V1.
+**Contexte** : Documentation exhaustive des conventions implicites, valeurs par défaut et règles d'application du système Warhammer Character Generator.
 
 **Relations** :
 - Business Rules : `parsing-wizard-data.md`, `application-effets-talents.md`, `talents-effets-mecanismes.md`, `accumulation-avantages-careerlevels.md`

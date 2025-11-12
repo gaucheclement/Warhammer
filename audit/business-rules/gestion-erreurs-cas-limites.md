@@ -1,6 +1,6 @@
 # Gestion des Erreurs et Cas Limites
 
-**Contexte** : Documentation exhaustive de tous les cas d'erreurs, cas limites et mécanismes de récupération du système Warhammer Character Generator V1.
+**Contexte** : Documentation exhaustive de tous les cas d'erreurs, cas limites et mécanismes de récupération du système Warhammer Character Generator.
 
 **Relations** :
 - Tables Database : `species.md`, `careers.md`, `careerLevels.md`, `talents.md`, `skills.md`
@@ -262,15 +262,13 @@
 
 **Cas** : JSON corrompu ou invalide
 - **Détection** : `JSON.parse()` échoue
-- **Comportement V1** : Exception non catchée → Crash application
+- **Comportement actuel** : Exception non catchée → Crash application
 - **Message** : "Fichier corrompu ou format invalide"
-- **Recommandation V2** : Try/catch avec message utilisateur explicite
 
 **Cas** : Références entités supprimées/modifiées (species, career, talents)
 - **Détection** : ID invalide lors chargement
-- **Comportement V1** : `setSpecie(undefined)` → Crash potentiel (validation manquante)
+- **Comportement actuel** : `setSpecie(undefined)` → Crash potentiel (validation manquante)
 - **Message** : "Espèce '{id}' introuvable (supprimée ou renommée)"
-- **Recommandation V2** : Validation stricte existence avant assignation
 
 **Références** : `audit/features/save-load.md`
 
@@ -586,8 +584,7 @@ Carrières Halfling :
    - [Annuler] → tmpadvance = 0, aucune modification
 
 **Cas Limite** : Clic [+] puis navigation autre page sans valider
-- Comportement V1 : tmpadvance conservé en mémoire (pas réinitialisé)
-- Recommandation V2 : Modal confirmation "Modifications non sauvegardées, continuer ?"
+- Comportement actuel : tmpadvance conservé en mémoire (pas réinitialisé)
 
 **Références** : `audit/features/character-edit.md`
 
@@ -758,10 +755,10 @@ Carrières Halfling :
 
 **Références** : `audit/features/admin-validation.md`
 
-### 5.5 Problème V1 : Blocages Silencieux
+### 5.5 Blocages Silencieux
 
 **Problème Actuel** :
-- V1 désactive boutons sans message explication
+- Boutons désactivés sans message explication
 - Bouton [+] grisé → Pourquoi ? Budget insuffisant / Limite atteinte / Pré-requis manquant ?
 - Bouton [Valider] grisé → Pourquoi ? Budget négatif / Élément invalide / Étape incomplète ?
 
@@ -775,15 +772,15 @@ Carrières Halfling :
    - Raison possible A : XP insuffisant (25 XP nécessaires, 10 disponibles)
    - Raison possible B : Rang max atteint (3/3)
    - Raison possible C : Pré-requis manquant (Sens de la magie requis)
-   - **V1** : Aucune indication → Joueur ne sait pas
+   - Actuellement : Aucune indication → Joueur ne sait pas
 
 2. Bouton [Valider] désactivé étape Resume
    - Raison possible A : XP budget négatif (-15 XP)
    - Raison possible B : Compétence obligatoire manquante
    - Raison possible C : Talent invalide (spécialisation non choisie)
-   - **V1** : Aucune indication → Joueur bloqué
+   - Actuellement : Aucune indication → Joueur bloqué
 
-**Recommandation V2** :
+**Améliorations possibles** :
 - **Tooltip Contextuel** : Afficher message au survol bouton désactivé
 - **Panneau "Problèmes"** : Liste centralisée toutes violations
 - **Indicateurs Visuels** : Icônes ⛔/⚠️ à côté éléments invalides
@@ -986,73 +983,6 @@ Carrières Halfling :
 **Références** : `audit/features/save-load.md`
 
 ---
-
-## 7. Recommandations V2
-
-### 7.1 Amélioration Messages Erreur
-
-**Problème V1** : Blocages silencieux (boutons désactivés sans explication)
-
-**Solutions V2** :
-1. **Tooltip Contextuel** : Message au survol bouton désactivé
-2. **Panneau "Problèmes"** : Liste centralisée violations + actions correctives
-3. **Indicateurs Visuels** : Icônes ⛔/⚠️ à côté éléments invalides
-4. **Messages Explicites** : Format "{Action} impossible : {Raison} ({Détails})"
-
-**Exemple Amélioration** :
-- **V1** : Bouton [+] grisé (aucune info)
-- **V2** : Bouton [+] grisé + Tooltip "XP insuffisant : 25 nécessaires, 10 disponibles. Gagner 15 XP supplémentaires pour débloquer."
-
-### 7.2 Validation Temps Réel
-
-**Problème V1** : Validation uniquement lors sauvegarde (erreurs découvertes tard)
-
-**Solutions V2** :
-1. **Validation Incrémentale** : Après chaque modification champ
-2. **Affichage Temps Réel** : Indicateurs validation à côté chaque champ
-3. **Compteur Erreurs** : Badge "3 erreurs détectées" en haut formulaire
-4. **Auto-Correction** : Suggestions corrections automatiques
-
-**Exemple** : Modification rand.Humain
-- **V1** : Saisie 150, clic [Sauvegarder], erreur affichée
-- **V2** : Saisie 150, bordure rouge immédiate, message "Valeur 1-100 attendue"
-
-### 7.3 Gestion États Transitoires
-
-**Problème V1** : Modifications temporaires (tmpadvance) non protégées
-
-**Solutions V2** :
-1. **Modal Confirmation** : "Modifications non sauvegardées, continuer ?"
-2. **Auto-Save** : Sauvegarde automatique brouillon toutes les 30s
-3. **Historique Modifications** : Possibilité annuler/refaire (undo/redo)
-4. **Indicateur Modifications** : Badge "Non sauvegardé" si tmpadvance ≠ 0
-
-### 7.4 Récupération Références Cassées
-
-**Problème V1** : Crash si entité référencée supprimée (species, career, talent)
-
-**Solutions V2** :
-1. **Validation Existence** : Vérifier ID existe AVANT assignation
-2. **Fallback Graceful** : Si référence cassée, proposer sélection manuelle
-3. **Migration Automatique** : Si entité renommée, mapping ancien ID → nouveau ID
-4. **Audit Intégrité** : Commande admin "Vérifier intégrité personnages" (détecte références cassées)
-
-**Exemple** : Chargement personnage avec species supprimé
-- **V1** : `setSpecie(undefined)` → Crash
-- **V2** : Détection species invalide → Modal "Espèce '{oldLabel}' introuvable, sélectionner nouvelle espèce" → Joueur choisit manuellement
-
-### 7.5 Tests Automatisés Complets
-
-**Recommandation** : Suite tests exhaustive couvrant tous cas limites
-
-**Tests Critiques** :
-1. **Test Divisions Zéro** : Caractéristiques = 0, vérifier calculs bonus
-2. **Test Dépassements** : Avances > 70, rangs > max dynamique
-3. **Test Références Cassées** : ID invalides, vérifier fallback
-4. **Test États Transitoires** : Changement carrière, suppression talents avec dépendances
-5. **Test Parsing** : Formats invalides, quantités incorrectes, références manquantes
-
-**Couverture Cible** : 90%+ lignes code, 100% cas limites identifiés
 
 ---
 

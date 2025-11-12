@@ -42,11 +42,11 @@ Système valide chaque achat XP avant confirmation pour éviter erreurs et incoh
 
 **Algorithme recalcul XP dépensé**: Pour chaque catégorie (Caractéristiques somme coûts paliers × multiplicateur carrière, Compétences somme coûts acquisition + avances × multiplicateur carrière, Talents somme coûts rangs × multiplicateur carrière), multiplicateur carrière (Élément dans carrière × 1, Élément hors carrière × 2)
 
-## Blocages Silencieux (Problème V1)
+## Blocages Silencieux
 
-**Problème actuel**: V1 désactive boutons sans message explication (Bouton [+] grisé → pourquoi Budget/Limite/Pré-requis, Bouton [Valider] grisé → pourquoi Budget négatif/Élément invalide), impact UX joueur ne comprend pas pourquoi action bloquée
+**Problème actuel**: Boutons désactivés sans message explication (Bouton [+] grisé → pourquoi Budget/Limite/Pré-requis, Bouton [Valider] grisé → pourquoi Budget négatif/Élément invalide), impact UX joueur ne comprend pas pourquoi action bloquée
 
-**Recommandation V2 messages explicites**: Tooltip sur bouton désactivé, message contextuel au survol, panneau "Problèmes détectés" listant toutes violations
+**Améliorations possibles**: Tooltip sur bouton désactivé, message contextuel au survol, panneau "Problèmes détectés" listant toutes violations
 
 ## Exemples Validation
 
@@ -60,7 +60,7 @@ Système valide chaque achat XP avant confirmation pour éviter erreurs et incoh
 
 **Acquisition Advanced requise**: Avances Langue Bretonnien sans acquisition → Bloqué message "Compétence non acquise: Acquisition requise 20 XP"
 
-## Messages d'Erreur Recommandés V2
+## Messages d'Erreur Recommandés
 
 **Budget**: "Budget XP insuffisant (25 XP nécessaires, 10 XP disponibles)", "Validation bloquée: XP disponible négatif (-15 XP)"
 
@@ -80,7 +80,7 @@ Système valide chaque achat XP avant confirmation pour éviter erreurs et incoh
 
 ## Limites et Contraintes
 
-**Blocages silencieux V1**: Pas messages explicites pourquoi action bloquée
+**Blocages silencieux**: Pas messages explicites pourquoi action bloquée
 
 **Pas validation exhaustive**: Règles métier complexes non vérifiées temps réel
 

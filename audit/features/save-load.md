@@ -157,8 +157,8 @@ Sélection filtre "Nain" → Affichage "Thorin" uniquement 1/5 → Reset "Tous" 
 ## Gestion erreurs
 
 **Personnage non trouvé** : saveName invalide → Retour `""` → Message erreur.
-**JSON corrompu** : JSON.parse échoue → Exception non catchée (crash V1).
-**Références manquantes** : ID invalide → `setSpecie(undefined)` → Crash potentiel (validation manquante V1).
+**JSON corrompu** : JSON.parse échoue → Exception non catchée (crash possible).
+**Références manquantes** : ID invalide → `setSpecie(undefined)` → Crash potentiel (validation manquante).
 **Fichier non JSON** : Extension .txt → Erreur parse → Message explicite.
 
 ## Voir aussi
