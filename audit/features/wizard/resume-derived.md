@@ -28,9 +28,10 @@ Exemple Elfe avec Course à pied (5+1=6) : Marche 12, Course 24
 
 Points de Blessures (PB) selon species.details.wounds :
 
-**Humains/Nains/Halflings :** End + 2×Bonus End + Bonus Force
-**Elfes/Gnomes :** End + 2×Bonus End + Bonus FM
-**Ogres :** 2×End + 4×Bonus End + Bonus Force
+**Humains/Halflings :** 2×BE + BFM
+**Nains :** BF + 2×BE + BFM
+**Elfes/Gnomes :** 2×BE + BFM
+**Ogres :** (BF + 2×BE + BFM) × 2
 
 Bonus = Caractéristique ÷ 10 (arrondi inférieur)
 
@@ -42,9 +43,9 @@ Formule : PB final = Formule espèce + Modificateurs talents
 
 ### Exemples
 
-Nain de base (End 30, F 30) : 30 + 2×3 + 3 = 39 PB
+Nain de base (End 30, F 30, FM 30) : BF 3 + 2×BE 3 + BFM 3 = 12 PB
 
-Nain End 35, Endurci rang 2 : 35 + 2×3 + 3 = 44, +6 (Bonus End 3 × 2 rangs) = 50 PB
+Nain End 40, Endurci rang 2 : BE 4 → +8 (rang 2), PB = BF 3 + 2×(BE 4 +4) + BFM 3 = 3 + 16 + 3 = 22 PB
 
 ## Destin et Résolution
 
@@ -132,13 +133,13 @@ Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour arch
 
 **Focus calculs dérivés :**
 
-**Agitateur Humain :** Mvt 4 (Marche 8, Course 16) → PB 39 (E 30 + 2×BE 3 + BF 3) → Destin 3 (base 2 + signe 1), Chance 3/3 → Résilience 2, Détermination 2/2 → Enc 5 (limite BF×10 = 30, Normal).
+**Agitateur Humain :** Mvt 4 (Marche 8, Course 16) → PB 9 (2×BE 3 + BFM 3) → Destin 3 (base 2 + signe 1), Chance 3/3 → Résilience 2, Détermination 2/2 → Enc 5 (limite BF×10 = 30, Normal).
 
-**Répurgateur Nain niveau 2 :** PB 53 (E 42 + 2×BE 4 + BF 3) avec talent Endurci potentiel (+BE/rang) → Destin 2, Résilience 4 (base Nain robuste) → Mvt 3 (Marche 6, Course 12).
+**Répurgateur Nain niveau 2 :** PB 13 (BF 3 + 2×BE 4 + BFM 3) avec talent Endurci potentiel (+BE/rang) → Destin 2, Résilience 4 (base Nain robuste) → Mvt 3 (Marche 6, Course 12).
 
-**Sorcier Elfe Azyr :** Mvt 5 (base Elfe) potentiellement +1 avec talent Véloce → PB 40 (formule Elfe E 30 + 2×BE 3 + BFM 4) → Destin 1, Résilience 2 (base Elfe faible).
+**Sorcier Elfe Azyr :** Mvt 5 (base Elfe) potentiellement +1 avec talent Véloce → PB 10 (2×BE 3 + BFM 4) → Destin 1, Résilience 2 (base Elfe faible).
 
-**Halfling Bourgeois :** PB 26 (formule Halfling End 20 + 2×BE 2 + BF 2) → Fragile mais Destin 2, Résilience 3 compensent → Mvt 3 → Enc faible (F 10, BF 1 → limite 10).
+**Halfling Bourgeois :** PB 6 (2×BE 2 + BFM 2) → Fragile mais Destin 2, Résilience 3 compensent → Mvt 3 → Enc faible (F 10, BF 1 → limite 10).
 
 **Surchargé :** Enc > Bonus F × 10 → Pénalités Mvt ÷2, Ag -10 → Résumé affiche enc total, calcul pénalités interne feuille personnage.
 
