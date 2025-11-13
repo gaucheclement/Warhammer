@@ -173,7 +173,7 @@ Voir:
 - [progression-careerlevels.md](../business-rules/progression-careerlevels.md)
 - [tests-coherence-careers.md](../business-rules/tests-coherence-careers.md)
 - [validation-donnees-careers.md](../business-rules/validation-donnees-careers.md)
-- [migration-descriptions-html.md](../business-rules/migration-descriptions-html.md)
+- [pattern-descriptions-html.md](../patterns/pattern-descriptions-html.md)
 
 ---
 

@@ -171,7 +171,6 @@
 
 Voir:
 - [talents-effets-mecanismes.md](../business-rules/talents-effets-mecanismes.md) - 4 mécanismes, rangs, spécialisations
-- [application-effets-talents.md](../business-rules/application-effets-talents.md) - Orchestration globale
 
 ---
 

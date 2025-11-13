@@ -106,10 +106,9 @@ Au moins **8 compétences** de la carrière (cumul rangs 1 à N) à **5×N avanc
 **Accumulation** : [accumulation-avantages-careerlevels.md](./accumulation-avantages-careerlevels.md) - Cumul éléments multi-rangs
 
 **Workflows** :
-- [workflow-progression-xp.md](../features/workflows/workflow-progression-xp.md) - Dépense XP post-création
-- [workflow-changement-carriere.md](../features/workflows/workflow-changement-carriere.md) - Changement carrière
+- [workflows.md](../features/workflows/workflows.md) - Workflows complets (progression XP, changement carrière)
 
 **Features** :
-- [xp-career.md](../features/xp-career.md) - Gestion carrière et progression
-- [xp-validation.md](../features/xp-validation.md) - Validation dépenses XP
+- [xp-career.md](../features/advancement/xp-career.md) - Gestion carrière et progression
+- [xp-validation.md](../features/advancement/xp-validation.md) - Validation dépenses XP
 

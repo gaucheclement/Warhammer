@@ -242,6 +242,6 @@ Agitateur (Carrière)
 
 **Coûts XP:** Voir `calculs-xp-progression.md` pour les formules de coût par niveau et hors carrière.
 
-**Parsing:** Voir `parsing-wizard-data.md` pour le format des données.
+**Parsing:** Voir `../patterns/pattern-parsing.md` pour le format des données.
 
 **Tables database:** Voir `audit/database/careers.md` et `audit/database/careerLevels.md` pour les schémas complets.

@@ -64,19 +64,21 @@ Pouvoir corrompu issu des Royaumes du Chaos et des dieux sombres.
 ### Prières Divines : Universelles ou Spécifiques
 
 **Bénédictions (Béni)** :
-- Accessibles à TOUS les prêtres (quelle que soit la divinité)
-- Type : "Béni", subType : vide
-- Exemples : "Bénédiction de Bataille", "Bénédiction de Courage"
+- Type : "Béni", subType : nom du dieu (ou vide pour universelles)
+- **Acquisition** : Le talent "Béni (Dieu)" donne **TOUTES les bénédictions du dieu gratuitement** à l'acquisition du talent
+- Pas de limite de nombre (contrairement à Magie mineure qui est limité au Bonus FM)
+- Exemples : "Bénédiction de Bataille", "Bénédiction de Courage", "Bénédiction de Protection"
 
 **Miracles (Invocation)** :
-- Accessibles UNIQUEMENT aux prêtres du dieu concerné
 - Type : "Invocation", subType : nom du dieu
-- Le talent "Invocation (Dieu X)" donne accès aux miracles de X
+- **Acquisition** : Le talent "Invocation (Dieu X)" donne **accès** aux miracles de X
+- Les miracles doivent être **achetés avec XP** individuellement (comme les sorts arcanes)
+- Exemples pour Manann : "Encalminé", "Générosité de Manann", "Marcher sur les eaux"
 
 **Exemple** :
-- Talent : "Invocation (Manann)"
-- Accessible : Bénédictions + Miracles de Manann
-- Interdit : Miracles des autres dieux
+- Talent : "Béni (Sigmar)" → Le personnage connaît immédiatement toutes les bénédictions de Sigmar
+- Talent : "Invocation (Manann)" → Le personnage peut acheter les miracles de Manann avec XP
+- Interdit : Bénédictions/Miracles des autres dieux
 
 ### Magie du Chaos : Par Dieu ou Générique
 
@@ -168,16 +170,17 @@ Chaque tradition magique a ses propres sorts exclusifs :
 **Spells → Magicks** : Sort.subType → Magick.label (sorts arcanes avec domaine explicite)
 - Magicks contient les huit domaines avec label, abr (Ghur, Aqshy...), folder, desc
 
-**Spells → Gods** : Sort (type="Invocation").subType → God.label
-- Gods contient les divinités avec label, desc, sphere d'influence
+**Spells → Gods** : Sort (type="Béni" ou type="Invocation").subType → God.label
+- Gods contient les divinités avec label, desc, blessings (liste des bénédictions), miracles
+- **Voir** : [gods.md](../database/gods.md) pour structure complète et règles d'acquisition
 
 **Spells → Talents** : Le talent définit l'accès aux sorts par type et spécialisation
 - "Magie Mineure" → tous sorts "Magie mineure"
 - "Magie des Arcanes (Domaine)" → sorts du domaine
-- "Béni" → bénédictions universelles
-- "Invocation (Dieu)" → miracles du dieu
+- "Béni (Dieu)" → TOUTES les bénédictions du dieu (gratuites)
+- "Invocation (Dieu)" → accès aux miracles du dieu (à acheter en XP)
 - "Magie du Chaos (Dieu)" → sorts Chaos du dieu ou Indivisibles
 
 ---
 
-**Navigation** : [Table Spells](../database/spells.md) | [Talents](../database/talents.md) | [Index Business Rules](README.md)
+**Navigation** : [Table Spells](../database/spells.md) | [Table Gods](../database/gods.md) | [Talents](../database/talents.md) | [Index Business Rules](README.md)

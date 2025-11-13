@@ -85,4 +85,3 @@ Dynamique (max=formule recalculé si Bonus change: Agi 35→max 3, Agi 42→max 
 - [skills.md](../database/skills.md) - Compétences
 - [characteristics.md](../database/characteristics.md) - Caractéristiques
 - [specialisations-skills-talents.md](./specialisations-skills-talents.md) - Règles spécialisations
-- [application-effets-talents.md](./application-effets-talents.md) - Orchestration globale

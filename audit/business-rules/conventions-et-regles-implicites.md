@@ -3,7 +3,7 @@
 **Contexte** : Documentation exhaustive des conventions implicites, valeurs par défaut et règles d'application du système Warhammer Character Generator.
 
 **Relations** :
-- Business Rules : `parsing-wizard-data.md`, `application-effets-talents.md`, `talents-effets-mecanismes.md`, `accumulation-avantages-careerlevels.md`
+- Business Rules : `talents-effets-mecanismes.md`, `accumulation-avantages-careerlevels.md`
 - Patterns : `pattern-parsing.md`, `pattern-metadonnees-base.md`, `pattern-specialisations.md`
 - Features : `character-edit.md`, `species.md`, `career.md`, `skills.md`, `talents.md`
 
@@ -40,7 +40,7 @@ Total = Base + Avances
 
 **Bonus Dérivé** : `floor(Total / 10)` = floor(69/10) = **6**
 
-**Références** : `audit/business-rules/application-effets-talents.md`, `audit/features/species.md`
+**Références** : `audit/business-rules/talents-effets-mecanismes.md`, `audit/features/species.md`
 
 ### 1.2 Ordre d'Application des Effets de Talents
 
@@ -73,7 +73,7 @@ Total = Base + Avances
 4. Recalcul : Soc finale = Base + Avances (sans +5)
 5. Impact cascade : Bonus Soc réduit, compétences Charme/Commandement/Ragots réduites
 
-**Références** : `audit/business-rules/application-effets-talents.md`
+**Références** : `audit/business-rules/talents-effets-mecanismes.md`
 
 ### 1.3 Séquence Wizard (Création Personnage)
 
@@ -207,7 +207,7 @@ Total = Base + Avances
 - Avec " ou " : Choix exclusif (1 parmi N)
 - "(Au choix)" : Spécialisation requise lors acquisition
 
-**Références** : `audit/business-rules/parsing-wizard-data.md`
+**Références** : `audit/patterns/pattern-parsing.md`
 
 ### 3.3 États Progression Wizard
 
@@ -272,7 +272,7 @@ Total = Base + Avances
 - BOOK : Abréviation livre (3-5 lettres majuscules)
 - PAGE : Numéro page (1-999)
 
-**Références** : `audit/patterns/pattern-metadonnees-base.md`, `audit/business-rules/parsing-wizard-data.md`
+**Références** : `audit/patterns/pattern-metadonnees-base.md`, `audit/patterns/pattern-parsing.md`
 
 ### 4.3 Codes Couleurs et Badges
 
@@ -539,13 +539,11 @@ origins: ['humain', 'soldat|1', 'soldat|2']  // Multiple sources (cumul avances)
 **Cas Spécial Béni** :
 - Perte talent "Béni" → **Retrait automatique TOUTES bénédictions** (indépendamment usage)
 
-**Références** : `audit/business-rules/application-effets-talents.md`, `audit/features/character-edit.md`
+**Références** : `audit/business-rules/talents-effets-mecanismes.md`, `audit/features/character-edit.md`
 
 ---
 
 **Références Principales** :
-- `audit/business-rules/parsing-wizard-data.md`
-- `audit/business-rules/application-effets-talents.md`
 - `audit/business-rules/talents-effets-mecanismes.md`
 - `audit/business-rules/specialisations-skills-talents.md`
 - `audit/patterns/pattern-parsing.md`

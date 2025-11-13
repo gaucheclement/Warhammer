@@ -133,7 +133,7 @@ Pour l'interface utilisateur, les ranges sont calculés dynamiquement :
 Exemple: "Calme, Charme, Commandement, Corps à corps (Base), Évaluation..."
 **Cas particuliers** : Compétences avec choix ("Langue (Au choix)", "Métier (Au choix)"), compétences avec spécialisation ("Corps à corps (Escrime)", "Projectiles (Arc)")
 **Parsing nécessaire** : Conversion de la chaîne en liste d'éléments référençant la table skills
-**Voir** : [skills.md], [parsing-wizard-data.md] et ticket #003 pour règles de parsing
+**Voir** : [skills.md], [../patterns/pattern-parsing.md](../patterns/pattern-parsing.md) et ticket #003 pour règles de parsing
 
 ### 5. Relation avec Talents (parsing requis)
 **Objectif** : Attribuer les talents raciaux au personnage
@@ -141,7 +141,7 @@ Exemple: "Calme, Charme, Commandement, Corps à corps (Base), Évaluation..."
 Exemple: "Perspicace ou Affable, Destinée, 3 Talent aléatoire"
 **Cas particuliers** : Choix exclusifs ("Perspicace ou Affable"), talents multiples aléatoires ("3 Talent aléatoire"), talents avec choix ("Savoir-vivre (Au choix)")
 **Parsing nécessaire** : Conversion de la chaîne en liste d'éléments avec gestion des choix
-**Voir** : [talents.md], [parsing-wizard-data.md] et ticket #003 pour règles de parsing
+**Voir** : [talents.md], [../patterns/pattern-parsing.md](../patterns/pattern-parsing.md) et ticket #003 pour règles de parsing
 
 ## Cas d'usage métier
 
@@ -188,7 +188,7 @@ Pour exploiter pleinement une species, accéder à : [careers.md] (carrières di
 ## Validation des données
 
 ### Champs obligatoires / Contraintes
-**index** (unique, 0,1,2...), **label** (unique, 3-50 car), **refChar/refCareer/refDetail** (strings), **rand** (1-100, croissant), **skills/talents** (parsing valide, voir [parsing-wizard-data.md]), **book** (LDB/Middenheim/AA/ADE3/SOC/Salzemund), **page** (1-999)
+**index** (unique, 0,1,2...), **label** (unique, 3-50 car), **refChar/refCareer/refDetail** (strings), **rand** (1-100, croissant), **skills/talents** (parsing valide, voir [../patterns/pattern-parsing.md](../patterns/pattern-parsing.md)), **book** (LDB/Middenheim/AA/ADE3/SOC/Salzemund), **page** (1-999)
 **desc** (optionnel, HTML valide, vide OK pour variantes)
 
 ### Règles inter-champs

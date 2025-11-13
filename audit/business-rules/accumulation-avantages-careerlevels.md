@@ -169,5 +169,5 @@ Un personnage peut changer de carrière puis y revenir ultérieurement.
 
 **Règles métier:**
 - `progression-careerlevels.md` - Système de progression
-- `parsing-wizard-data.md` - Format des avances
+- `../patterns/pattern-parsing.md` - Format des avances
 - `calculs-xp-progression.md` - Coûts XP pour progresser

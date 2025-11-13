@@ -14,7 +14,7 @@ Le système de filtrage détermine quelles professions sont accessibles à chaqu
 
 ### Mécanisme de correspondance
 
-Voir [filtrage-rand-system.md](./filtrage-rand-system.md) pour description complète du système de filtrage par clé-valeur.
+Voir [pattern-generation-aleatoire.md](../patterns/pattern-generation-aleatoire.md) pour description complète du système de filtrage par clé-valeur.
 
 **Application aux espèces** : Chaque espèce possède `refCareer` servant de clé d'identification dans l'objet `rand` des carrières.
 

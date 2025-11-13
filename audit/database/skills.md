@@ -146,7 +146,7 @@ La table Skills contient toutes les compétences disponibles dans Warhammer Fant
 
 ## Notes de conception
 
-**Format HTML** : Descriptions avec balises HTML (tables, listes, emphase). Voir audit/business-rules/migration-descriptions-html.md
+**Format HTML** : Descriptions avec balises HTML (tables, listes, emphase). Voir [../patterns/pattern-descriptions-html.md](../patterns/pattern-descriptions-html.md)
 
 **Références croisées** : Descriptions mentionnent compétences/talents/états, transformables en liens pour navigation UI
 

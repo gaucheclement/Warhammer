@@ -20,7 +20,6 @@ Comportement technique réutilisable → [patterns/](../patterns/)
 ## Talents et Effets
 
 - [talents-effets-mecanismes.md](./talents-effets-mecanismes.md) - Mécanismes talents (addCharacteristic, addSkill, addMagic, addTalent)
-- [application-effets-talents.md](./application-effets-talents.md) - Orchestration application effets
 - [specialisations-skills-talents.md](./specialisations-skills-talents.md) - Gestion spécialisations
 
 ---
@@ -30,7 +29,6 @@ Comportement technique réutilisable → [patterns/](../patterns/)
 - [progression-careerlevels.md](./progression-careerlevels.md) - Système 4 niveaux progression + relation database
 - [filtrage-careers-espece.md](./filtrage-careers-espece.md) - Filtrage carrières selon espèce
 - [filtrage-careers-region.md](./filtrage-careers-region.md) - Filtrage carrières selon région
-- [careers-validation.md](./careers-validation.md) - Validation des carrières
 - [ponderation-aleatoire-careers.md](./ponderation-aleatoire-careers.md) - Pondération pour tirages aléatoires
 
 ---
@@ -49,38 +47,28 @@ Comportement technique réutilisable → [patterns/](../patterns/)
 
 ---
 
-## Parsing et Données
-
-- [parsing-wizard-data.md](./parsing-wizard-data.md) - Parsing données wizard (characteristics, skills, talents)
-- [filtrage-rand-system.md](./filtrage-rand-system.md) - Système de filtrage aléatoire
-
----
-
 ## Autres Calculs
 
 - [calculs-details-physiques.md](./calculs-details-physiques.md) - Calcul âge, taille, yeux/cheveux
 
 ---
 
-## Validation et Migration
+## Validation et Conventions
 
 - [validation-globale.md](./validation-globale.md) - Validation cross-table
-- [gestion-erreurs-cas-limites.md](./gestion-erreurs-cas-limites.md) - Gestion erreurs
-- [migration-descriptions-html.md](./migration-descriptions-html.md) - Migration descriptions HTML
 - [conventions-et-regles-implicites.md](./conventions-et-regles-implicites.md) - Conventions métier implicites
 
 ---
 
 ## Organisation
 
-**Total**: 23 fichiers
+**Total**: 17 fichiers
 
 **Par catégorie**:
 - Progression: 4
-- Talents: 3
-- Carrières: 5
+- Talents: 2
+- Carrières: 4
 - Équipement: 3
 - Magie: 1
-- Parsing: 2
 - Calculs: 1
-- Validation: 4
+- Validation: 2

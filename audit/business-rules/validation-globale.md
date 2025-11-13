@@ -3,9 +3,9 @@
 **Contexte** : Documentation exhaustive de toutes les validations du système Warhammer Character Generator, organisée par contexte et type de validation.
 
 **Relations** :
-- Business Rules : `careers-validation.md`, `gestion-erreurs-cas-limites.md`, `conventions-et-regles-implicites.md`
+- Business Rules : `conventions-et-regles-implicites.md`
 - Features : `character-edit.md`, `xp-validation.md`, `wizard/resume-validation.md`, `admin-validation.md`
-- Workflows : `workflow-progression-xp.md`, `workflow-changement-carriere.md`
+- Workflows : `workflows.md`
 
 ---
 
@@ -68,7 +68,7 @@
 - Origins valides → IDs entities référencées existent
 - Caractéristique liée existe → Pour skills, characteristic ∈ [CC, CT, F, E, I, Ag, Dex, Int, FM, Soc]
 
-**Références** : `audit/business-rules/careers-validation.md`, `audit/business-rules/gestion-erreurs-cas-limites.md`
+**Références** : `audit/patterns/pattern-validation-references.md`, `audit/patterns/pattern-validation-valeurs.md`
 
 #### Validations Métier
 
@@ -89,7 +89,7 @@
 | **Spécialisations choisies** | spec ≠ '' si talent "Au choix" | Oui | "Spécialisation requise pour {label}" |
 | **Pré-requis satisfaits** | Talents chaînés actifs | Oui | "Pré-requis manquant : {talent_parent}" |
 | **Rang ≤ max** | advance ≤ maximum | Oui | "Rang max atteint ({actuel}/{max})" |
-| **Talents obligatoires carrière** | Tous talents listés niveau carrière acquis | Oui | "{N} talents obligatoires manquants" |
+| **Talent carrière choisi (création)** | Exactement 1 talent de son rang de carrière | Oui | "Aucun talent de carrière choisi" |
 
 **Références** : `audit/features/wizard/resume-validation.md`, `audit/database/skills.md`, `audit/database/talents.md`
 
@@ -123,7 +123,7 @@
 | **Rang max talent** | Variable (1, N, Bonus carac, illimité) | Dépend talent.max |
 | **XP Totale max** | 99999 | Limite affichage UI |
 
-**Références** : `audit/features/xp-validation.md`, `audit/features/workflows/workflow-progression-xp.md`
+**Références** : `audit/features/advancement/xp-validation.md`, `audit/features/workflows/workflows.md`
 
 #### Validations Métier (Contraintes par Type)
 
@@ -192,7 +192,7 @@
 - "En carrière" recalculé → Union éléments niveaux atteints toutes carrières
 - Progression possible → Éléments requis niveau 2 identifiés
 
-**Références** : `audit/features/workflows/workflow-changement-carriere.md`
+**Références** : `audit/features/workflows/workflows.md`
 
 ### 2.4 CONTEXTE : Admin Entités
 
@@ -231,7 +231,7 @@
 | **Carrières exclusives** | Si 1 seule espèce numérique → toutes autres "" | Non (warning) | "Carrière mono-espèce incohérente" |
 | **Carrières Chaos** | Si class="Chaos" → tous rand "" | Oui | "Carrière Chaos '{label}' accessible aléatoire" |
 
-**Références** : `audit/business-rules/careers-validation.md`
+**Références** : `audit/patterns/pattern-validation-references.md`
 
 ---
 
@@ -328,7 +328,7 @@
 - Bouton [Acquérir] désactivé jusqu'à choix
 - Liste spécialisations disponibles
 
-**Références** : `audit/features/xp-validation.md`, `audit/business-rules/gestion-erreurs-cas-limites.md`
+**Références** : `audit/features/xp-validation.md`, `audit/patterns/pattern-validation-valeurs.md`
 
 ### 3.4 Messages Admin
 
@@ -390,7 +390,7 @@
 [Sauvegarder] ← ACTIVÉ (avec confirmation)
 ```
 
-**Références** : `audit/business-rules/gestion-erreurs-cas-limites.md`
+**Références** : `audit/patterns/pattern-validation-valeurs.md`
 
 ---
 
@@ -434,12 +434,12 @@
 | Erreur | Action Corrective | Message Suggéré | Automatisable |
 |--------|------------------|----------------|---------------|
 | **XP budget négatif** | Retirer achats ou ajuster XP max | "Retirer {X} XP d'achats ou ajuster budget" | Non |
-| **Talents obligatoires manquants** | Acquérir talents listés niveau carrière | "{N} talents obligatoires manquants : {liste}" | Oui (highlight) |
+| **Talent carrière manquant (création)** | Choisir 1 talent de son rang de carrière | "Choisir un talent de carrière" | Oui (highlight) |
 | **Skills obligatoires manquants** | Acquérir skills listées niveau carrière | "{N} skills obligatoires manquants : {liste}" | Oui (highlight) |
 | **Nom personnage vide** | Remplir champ nom ou générer aléatoire | "Nom requis pour finaliser personnage" | Oui (générateur) |
 | **Caractéristiques hors limites raciales** | Recalculer ou ajuster modificateurs | "Force {X} hors limites espèce ({min}-{max})" | Oui (recalcul) |
 
-**Références** : `audit/business-rules/gestion-erreurs-cas-limites.md`
+**Références** : `audit/patterns/pattern-validation-valeurs.md`
 
 ---
 
@@ -499,7 +499,7 @@
 4. Recalcul : Soc finale = Base + Avances (sans +5)
 5. Cascade : Bonus Soc réduit, Charme/Commandement/Ragots réduits
 
-**Références** : `audit/business-rules/application-effets-talents.md`
+**Références** : `audit/business-rules/talents-effets-mecanismes.md`
 
 ---
 
@@ -510,8 +510,8 @@
 - `audit/features/xp-validation.md`
 - `audit/features/wizard/resume-validation.md`
 - `audit/features/admin-validation.md`
-- `audit/business-rules/careers-validation.md`
-- `audit/business-rules/gestion-erreurs-cas-limites.md`
+- `audit/patterns/pattern-validation-references.md`
+- `audit/patterns/pattern-validation-valeurs.md`
 - `audit/patterns/pattern-validation-metadonnees.md`
 
 **Mots-clés** : Validation, Matrice, Contexte, Structurelle, Référentielle, Métier, Messages Erreur, Actions Correctives, Recalculs, Blocages Silencieux

@@ -32,7 +32,7 @@ L'objet `rand` contient trois clés régionales :
 
 ### Mécanisme de correspondance
 
-Voir [filtrage-rand-system.md](./filtrage-rand-system.md) pour description complète du système de filtrage par clé-valeur.
+Voir [pattern-generation-aleatoire.md](../patterns/pattern-generation-aleatoire.md) pour description complète du système de filtrage par clé-valeur.
 
 **Application aux régions** : Utilise le même mécanisme que le filtrage par espèce, avec des clés régionales à la place des clés d'espèces.
 

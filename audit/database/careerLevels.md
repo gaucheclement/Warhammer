@@ -163,7 +163,7 @@ Définit les 4 niveaux de progression pour chaque carrière. Chaque carrière po
 
 Voir:
 - [progression-careerlevels.md](../business-rules/progression-careerlevels.md)
-- [parsing-wizard-data.md](../business-rules/parsing-wizard-data.md)
+- [pattern-parsing.md](../patterns/pattern-parsing.md)
 - [accumulation-avantages-careerlevels.md](../business-rules/accumulation-avantages-careerlevels.md)
 - [calculs-xp-progression.md](../business-rules/calculs-xp-progression.md)
 
