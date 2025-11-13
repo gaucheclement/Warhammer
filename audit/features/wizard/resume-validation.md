@@ -6,16 +6,16 @@ L'écran de résumé effectue une vérification de cohérence globale du personn
 
 ## Système de validation
 
-### Contrôle d'étape (stepIndex)
+### Contrôle d'étape
 
-Le bouton "Valider" utilise stepIndex :
-- stepIndex === number (étape résumé) : Bouton activé
-- stepIndex !== number : Bouton désactivé (étapes incomplètes)
-- stepIndex === -1 : Bouton caché (création terminée)
+**Bouton "Valider"** :
+- Activé : Si toutes les étapes sont complétées et on est sur l'écran résumé
+- Désactivé : Si des étapes précédentes sont incomplètes
+- Caché : Si la création est déjà finalisée
 
 ### Dépendances d'étapes
 
-**Étapes obligatoires :** Species, Characteristics, Careers, Talents (obligatoires carrière), Skills (obligatoires carrière), Trappings (équipement départ), Detail (nom, âge, taille, etc.), Experience (XP cohérente).
+**Étapes obligatoires :** Species, Characteristics, Careers, Talents (1 choisi carrière), Skills (distribution espèce + carrière), Trappings (équipement départ), Detail (nom, âge, taille, etc.), Experience (XP cohérente).
 
 **Étapes optionnelles :** Stars (signe astrologique), Sorts (selon talents magiques).
 
@@ -34,29 +34,29 @@ Exemple Nain : CC 30 (init) + 5 (avances) = 35 total
 
 ### Talents
 
-Vérifications :
-- Rang minimum 1 (filtre getAdvance() > 0)
-- Rang maximum respecté selon type (unique/fixes/dynamiques/illimités)
-- Talents obligatoires carrière présents
-- Chaînes talents respectées (ex: Flagellant → Frénésie)
+**Vérifications** :
+- Rang minimum 1 (talents avec 0 avances non affichés)
+- Rang maximum respecté (unique: max 1, fixes: max 2-4, dynamiques: selon bonus, illimités: aucune limite)
+- 1 talent de son rang de carrière choisi (création uniquement)
+- Chaînes respectées (ex: Flagellant nécessite Frénésie)
 
 ### Trappings
 
-Équipement doit inclure :
-- Trappings classe (héritage niveau 1)
-- Trappings carrière niveau 1 (quantités correctes)
-- Trappings niveaux supérieurs si progressé
+**Équipement requis** :
+- Trappings classe sociale (niveau 1)
+- Trappings carrière niveau 1
+- Trappings niveaux supérieurs si progression
 
-Encombrement : Total enc ≤ Bonus Force × 10 (recommandation, pas blocage)
+**Encombrement** : Total ≤ Bonus Force × 10 (recommandation, pas bloquant)
 
 ### XP
 
-Équations vérifiées :
-- Totale = Actuelle + Dépensée
-- Totale = XP espèce + XP carrière + bonus aléatoires + bonus signe
-- Dépensée = somme coûts acquisitions
+**Cohérence** :
+- XP Maximale = XP Actuelle + XP Dépensée
+- XP Maximale = XP espèce + XP carrière + bonus aléatoires + bonus signe
+- XP Dépensée = somme des coûts
 
-Exemple Nain Agitateur : 20 (espèce) + 20 (carrière) + 25 (bonus) = 65 totale, 0 dépensée, 65 actuelle
+**Exemple** : Nain Agitateur 20+20+25 = 65 XP max, 0 dépensé, 65 disponible
 
 ### Magie
 
@@ -71,13 +71,12 @@ Exemple Nain Agitateur : 20 (espèce) + 20 (carrière) + 25 (bonus) = 65 totale,
 
 ### Blocages silencieux
 
-Le système ne génère pas de messages explicites. Validation repose sur :
-- Désactivation bouton si stepIndex incohérent
-- Clonage personnage évite corruption données
-- Vérifications implicites via calculs affichés
+**Pas de messages d'erreur** : Le système ne génère pas de messages textuels.
 
-**Bouton désactivé :** stepIndex !== number ou étapes précédentes incomplètes
-**Bouton caché :** stepIndex === -1 (création finalisée)
+**Validation visuelle** :
+- Bouton désactivé si étapes incomplètes
+- Protection des données lors de la validation
+- Vérifications automatiques affichées dans le résumé
 
 Aucun message n'explique pourquoi bouton désactivé.
 
@@ -129,12 +128,12 @@ Validations appliquées dans ordre étapes wizard : Species → Characteristics 
 
 **Bloquants :**
 - Absence race ou carrière
-- Talents/compétences obligatoires carrière manquants
+- Talent carrière non choisi (1 de son rang) ou compétences espèce/carrière non distribuées
 - XP totale incohérente
 
 ## Exemples Warhammer
 
-Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
+Voir [exemples-personnages.md](../exemples-personnages.md) pour archétypes complets.
 
 **Focus validation cohérence :**
 

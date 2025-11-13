@@ -29,60 +29,60 @@ Processus multi-étapes guidé :
 ### Workflows
 Voir [workflows/](./workflows/)
 
-- [workflow-creation-complete.md](./workflows/workflow-creation-complete.md) - Vue d'ensemble création complète
+- [workflows.md](./workflows/workflows.md) - Vue d'ensemble workflows complets
 
 ### Exemples
-- [exemples-personnages-types.md](./exemples-personnages-types.md) - Archétypes complets illustrant les règles
+- [exemples-personnages.md](./exemples-personnages.md) - Archétypes complets illustrant les règles
 
 ---
 
 ## Gestion de Personnage
 
-### Feuille de Personnage
-- [character-sheet.md](./character-sheet.md) - Affichage et consultation feuille
-- [character-edit.md](./character-edit.md) - Édition personnage existant
+### Voir [character-management/](./character-management/)
+- [character-sheet.md](./character-management/character-sheet.md) - Affichage et consultation feuille
+- [character-edit.md](./character-management/character-edit.md) - Édition personnage existant
 
 ### Sauvegarde
-- [save-load.md](./save-load.md) - Sauvegarde et chargement personnages
+Voir [save-load/](./save-load/)
+- [save-load.md](./save-load/save-load.md) - Sauvegarde et chargement personnages
 
 ---
 
 ## Progression XP
 
 ### Voir [advancement/](./advancement/)
-- [xp-budget.md](./xp-budget.md) - Gestion budget XP
-- [xp-costs.md](./xp-costs.md) - Calcul coûts XP
-- [xp-log.md](./xp-log.md) - Historique dépenses XP
-- [xp-ui.md](./xp-ui.md) - Interface progression
-- [xp-validation.md](./xp-validation.md) - Validation dépenses XP
-- [xp-career.md](./xp-career.md) - Changement de carrière
+- [xp-budget.md](./advancement/xp-budget.md) - Gestion budget XP
+- [xp-costs.md](./advancement/xp-costs.md) - Calcul coûts XP
+- [xp-log.md](./advancement/xp-log.md) - Historique dépenses XP
+- [xp-ui.md](./advancement/xp-ui.md) - Interface progression
+- [xp-validation.md](./advancement/xp-validation.md) - Validation dépenses XP
+- [xp-career.md](./advancement/xp-career.md) - Changement de carrière
 
 ---
 
 ## Équipement
 
 ### Voir [equipment/](./equipment/)
-- [equipment.md](./equipment.md) - Gestion inventaire et équipement
+- [equipment.md](./equipment/equipment.md) - Gestion inventaire et équipement
 
 ---
 
 ## Magie
 
 ### Voir [magic/](./magic/)
-- [magic-system.md](./magic-system.md) - Système magique
-- [magic-usage.md](./magic-usage.md) - Utilisation sorts
+- [magic.md](./magic/magic.md) - Système magique et utilisation sorts
 
 ---
 
 ## Administration
 
 ### Voir [admin/](./admin/)
-- [admin-edit-entities.md](./admin-edit-entities.md) - Édition entités
-- [admin-validation.md](./admin-validation.md) - Validation données
-- [admin-ui.md](./admin-ui.md) - Interface admin
-- [admin-preview.md](./admin-preview.md) - Prévisualisation
-- [admin-permissions.md](./admin-permissions.md) - Gestion permissions
-- [admin-batch.md](./admin-batch.md) - Opérations par lot
+- [admin-edit-entities.md](./admin/admin-edit-entities.md) - Édition entités
+- [admin-validation.md](./admin/admin-validation.md) - Validation données
+- [admin-ui.md](./admin/admin-ui.md) - Interface admin
+- [admin-preview.md](./admin/admin-preview.md) - Prévisualisation
+- [admin-permissions.md](./admin/admin-permissions.md) - Gestion permissions
+- [admin-batch.md](./admin/admin-batch.md) - Opérations par lot
 
 ---
 
@@ -90,7 +90,7 @@ Voir [workflows/](./workflows/)
 
 ### Voir [import-export/](./import-export/)
 
-Intégrations avec systèmes tiers (Foundry VTT, etc.)
+Import et export de personnages en format JSON
 
 ---
 
@@ -116,13 +116,16 @@ Système d'aide et paramètres application
 **Dossiers principaux**:
 - wizard/ - 15 fichiers (création personnage)
 - workflows/ - Workflows complets
+- character-management/ - 2 fichiers (affichage et édition)
+- save-load/ - Sauvegarde et restauration
 - advancement/ - 6 fichiers (progression XP)
-- admin/ - 6 fichiers (administration)
 - equipment/ - Gestion équipement
 - magic/ - 2 fichiers (système magique)
-- import-export/ - Intégrations externes
+- admin/ - 6 fichiers (administration)
+- import-export/ - Import/export JSON
+- character-model/ - Modèle de données personnage
 - navigation/ - Navigation données
 - help-system/ - Système d'aide
 - settings/ - Paramètres
 
-**Fichiers racine**: Fonctionnalités transverses (character-sheet, save-load, exemples, etc.)
+**Fichiers racine**: exemples-personnages.md (référence transverse)

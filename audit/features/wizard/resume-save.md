@@ -2,144 +2,145 @@
 
 ## Contexte
 
-L'écran de résumé propose sauvegarde du personnage créé. Cette sauvegarde est distincte de la validation finale et permet conservation en base de données pour utilisation ultérieure.
+Écran résumé propose sauvegarde personnage créé. Sauvegarde distincte de validation finale. Permet conservation base données pour utilisation ultérieure.
 
 ## Mécanisme de sauvegarde
 
-### Bouton "Sauvegarder" (otherAction)
+### Bouton "Sauvegarder"
 
-Comportement conditionnel :
-- Si saveName existe (déjà sauvegardé) : Bouton caché (visibility: hidden)
-- Sinon : Bouton affiché label "Sauvegarder"
+**Comportement conditionnel** : Si personnage déjà sauvegardé (code sauvegarde existe), bouton masqué. Si personnage jamais sauvegardé, bouton affiché avec label "Sauvegarder".
 
-### Processus
+### Processus sauvegarde
 
-Clic "Sauvegarder" déclenche :
-1. Appel saveDatabaseCharacter(callback)
-2. Sauvegarde personnage en base
-3. Callback reçoit code sauvegarde (data) ou null si échec
-4. Si succès et nouveau code (data !== saveName) :
-   - Stocke code dans saveName
-   - Affiche dialogue confirmation avec code
-   - Masque bouton (visibility: hidden)
-5. Si succès et code existant : Alert "Personnage sauvegardé" (mise à jour)
-6. Si échec : Alert "Echec de la sauvegarde."
+**Déclenchement** : Clic bouton "Sauvegarder" déclenche opération sauvegarde.
+
+**Étapes** :
+1. Déclenchement sauvegarde personnage base données
+2. Système génère code sauvegarde unique
+3. Réception résultat : code sauvegarde si succès, indication échec sinon
+4. Si succès avec nouveau code jamais obtenu avant :
+   - Enregistrement code sauvegarde
+   - Affichage dialogue confirmation contenant code
+   - Masquage bouton "Sauvegarder"
+5. Si succès avec code existant (mise à jour sauvegarde existante) : Message "Personnage sauvegardé"
+6. Si échec sauvegarde : Message "Echec de la sauvegarde"
 
 ### Code de sauvegarde
 
-Code retourné = identifiant unique (chaîne alphanumérique ou GUID).
+**Format** : Identifiant unique alphanumérique (exemple : "A7F3-K9L2-M4X8") ou identifiant système.
 
-**Dialogue confirmation :** jQuery UI dialog affiche code dans zone `.codesave`, pas de boutons, fermeture par croix, permet copie manuelle.
+**Affichage confirmation** : Dialogue modal affiche code sauvegarde. Aucun bouton action (fermeture uniquement). Utilisateur peut copier code manuellement pour conservation.
 
 ## Distinction validation/sauvegarde
 
 ### Validation (Bouton "Valider")
 
-- Objectif : Terminer wizard création
-- Action : stepIndex → -1, retour menu
-- Effet : Personnage créé mais pas nécessairement sauvegardé
-- Irréversible : Impossible modifier via wizard après
+**Objectif** : Terminer wizard création personnage.
+
+**Action** : Marquer wizard comme terminé, retour menu principal.
+
+**Effet** : Personnage créé et finalisé mais pas nécessairement persisté base données.
+
+**Irréversibilité** : Une fois validation effectuée, impossible modifier personnage via wizard. Modifications futures uniquement via feuille personnage.
 
 ### Sauvegarde (Bouton "Sauvegarder")
 
-- Objectif : Persister personnage en base
-- Action : Appel saveDatabaseCharacter(), génère code
-- Effet : Personnage récupérable via code
-- Timing : Avant OU après validation (indépendant)
+**Objectif** : Persister personnage dans base données de manière permanente.
 
-### Scénarios
+**Action** : Déclencher sauvegarde, génération code unique.
 
-**Sauvegarder puis Valider (recommandé) :**
-Clic "Sauvegarder" → Code généré → Clic "Valider" → Wizard terminé → Personnage sauvegardé et création terminée.
+**Effet** : Personnage récupérable ultérieurement via code sauvegarde.
 
-**Valider sans sauvegarder (risqué) :**
-Clic "Valider" → Wizard terminé → Personnage en mémoire NON sauvegardé → Fermeture perd personnage.
+**Timing** : Sauvegarde peut être effectuée avant OU après validation (opérations indépendantes).
 
-**Sauvegarder sans valider (brouillon) :**
-Clic "Sauvegarder" → Code généré → Retour étapes précédentes → Modifications possibles → Personnage sauvegardé = version antérieure.
+### Scénarios usage
 
-**Mise à jour impossible :**
-Personnage sauvegardé (saveName existe) → Bouton caché → Modifications via feuille personnage uniquement.
+**Scénario recommandé - Sauvegarder puis Valider** :
+Clic "Sauvegarder" → Code unique généré et affiché → Clic "Valider" → Wizard terminé → Résultat : Personnage sauvegardé en base ET création terminée.
+
+**Scénario risqué - Valider sans sauvegarder** :
+Clic "Valider" uniquement → Wizard terminé → Personnage existe en mémoire uniquement, NON persisté base → Fermeture navigateur ou session perdue = perte totale personnage.
+
+**Scénario brouillon - Sauvegarder sans valider** :
+Clic "Sauvegarder" → Code généré → Retour étapes précédentes wizard possible → Modifications ultérieures autorisées → Remarque : Sauvegarde conserve version état moment clic, pas modifications postérieures.
+
+**Scénario mise à jour impossible** :
+Personnage déjà sauvegardé (code existe) → Bouton "Sauvegarder" masqué automatiquement → Modifications futures personnage uniquement via feuille personnage (pas re-sauvegarde wizard).
 
 ## Persistance et récupération
 
-### Sauvegarde en base
+### Sauvegarde base données
 
-saveDatabaseCharacter() effectue :
-- Sérialisation character (JSON probable)
-- Envoi backend ou LocalStorage/IndexedDB
-- Génération code unique
-- Retour code callback
+**Opération sauvegarde** : Personnage complet sérialisé (transformation structure données vers format persistable). Envoi données vers système stockage. Génération code unique identification. Retour code sauvegarde si succès.
 
-### Récupération
+**Voir aussi** : [../../patterns/pattern-google-sheets-storage.md](../../patterns/pattern-google-sheets-storage.md) pour détails infrastructure stockage.
 
-Code permet :
-- Chargement via loadDatabaseCharacter(code)
-- Restauration état complet (caractéristiques, compétences, talents, trappings, etc.)
-- Modification via feuille personnage (pas wizard)
-- Export/partage via code
+### Récupération personnage
 
-### Gestion codes
+**Chargement via code** : Code sauvegarde permet chargement personnage complet depuis base données. Restauration intégrale état personnage : Caractéristiques toutes valeurs, Compétences toutes avances, Talents tous rangs, Équipement toutes quantités, Détails personnels, Budget XP complet.
 
-Stockage :
-- Serveur : Base données mapping code → JSON
-- Client : LocalStorage clé code, valeur personnage sérialisé
+**Modification post-chargement** : Personnage chargé modifiable via feuille personnage (pas via wizard). Permet progression aventures (gain XP, dépenses XP, acquisition équipement).
 
-Sécurité : Codes uniques évitent collisions.
+**Partage code** : Code sauvegarde partageable entre utilisateurs. Permet duplication personnages, partage templates, archétypes communauté.
+
+### Gestion codes sauvegarde
+
+**Stockage serveur** : Base données conserve association code unique vers données personnage complètes. Chaque code référence un personnage sauvegardé unique.
+
+**Unicité codes** : Chaque sauvegarde génère code unique différent. Évite collisions, permet multiples sauvegardes même personnage (versions différentes).
 
 ## Actions post-sauvegarde
 
 ### Bouton "Retour"
 
-Après sauvegarde, "Retour" permet :
-- Label "Retour" (vs "Annuler")
-- Retour menu principal (showMenu())
-- Restaure classes CSS panels
+**Changement label** : Après sauvegarde réussie, bouton change label "Annuler" vers "Retour".
 
-### Réutilisation
+**Action retour** : Clic "Retour" ramène menu principal application. Wizard création fermé, personnage conservé.
 
-Personnage sauvegardé accessible via :
-- Menu principal "Charger personnage"
-- Saisie code sauvegarde
-- Chargement feuille personnage
-- Édition, progression XP, gestion équipement
+### Réutilisation personnage sauvegardé
+
+**Accès chargement** : Menu principal offre option "Charger personnage". Saisie code sauvegarde dans champ dédié. Déclenchement chargement personnage complet.
+
+**Utilisation chargée** : Ouverture feuille personnage avec données complètes. Édition informations personnage. Progression XP et amélioration capacités. Gestion équipement inventaire.
 
 ## Relations
 
 ### Dépendances
 
-- [resume-validation.md](./resume-validation.md) : Validation AVANT sauvegarde recommandée
-- [resume-display.md](./resume-display.md) : Données sauvegardées
-- [resume-export.md](./resume-export.md) : Export vs sauvegarde
-
-### Fichiers impliqués
-
-saveDatabaseCharacter() et loadDatabaseCharacter() gèrent persistance (fichier central CharGen ou Helper).
+- [resume-validation.md](./resume-validation.md) : Validation complète avant sauvegarde recommandée
+- [resume-display.md](./resume-display.md) : Détails données affichées et sauvegardées
+- [resume-export.md](./resume-export.md) : Export PDF vs sauvegarde base données
+- [../../patterns/pattern-google-sheets-storage.md](../../patterns/pattern-google-sheets-storage.md) : Infrastructure stockage
 
 ## Règles métier
 
 ### Sauvegarde optionnelle
 
-Utilisateur peut :
-- Valider sans sauvegarder (temporaire)
-- Sauvegarder sans valider (brouillon)
-- Sauvegarder puis valider (recommandé)
+**Flexibilité workflow** : Utilisateur peut choisir ordre opérations selon besoins.
 
-### Unicité code
+**Options disponibles** : Valider sans sauvegarder (personnage temporaire mémoire uniquement, risque perte). Sauvegarder sans valider (brouillon modifiable, version intermédiaire persistée). Sauvegarder puis valider (approche recommandée, personnage persisté ET finalisé).
 
-Chaque sauvegarde génère code unique. Même personnage sauvegardé plusieurs fois = codes différents (versions multiples).
+### Unicité codes sauvegarde
+
+**Génération unique** : Chaque opération sauvegarde génère nouveau code unique différent. Même personnage sauvegardé plusieurs fois produit codes multiples distincts.
+
+**Versions multiples** : Permet conserver versions différentes même personnage (brouillon initial, version finalisée, versions progressions ultérieures).
 
 ### Immuabilité post-validation
 
-Une fois stepIndex = -1, impossible modifier via wizard. Modifications futures via feuille personnage.
+**Verrouillage wizard** : Une fois validation effectuée (wizard marqué terminé), impossible rouvrir wizard pour modifications. Protection évite modifications accidentelles structure création.
 
-### Expiration codes (potentielle)
+**Modifications autorisées** : Modifications futures personnage validé uniquement via feuille personnage dédiée. Permet progression normale (XP, équipement, détails) sans risquer cohérence structure.
 
-Codes peuvent avoir durée de vie limitée (ex: 30 jours inactivité). Recommandation : Export JSON local backup permanent.
+### Expiration codes potentielle
+
+**Durée vie limitée** : Codes sauvegarde peuvent avoir durée vie limitée système (exemple : expiration après 30 jours inactivité, nettoyage automatique vieilles sauvegardes).
+
+**Recommandation backup** : Export JSON local recommandé pour backup permanent indépendant système. Assure conservation personnages importants même après expiration codes.
 
 ## Exemples Warhammer
 
-Voir [exemples-personnages-types.md](../exemples-personnages-types.md) pour archétypes complets.
+Voir [exemples-personnages.md](../exemples-personnages.md) pour archétypes complets.
 
 **Focus mécanisme sauvegarde :**
 

@@ -169,8 +169,26 @@ Deux fois plus résistant qu'un humain à Force et Endurance égales
 **Mouvement (M)**: Elfe 5, Halfling 3
 L'elfe parcourt 10km/h en marche, le halfling 6km/h
 
-**Destin**: Humain 2, Gnome 2, autres 0
-Humains et gnomes ont une destinée spéciale
+**Destin** (valeur de base) :
+- Humain : 2
+- Gnome : 2
+- Autres (Halfling, Nain, Elfes, Ogre) : 0
 
-**Extra Points**: Humain 3, Nain 2
-L'humain peut mieux personnaliser Destin/Résilience
+**Résilience** (valeur de base) :
+- Humain : 1
+- Halfling : 2
+- Nain : 2
+- Ogre : 3
+- Autres (Elfes, Gnome) : 0
+
+**Extra Points** (à distribuer entre Destin et Résilience) :
+- Humain : 3
+- Halfling : 3
+- Nain : 2
+- Haut Elfe : 2
+- Elfe Sylvain : 2
+- Gnome : 2
+- Ogre : 1
+
+**Fortune et Détermination** : Valeur initiale = Destin et Résilience respectivement
+Les pools Fortune et Détermination se rechargent entre sessions

@@ -123,8 +123,13 @@ Certaines divinités (Handrich, Solkan, Stromfels) ont descriptions vides car d�
 ## Points d'attention
 
 ### Différence entre bénédictions et miracles
-**Bénédictions** : Sorts mineurs accessibles à tous les prêtres d'un dieu (6 par divinité)
+**Bénédictions** : Sorts mineurs accessibles aux prêtres d'un dieu (6 par divinité)
+- **Acquisition** : Le talent "Béni (Dieu)" donne **TOUTES les bénédictions du dieu gratuitement** (les 6 listées dans le champ blessings)
+- Acquises immédiatement à l'obtention du talent, aucun coût XP
+
 **Miracles** : Sorts puissants spécifiques à certaines divinités, nécessitent rituels ou conditions spéciales
+- **Acquisition** : Le talent "Invocation (Dieu)" donne **accès** aux miracles du dieu
+- Chaque miracle doit être **acheté individuellement avec XP** (comme les sorts arcanes)
 
 ### Divinités sans description complète
 Handrich, Solkan, Stromfels ont desc vide car détails dans livres source (ADE3, SOC). Système doit gérer desc vide sans erreur.

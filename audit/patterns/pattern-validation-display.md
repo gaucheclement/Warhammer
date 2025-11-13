@@ -4,7 +4,7 @@
 
 Pattern partagé entre equipment et magic pour validation règles métier et affichage collections organisées.
 
-Utilisé par: equipment.md, magic-usage.md
+Utilisé par: equipment.md, magic.md
 
 ## Structure type Validation
 

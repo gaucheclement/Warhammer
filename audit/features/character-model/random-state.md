@@ -1,186 +1,91 @@
-# Character Model - Random state
+# Character Model - État Aléatoire
 
 ## Objectif
 
-Documenter la gestion de l'état aléatoire (randomState) permettant la reproductibilité des tirages dans le wizard.
+Gestion état aléatoire pour reproductibilité tirages wizard.
 
 ## Contexte Warhammer
 
-Le wizard en mode guidé effectue des tirages aléatoires:
-- **Espèce**: Tirage aléatoire si option activée
-- **Carrière**: Tirage selon table + espèce
-- **Signe astral**: Tirage 1-100
-- **Caractéristiques**: Rolls +0 à +20
-- **Talents**: "X Talent aléatoire" pour Humains
+Tirages aléatoires wizard :
+- Espèce (si option activée)
+- Carrière (d100 selon table espèce)
+- Signe astral (d100)
+- Caractéristiques (2d10 chacune, bonus +0 à +20)
+- Talents (ex: Humains "3 Talents aléatoires")
 
-Pour permettre de:
-- **Rejouer**: Même seed → même résultat
-- **Annuler**: Revenir en arrière
-- **Débugger**: Reproduire un bug
+## Besoins reproductibilité
 
-Le randomState conserve les seeds et impositions.
+Rejouer personnage identique : Mêmes paramètres → mêmes résultats.
 
-## Structure randomState
+Annulation : Retour arrière sans perdre tirages.
 
-```
-{
-  specie: 0,                    // Seed tirage espèce
-  imposedSpecie: [],            // Espèces imposées/déjà tirées
-  career: 0,                    // Seed tirage carrière
-  imposedCareers: [],           // Carrières imposées
-  star: 0,                      // Seed tirage signe
-  imposedStar: [],              // Signes imposés
-  characteristic: 0,            // Seed tirage caractéristiques
-  imposedCharacteristics: {},   // {id: valeur} imposés
-  imposedTalents: []            // Talents imposés/déjà tirés
-}
-```
+Débogage : Reproduire personnage problématique.
 
-**Seeds**: Nombres utilisés pour initialiser générateur aléatoire
-**Imposed**: Valeurs forcées ou historique des tirages
+## Conservation état
 
-## Fonctionnement général
+### Seeds
 
-### Principe seed
+Nombres entiers initialisant générateur aléatoire.
 
-Un seed (graine) initialise un générateur pseudo-aléatoire déterministe:
-- Même seed → même séquence de nombres
-- Seed différent → séquence différente
+Même seed → même séquence (déterministe).
 
-**Usage**: characteristic = 12345 → roll CC toujours identique
+### Impositions
 
-### Principe imposed
+Valeurs forcées ou historique tirages.
 
-Les tableaux imposed conservent:
-- **Valeurs forcées**: Utilisateur impose une espèce spécifique
-- **Historique**: Talents déjà tirés (éviter doublons)
+Permet forcer valeurs spécifiques ou éviter doublons.
 
-## Détail par propriété
+## Composants
 
-### specie et imposedSpecie
+**Seed espèce** : Tirage espèce aléatoire.
 
-**specie**: Seed pour tirage espèce aléatoire
-**imposedSpecie**: Liste espèces à exclure ou forcer
+**Impositions espèce** : Liste espèces forcées/exclues.
 
-**Usage**:
-- Mode "Espèce aléatoire": Tire selon seed
-- imposedSpecie = ['humain'] → force Humain
-- imposedSpecie = [] → toutes possibles
+**Seed carrière** : Tirage carrière selon table espèce.
 
-**Exemple**:
-```
-specie: 42
-imposedSpecie: []
-→ Seed 42 tire "Nain"
+**Impositions carrières** : Carrières forcées/exclues.
 
-imposedSpecie: ['elfe-sylvain']
-→ Force Elfe Sylvain, ignore seed
-```
+**Seed signe** : Tirage signe (d100).
 
-### career et imposedCareers
+**Impositions signe** : Signe forcé.
 
-**career**: Seed pour tirage carrière
-**imposedCareers**: Carrières imposées/exclues
+**Seed caractéristiques** : Tirage bonus toutes caractéristiques.
 
-**Usage**:
-- Tire carrière selon table + espèce + seed
-- imposedCareers peut forcer une carrière spécifique
+**Impositions caractéristiques** : Valeurs forcées par caractéristique.
 
-**Tables**: Chaque espèce a sa table de carrières (1-100)
-
-### star et imposedStar
-
-**star**: Seed pour tirage signe astral (1-100)
-**imposedStar**: Signe forcé
-
-**Usage**:
-- Tire 1-100 avec seed
-- Trouve signe correspondant
-- imposedStar = ['wymund-le-resolu'] → force ce signe
-
-### characteristic et imposedCharacteristics
-
-**characteristic**: Seed pour rolls caractéristiques
-**imposedCharacteristics**: {id: valeur} forcés
-
-**Usage**:
-- Pour chaque carac: tire +0 à +20 selon seed
-- imposedCharacteristics = {cc: 15} → force CC roll = 15
-
-**Exemple**:
-```
-characteristic: 100
-imposedCharacteristics: {}
-→ Seed 100: CC=+8, CT=+12, F=+5, E=+10...
-
-imposedCharacteristics: {cc: 18, f: 20}
-→ Force CC=+18, F=+20, autres selon seed
-```
-
-### imposedTalents
-
-**Tableau**: Talents forcés ou déjà tirés
-
-**Usage**:
-- Humains: "3 Talents aléatoires"
-- imposedTalents conserve les 3 tirés
-- Évite de tirer 2× le même
-
-**Exemple**:
-```
-1er tirage: Résistant
-imposedTalents: ['resistant']
-
-2e tirage: Pas Résistant (déjà tiré)
-imposedTalents: ['resistant', 'vivacite']
-
-3e tirage: Pas Résistant ni Vivacité
-imposedTalents: ['resistant', 'vivacite', 'tireur-de-precision']
-```
+**Impositions talents** : Talents forcés/déjà tirés (évite doublons).
 
 ## Reproductibilité
 
-### Reproductibilité et modification
+Même état complet → même personnage exact.
 
-Même randomState → même personnage (espèce, carrière, rolls, talents). Permet "figer" tirage chanceux.
+Changer seed spécifique → résultat différent ce composant uniquement.
 
-Changer seed → résultat différent (specie: 42→43 espèce différente, characteristic: 100→101 rolls différents). Permet re-tirer sans recommencer.
+Exemple : Changer seed caractéristiques → nouveaux bonus, espèce/carrière/signe identiques.
 
 ## Sauvegarde et restauration
 
-### save()
+État complet inclus dans sauvegarde personnage.
 
-randomState est inclus tel quel dans la sauvegarde (pas de data à supprimer).
-
-### load()
-
-```
-this.randomState = data.randomState
-```
-
-Restaure l'état complet, permettant:
-- Reprendre wizard exactement où il était
-- Rejouer les mêmes tirages si retour en arrière
-
-## Exemples concrets
-
-**Création Humain**: imposedSpecie=['humain'], star:42→Wymund, career:17→Soldat, characteristic:100→rolls fixes, imposedTalents=[3 tirés]. **Reproduction**: Même randomState → même personnage. **Re-roll carac**: characteristic:100→200 → nouveaux rolls, garde espèce/carrière
+Avantages :
+- Reprendre wizard où arrêté
+- Rejouer mêmes tirages si retour arrière
+- Dupliquer puis modifier seed pour variantes
 
 ## Validation
 
-Contraintes:
-- Seeds >= 0 (nombres entiers)
-- imposedSpecie: tableau d'IDs valides
-- imposedCareers: tableau d'IDs valides
-- imposedCharacteristics: {id: 0-20}
-- imposedTalents: tableau d'IDs valides
+Seeds : Entiers ≥ 0.
 
-Pas de validation stricte (mode debug/test).
+Impositions espèce : IDs valides table Species.
+
+Impositions carrières : IDs valides tables Careers.
+
+Impositions caractéristiques : Valeurs 0-20.
+
+Impositions talents : IDs valides table Talents.
+
+Validation souple (états debug acceptés).
 
 ## Voir aussi
 
-- [pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoire.md) - Système rand 1-100
-- [wizard/species-random.md](../wizard/species-random.md) - Tirage espèce
-- [wizard/career-random.md](../wizard/career-random.md) - Tirage carrière
-- [wizard/characteristics-roll.md](../wizard/characteristics-roll.md) - Tirage carac
-- [wizard/talents-random.md](../wizard/talents-random.md) - Talents aléatoires
+- [../../patterns/pattern-generation-aleatoire.md](../../patterns/pattern-generation-aleatoire.md)

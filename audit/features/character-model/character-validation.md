@@ -2,73 +2,72 @@
 
 ## Objectif
 
-Documenter les règles de validation de cohérence du personnage: pré-requis, limites, contraintes métier Warhammer.
+Règles validation cohérence personnage : pré-requis, limites, contraintes Warhammer.
 
-## Méthode validate()
+## Processus
 
-Vérifie cohérence globale. Retourne {valid: boolean, errors: [...], warnings: [...]}. Utilisé avant finalisation wizard, avant sauvegarde, à la demande.
+Vérification cohérence globale : valide (oui/non) + liste problèmes + actions correctives.
+
+Déclenchement : Avant finalisation wizard, avant sauvegarde, à la demande.
 
 ## Validations structurelles
 
-**Mode et stepIndex**: mode ∈ ['guidé','libre'], stepIndex: null (non démarré), 0-N (en cours), -1 (terminé). Si mode='guidé' ET stepIndex=-1: wizard terminé
+**Mode** : "guidé" ou "libre".
 
-**Espèce (specie)**: Obligatoire si stepIndex>0, specie.id existe dans allSpecies, getSpecie() retourne objet valide
+**Espèce** : Obligatoire dès étape 1.
 
-**Carrière (careerLevel)**: Obligatoire si stepIndex>2, format 'career-slug|level', level ∈ [1,2,3,4], existe dans allCareersLevels
+**Carrière** : Obligatoire dès étape carrière. Format : carrière + niveau (1-4).
 
-**Caractéristiques**: Exactement 15 éléments (10 principales + 5 dérivées), Chaque id unique et valide, total >= 0 pour toutes, Origins valides (ids existants). IDs requis: cc, ct, f, e, i, ag, dex, int, fm, soc, m, pb, chance, determination, corruption
+**Caractéristiques** : Exactement 15 (10 principales + 5 dérivées). IDs requis : CC, CT, F, E, I, Ag, Dex, Int, FM, Soc, Mvt, PB, Chance, Détermination, Corruption. Valeur totale ≥ 0. Origines valides.
 
 ## Validations métier
 
-**Compétences (skills)**: Si specs défini (Au choix) → spec doit être choisi, advance >= 0, origins non vide, Si origin='talent' → talent correspondant actif (total>0), Pas doublons (même id+spec). Exemple erreur: Langue (Au choix) avec spec='' → invalide, choisir langue
+**Compétences** : Spécialisation obligatoire si "Au choix". Avances ≥ 0. Au moins une origine. Si origine talent, talent actif (rang > 0). Pas doublons ID+spec.
 
-**Talents (talents)**: Si specs défini → spec choisi, advance >= 0, advance <= maximum (si max défini), Si origin='talent' → talent parent actif, Pas doublons (même id+spec sauf rangs multiples). Exemples erreurs: Résistant rang5 mais maximum=4 (BE=4) → invalide, Béni (Au choix) sans spec → invalide choisir dieu
+**Talents** : Spécialisation obligatoire si "Au choix". Avances ≥ 0. Rang ≤ maximum. Si origine talent, talent parent actif. Pas doublons ID+spec (sauf rangs multiples).
 
-**Sorts (spells)**: Chaque sort correspond talent magie actif, sorttype matche talentaddMagic, Si Magie Arcanes: sort.spec matche talent.spec, Pas doublons (même id+spec). Exemple erreur: Sort "Boule de feu" (Feu) mais pas talent Magie Arcanes (Feu) → invalide
+**Sorts** : Correspondance talent magie actif. Type sort matche type talent. Pour Magie Arcanes : domaine matche. Pas doublons.
 
-**Expérience (xp)**: xp.max >= 0, xp.used >= 0, xp.XP temporaire >= 0, xp.used + xp.XP temporaire <= xp.max (pas XP négatif), log cohérent: sum(log positifs)=xp.max, sum(log négatifs)=xp.used. Exemple erreur: used=150, max=100 → invalide XP négatif
+**XP** : XP Max ≥ 0, XP Utilisée ≥ 0, XP Temporaire ≥ 0. XP Utilisée + XP Temporaire ≤ XP Max. Historique cohérent.
 
 ## Validations dérivées
 
-**Points de Blessures**: PB.total >= 1 (minimum absolu), Formule cohérente avec espèce
+**PB** : Minimum 1. Formule cohérente avec espèce. Modificateurs talents corrects.
 
-**Encombrement**: total >= 0, qty >= 0 pour chaque trapping, enc >= 0 pour chaque trapping. Avertissement: Si total > limite → personnage encombré (malus)
+**Encombrement** : Total ≥ 0, quantités ≥ 0. Avertissement si > limite (BF + BE).
 
-**Mouvement**: M >= 0, Cohérent avec espèce + talents
+**Mouvement** : ≥ 0. Cohérent espèce + talents.
 
-## Validations wizard
+## Validation wizard
 
-Étapes wizard: 0=espèce, 1=signe, 2=carrière, 3=carac, 4=talents, 5=skills, 6=sorts, 7=équip, 8=détails, 9=XP, 10=résumé. Chaque étape valide avant passage suivante.
+Étapes : 0=espèce, 1=signe, 2=carrière, 3=carac, 4=talents, 5=skills, 6=sorts, 7=équip, 8=détails, 9=XP, 10=résumé.
 
-## Règles Warhammer spécifiques
+Chaque étape valide avant passage suivante.
 
-**Pré-requis talents**: Combat Instinctif (I>=30), Maîtrise (skill>=30), Magie Arcanes (talent Magicien)
-**Limites**: Rangs talents <= maximum, caractéristiques dans limites raciales
-**Cohérence**: Skills/talents carrière avec origins valides
+## Règles Warhammer
+
+**Pré-requis talents** : Combat Instinctif (I≥30), Maîtrise (skill≥30), Magie Arcanes (talent Magicien).
+
+**Limites rangs** : Rang ≤ maximum (fixe, formule, ou illimité).
+
+**Limites raciales** : Caractéristiques cohérentes espèce.
+
+**Cohérence carrière** : Skills/talents origines valides.
 
 ## Gestion erreurs
 
-**Erreurs bloquantes** (empêchent finalisation): Propriété obligatoire manquante, XP négatif, Doublons invalides, Pré-requis non satisfaits
+**Erreurs bloquantes** : Propriété manquante, XP négatif, doublons invalides, pré-requis non satisfaits, spécialisations manquantes.
 
-**Avertissements** (signalent anomalie mais permettent continuation): Encombrement excessif, XP non dépensé, Compétence jamais améliorée
+**Avertissements** : Encombrement excessif, XP non dépensé, compétence jamais améliorée, déséquilibre caractéristiques.
 
-## Exemples validations
+## Moments validation
 
-**Valide**: mode='guidé', stepIndex=-1, 15 carac, specs choisis, Résistant rang2<=max, xp valide → valid:true
+Changement étape wizard, finalisation wizard, validation avances XP, sauvegarde, à la demande.
 
-**Invalide**: Langue spec='', Béni spec='', xp used>max → errors
-
-**Avertissement**: Enc>limite → warnings
-
-## Validation continue
-
-**Moments**: Changement étape wizard (partielle), Finalisation wizard (complète), saveAdvance() (XP), save() (globale), À la demande utilisateur
-
-**Feedback**: Messages indiquant Propriété en erreur, Règle violée, Action corrective suggérée
+Feedback : Propriété erreur + règle violée + action corrective.
 
 ## Voir aussi
 
-- [character-structure.md](./character-structure.md) - Structure complète
-- [character-calculations.md](./character-calculations.md) - Calculs à valider
-- [character-getters.md](./character-getters.md) - Recherche pour validation
-- [database/characteristics.md](../database/characteristics.md) - Limites caractéristiques
+- [character-structure.md](./character-structure.md)
+- [character-calculations.md](./character-calculations.md)
+- [character-getters.md](./character-getters.md)

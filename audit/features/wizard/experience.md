@@ -20,9 +20,9 @@ L'étape Progression permet de dépenser des Points d'Expérience (XP) pour amé
 
 ### Affichage
 
-**Format:** `[X] Points d'Expérience à dépenser` où X = xp.max - xp.XP temporaire.
+**Format** : "[X] Points d'Expérience à dépenser" où X représente XP disponible restant (XP Maximale moins XP Temporaire dépensée).
 
-**Rafraîchissement:** Instantané après chaque +/-.
+**Rafraîchissement** : Mise à jour instantanée après chaque augmentation ou diminution avances.
 
 ## Coûts XP
 
@@ -84,54 +84,54 @@ L'étape Progression permet de dépenser des Points d'Expérience (XP) pour amé
 
 ### Suivi temporaire
 
-**avances temporaires:** Avances temporaires par élément (non persisté).
+**Avances temporaires** : Chaque élément (caractéristique, compétence, talent) stocke avances temporaires en cours test. Non persistées tant que non validées.
 
-**Comportement:**
-- "+": avances temporaires++, XP dépensé mis à jour
-- "-": avances temporaires--, remboursement intégral
-- "Annuler": avances temporaires = 0, XP restant = XP max
-- "Valider": avances temporaires → permanent
+**Comportement boutons** :
+- Bouton "+" : Augmentation avances temporaires élément, XP dépensé mis à jour instantanément
+- Bouton "-" : Diminution avances temporaires élément, remboursement intégral XP correspondant
+- Bouton "Annuler" : Reset toutes avances temporaires à zéro, récupération totale XP temporaire (retour XP disponible égale XP maximale)
+- Bouton "Valider" : Transfert avances temporaires vers avances permanentes, XP temporaire devient XP utilisée définitivement
 
 ### Calcul temps réel
 
-**Algorithme refreshXP():**
-1. oldValue = getAdvance() - avances temporaires
-2. newValue = getAdvance()
-3. cost = getXPCost(elem, oldValue, newValue)
-4. multiplicateur = hors carrière ? 2 : 1
-5. used += cost × multiplicateur
+**Processus recalcul XP** :
+1. Calcul valeur ancienne avances (avances permanentes actuelles avant modification temporaire)
+2. Calcul valeur nouvelle avances (avances permanentes + avances temporaires actuelles)
+3. Calcul coût XP progression valeur ancienne vers valeur nouvelle selon tables coûts
+4. Application multiplicateur : Si élément hors carrière, coût multiplié par 2. Si élément carrière, coût normal (×1)
+5. Ajout coût ajusté au total XP temporaire dépensé
 
-**Stockage:** xp.XP temporaire = total.
+**Conservation état** : XP Temporaire contient total dépenses provisoires en cours test (non définitives).
 
 ## Validation budget
 
-### Création
+### Mode Création
 
-**XP < 0:** Budget dépassé (bloquant). Bouton Valider disabled. Bouton + disabled si used + cost > xp.max.
+**Budget strict bloquant** : Si XP disponible devient négatif (dépenses dépassent maximum), validation bloquée. Bouton "Valider" désactivé tant que budget négatif. Bouton "+" désactivé si achat prochain élément dépasserait budget (XP utilisé + coût prochain dépasse XP maximale).
 
-### Post-création
+### Mode Post-création
 
-**Budget indicatif.** Validation toujours possible. XP négatif affiché mais non bloquant.
+**Budget indicatif non bloquant** : Validation toujours possible même si XP négatif. XP négatif affiché mais personnage validable (gestion dette XP responsabilité Maître Jeu).
 
-### Feedback
+### Feedback utilisateur
 
-**Blocages silencieux:** Boutons grisés, pas messages texte. Ex: Budget 50 XP, dépensé 75 → Affichage "-25 Points d'Expérience à dépenser".
+**Blocages visuels silencieux** : Boutons grisés/désactivés visuellement. Pas messages erreur textuels explicites. Exemple : Budget 50 XP, dépensé 75 XP → Affichage "-25 Points d'Expérience à dépenser" (valeur négative indique dépassement).
 
 ## Affichage
 
-### Structure
+### Structure interface
 
-**En-tête:** [Budget] Points d'Expérience à dépenser.
+**En-tête** : "[Budget] Points d'Expérience à dépenser" avec budget mis à jour temps réel.
 
-**Sections:** 1. Caractéristiques, 2. Talents, 3. Compétences.
+**Sections** : 1. Caractéristiques (10 principales), 2. Talents (tous disponibles), 3. Compétences (toutes acquises).
 
-**Colonnes:** Nom | Base | Aug | Coût | Total.
+**Colonnes tableau** : Nom élément | Base (valeur base espèce/carrière/caractéristique liée) | Aug (augmentation temporaire) | Coût (coût prochain achat) | Total (valeur finale incluant augmentations).
 
-**Boutons:** - (remb.) | + (dépense) | Valider | Annuler.
+**Boutons actions** : Bouton "-" (remboursement, diminuer avances temporaires) | Bouton "+" (dépense, augmenter avances temporaires) | Bouton "Valider" (finaliser dépenses) | Bouton "Annuler" (reset tout).
 
-**Organisation:** Panneau gauche (en carrière), Panneau droit (hors carrière ×2, post-création uniquement).
+**Organisation panneaux** : Panneau gauche : Éléments carrière (coût normal ×1). Panneau droit : Éléments hors carrière (coût double ×2, affiché uniquement mode post-création).
 
-**Colonne Aug:** avances temporaires. **Colonne Coût:** Prochain achat (jaune), temps réel.
+**Colonne Aug** : Affiche nombre avances temporaires ajoutées cet élément. **Colonne Coût** : Affiche coût prochain achat (surligné jaune), calcul temps réel selon progression.
 
 ## Exemples
 
